@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>top 공통</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+    }
+
+    .top-Wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f8f9fa;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 10px 20px;
+    }
+
+    .title {
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .logout {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      position: relative;
+    }
+
+    .menu-item {
+      position: relative;
+    }
+
+    .menu-item > .label {
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    .submenu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background-color: #f8f9fa;
+      display: none;
+      min-width: 140px;
+      z-index: 100;
+      border-radius: 3px;
+    }
+
+    .submenu span {
+      display: block;
+      padding: 10px;
+      white-space: nowrap;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .submenu span:hover {
+      background-color: #eee;
+    }
+
+    /* hover 시 */
+    .menu-item:hover .submenu {
+      display: block;
+    }
+
+    /* 클릭으로 active 클래스가 있으면 고정 표시 */
+    .menu-item.active .submenu {
+      display: block;
+    }
+
+    
+
+        .flx {
+            display: flex;
+        }
+
+        .al-c {
+            align-items: center;
+        }
+
+        .spbt {
+            justify-content: space-between;
+        }
+
+        .flx-col {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .site-Wrapper {
+            width: 100%;
+            align-items: center;
+        }
+
+        .site-Wrapper form {
+            max-width: 1200px;
+            height: 300px;
+            padding: 0 20px;
+        }
+
+
+        .site-Wrapper .site-Dataset {
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            /* padding: 0px 20px; */
+            border: 1px solid #777;
+        }
+
+        .site-Wrapper .site-Dataset div:nth-child(1) {
+            background: #46a6ff;
+            width: 100%;
+            color: #fff;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.3rem;
+        }
+
+        .site-Wrapper .site-Dataset div:nth-child(1)>h4 {
+            padding: 0px 20px;
+        }
+
+        .site-Wrapper .site-Dataset div:nth-child(2) {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+        }
+
+        .site-Wrapper .site-Dataset div>ul {
+            height: 100%;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            list-style: none;
+            gap: 20px;
+            white-space: nowrap;
+        }
+
+        .site-Wrapper .site-Dataset ul>li>span {
+            padding-right: 10px;
+        }
+
+        .site-Wrapper .site-Dataset ul li>input {
+            width: 100%;
+            height: 100%;
+            border-radius: 3px;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+        }
+
+        .site-Wrapper .site-Dataset ul li>input:focus {
+            border: 1px solid #46a6ff;
+            outline: none;
+        }
+
+        .site-Wrapper .site-Dataset ul .addr {
+            grid-column: span 2;
+        }
+
+        .save_site {
+            width: 30%;
+            background: #fff;
+            border: 1px solid #46a6ff;
+            border-radius: 3px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            align-self: end;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+
+        .save_site:hover {
+            background: #46a6ff;
+            color: #fff;
+        }
+
+        .save_site:active {
+            background: #46a6ff;
+            color: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top-Wrapper">
+      <div class="top-bar">
+        <div class="title" onclick="location.href='/main'">스마트 제조 시스템</div>
+        <div class="text-sm">
+          홍길동 님 | <button class="logout">로그아웃</button><!--로그인 안되어있으면 login버튼만 출력-->
+        </div>
+      </div>
+
+      <!--아래의 모든 기능은 로그인 하지 않으면 로그인 페이지로 Redirect 시켜주세요~-->
+      <nav>
+        <div class="menu-item" onclick="toggleMenu(event, this)">
+          <div class="label">기준 정보 관리</div>
+          <div class="submenu">
+            <span onclick="location.h">사업장 관리</span>
+            <span onclick="location.h">거래처 관리</span>
+            <span onclick="location.h">품목 관리(BOM)</span>
+            <span onclick="location.h">공정 관리</span>
+            <span onclick="location.h">창고 관리</span>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(event, this)">
+          <div class="label">구매 / 영업 관리</div>
+          <div class="submenu">
+            <span onclick="location.h">발주 관리</span>
+            <span onclick="location.h">주문 관리</span>
+            <span onclick="location.h">출고 관리</span>
+            <span onclick="location.h">반품 관리</span>
+            <span onclick="location.h">자재 소요량 계산(MRP)</span>
+          </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(event, this)">
+          <div class="label">자재 관리</div>
+          <div class="submenu">
+            <span onclick="location.h">입고 관리</span>
+            <span onclick="location.h">재고 관리</span>
+        </div>
+        </div>
+
+        <div class="menu-item" onclick="toggleMenu(event, this)">
+          <div class="label">생산 관리</div>
+          <div class="submenu">
+            <span onclick="location.h">생산 계획</span>
+            <span onclick="location.h">생산 지시</span>
+            <span onclick="location.h">생산 실적 관리</span>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+    <div class="site-Wrapper flx-col">
+      <h1>사업장 관리</h1>
+      <form id="frm" method="get" action="#">
+          <div class="site-Dataset">
+              <div>
+                  <h4>사업장 정보</h3>
+
+              </div>
+              <div>
+
+                  <ul>
+                      <li class="flx al-c"><span>사업장 명</span><input type="text" required
+                              oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')"
+                              oninput="this.setCustomValidity('')"></li>
+                      <li class="flx al-c"><span>대표자 명</span><input type="text" required
+                              oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')"
+                              oninput="this.setCustomValidity('')"></li>
+                      <li class="flx al-c"><span>사업자 번호</span><input type="text" required
+                              oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')"
+                              oninput="this.setCustomValidity('')"></li>
+                      <li class="flx al-c"><span>종목</span><input type="text" required
+                              oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')">
+                      </li>
+                      <li class="flx al-c"><span>업태</span><input type="text" required
+                              oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')">
+                      </li>
+                      <li class="flx al-c"><span>전화번호</span><input type="text" required
+                              oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')">
+                      </li>
+                      <li class="flx al-c"><span>팩스</span><input type="text" required
+                              oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')">
+                      </li>
+                      <li class="flx al-c addr"><span>주소</span><input type="text" class="addrinput" required
+                              oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')">
+                      </li>
+                  </ul>
+                  <!--이미지 안쓸거같은데..-->
+                  <!--
+                      <div>
+                          <input type="file" accept="image/*">
+                      </div>
+                      -->
+              </div>
+              <input type="submit" value="저장" class="save_site"></button>
+          </div>
+      </form>
+  </div>
+
+  <script>
+    function toggleMenu(event, el) {
+      event.stopPropagation();//버블링 방지
+
+      // 이미 active면 해제
+      if (el.classList.contains('active')) {
+        el.classList.remove('active');
+        return;
+      }
+
+      // 다른 메뉴 닫기
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+
+      // 현재 메뉴만 활성화
+      el.classList.add('active');
+    }
+
+    // 바깥 누르면 모두 닫기
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>

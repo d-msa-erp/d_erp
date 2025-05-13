@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>사업장 정보</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .site-Wrapper {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .site-Dataset {
+      width: 100%;
+      border: 1px solid #777;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-Dataset .header {
+      background: #46a6ff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 20px;
+    }
+
+    .site-Dataset .form-content {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .form-item {
+      display: flex;
+      align-items: center;
+      width: calc(33.333% - 13.33px);
+    }
+
+    .form-item.addr {
+      width: calc(66.666% - 10px);
+    }
+
+    .form-item span {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    .form-item input {
+      width: 100%;
+      height: 100%;
+      border-radius: 3px;
+      padding: 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+    }
+
+    .form-item input:focus {
+      border: 1px solid #46a6ff;
+      outline: none;
+    }
+
+    .save_site {
+      width: 30%;
+      background: #fff;
+      border: 1px solid #46a6ff;
+      border-radius: 3px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      align-self: end;
+      box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+      margin: 0 20px 20px 0;
+    }
+
+    .save_site:hover {
+      background: #46a6ff;
+      color: #fff;
+    }
+
+    .save_site:active {
+      background: #46a6ff;
+      color: #fff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="site-Wrapper flx-col">
+    <h1 style="font-size: 24px; margin-bottom: 16px;">사업장 관리</h1>
+    <form id="frm" method="get" action="#">
+      <div class="site-Dataset">
+        <div class="header">
+          <h4 style="margin: 0;">사업장 정보</h4>
+        </div>
+        <div class="form-content">
+          <div class="form-item"><span>사업장 명</span><input type="text" required oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>대표자 명</span><input type="text" required oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>사업자 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>종목</span><input type="text" required oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>업태</span><input type="text" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>전화번호</span><input type="text" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>팩스</span><input type="text" required oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item addr"><span>주소</span><input type="text" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+        </div>
+        <input type="submit" value="저장" class="save_site" />
+      </div>
+    </form>
+  </div>
+</body>
+</html>

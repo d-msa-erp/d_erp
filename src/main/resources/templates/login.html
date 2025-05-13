@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 페이지</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .login-Background {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .login-Wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            height: 25%;
+            width: 40%;
+            max-width: 400px;
+            min-width: 320px;
+            max-height: 400px;
+            min-height: 320px;
+            margin-top: 10%;
+        }
+
+        .login-Wrapper form {
+            display: flex;
+            flex-direction: column;
+            padding-top: 20px;
+            height: 100%;
+            width: 100%;
+            justify-content: space-around;
+
+        }
+
+        .login-Wrapper form .login-Datas {
+            display: flex;
+            flex-direction: column;
+            height: 40%;
+            width: 100%;
+        }
+
+        .login-Wrapper form .login-Datas input {
+            border-radius: 3px;
+            height: 40%;
+            padding: 5px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+        }
+
+        .login-Wrapper form .login-Datas label {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .login-Wrapper form .login-Datas label input {
+            border-radius: 3px;
+            height: 100%;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .login-Wrapper form button {
+            background: #888;
+            color: #fff;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            height: 15%;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-Background">
+
+        <div class="login-Wrapper">
+            <h1>Sign up</h1>
+            <form action="/login" method="POST">
+                <div class="login-Datas">
+                    <input type="text" id="username" name="username" placeholder="아이디" required>
+                    <input type="password" id="password" name="password" placeholder="패스워드" required>
+                    <label> <input type="checkbox" id="remember">아이디 저장</label>
+                </div>
+
+                <button type="submit">로그인</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

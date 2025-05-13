@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>거래처 관리</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .site-Wrapper {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .site-Dataset {
+      width: 100%;
+      border: 1px solid #777;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-Dataset .header {
+      background: #46a6ff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 20px;
+    }
+
+    .site-Dataset .form-content {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .form-item {
+      display: flex;
+      align-items: center;
+      width: calc(33.333% - 13.33px);
+    }
+
+    .form-item.addr {
+      width: calc(66.666% - 10px);
+    }
+
+    .form-item span {
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    .form-item input {
+      width: 100%;
+      height: 100%;
+      border-radius: 3px;
+      padding: 5px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+    }
+
+    .form-item input:focus {
+      border: 1px solid #46a6ff;
+      outline: none;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .table-wrapper>div:nth-child(1) {
+      padding: 20px 20px 0 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 20px;
+    }
+
+    .table-wrapper>div:nth-child(1)>input[type="text"] {
+      width: 30%;
+      padding: 5px;
+    }
+
+    .table-wrapper>div:nth-child(1)>div {
+      width: 30%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .table-wrapper>div:nth-child(1)>div input[type="button"] {
+      width: 30%;
+      background: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+      background: #007bff;
+      color: white;
+    }
+
+    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
+      background: #28a745;
+      color: white;
+    }
+
+    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+      background: #dc3545;
+      color: white;
+    }
+
+    .table-wrapper>div:nth-child(2) {
+      padding: 20px 20px 0 20px;
+      display: flex;
+    }
+
+    .table-wrapper>div:nth-child(2)>span {
+      width: 30%;
+      padding-right: 10px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .table-wrapper>div:nth-child(2)>span.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .table-wrapper>div:nth-child(3) {
+      position: relative;
+    }
+
+    .nodata {
+      text-align: center;
+    }
+
+    .print-wrap {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0 20px;
+      display: flex;
+      gap: 10px;
+      width: 200px;
+    }
+
+    .print-wrap>input[type="button"] {
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    table.grid-table {
+      width: 100%;
+      border-collapse: collapse;
+      display: grid;
+      grid-template-columns: 1fr 2fr 2fr 3fr 1fr;
+    }
+
+    thead,
+    tbody,
+    tr {
+      display: contents;
+
+    }
+
+    tbody>tr:nth-child(even) td {
+      background: #f9f9f9;
+    }
+
+    tbody>tr:hover td {
+      background: #46a6ff;
+      cursor: pointer;
+    }
+
+    tr th:nth-child(1),
+    tr td:nth-child(1),
+    tr th:nth-last-child(1),
+    tr td:nth-last-child(1) {
+      justify-content: center;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+    }
+
+    thead th {
+      background: #f0f0f0;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    table input[type="text"] {
+      width: 100%;
+      padding: 5px;
+    }
+
+    .pagination-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding-top: 20px;
+    }
+
+    .pagination-wrap>div {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .pagination-wrap>div input[type="text"] {
+      width: 50px;
+      text-align: center;
+    }
+
+    .pagination-wrap>div input[type="button"] {
+      width: 20px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .table-wrapper input[type="button"]:hover {
+      filter: brightness(0.9);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      position: relative;
+    }
+
+    .modal-content .modalForm {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      justify-items: center;
+      align-items: center;
+    }
+
+    .modal-content .modalForm>div,
+    .modal-content .modalForm>label {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-content .modalForm>div>span,
+    .modal-content .modalForm>label>span {
+      white-space: nowrap;
+      padding-right: 10px;
+    }
+
+    .modal-content input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content input[type="color"] {
+      width: 100%;
+      height: 40px;
+      border: none;
+      margin-top: 10px;
+    }
+
+    .modal-content .modal-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      width: 100%;
+      grid-column-start: 3;
+    }
+
+    .modal-content .modal-buttons>input:hover {
+      filter: brightness(0.9);
+    }
+
+    .modal-content .modal-buttons>input {
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .modal-content .modal-buttons>:nth-child(2)[type="button"] {
+      background: #777;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="site-Wrapper flx-col">
+    <h1 style="font-size: 24px; margin-bottom: 16px;">거래처 관리</h1>
+    <form id="frm" method="get" action="#">
+      <div class="site-Dataset">
+        <div class="header">
+          <h4 style="margin: 0;">거래처 관리</h4>
+        </div>
+        <div class="table-wrapper">
+          <div>
+            <input type="text" placeholder="검색" />
+            <div>
+              <input type="button" value="검색" />
+              <input type="button" value="신규등록" onclick="openModal()" />
+              <input type="button" value="삭제" />
+            </div>
+          </div>
+          <div>
+            <span class="active" onclick="switchTab(this, 'customer')">고객사</span>
+            <span onclick="switchTab(this, 'vendor')">매입처</span>
+          </div>
+          <div id="table-customer" style="padding: 20px; position: relative;">
+            <div class="print-wrap">
+              <input type="button" value="엑셀"></input>
+              <input type="button" value="인쇄"></input>
+            </div>
+            <p class="nodata">고객사 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
+            <table class="grid-table">
+
+              <thead>
+
+                <tr>
+                  <th><input type="checkbox" /></th>
+                  <th onclick="order(this)">대표자명<a>↓</a></th>
+                  <th onclick="order(this)">연락처<a>↓</a></th>
+                  <th onclick="order(this)">이메일<a>↓</a></th>
+                  <th>대표색</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!--몇개씩 자를지는 상의해봐요 ~ -->
+                <tr onclick="opendatail(this)">
+                  <td><input type="checkbox" /></td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td><input type="color" /></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td><input type="color" /></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pagination-wrap">
+              총 n건 1/n페이지
+              <div class="paigination">
+                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
+                <input type="text" value="1" />
+                <input type="button" value="▶" />
+              </div>
+            </div>
+          </div>
+          <div id="table-vendor" style="display: none; padding: 20px; position: relative;">
+            <div class="print-wrap">
+              <input type="button" value="엑셀"></input>
+              <input type="button" value="인쇄"></input>
+            </div>
+            <p class="nodata">매입처 데이터가 없습니다.</p>
+            <table class="grid-table">
+
+              <thead>
+
+                <tr>
+                  <th><input type="checkbox" /></th>
+                  <th onclick="order(this)">대표자명<a>↓</a></th>
+                  <th onclick="order(this)">연락처<a>↓</a></th>
+                  <th onclick="order(this)">이메일<a>↓</a></th>
+                  <th>대표색</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!--몇개씩 자를지는 상의해봐요 ~ -->
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td><input type="color" /></td>
+                </tr>
+                <tr>
+                  <td><input type="checkbox" /></td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td>test</td>
+                  <td><input type="color" /></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pagination-wrap">
+              총 n건 1/n페이지
+              <div class="paigination">
+                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
+                <input type="text" value="1" />
+                <input type="button" value="▶" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!--신규 등록 Modal-->
+  <div class="modal" id="modal" onclick="outsideClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3 id="modalTitle">신규 등록</h3>
+      <form id="modalForm" class="modalForm">
+        <div>
+          <span>회사명</span><input type="text" placeholder="회사명을 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>대표자명</span><input type="text" placeholder="대표자명 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>사업자번호</span><input type="text" placeholder="사업자번호 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>연락처</span><input type="text" placeholder="연락처를 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>이메일</span><input type="text" placeholder="이메일 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>Fax</span><input type="text" placeholder="Fax를 입력해주세요" required />
+        </div>
+        <div style="grid-column: span 2;">
+
+          <span>주소</span><input type="text" placeholder="주소를 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>업태</span><input type="text" placeholder="업태를 입력해주세요" required />
+        </div>
+        <div>
+
+          <span>종목</span><input type="text" placeholder="종목을 입력해주세요" required />
+        </div>
+        <label><span>대표 색</span><input type="color" /></label>
+        <label><span>외주 여부</span><input type="checkbox" /></label>
+        <div class="modal-buttons">
+          <input type="submit" value="등록" />
+          <input type="button" value="취소" onclick="closeModal()" />
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <script>
+    let currentTh = null;
+    let currentOrder = 'desc';
+
+    function order(thValue) {//정렬
+      const allArrows = document.querySelectorAll("th a");
+      allArrows.forEach(a => a.textContent = '↓');
+
+      if (currentTh === thValue) {
+        currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+      } else {
+        currentOrder = 'asc';
+        currentTh = thValue;
+      }
+
+      const arrow = thValue.querySelector('a');
+      arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+    }
+
+    function switchTab(el, type) {//탭 변경
+      document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
+        span.classList.remove('active');
+      });
+      el.classList.add('active');
+
+      document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
+      document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
+    }
+
+
+    let currentTab = 'customer';
+
+    //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
+    function openModal() {
+      const title = document.getElementById('modalTitle');
+      title.textContent = currentTab === 'customer' ? '신규 고객사 등록' : '신규 매입처 등록';
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    function outsideClick(e) {
+      if (e.target.id === 'modal') {
+        closeModal();
+      }
+    }
+
+
+    function switchTab(el, type) {
+      currentTab = type;
+      document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
+        span.classList.remove('active');
+      });
+      el.classList.add('active');
+
+      document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
+      document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
+    }
+
+    function submitModal(event) {
+      event.preventDefault();
+      const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+      console.log(currentTab + ' 등록됨:', siteName);
+      closeModal();
+    }
+    //테이블 클릭 시 출력되는 모달
+    function opendatail() {
+      openModal();
+      document.getElementById('modalTitle').textContent = currentTab === 'customer' ? '고객사 정보' : '매입처 정보';
+    }
+  </script>
+</body>
+
+</html>
