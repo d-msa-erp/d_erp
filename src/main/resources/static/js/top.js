@@ -1,3 +1,4 @@
+console.log('top.js로드 확인');
 function toggleMenu(event, el) {
       event.stopPropagation();//버블링 방지
 

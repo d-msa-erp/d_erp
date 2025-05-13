@@ -5,6 +5,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>발주 관리</title>
+    <style th:replace="~{/top.html :: topstyle}"></style>
+    
     <style>
         * {
             margin: 0;
@@ -14,14 +16,16 @@
 
         body {
             font-family: sans-serif;
-            padding: 20px;
             display: flex;
             justify-content: center;
+            flex-direction: column;
         }
 
         .site-Wrapper {
-            width: 100%;
-            max-width: 1200px;
+                width: 100%;
+    align-self: center;
+    max-width: 1200px;
+    padding: 20px
         }
 
         .site-Dataset {
@@ -364,6 +368,8 @@
 </head>
 
 <body>
+<div th:replace="~{/top.html :: top}"></div>
+
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
@@ -431,8 +437,6 @@
 
                 </div>
             </div>
-    </div>
-    </div>
     </form>
     </div>
 
@@ -481,13 +485,13 @@
                     <input type="submit" value="수정" name="edit"/>
                     <input type="button" value="취소" onclick="closeModal()" />
                 </div>
+        </form>
         </div>
 
-        </form>
-    </div>
     </div>
 
 
+<script src="/js/top.js"></script>
     <script>
         let currentTh = null;
         let currentOrder = 'desc';

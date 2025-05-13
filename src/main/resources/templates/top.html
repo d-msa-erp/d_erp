@@ -220,6 +220,7 @@
             display: flex;
             flex-direction: column;
         }
+
   </style>
 </head>
 <body>
@@ -237,30 +238,30 @@
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">기준 정보 관리</div>
           <div class="submenu">
-            <span onclick="location.h">사업장 관리</span>
-            <span onclick="location.h">거래처 관리</span>
-            <span onclick="location.h">품목 관리(BOM)</span>
-            <span onclick="location.h">공정 관리</span>
-            <span onclick="location.h">창고 관리</span>
+            <span onclick="location.href='/'">사업장 관리</span>
+            <span onclick="location.href='/customer'">거래처 관리</span>
+            <span onclick="location.href='/bom'">품목 관리(BOM)</span>
+            <span onclick="location.href='#'">공정 관리</span>
+            <span onclick="location.href='#'">창고 관리</span>
           </div>
         </div>
 
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">구매 / 영업 관리</div>
           <div class="submenu">
-            <span onclick="location.h">발주 관리</span>
-            <span onclick="location.h">주문 관리</span>
-            <span onclick="location.h">출고 관리</span>
-            <span onclick="location.h">반품 관리</span>
-            <span onclick="location.h">자재 소요량 계산(MRP)</span>
+            <span onclick="location.href='/purchase'">발주 관리</span>
+            <span onclick="location.href='/sales'">주문 관리</span>
+            <span onclick="location.href='/shipping'">입·출고 관리</span>
+            <span onclick="location.href='#'">반품 관리</span>
+            <span onclick="location.href='#'">자재 소요량 계산(MRP)</span>
           </div>
         </div>
 
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">자재 관리</div>
           <div class="submenu">
-            <span onclick="location.h">입고 관리</span>
-            <span onclick="location.h">재고 관리</span>
+            <span onclick="location.href='#'">입고 관리</span>
+            <span onclick="location.href='#'">재고 관리</span>
         </div>
         </div>
 
@@ -274,33 +275,6 @@
         </div>
       </nav>
     </div>
-    <script>
-    function toggleMenu(event, el) {
-      event.stopPropagation();//버블링 방지
-
-      // 이미 active면 해제
-      if (el.classList.contains('active')) {
-        el.classList.remove('active');
-        return;
-      }
-
-      // 다른 메뉴 닫기
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-
-      // 현재 메뉴만 활성화
-      el.classList.add('active');
-    }
-
-    // 바깥 누르면 모두 닫기
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.menu-item').forEach(item => {
-        item.classList.remove('active');
-      });
-    });
-  </script>
-  
   </header>
 
 
