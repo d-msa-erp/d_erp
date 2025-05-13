@@ -1,6 +1,5 @@
-package daos;
+package kr.co.d_erp.daos;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service

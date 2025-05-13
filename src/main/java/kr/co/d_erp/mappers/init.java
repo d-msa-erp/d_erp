@@ -1,4 +1,4 @@
-package mappers;
+package kr.co.d_erp.mappers;
 
 import org.apache.ibatis.annotations.Mapper;
 
