@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>품목 관리(BOM)</title>
+    <style th:replace="~{/top.html :: topstyle}"></style>
     <style>
         * {
             margin: 0;
@@ -16,12 +17,14 @@
             font-family: sans-serif;
             padding: 20px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
         }
 
         .site-Wrapper {
-            width: 100%;
-            max-width: 1200px;
+        	width: 100%;
+        	max-width: 1200px;
+        	align-self: center;
         }
 
         .site-Dataset {
@@ -358,7 +361,8 @@
 </head>
 
 <body>
-    <div class="site-Wrapper flx-col">
+<div th:replace="~{/top.html :: top}"></div>
+    <div class="site-Wrapper">
         <h1 style="font-size: 24px; margin-bottom: 16px;">품목 관리(BOM)</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
@@ -431,8 +435,6 @@
 
                 </div>
             </div>
-    </div>
-    </div>
     </form>
     </div>
 
@@ -475,13 +477,12 @@
 
                     <input type="button" value="취소" onclick="closeModal()" />
                 </div>
+        </form>
         </div>
 
-        </form>
-    </div>
     </div>
 
-
+<script src="./top.js"></script>
     <script>
         let currentTh = null;
         let currentOrder = 'desc';
@@ -542,6 +543,7 @@
             document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
     </script>
+    
 </body>
 
 </html>
