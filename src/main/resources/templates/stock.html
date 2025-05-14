@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>발주 관리</title>
+    <title>재고 관리</title>
     <style th:replace="~{/top.html :: topstyle}"></style>
     
     <style>
@@ -277,17 +277,15 @@
         }
 
         .modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
@@ -366,6 +364,11 @@
         .modal-content .modal-buttons>:nth-child(3)[type="button"] {
             background: #777;
         }
+        .flex-row {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
     </style>
 </head>
 
@@ -373,11 +376,11 @@
 <div th:replace="~{/top.html :: top}"></div>
 
     <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
+        <h1 style="font-size: 24px; margin-bottom: 16px;">재고 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
                 <div class="header">
-                    <h4 style="margin: 0;">발주 관리</h4>
+                    <h4 style="margin: 0;">재고 관리</h4>
                 </div>
                 <div class="table-wrapper">
                     <div>
@@ -402,10 +405,10 @@
 
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">자재번호<a>↓</a></th>
+                                    <th onclick="order(this)">자재코드<a>↓</a></th>
                                     <th onclick="order(this)">자재명<a>↓</a></th>
-                                    <th onclick="order(this)">매입처<a>↓</a></th>
-                                    <th onclick="order(this)">매입처 담당자<a>↓</a></th>
+                                    <th onclick="order(this)">수량<a>↓</a></th>
+                                    <th onclick="order(this)">단위<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -448,7 +451,7 @@
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" required />
+                    <span>자재코드</span><input type="text" placeholder="자재번호를 입력해주세요" required />
                 </div>
                 <div>
                     <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" required />
@@ -459,7 +462,9 @@
                 <div>
                     <span>적정 재고</span><input type="text" placeholder="적정 재고를 입력해주세요" required />
                 </div>
-                <div>
+                <div class="flex-row">
+                    <span>수량</span><input type="text" placeholder="수량을 입력해주세요" required />
+               
                     <span>단위</span><input type="text" placeholder="단위를 입력해주세요" required />
                 </div>
                 <div>
@@ -470,7 +475,6 @@
                         <option value="2">매입처2</option>
                         <option value="3">매입처3</option>
                     </select>
-
                 </div>
                 <div>
 
@@ -481,6 +485,9 @@
                 </div>
                 <div>
                     <span>담당자 이메일</span><input type="text" placeholder="담당자 이메일을 입력해주세요" required />
+                </div>
+                   <div>
+                    <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
                 </div>
                 <div class="modal-buttons">
                     <input type="submit" value="등록" name="save"/>

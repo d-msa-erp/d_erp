@@ -5,19 +5,33 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class controller_init {
-	@GetMapping("/login.do")
+	
+	@GetMapping("/login.do")//로그인페이지
 	public String login() {
 		return "/login.html";
 	}
 	
-	@GetMapping("/")
+	@GetMapping("/") //Main페이지
+	public String main() {
+		return "/main.html";
+	}
+	@GetMapping("/site") //사업장 관리
 	public String site() {
 		return "/site.html";
 	}
 	
+	@GetMapping("/inventory")
+	public String inventory() {
+		return "/inventory.html";
+	}
 	@GetMapping("/bom")
 	public String bom() {
 		return "/bom.html";
+	}
+	
+	@GetMapping("/warehouse")
+	public String warehouse() {
+		return "/warehouse.html";
 	}
 	
 	@GetMapping("/customer")
@@ -30,14 +44,26 @@ public class controller_init {
 		return "/purchase.html";
 	}
 	
-	@GetMapping("/sale")
+	@GetMapping("/sales")
 	public String sale() {
-		return "/sale.html";
+		return "/sales.html";
+	}
+	@GetMapping("/stock")
+	public String stock() {
+		return "/stock.html";
 	}
 	
-	@GetMapping("/shipping")
-	public String shipping() {
-		return "/shipping.html";
+	@GetMapping("/inbound")
+	public String inbound() {
+		return "/inbound.html";
+	}
+	@GetMapping("/outbound")
+	public String outbound() {
+		return "/outbound.html";
+	}
+	@GetMapping("/mrp")
+	public String mrp() {
+		return "/mrp.html";
 	}
 	
 	
