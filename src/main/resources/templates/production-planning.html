@@ -59,7 +59,8 @@
       font-size: 24px;
       cursor: pointer;
     }
-    button:hover{
+
+    button:hover {
       cursor: pointer;
       filter: brightness(0.9);
     }
@@ -134,6 +135,29 @@
       padding: 10px 20px;
       font-size: 20px;
     }
+
+    .addPlan {
+      display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid #333;
+    border-radius: 10px;
+    font-size: 12px;
+    }
+
+    .addPlan div{display: flex; gap: 10px;}
+    .addPlan span{white-space: nowrap;}
+    .addPlan input{width: 100%;}
+    .addPlan button{
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    }
+
   </style>
 </head>
 
@@ -166,12 +190,36 @@
           <div class="days" id="days"></div>
         </div>
         <div class="planner">
-          <div class="planTitle" id="selected-date">
-
-          </div>
+          <div class="planTitle" id="selected-date"></div><!--선택 날짜 들어오는 공간-->
           <span>✔ 접수 n 건</span>
           <span>✔ 출고 예정 n 건</span>
           <span>✔ 출고 n 건</span>
+          <div>
+
+            <form class="addPlan">
+              <div>
+                <span>착수일</span> <input type="date" required>
+              </div>
+              <div>
+                <span>납기일</span><input type="date" required>
+              </div>
+              <select required>
+                <option value="">거래처명을 선택해주세요</option>
+                <option value="거래처1">거래처1</option>
+                <option value="거래처2">거래처2</option>
+              </select>
+  
+              <select required>
+                <option value="">품목명을 선택해주세요</option>
+                <option value="품목명1">품목명1</option>
+                <option value="품목명2">품목명2</option>
+              </select>
+              <div>
+                <span>수량</span> <input type="text" required>
+              </div>
+              <button type="submit">계획 추가</button>
+            </form>
+          </div>
 
         </div>
 

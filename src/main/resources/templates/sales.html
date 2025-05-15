@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>주문 관리</title>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
     
     <style>
@@ -480,11 +481,7 @@
                             <input type="date" /> -
                             <input type="date" />
                         </div>
-                        <div class="month-wrap">
-                            <input class="month-minus" type="button" value="◀" onclick="month_minus()" />
-                            <input type="text" placeholder="월" style="width: 30px;" />
-                            <input class="month-plus" type="button" value="▶" onclick="month_plus()" />
-                        </div>
+                   
                         <input type="text" placeholder="검색" />
                         <div>
                             <input type="button" value="검색" />
@@ -727,6 +724,15 @@
             document.querySelector('#modalForm input[name="save"]').style.display = 'none';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+        	  document.querySelectorAll('table').forEach(table => {
+        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
+        	    firstCells.forEach(td => {
+        	      td.setAttribute('onclick', 'event.stopPropagation()');
+        	    });
+        	  });
+        	});
     </script>
 
 </html>
