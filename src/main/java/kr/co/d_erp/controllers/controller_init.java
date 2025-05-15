@@ -53,6 +53,11 @@ public class controller_init {
 		return "/stock.html";
 	}
 	
+	@GetMapping("/planning")
+	public String planning() {
+		return "/production-planning.html";
+	}
+	
 	@GetMapping("/inbound")
 	public String inbound() {
 		return "/inbound.html";
