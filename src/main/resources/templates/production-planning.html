@@ -1,11 +1,266 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>생산 계획</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>생산 계획</title>
+
+  <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+  <style th:replace="~{/top.html :: topstyle}"></style>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .calendar,
+    .planner {
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .planner {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .planner>span {
+      padding-left: 10px;
+    }
+
+    .calendar .calTitle,
+    .planTitle {
+      background: #46a6ff;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      font-size: 20px;
+    }
+
+    .calendar .calTitle button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    button:hover{
+      cursor: pointer;
+      filter: brightness(0.9);
+    }
+
+    .weekdays,
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      padding: 10px;
+    }
+
+    .weekdays {
+      background: #f0f0f0;
+      font-weight: bold;
+    }
+
+    .days div {
+      padding: 10px 0;
+      margin: 2px 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .days div:hover {
+      background: #e0f3ff;
+    }
+
+    .today {
+      background: #46a6ff;
+      color: white;
+    }
+
+    .calendarWrap {
+      display: grid;
+      grid-template-columns: 3fr 1fr;
+      gap: 20px;
+      padding: 20px;
+
+    }
+
+    .planner>ul {
+      list-style: none;
+
+    }
+
+    .planner>ul>li {
+      padding-left: 10px;
+    }
+
+
+
+    .site-Wrapper {
+      width: 100%;
+      max-width: 1200px;
+      align-self: center;
+      padding: 20px;
+    }
+
+    .site-Dataset {
+      width: 100%;
+      border: 1px solid #777;
+      border-radius: 10px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .site-Dataset .header {
+      background: #46a6ff;
+      color: white;
+      padding: 10px 20px;
+      font-size: 20px;
+    }
+  </style>
 </head>
+
 <body>
-    
-</body>
+  <div th:replace="~{/top.html :: top}"></div>
+
+  <div class="site-Wrapper">
+    <h1 style="font-size: 24px; margin-bottom: 16px;">생산 계획</h1>
+    <div class="site-Dataset">
+      <div class="header">
+        <h4 style="margin: 0;">생산 계획</h4>
+      </div>
+
+      <div class="calendarWrap">
+        <div class="calendar">
+          <div class="calTitle">
+            <button id="prev">&lt;</button>
+            <div id="month-year">2025년 5월</div>
+            <button id="next">&gt;</button>
+          </div>
+          <div class="weekdays">
+            <div>일</div>
+            <div>월</div>
+            <div>화</div>
+            <div>수</div>
+            <div>목</div>
+            <div>금</div>
+            <div>토</div>
+          </div>
+          <div class="days" id="days"></div>
+        </div>
+        <div class="planner">
+          <div class="planTitle" id="selected-date">
+
+          </div>
+          <span>✔ 접수 n 건</span>
+          <span>✔ 출고 예정 n 건</span>
+          <span>✔ 출고 n 건</span>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+
+  <script src="/js/top.js"></script>
+  <!-- todo : 공휴일 붙이기 ~  -->
+  <script>
+    const daysEl = document.getElementById("days");
+    const monthYearEl = document.getElementById("month-year");
+    const prevBtn = document.getElementById("prev");
+    const nextBtn = document.getElementById("next");
+    const selectedDateEl = document.getElementById("selected-date");
+
+    let today = new Date();
+    let currentYear = today.getFullYear();
+    let currentMonth = today.getMonth();
+
+    function renderCalendar(year, month) {
+      daysEl.innerHTML = '';
+      const firstDay = new Date(year, month, 1).getDay();
+      const lastDate = new Date(year, month + 1, 0).getDate();
+
+      monthYearEl.innerText = `${year}년 ${month + 1}월`;
+
+      for (let i = 0; i < firstDay; i++) {
+        daysEl.innerHTML += `<div></div>`;
+      }
+
+      for (let d = 1; d <= lastDate; d++) {
+        const isToday = year === today.getFullYear() && month === today.getMonth() && d === today.getDate();
+        const className = isToday ? 'today' : '';
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        daysEl.innerHTML += `<div class="${className}" onclick="selectDate('${dateStr}')">${d}</div>`;
+      }
+      // 오늘 날짜를 자동 선택
+      if (year === today.getFullYear() && month === today.getMonth()) {
+        const defaultDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        selectDate(defaultDate);
+      }
+    }
+
+    function selectDate(dateStr) {
+      selectedDateEl.innerText = dateStr;
+    }
+
+    prevBtn.addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+
+
+    prevBtn.addEventListener("click", () => {
+      currentMonth--;
+      if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    nextBtn.addEventListener("click", () => {
+      currentMonth++;
+      if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+      }
+      renderCalendar(currentYear, currentMonth);
+    });
+
+    renderCalendar(currentYear, currentMonth);
+  </script>
+
 </html>

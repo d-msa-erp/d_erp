@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>입출고 관리</title>
+    <title>입고 관리</title>
     <style th:replace="~{/top.html :: topstyle}"></style>
     
     <style>
@@ -285,7 +285,7 @@
         }
 
         .modal {
-			display: none;
+   			display: none;
 			position: fixed;
 			top: 0;
 			left: 0;
@@ -304,7 +304,7 @@
             border-radius: 10px;
             width: 80%;
             position: relative;
-            overflow-x: scroll;
+            overflow-x: auto;
             overflow-y: hidden;
         }
 
@@ -362,6 +362,7 @@
             justify-content: flex-end;
             gap: 10px;
             width: 100%;
+            grid-column: 2;
         }
 
         .modal-content .modal-buttons>input[type="button"]:hover {
@@ -501,21 +502,14 @@
 <div th:replace="~{/top.html :: top}"></div>
 
     <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">입출고 관리</h1>
+        <h1 style="font-size: 24px; margin-bottom: 16px;">입고 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
                 <div class="header">
-                    <h4 style="margin: 0;">입출고 관리</h4>
+                    <h4 style="margin: 0;">입고 관리</h4>
                 </div>
                 <div class="table-wrapper">
                     <div>
-                        <div class="toggle-wrapper">
-                            <span class="toggle-label" id="toggleState">입고</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" onchange="toggleText(this)">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
                         <div>
 
                         </div>
@@ -542,21 +536,7 @@
                                 </select></div>
                         </div>
                     </div>
-                    <div class="shipping-info" id="shipping-info2" style="display: none;">
-                        <span class="smallTitle">출고 정보</span>
-                        <div>
-                            <div><span>일자</span> <input type="date"></div>
-                            <div><span>매입처</span> <input type="text"></div>
-                            <div><span>자재명</span> <input type="text"></div>
-                            <div><span>출고수량</span> <input type="text"></div>
-                            <div><span>출고관리자</span> <select required>
-                                    <option value="">고객사를 선택해주세요</option>
-                                    <option value="1">고객사1</option>
-                                    <option value="2">고객사2</option>
-                                    <option value="3">고객사3</option>
-                                </select></div>
-                        </div>
-                    </div>
+                    
                     <span class="smallTitle" id="inTitle">입고 목록</span>
 
                     <!--입고파트 테이블-->
@@ -609,63 +589,7 @@
                         </div>
                     </div>
 
-                    <!--출고 테이블-->
-                    <div id="table-customer2"
-                        style="padding: 20px; position: relative; overflow-x: auto; display: none;">
-                        <div class="print-wrap">
-                            <input type="button" value="엑셀"></input>
-                            <input type="button" value="인쇄"></input>
-                        </div>
-                        <p class="nodata">등록된 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
-                        <table class="grid-table">
-
-                            <thead>
-
-                                <tr>
-                                    <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">자재명(품번)<a>↓</a></th>
-                                    <th onclick="order(this)">매입처<a>↓</a></th>
-                                    <th onclick="order(this)">출고수량<a>↓</a></th>
-                                    <th onclick="order(this)">출고일<a>↓</a></th>
-                                    <th onclick="order(this)">출고관리자<a>↓</a></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()">
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="pagination-wrap">
-                            총 n건 1/n페이지
-                            <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
-                            </div>
-                        </div>
-                    </div>
-
-
-
-
-
                 </div>
-
 
 
             </div>
@@ -694,6 +618,9 @@
                     <span>입고수량</span><input type="text" placeholder="입고수량을 입력해주세요" required />
                 </div>
                 <div>
+                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
+                </div>
+                <div>
                     <span>입고일</span><input type="date" required />
                 </div>
                 <div>
@@ -712,77 +639,14 @@
                     <input type="button" value="취소" onclick="closeModal()" />
                 </div>
             </form>
-
-            <form id="modalForm2" class="modalForm" style="display: none;">
-
-                <div>
-                    <span>자재명(품번)</span><input type="text" placeholder="자재명(품번)을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>매입처</span>
-                    <select required>
-                        <option value="">매입처를 선택해주세요</option>
-                        <option value="1">매입처1</option>
-                        <option value="2">매입처2</option>
-                        <option value="3">매입처3</option>
-                    </select>
-                </div>
-                <div>
-                    <span>출고수량</span><input type="text" placeholder="출고수량을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>출고일</span><input type="date" required />
-                </div>
-                <div>
-                    <span>출고관리자</span>
-                    <select required>
-                        <option value="">출고관리자를 선택해주세요</option>
-                        <option value="1">출고관리자1</option>
-                        <option value="2">출고관리자2</option>
-                        <option value="3">출고관리자3</option>
-                    </select>
-                </div>
-
-                <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save" />
-                    <input type="submit" value="저장" name="edit" />
-                    <input type="button" value="취소" onclick="closeModal()" />
-                </div>
-            </form>
         </div>
-
-
-
     </div>
 
 
 <script src="/js/top.js"></script>
     <script>
 
-        //Slide 버튼
-        function toggleText(el) {
-            const label = document.getElementById('toggleState');
-            label.textContent = el.checked ? '출고' : '입고';
-        }
-        //Slide 별 화면 핸들링
-        function toggleText(el) {
-            const isOut = el.checked;
-            document.getElementById('toggleState').textContent = isOut ? '출고' : '입고';
-            document.getElementById('inTitle').textContent = isOut ? '출고 목록' : '입고 목록';
-            //입출고 정보
-            document.getElementById('shipping-info').style.display = isOut ? 'none' : 'block';
-            document.getElementById('shipping-info2').style.display = isOut ? 'block' : 'none';
-            //입출고 목록
-            document.getElementById('table-customer').style.display = isOut ? 'none' : 'block';
-            document.getElementById('table-customer2').style.display = isOut ? 'block' : 'none';
-
-            //Modal 출력 여부
-            document.getElementById('modalForm2').style.display = isOut ? 'grid' : 'none';
-            document.getElementById('modalForm').style.display = isOut ? 'none' : 'grid';
-            //Modal 제목
-            document.getElementById('modalTitle').textContent = isOut ? '출고 등록' : '입고 등록';
-
-        }
+        //Modal
         function openModal() {
             document.getElementById('modal').style.display = 'flex';
         }
@@ -810,9 +674,6 @@
             const arrow = thValue.querySelector('a');
             arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
         }
-
-
-
 
 
         //Modal ~ 
@@ -844,19 +705,7 @@
 
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
-            openModal();
-
-            const isOut = document.querySelector('.toggle-switch input').checked;
-            document.getElementById('modalTitle').textContent = isOut ? '출고 등록' : '입고 등록';
-
-            // 입고/출고에 따라 폼을 다르게 처리 ㅠ
-            if (isOut) {
-                document.querySelector('#modalForm2 input[name="save"]').style.display = 'none';
-                document.querySelector('#modalForm2 input[name="edit"]').style.display = 'block';
-            } else {
-                document.querySelector('#modalForm input[name="save"]').style.display = 'none';
-                document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
-            }
+            openModal();          
         }
 
 

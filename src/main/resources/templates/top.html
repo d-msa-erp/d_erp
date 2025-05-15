@@ -227,7 +227,7 @@
   <header  th:fragment="top">
     <div class="top-Wrapper">
       <div class="top-bar">
-        <div class="title" onclick="location.href='/main'">스마트 제조 시스템</div>
+        <div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
         <div class="text-sm">
           홍길동 님 | <button class="logout">로그아웃</button><!--로그인 안되어있으면 login버튼만 출력-->
         </div>
@@ -238,11 +238,12 @@
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">기준 정보 관리</div>
           <div class="submenu">
-            <span onclick="location.href='/'">사업장 관리</span>
+            <span onclick="location.href='/site'">사업장 관리</span>
             <span onclick="location.href='/customer'">거래처 관리</span>
-            <span onclick="location.href='/bom'">품목 관리(BOM)</span>
-            <span onclick="location.href='#'">공정 관리</span>
-            <span onclick="location.href='#'">창고 관리</span>
+            <span onclick="location.href='/inventory'">품목 관리</span>
+            <span onclick="location.href='/bom'">BOM 관리</span>
+<!--             <span onclick="location.href='#'">공정 관리</span> -->
+            <span onclick="location.href='/warehouse'">창고 관리</span>
           </div>
         </div>
 
@@ -251,24 +252,24 @@
           <div class="submenu">
             <span onclick="location.href='/purchase'">발주 관리</span>
             <span onclick="location.href='/sales'">주문 관리</span>
-            <span onclick="location.href='/shipping'">입·출고 관리</span>
-            <span onclick="location.href='#'">반품 관리</span>
-            <span onclick="location.href='#'">자재 소요량 계산(MRP)</span>
+            <span onclick="location.href='/outbound'">출고 관리</span>
+<!--             <span onclick="location.href='#'">반품 관리</span> -->
+            <span onclick="location.href='mrp'">자재 소요량 계산(MRP)</span>
           </div>
         </div>
 
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">자재 관리</div>
           <div class="submenu">
-            <span onclick="location.href='#'">입고 관리</span>
-            <span onclick="location.href='#'">재고 관리</span>
+            <span onclick="location.href='inbound'">입고 관리</span>
+            <span onclick="location.href='stock'">재고 관리</span>
         </div>
         </div>
 
         <div class="menu-item" onclick="toggleMenu(event, this)">
           <div class="label">생산 관리</div>
           <div class="submenu">
-            <span onclick="location.h">생산 계획</span>
+            <span onclick="location.href='planning'">생산 계획</span>
             <span onclick="location.h">생산 지시</span>
             <span onclick="location.h">생산 실적 관리</span>
           </div>
