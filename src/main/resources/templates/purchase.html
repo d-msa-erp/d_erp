@@ -277,16 +277,16 @@
         }
 
         .modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
 			-webkit-backdrop-filter: blur(4px);
         }
 
@@ -446,6 +446,7 @@
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
                 <div>
                     <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" required />
@@ -470,7 +471,6 @@
                         <option value="2">매입처2</option>
                         <option value="3">매입처3</option>
                     </select>
-
                 </div>
                 <div>
 
@@ -551,6 +551,15 @@
             document.querySelector('#modalForm input[name="save"]').style.display = 'none';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+        	  document.querySelectorAll('table').forEach(table => {
+        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
+        	    firstCells.forEach(td => {
+        	      td.setAttribute('onclick', 'event.stopPropagation()');
+        	    });
+        	  });
+        	});
     </script>
 </body>
 

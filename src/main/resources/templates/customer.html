@@ -251,17 +251,15 @@
     }
 
     .modal {
-     			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      justify-content: center;
+      align-items: center;
     }
 
     .modal-content {
@@ -366,9 +364,7 @@
             </div>
             <p class="nodata">고객사 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
             <table class="grid-table">
-
               <thead>
-
                 <tr>
                   <th><input type="checkbox" /></th>
                   <th onclick="order(this)">대표자명<a>↓</a></th>
@@ -424,7 +420,7 @@
               </thead>
               <tbody>
                 <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr>
+                <tr onclick="opendatail(this)">
                   <td><input type="checkbox" /></td>
                   <td>test</td>
                   <td>test</td>
@@ -496,10 +492,11 @@
         </div>
         <label><span>대표 색</span><input type="color" /></label>
         <label><span>외주 여부</span><input type="checkbox" /></label>
-        <div class="modal-buttons">
-          <input type="submit" value="등록" />
-          <input type="button" value="취소" onclick="closeModal()" />
-        </div>
+      		<div class="modal-buttons">
+					<button type="button" name="save">등록</button>
+					<button type="button" name="edit">수정</button>
+					<button type="button" onclick="closeModal()">취소</button>
+				</div>
       </form>
     </div>
   </div>
@@ -543,6 +540,9 @@
       const title = document.getElementById('modalTitle');
       title.textContent = currentTab === 'customer' ? '신규 고객사 등록' : '신규 매입처 등록';
       document.getElementById('modal').style.display = 'flex';
+       document.querySelector('#modalForm button[name="save"]').style.display = 'block';
+            document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+      
     }
 
     function closeModal() {
@@ -573,11 +573,17 @@
       console.log(currentTab + ' 등록됨:', siteName);
       closeModal();
     }
-    //테이블 클릭 시 출력되는 모달
-    function opendatail() {
-      openModal();
-      document.getElementById('modalTitle').textContent = currentTab === 'customer' ? '고객사 정보' : '매입처 정보';
-    }
+
+
+ 
+
+        //테이블 클릭 시 출력되는 modal
+        function opendatail(e) {
+            openModal();
+            
+            document.querySelector('#modalForm button[name="save"]').style.display = 'none';
+            document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
+        }
   </script>
 </body>
 

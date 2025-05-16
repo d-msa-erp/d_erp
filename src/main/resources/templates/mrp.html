@@ -140,7 +140,8 @@
 		}
 
 		.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-			background: #28a745;
+/* 			background: #28a745; */
+			background: #dc3545;
 			color: white;
 		}
 
@@ -199,7 +200,7 @@
 			width: 100%;
 			border-collapse: collapse;
 			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr 1fr;
+			grid-template-columns: 1fr 2fr 2fr 2fr 2fr 1fr 1fr 1fr;
 		}
         .grid-table2{
             width: 100%;
@@ -479,9 +480,9 @@
 							<button type="button">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
-							<button type="button" onclick="openModal()">
-								<span class="material-symbols-outlined">add</span> 신규등록
-							</button>
+<!-- 							<button type="button" onclick="openModal()"> -->
+<!-- 								<span class="material-symbols-outlined">add</span> 1 -->
+<!-- 							</button> -->
 							<button type="button">
 								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
@@ -508,6 +509,7 @@
 
 								<tr>
 									<th><input type="checkbox" /></th>
+									<th onclick="order(this)">주문번호<a>↓</a></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
 									<th onclick="order(this)">품목명<a>↓</a></th>
 									<th onclick="order(this)">고객사<a>↓</a></th>
@@ -525,10 +527,12 @@
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
+									<td>test</td>
 									<td>10000000</td>
 								</tr>
 								<tr>
 									<td><input type="checkbox" /></td>
+									<td>test</td>
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
@@ -696,6 +700,10 @@
 					</div>
 
 					<div class="bomTab3">
+							<div class="flex-row">
+							<div><span>발주번호</span><input type="text" /></div>
+							<div><span>수량</span><input type="text" /></div>
+						</div>
 						<div><span>품목코드</span><input type="text" /></div>
 						<div><span>품목명</span><input type="text" /></div>
 						<div class="flex-row">
@@ -840,6 +848,15 @@
 			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
 			document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
 		}
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			  document.querySelectorAll('table').forEach(table => {
+			    const firstCells = table.querySelectorAll('tbody tr td:first-child');
+			    firstCells.forEach(td => {
+			      td.setAttribute('onclick', 'event.stopPropagation()');
+			    });
+			  });
+			});
 	</script>
 
 </body>

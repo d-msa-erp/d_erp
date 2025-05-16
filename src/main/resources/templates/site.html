@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>사업장 정보</title>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
   <style th:replace="~{/top.html :: topstyle}"></style>
   
   <style>
@@ -118,6 +119,8 @@
           <div class="form-item"><span>사업장 명</span><input type="text" required oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>대표자 명</span><input type="text" required oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>사업자 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>사업장 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>법인 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>종목</span><input type="text" required oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>업태</span><input type="text" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>전화번호</span><input type="text" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>

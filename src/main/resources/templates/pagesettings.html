@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>페이지 관리</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:replace="~{/top.html :: topstyle}"></style>
+<style>
+body {
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.site-Wrapper {
+	width: 100%;
+	max-width: 1200px;
+	align-self: center;
+	padding: 20px;
+}
+
+h1 {
+	font-size: 24px;
+	margin-bottom: 16px;
+}
+.site-Dataset{
+    width: 100%;
+    border: 1px solid #777;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex
+;
+    flex-direction: column;
+}
+.site-Dataset .header {
+    background: #46a6ff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+}
+.menu-actions {
+	display: flex
+;
+    gap:10px;
+    padding: 20px;
+}
+
+.menu-actions input[type="text"] {
+	flex: 1;
+	padding: 8px 10px;
+	border: 1px solid #d0d7de;
+	border-radius: 6px;
+	font-size: 1rem;
+}
+
+.menu-actions button {
+	background: #46a6ff;
+	color: #fff;
+	border: none;
+	border-radius: 6px;
+	padding: 8px 14px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.menu-actions button:hover {
+	filter: brightness(0.9);
+}
+
+.tree-menu ul {
+	list-style: none;
+	padding-left: 18px;
+	margin: 0;
+}
+
+.tree-menu li {
+	margin: 6px 0;
+	padding: 7px 12px;
+	background: #f1f6fd;
+	border-radius: 6px;
+	cursor: grab;
+	font-size: 1rem;
+	display: flex;
+	color: #333;
+	align-items: center;
+	transition: background 0.15s;
+	border: 1px solid transparent;
+}
+
+.tree-menu li.selected {
+	background: #46a6ff;
+	color: #fff;
+	border: 1px solid #1746a2;
+}
+
+.tree-menu li:hover:not(.selected) {
+	background: #e0eaff;
+}
+
+.tree-menu li .menu-label {
+	flex: 1;
+	user-select: none;
+}
+
+.tree-menu li .menu-btns {
+	display: flex;
+	gap: 4px;
+}
+
+.tree-menu li button {
+	background: #e5e7eb;
+	color: #222;
+	border: none;
+	border-radius: 4px;
+	padding: 2px 8px;
+	font-size: 0.95em;
+	cursor: pointer;
+	transition: background 0.15s;
+}
+
+.tree-menu li button:hover {
+	background: #f87171;
+	color: #fff;
+}
+</style>
+<script
+	src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+</head>
+<body>
+
+	<div th:replace="~{/top.html :: top}"></div>
+	<div class="site-Wrapper">
+		<h1>페이지 관리</h1>
+		<div class="site-Dataset">
+		<div class="header">
+                    <h4 style="margin: 0;">메뉴 관리</h4>
+                </div>
+		<div class="menu-actions">
+			<input type="text" id="menuName" placeholder="메뉴 이름" />
+			<button type="button" onclick="addMainMenu()">대메뉴 추가</button>
+			<button type="button" onclick="addSubMenu()">소메뉴 추가</button>
+		</div>
+		<div class="tree-menu">
+			<ul id="menuTreeRoot"></ul>
+		</div>
+		</div>
+	</div>
+
+	<script src="/js/top.js"></script>
+	<script>
+let menuData = [];
+let selectedMenuId = null;
+
+// 메뉴 트리 렌더링
+function renderMenuTree() {
+    const root = document.getElementById('menuTreeRoot');
+    root.innerHTML = '';
+    renderMenuNodes(menuData, root);
+    makeSortable(root, null);
+}
+
+function renderMenuNodes(nodes, parentEl) {
+    nodes.forEach(node => {
+        const li = document.createElement('li');
+        li.setAttribute('data-id', node.id);
+        if (node.id === selectedMenuId) li.classList.add('selected');
+
+        // 메뉴명
+        const label = document.createElement('span');
+        label.className = 'menu-label';
+        label.textContent = node.name;
+        label.onclick = (e) => {
+            e.stopPropagation();
+            selectedMenuId = node.id;
+            renderMenuTree();
+        };
+        li.appendChild(label);
+
+        // 버튼 영역 (삭제)
+        const btns = document.createElement('span');
+        btns.className = 'menu-btns';
+        const delBtn = document.createElement('button');
+        delBtn.textContent = '삭제';
+        delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteMenuById(menuData, node.id);
+            if (selectedMenuId === node.id) selectedMenuId = null;
+            renderMenuTree();
+        };
+        btns.appendChild(delBtn);
+        li.appendChild(btns);
+
+        // 자식 메뉴
+        if (node.children && node.children.length > 0) {
+            const ul = document.createElement('ul');
+            renderMenuNodes(node.children, ul);
+            li.appendChild(ul);
+            makeSortable(ul, node);
+        }
+        parentEl.appendChild(li);
+    });
+}
+
+// SortableJS 적용
+function makeSortable(ul, parentNode) {
+    Sortable.create(ul, {
+        animation: 150,
+        onEnd: function (evt) {
+            let arr = parentNode ? parentNode.children : menuData;
+            const [item] = arr.splice(evt.oldIndex, 1);
+            arr.splice(evt.newIndex, 0, item);
+            renderMenuTree();
+        }
+    });
+}
+
+// 대메뉴 추가
+function addMainMenu() {
+    const name = document.getElementById('menuName').value.trim();
+    if (!name) return;
+    menuData.push({ id: Date.now().toString(), name, children: [] });
+    document.getElementById('menuName').value = '';
+    renderMenuTree();
+}
+
+// 소메뉴 추가
+function addSubMenu() {
+    const name = document.getElementById('menuName').value.trim();
+    if (!name || !selectedMenuId) return;
+    const parent = findMenuById(menuData, selectedMenuId);
+    if (!parent) return;
+    parent.children.push({ id: Date.now().toString(), name, children: [] });
+    document.getElementById('menuName').value = '';
+    renderMenuTree();
+}
+
+// 메뉴 id로 찾기
+function findMenuById(nodes, id) {
+    for (let node of nodes) {
+        if (node.id === id) return node;
+        if (node.children) {
+            const found = findMenuById(node.children, id);
+            if (found) return found;
+        }
+    }
+    return null;
+}
+
+// 메뉴 삭제
+function deleteMenuById(nodes, id) {
+    for (let i = 0; i < nodes.length; i++) {
+        if (nodes[i].id === id) {
+            nodes.splice(i, 1);
+            return true;
+        }
+        if (nodes[i].children && nodes[i].children.length > 0) {
+            if (deleteMenuById(nodes[i].children, id)) return true;
+        }
+    }
+    return false;
+}
+
+renderMenuTree();
+</script>
+</body>
+</html>

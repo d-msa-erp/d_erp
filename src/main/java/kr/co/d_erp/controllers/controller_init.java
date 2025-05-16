@@ -70,6 +70,14 @@ public class controller_init {
 	public String mrp() {
 		return "/mrp.html";
 	}
+	@GetMapping("/hr")
+	public String hr() {
+		return "/hr.html";
+	}
+	@GetMapping("/pagesettings")
+	public String pagesettings() {
+		return "/pagesettings.html";
+	}
 	
 	
 	@GetMapping("/test")

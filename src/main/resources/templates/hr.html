@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>입고 관리</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    <title>사원 관리</title>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
-    
     <style>
         * {
             margin: 0;
@@ -18,15 +17,15 @@
         body {
             font-family: sans-serif;
             display: flex;
-            justify-content: center;
             flex-direction: column;
+            justify-content: center;
         }
 
         .site-Wrapper {
             width: 100%;
-            padding: 20px;
             max-width: 1200px;
             align-self: center;
+            padding: 20px;
         }
 
         .site-Dataset {
@@ -92,7 +91,6 @@
             justify-content: flex-end;
             gap: 20px;
             position: relative;
-            white-space: nowrap;
         }
 
         .table-wrapper>div:nth-child(1)>input[type="text"] {
@@ -117,42 +115,38 @@
             gap: 10px;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"] {
+        .table-wrapper>div:nth-child(1)>div button {
             width: 30%;
             background: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            white-space: nowrap;
         }
 
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 input[type="button"] {
+        .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
             padding: 5px;
             gap: 10px;
             background: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            white-space: nowrap;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
             background: #007bff;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
             background: #28a745;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
             background: #dc3545;
             color: white;
-        }
-
-        .table-wrapper>div>div>.month-minus,
-        .table-wrapper>div>div>.month-plus {
-            width: 20px !important;
-            background: #a1a1a1 !important;
         }
 
         .table-wrapper>div:nth-child(2) {
@@ -191,7 +185,7 @@
             width: 200px;
         }
 
-        .print-wrap>input[type="button"] {
+        .print-wrap>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -205,16 +199,13 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 2fr 3fr;
-            overflow-x: auto;
+            grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr 1fr;
         }
 
         thead,
         tbody,
         tr {
             display: contents;
-            white-space: nowrap;
-
         }
 
         tbody>tr:nth-child(even) td {
@@ -232,6 +223,9 @@
             justify-content: center;
         }
 
+        tr td:nth-last-child(1) {
+            justify-content: right;
+        }
 
         th,
         td {
@@ -239,14 +233,12 @@
             border: 1px solid #ccc;
             display: flex;
             align-items: center;
-            justify-content: center;
         }
 
         thead th {
             background: #f0f0f0;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.7rem;
         }
 
         table input[type="text"] {
@@ -272,7 +264,7 @@
             text-align: center;
         }
 
-        .pagination-wrap>div input[type="button"] {
+        .pagination-wrap>div button {
             width: 20px;
             background: #007bff;
             color: white;
@@ -281,22 +273,22 @@
             cursor: pointer;
         }
 
-        .table-wrapper input[type="button"]:hover {
+        .table-wrapper button:hover {
             filter: brightness(0.9);
         }
 
         .modal {
-   			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -305,30 +297,23 @@
             border-radius: 10px;
             width: 80%;
             position: relative;
-            overflow-x: auto;
-            overflow-y: hidden;
         }
 
         .modal-content .modalForm {
             margin-top: 20px;
-            border-collapse: collapse;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-        }
-
-        .modal-content .modalForm .three-items {
-            grid-column: span 2;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            justify-items: center;
+            align-items: center;
         }
 
         .modal-content .modalForm>div,
         .modal-content .modalForm>label {
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            gap: 10px;
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -339,12 +324,6 @@
         }
 
         .modal-content input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-
-        .modal-content select {
             width: 100%;
             padding: 10px;
             border: 1px solid #ccc;
@@ -363,14 +342,14 @@
             justify-content: flex-end;
             gap: 10px;
             width: 100%;
-            grid-column: 2;
+            grid-column-start: 3;
         }
 
-        .modal-content .modal-buttons>input[type="button"]:hover {
+        .modal-content .modal-buttons>button:hover {
             filter: brightness(0.9);
         }
 
-        .modal-content .modal-buttons>input {
+        .modal-content .modal-buttons>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -380,184 +359,165 @@
             padding: 5px;
         }
 
-        .modal-content .modal-buttons>:nth-child(2)[type="button"] {
-            background: #777;
+        .modal-buttons button:nth-of-type(3) {
+            background: #777 !important;
         }
 
-        /* 슬라이드 css */
-        .toggle-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: sans-serif;
-            font-size: 16px;
-            width: 16% !important;
-        }
-
-        .toggle-switch {
-            position: relative;
-            min-width: 30px;
-            max-width: 30px;
-            min-height: 16px;
-            max-height: 16px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #db6969;
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .slider::before {
-            position: absolute;
-            content: "";
-            height: 10px;
-            width: 10px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3;
-        }
-
-        input:checked+.slider::before {
-            transform: translateX(14px);
-        }
-
-        /* 텍스트용 스타일 */
-        .toggle-label {
-            display: inline-block;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        /* 슬라이드 css */
-
-        .shipping-info {
-            /*입고정보 */
-            padding: 20px !important;
-        }
-
-        .shipping-info>span {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: left !important;
-        }
-
-        .smallTitle {
-            font-size: 20px;
-            font-weight: bold;
-            text-align: left !important;
-            padding: 20px 0 0 20px;
-        }
-
-        :nth-child(1).smallTitle {
+        .modal-content .modalForm th,
+        .modal-content .modalForm td {
+            margin: 0 !important;
             padding: 0 !important;
-
+            width: 100% !important;
+            height: 100% !important;
         }
 
-        .shipping-info>div {
+        .modal-content .bomTab1 select {
+            height: 100%;
+            width: 100%;
+        }
+
+        .modal-content .grid-table {
+            width: 100%;
+            height: 100%;
+            border-collapse: collapse;
             display: grid;
-            gap: 20px;
-            grid-template-columns: 1fr 1fr 1fr;
-            padding-top: 20px;
+            grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
+            padding: 0;
         }
 
-        .shipping-info>div>div {
+        .bomTab1 {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .bomTab1 input {
+            height: 100%;
+            width: 100%;
+            padding: 5px;
+        }
+
+        .bomTab1>div {
+            height: 100%;
+            align-self: stretch;
+        }
+
+        .bomTab2 {
+            display: grid;
+            grid-template-columns: 2.7fr 1fr;
+            gap: 10px;
+        }
+
+        .bomTab2>div {
             display: flex;
+            flex-direction: column;
+            gap: 10px !important;
+            justify-content: space-between;
+            overflow-y: auto;
+        }
+
+        .bomTab2>div>div {
+            height: 100%;
+        }
+
+        .bomTab2>div>ul {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .bomTab2>div>ul>li {
+            padding-left: 10px;
+        }
+
+        .bomTab3 {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .bomTab3>div {
+            display: flex;
+            white-space: nowrap;
             gap: 10px;
             align-items: center;
         }
 
-        .shipping-info>div>div>span {
-            padding-right: 10px;
-            white-space: nowrap;
+        .bomTab3 .flex-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
         }
 
-        .shipping-info>div>div>input,
-        .shipping-info>div>div>select {
+        .bomTab3 .flex-row>div {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .bomTab3 .flex-row>div span {
+            white-space: nowrap;
+            padding-right: 10px;
+        }
+
+        .bomTab3 .flex-row>div input {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
+        }
+
+        .bomTab5 {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .bomTab5 .grid-table {
+            grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
         }
     </style>
+
 </head>
 
 <body>
-<div th:replace="~{/top.html :: top}"></div>
-
-    <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">입고 관리</h1>
+    <div th:replace="~{/top.html :: top}"></div>
+    <div class="site-Wrapper">
+        <h1 style="font-size: 24px; margin-bottom: 16px;">사원 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
                 <div class="header">
-                    <h4 style="margin: 0;">입고 관리</h4>
+                    <h4 style="margin: 0;">사원 관리</h4>
                 </div>
                 <div class="table-wrapper">
                     <div>
-                        <div>
-
-                        </div>
 
                         <input type="text" placeholder="검색" />
                         <div>
-                            <input type="button" value="검색" />
-                            <input type="button" value="신규등록" onclick="openModal()" />
-                            <input type="button" value="삭제" />
+                            <button type="button">
+                                <span class="material-symbols-outlined">search</span> 검색
+                            </button>
+                            <button type="button" onclick="openModal()">
+                                <span class="material-symbols-outlined">add</span> 신규등록
+                            </button>
+                            <button type="button">
+                                <span class="material-symbols-outlined">delete</span> 삭제
+                            </button>
                         </div>
                     </div>
-                    <div class="shipping-info" id="shipping-info">
-                        <span class="smallTitle">입고 정보</span>
-                        <div>
-                            <div><span>일자</span> <input type="date"></div>
-                            <div><span>매입처</span> <input type="text"></div>
-                            <div><span>자재명</span> <input type="text"></div>
-                            <div><span>입고수량</span> <input type="text"></div>
-                            <div><span>입고관리자</span> <select required>
-                                    <option value="">고객사를 선택해주세요</option>
-                                    <option value="1">고객사1</option>
-                                    <option value="2">고객사2</option>
-                                    <option value="3">고객사3</option>
-                                </select></div>
-                        </div>
-                    </div>
-                    
-                    <span class="smallTitle" id="inTitle">입고 목록</span>
+                    <div></div>
+                    <div id="table-customer" style="padding: 20px; position: relative;">
 
-                    <!--입고파트 테이블-->
-                    <div id="table-customer" style="padding: 20px; position: relative; overflow-x: auto;">
-                        <div class="print-wrap">
-                            <input type="button" value="엑셀"></input>
-                            <input type="button" value="인쇄"></input>
-                        </div>
-                        <p class="nodata">등록된 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
+                        <p class="nodata">등록된 데이터가 없습니다.</p>
+                        <!--데이터 없을 땐 이렇게 표기-->
                         <table class="grid-table">
 
                             <thead>
 
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">자재명(품번)<a>↓</a></th>
-                                    <th onclick="order(this)">매입처<a>↓</a></th>
-                                    <th onclick="order(this)">입고수량<a>↓</a></th>
-                                    <th onclick="order(this)">입고일<a>↓</a></th>
-                                    <th onclick="order(this)">입고관리자<a>↓</a></th>
+                                    <th onclick="order(this)">이름<a>↓</a></th>
+                                    <th onclick="order(this)">ID<a>↓</a></th>
+                                    <th onclick="order(this)">직통번호<a>↓</a></th>
+                                    <th onclick="order(this)">H.P<a>↓</a></th>
+                                    <th onclick="order(this)">권한<a>↓</a></th>
+                                    <th onclick="order(this)">재직상태<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -569,6 +529,7 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
+                                    <td>재직자</td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" /></td>
@@ -577,87 +538,68 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
+                                    <td>퇴사자</td>
                                 </tr>
                             </tbody>
                         </table>
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
                             <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
+                                <input type="button" value="◀" />
+                                <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
+                                <input type="text" value="1" /> <input type="button" value="▶" />
                             </div>
                         </div>
                     </div>
 
+
                 </div>
-
-
             </div>
-    </form>
+        </form>
     </div>
 
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle">입고 등록</h3>
-            <form id="modalForm" class="modalForm" style="display: gird;">
-
+            <h3 id="modalTitle">신규 사원 등록</h3>
+            <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재명(품번)</span><input type="text" placeholder="자재명(품번)을 입력해주세요" required />
+                    <span>ID</span><input type="text" required/>
                 </div>
-                <div>
-                    <span>매입처</span>
-                    <select required>
-                        <option value="">매입처를 선택해주세요</option>
-                        <option value="1">매입처1</option>
-                        <option value="2">매입처2</option>
-                        <option value="3">매입처3</option>
+                <div><span>이름</span><input type="text" required /></div>
+                <div><span>이메일</span><input type="text" required /></div>
+                <div><span>직통번호</span><input type="text" required /></div>
+                <div><span>H.P</span><input type="text" required /></div>
+                <div><span>암호</span><input type="text" required /></div>
+                <div><span>권한</span>
+                    <select required style="
+    width: 100%;
+    padding: 10px;
+">
+                        <option value="">권한을 선택해주세요</option>
+                        <option value="1">권한1</option>
+                        <option value="2">권한2</option>
+                        <option value="3">권한3</option>
+                        <option value="4">권한4</option>
                     </select>
                 </div>
-                <div>
-                    <span>입고수량</span><input type="text" placeholder="입고수량을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>입고일</span><input type="date" required />
-                </div>
-                <div>
-                    <span>입고관리자</span>
-                    <select required>
-                        <option value="">입고관리자를 선택해주세요</option>
-                        <option value="1">입고관리자1</option>
-                        <option value="2">입고관리자2</option>
-                        <option value="3">입고관리자3</option>
-                    </select>
+                <div><span>재직상태</span>
+                    <label>재직자 <input type="radio" name="userStatus" /></label>
+                    <label>퇴사자 <input type="radio" name="userStatus" /></label>
                 </div>
 
                 <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save" />
-                    <input type="submit" value="저장" name="edit" />
-                    <input type="button" value="취소" onclick="closeModal()" />
+                    <button type="submit" name="save">등록</button>
+                    <button type="submit" name="edit">수정</button>
+                    <button type="submit" onclick="closeModal()">취소</button>
                 </div>
             </form>
         </div>
+
     </div>
 
-
-<script src="/js/top.js"></script>
+    <script src="/js/top.js"></script>
     <script>
-
-        //Modal
-        function openModal() {
-            document.getElementById('modal').style.display = 'flex';
-        }
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-        function outsideClick(e) {
-            if (e.target.id === 'modal') closeModal();
-        }
-
         let currentTh = null;
         let currentOrder = 'desc';
 
@@ -677,15 +619,16 @@
         }
 
 
+
+
+
         //Modal ~ 
         function openModal() {
-
+            const title = document.getElementById('modalTitle');
+            title.textContent = '신규 사원 등록';
             document.getElementById('modal').style.display = 'flex';
-
-            document.querySelector('#modalForm input[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
-            document.querySelector('#modalForm2 input[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm2 input[name="edit"]').style.display = 'none';
+            document.querySelector('#modalForm button[name="save"]').style.display = 'block';
+            document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
         }
 
         function closeModal() {
@@ -697,6 +640,9 @@
                 closeModal();
             }
         }
+
+
+
         function submitModal(event) {
             event.preventDefault();
             const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
@@ -706,10 +652,13 @@
 
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
-            openModal();          
+            openModal();
+            document.getElementById('modalTitle').textContent = '사원 수정';
+
+            document.querySelector('#modalForm button[name="save"]').style.display = 'none';
+            document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
         }
-
-
+        
         document.addEventListener('DOMContentLoaded', () => {
         	  document.querySelectorAll('table').forEach(table => {
         	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
@@ -719,6 +668,7 @@
         	  });
         	});
     </script>
+
 </body>
 
 </html>

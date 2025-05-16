@@ -8,6 +8,7 @@
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 <style th:replace="~{/top.html :: topstyle}"></style>
 <style>
+/* ... 기존 스타일 유지 ... */
 * {
 	margin: 0;
 	padding: 0;
@@ -122,6 +123,9 @@ body {
 	border-radius: 5px;
 	cursor: pointer;
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
@@ -132,6 +136,9 @@ body {
 	border-radius: 5px;
 	cursor: pointer;
 	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
@@ -193,6 +200,9 @@ body {
 	border-radius: 5px;
 	cursor: pointer;
 	padding: 5px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 table.grid-table {
@@ -266,6 +276,10 @@ table input[type="text"] {
 	border: none;
 	border-radius: 5px;
 	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
 }
 
 .table-wrapper  button:hover {
@@ -352,6 +366,9 @@ table input[type="text"] {
 	border-radius: 5px;
 	cursor: pointer;
 	padding: 5px;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .modal-buttons button:nth-of-type(3) {
@@ -382,7 +399,7 @@ table input[type="text"] {
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
 							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 검색
+								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
 						</div>
 					</div>
@@ -434,9 +451,13 @@ table input[type="text"] {
 						<div class="pagination-wrap">
 							총 n건 1/n페이지
 							<div class="paigination">
-								<input type="button" value="◀" />
-								<!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-								<input type="text" value="1" /> <input type="button" value="▶" />
+								<button type="button">
+									<span class="material-symbols-outlined">chevron_left</span>
+								</button>
+								<input type="text" value="1" />
+								<button type="button">
+									<span class="material-symbols-outlined">chevron_right</span>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -468,19 +489,25 @@ table input[type="text"] {
 					<label>반품 창고 <input type="checkbox"/></label>
 				</div>
 				<div>
-                    <span>사용여부</span><input type="checkbox"/>
+					<span>사용여부</span><input type="checkbox"/>
 				</div>
-                <div>
-                    <span>비고</span><input type="text" placeholder="비고를 입력해주세요"
-                        required />
-                </div>
+				<div>
+					<span>비고</span><input type="text" placeholder="비고를 입력해주세요"
+						required />
+				</div>
 				<div>
 					
 				</div>
 				<div class="modal-buttons">
-					<button type="button" name="save">등록</button>
-					<button type="button" name="edit">수정</button>
-					<button type="button" onclick="closeModal()">취소</button>
+					<button type="button" name="save">
+						<span class="material-symbols-outlined">check</span> 등록
+					</button>
+					<button type="button" name="edit">
+						<span class="material-symbols-outlined">edit</span> 수정
+					</button>
+					<button type="button" onclick="closeModal()">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
 				</div>
 			</form>
 		</div>
@@ -489,65 +516,68 @@ table input[type="text"] {
 
 	<script src="/js/top.js"></script>
 	<script>
-        let currentTh = null;
-        let currentOrder = 'desc';
+		let currentTh = null;
+		let currentOrder = 'desc';
 
-        function order(thValue) {//정렬
-            const allArrows = document.querySelectorAll("th a");
-            allArrows.forEach(a => a.textContent = '↓');
+		function order(thValue) {//정렬
+			const allArrows = document.querySelectorAll("th a");
+			allArrows.forEach(a => a.textContent = '↓');
 
-            if (currentTh === thValue) {
-                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-            } else {
-                currentOrder = 'asc';
-                currentTh = thValue;
-            }
+			if (currentTh === thValue) {
+				currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+			} else {
+				currentOrder = 'asc';
+				currentTh = thValue;
+			}
 
-            const arrow = thValue.querySelector('a');
-            arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-        }
+			const arrow = thValue.querySelector('a');
+			arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+		}
 
+		//Modal ~ 
+		function openModal() {
+			const title = document.getElementById('modalTitle');
+			title.textContent = '신규 창고 등록';
+			document.getElementById('modal').style.display = 'flex';
+			document.querySelector('#modalForm button[name="save"]').style.display = 'flex';
+			document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+		}
 
+		function closeModal() {
+			document.getElementById('modal').style.display = 'none';
+		}
 
+		function outsideClick(e) {
+			if (e.target.id === 'modal') {
+				closeModal();
+			}
+		}
 
+		function submitModal(event) {
+			event.preventDefault();
+			const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+			console.log(currentTab + ' 등록됨:', siteName);
+			closeModal();
+		}
 
-        //Modal ~ 
-        function openModal() {
-            const title = document.getElementById('modalTitle');
-            title.textContent = '신규 창고 등록';
-            document.getElementById('modal').style.display = 'flex';
-            document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function outsideClick(e) {
-            if (e.target.id === 'modal') {
-                closeModal();
-            }
-        }
-
-
-
-        function submitModal(event) {
-            event.preventDefault();
-            const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-            console.log(currentTab + ' 등록됨:', siteName);
-            closeModal();
-        }
-
-        //테이블 클릭 시 출력되는 modal
-        function opendatail() {
-            openModal();
-            document.getElementById('modalTitle').textContent = '창고 수정';
-            
-            document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-        }
-    </script>
+		//테이블 클릭 시 출력되는 modal
+		function opendatail() {
+			openModal();
+			document.getElementById('modalTitle').textContent = '창고 수정';
+			
+			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
+			document.querySelector('#modalForm button[name="edit"]').style.display = 'flex';
+		}
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			document.querySelectorAll('table').forEach(table => {
+				const firstCells = table.querySelectorAll('tbody tr td:first-child');
+				firstCells.forEach(td => {
+				td.setAttribute('onclick', 'event.stopPropagation()');
+				});
+			});
+			});
+	</script>
 
 </body>
 

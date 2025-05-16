@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>재고 관리</title>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
     
     <style>
@@ -102,7 +103,10 @@
             width: 30%;
             display: flex;
             justify-content: space-between;
+            gap: 10px;
         }
+        .table-wrapper>div:nth-child(1)>div >span{white-space: nowrap;}
+        .table-wrapper>div:nth-child(1)>div >select{width: 100%;}
 
         .table-wrapper>div:nth-child(1)>.btn-wrap1 {
             background: #fff;
@@ -384,7 +388,14 @@
                 </div>
                 <div class="table-wrapper">
                     <div>
-
+                        <div>
+                            <span>분류</span>
+                    <select>
+                        <option value="">--</option>
+                        <option value="자재">자재</option>
+                        <option value="품목">품목</option>
+                    </select>
+                        </div>
                         <input type="text" placeholder="검색" />
                         <div>
                             <input type="button" value="검색" />
@@ -405,8 +416,8 @@
 
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">자재코드<a>↓</a></th>
-                                    <th onclick="order(this)">자재명<a>↓</a></th>
+                                    <th onclick="order(this)">자재/품목코드<a>↓</a></th>
+                                    <th onclick="order(this)">자재/품목명<a>↓</a></th>
                                     <th onclick="order(this)">수량<a>↓</a></th>
                                     <th onclick="order(this)">단위<a>↓</a></th>
                                 </tr>
@@ -451,10 +462,10 @@
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재코드</span><input type="text" placeholder="자재번호를 입력해주세요" required />
+                    <span>자재/품목코드</span><input type="text" placeholder="자재/품목번호를 입력해주세요" required />
                 </div>
                 <div>
-                    <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" required />
+                    <span>자재/품목명</span><input type="text" placeholder="자재/품목명을 입력해주세요" required />
                 </div>
                 <div>
                     <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
@@ -527,7 +538,7 @@
         //Modal ~ 
         function openModal() {
             const title = document.getElementById('modalTitle');
-            title.textContent = '신규 자재 등록';
+            title.textContent = '신규 자재/품목 등록';
             document.getElementById('modal').style.display = 'flex';
             document.querySelector('#modalForm input[name="save"]').style.display = 'block';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
@@ -553,11 +564,20 @@
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
             openModal();
-            document.getElementById('modalTitle').textContent = '자재 정보';
+            document.getElementById('modalTitle').textContent = '자재/품목 정보';
             
             document.querySelector('#modalForm input[name="save"]').style.display = 'none';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+        	  document.querySelectorAll('table').forEach(table => {
+        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
+        	    firstCells.forEach(td => {
+        	      td.setAttribute('onclick', 'event.stopPropagation()');
+        	    });
+        	  });
+        	});
     </script>
 </body>
 
