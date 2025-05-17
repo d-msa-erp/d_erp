@@ -354,23 +354,23 @@
             </div>
           </div>
           <div>
-            <span class="active" onclick="switchTab(this, 'customer')">고객사</span>
-            <span onclick="switchTab(this, 'vendor')">매입처</span>
+            <span class="active" onclick="switchTab(this, 'customer')">거래처</span>
+            <span onclick="switchTab(this, 'vendor')">발주처</span>
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
               <input type="button" value="엑셀"></input>
               <input type="button" value="인쇄"></input>
             </div>
-            <p class="nodata">고객사 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
+            <p class="nodata">거래처 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
             <table class="grid-table">
               <thead>
                 <tr>
                   <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">대표자명<a>↓</a></th>
+                  <th onclick="order(this)">거래처명<a>↓</a></th>
+                  <th onclick="order(this)">담당자명<a>↓</a></th>
                   <th onclick="order(this)">연락처<a>↓</a></th>
                   <th onclick="order(this)">이메일<a>↓</a></th>
-                  <th>대표색</th>
                 </tr>
               </thead>
               <tbody>
@@ -380,14 +380,14 @@
                   <td>test</td>
                   <td>test</td>
                   <td>test</td>
-                  <td><input type="color" /></td>
+                  <td>test</td>
                 </tr>
                 <tr>
                   <td><input type="checkbox" /></td>
                   <td>test</td>
                   <td>test</td>
                   <td>test</td>
-                  <td><input type="color" /></td>
+                  <td>test</td>
                 </tr>
               </tbody>
             </table>
@@ -405,17 +405,17 @@
               <input type="button" value="엑셀"></input>
               <input type="button" value="인쇄"></input>
             </div>
-            <p class="nodata">매입처 데이터가 없습니다.</p>
+            <p class="nodata">발주처 데이터가 없습니다.</p>
             <table class="grid-table">
 
               <thead>
 
                 <tr>
                   <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">대표자명<a>↓</a></th>
+                  <th onclick="order(this)">발주처명<a>↓</a></th>
+                  <th onclick="order(this)">담당자명<a>↓</a></th>
                   <th onclick="order(this)">연락처<a>↓</a></th>
                   <th onclick="order(this)">이메일<a>↓</a></th>
-                  <th>대표색</th>
                 </tr>
               </thead>
               <tbody>
@@ -425,14 +425,14 @@
                   <td>test</td>
                   <td>test</td>
                   <td>test</td>
-                  <td><input type="color" /></td>
+                  <td>test</td>
                 </tr>
                 <tr>
                   <td><input type="checkbox" /></td>
                   <td>test</td>
                   <td>test</td>
                   <td>test</td>
-                  <td><input type="color" /></td>
+                  <td>test</td>
                 </tr>
               </tbody>
             </table>
@@ -478,20 +478,21 @@
 
           <span>Fax</span><input type="text" placeholder="Fax를 입력해주세요" required />
         </div>
+        <div>
+          
+          <span>업태</span><input type="text" placeholder="업태를 입력해주세요" required />
+        </div>
+        <div>
+          
+          <span>종목</span><input type="text" placeholder="종목을 입력해주세요" required />
+        </div>
+        <div>
+          <span>담당자명</span><input type="text" placeholder="담당자명을 입력해주세요" required />
+        </div>
         <div style="grid-column: span 2;">
 
           <span>주소</span><input type="text" placeholder="주소를 입력해주세요" required />
         </div>
-        <div>
-
-          <span>업태</span><input type="text" placeholder="업태를 입력해주세요" required />
-        </div>
-        <div>
-
-          <span>종목</span><input type="text" placeholder="종목을 입력해주세요" required />
-        </div>
-        <label><span>대표 색</span><input type="color" /></label>
-        <label><span>외주 여부</span><input type="checkbox" /></label>
       		<div class="modal-buttons">
 					<button type="button" name="save">등록</button>
 					<button type="button" name="edit">수정</button>
@@ -538,7 +539,7 @@
     //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
     function openModal() {
       const title = document.getElementById('modalTitle');
-      title.textContent = currentTab === 'customer' ? '신규 고객사 등록' : '신규 매입처 등록';
+      title.textContent = currentTab === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
       document.getElementById('modal').style.display = 'flex';
        document.querySelector('#modalForm button[name="save"]').style.display = 'block';
             document.querySelector('#modalForm button[name="edit"]').style.display = 'none';

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>발주 관리</title>
     <style th:replace="~{/top.html :: topstyle}"></style>
-    
+
     <style>
         * {
             margin: 0;
@@ -22,10 +22,10 @@
         }
 
         .site-Wrapper {
-                width: 100%;
-    align-self: center;
-    max-width: 1200px;
-    padding: 20px
+            width: 100%;
+            align-self: center;
+            max-width: 1200px;
+            padding: 20px
         }
 
         .site-Dataset {
@@ -197,7 +197,7 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 2fr;
+            grid-template-columns: 1fr 2fr 2fr 3fr 1fr 2fr 1fr 2fr;
         }
 
         thead,
@@ -287,7 +287,7 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -366,11 +366,26 @@
         .modal-content .modal-buttons>:nth-child(3)[type="button"] {
             background: #777;
         }
+
+        .flex-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .flex-row>div {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .flex-row>div>span {
+            white-space: nowrap;
+        }
     </style>
 </head>
 
 <body>
-<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
@@ -381,7 +396,7 @@
                 </div>
                 <div class="table-wrapper">
                     <div>
-
+                        <div style="color: red;">적정재고 n개 미만은 이곳에 출력</div>
                         <input type="text" placeholder="검색" />
                         <div>
                             <input type="button" value="검색" />
@@ -404,8 +419,11 @@
                                     <th><input type="checkbox" /></th>
                                     <th onclick="order(this)">자재번호<a>↓</a></th>
                                     <th onclick="order(this)">자재명<a>↓</a></th>
-                                    <th onclick="order(this)">매입처<a>↓</a></th>
-                                    <th onclick="order(this)">매입처 담당자<a>↓</a></th>
+                                    <th onclick="order(this)">발주처<a>↓</a></th>
+                                    <th onclick="order(this)">수량<a>↓</a></th>
+                                    <th onclick="order(this)">발주일<a>↓</a></th>
+                                    <th onclick="order(this)">총액<a>↓</a></th>
+                                    <th onclick="order(this)">발주처 담당자<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -416,9 +434,15 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" /></td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
@@ -439,14 +463,14 @@
 
                 </div>
             </div>
-    </form>
+        </form>
     </div>
 
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+            <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
                 <div>
                     <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" required />
@@ -457,43 +481,47 @@
                 <div>
                     <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
                 </div>
-                <div>
-                    <span>적정 재고</span><input type="text" placeholder="적정 재고를 입력해주세요" required />
+                <div class="flex-row">
+                    <div>
+                        <span>발주 수량 : </span><input type="text" placeholder="단위를 입력해주세요" required />
+                    </div>
+
+                    <div><span>적정 재고 :</span> <span>255</span></div>
+                    <div><span>현재 재고 :</span> <span>255</span></div>
+
                 </div>
+
                 <div>
-                    <span>단위</span><input type="text" placeholder="단위를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>매입처</span>
+                    <span>발주처</span>
                     <select>
-                        <option value="">매입처를 선택해주세요</option>
-                        <option value="1">매입처1</option>
-                        <option value="2">매입처2</option>
-                        <option value="3">매입처3</option>
+                        <option value="">발주처를 선택해주세요</option>
+                        <option value="1">발주처1</option>
+                        <option value="2">발주처2</option>
+                        <option value="3">발주처3</option>
                     </select>
                 </div>
                 <div>
-
-                    <span>담당자</span><input type="text" placeholder="담당자를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>담당자 전화번호</span><input type="text" placeholder="담당자 전화번호를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>담당자 이메일</span><input type="text" placeholder="담당자 이메일을 입력해주세요" required />
+                    <div>
+                        <span>발주일</span>
+                        <input type="date" id="orderDate" readonly/>
+                    </div>
+                    <div>
+                        <span>납기예정일</span>
+                        <input type="date" />
+                    </div>
                 </div>
                 <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save"/>
-                    <input type="submit" value="수정" name="edit"/>
+                    <input type="submit" value="등록" name="save" />
+                    <input type="submit" value="수정" name="edit" />
                     <input type="button" value="취소" onclick="closeModal()" />
                 </div>
-        </form>
+            </form>
         </div>
 
     </div>
 
 
-<script src="/js/top.js"></script>
+    <script src="/js/top.js"></script>
     <script>
         let currentTh = null;
         let currentOrder = 'desc';
@@ -513,14 +541,20 @@
             arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
         }
 
-
-
+//발주일 핸들링용
+            document.addEventListener('DOMContentLoaded', function () {
+                        const today = new Date();
+                        const yyyy = today.getFullYear();
+                        const mm = String(today.getMonth() + 1).padStart(2, '0');
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
+                    });
 
 
         //Modal ~ 
         function openModal() {
             const title = document.getElementById('modalTitle');
-            title.textContent = '신규 자재 등록';
+            title.textContent = '신규 발주 등록';
             document.getElementById('modal').style.display = 'flex';
             document.querySelector('#modalForm input[name="save"]').style.display = 'block';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
@@ -546,20 +580,20 @@
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
             openModal();
-            document.getElementById('modalTitle').textContent = '자재 정보';
-            
+            document.getElementById('modalTitle').textContent = '발주 정보';
+
             document.querySelector('#modalForm input[name="save"]').style.display = 'none';
             document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
-        	  document.querySelectorAll('table').forEach(table => {
-        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
-        	    firstCells.forEach(td => {
-        	      td.setAttribute('onclick', 'event.stopPropagation()');
-        	    });
-        	  });
-        	});
+            document.querySelectorAll('table').forEach(table => {
+                const firstCells = table.querySelectorAll('tbody tr td:first-child');
+                firstCells.forEach(td => {
+                    td.setAttribute('onclick', 'event.stopPropagation()');
+                });
+            });
+        });
     </script>
 </body>
 

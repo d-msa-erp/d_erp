@@ -5,9 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>주문 관리</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
-    
+
     <style>
         * {
             margin: 0;
@@ -207,7 +207,7 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr 2fr 2fr 1fr 1fr;
+            grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr;
             overflow-x: auto;
         }
 
@@ -288,17 +288,17 @@
         }
 
         .modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -397,10 +397,10 @@
 
         .toggle-switch {
             position: relative;
-    min-width: 30px;
-    max-width: 30px;
-    min-height: 16px;
-    max-height: 16px;
+            min-width: 30px;
+            max-width: 30px;
+            min-height: 16px;
+            max-height: 16px;
         }
 
         .toggle-switch input {
@@ -422,15 +422,15 @@
         }
 
         .slider::before {
-     position: absolute;
-    content: "";
-    height: 10px;
-    width: 10px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.4s;
-    border-radius: 50%;
+            position: absolute;
+            content: "";
+            height: 10px;
+            width: 10px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
         }
 
         input:checked+.slider {
@@ -458,7 +458,7 @@
 </head>
 
 <body>
-<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">주문 관리</h1>
@@ -481,7 +481,7 @@
                             <input type="date" /> -
                             <input type="date" />
                         </div>
-                   
+
                         <input type="text" placeholder="검색" />
                         <div>
                             <input type="button" value="검색" />
@@ -502,16 +502,12 @@
 
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">발주번호<a>↓</a></th>
-                                    <th onclick="order(this)">도번<a>↓</a></th>
+                                    <th onclick="order(this)">주문번호<a>↓</a></th>
+                                    <th onclick="order(this)">품명<a>↓</a></th>
                                     <th onclick="order(this)">품목<a>↓</a></th>
-                                    <th onclick="order(this)">규격<a>↓</a></th>
+                                    <th onclick="order(this)">수량<a>↓</a></th>
                                     <th onclick="order(this)">고객사<a>↓</a></th>
-                                    <th onclick="order(this)">착수일<a>↓</a></th>
-                                    <th onclick="order(this)">매입처 담당자<a>↓</a></th>
                                     <th onclick="order(this)">납기일<a>↓</a></th>
-                                    <th onclick="order(this)">링 유무<a>↓</a></th>
-                                    <th onclick="order(this)">도면 유무<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -524,10 +520,6 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>X</td>
-                                    <td>X</td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" /></td>
@@ -537,10 +529,6 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>O</td>
-                                    <td>O</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -557,7 +545,7 @@
 
                 </div>
             </div>
-    </form>
+        </form>
     </div>
 
     <!--신규 등록 Modal-->
@@ -572,7 +560,7 @@
                     <span>납기일</span><input type="date" required />
                 </div>
                 <div>
-                    <span>발주번호</span><input type="text" placeholder="발주번호를 입력해주세요" required />
+                    <span>발주번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
                 </div>
                 <div>
                     <span>고객사</span><select required>
@@ -584,17 +572,12 @@
 
                 </div>
                 <div>
-                    <span>담당자</span><input type="text" placeholder="담당자를 입력해주세요" required />
+                    <span>담당자</span><input type="text" placeholder="세션으로 받아오기" required />
                 </div>
                 <div>
-                    <span>담당자 번호</span><input type="text" placeholder="담당자 번호를 입력해주세요" required />
+                    <span>담당자 번호</span><input type="text" placeholder="세션으로 받아오기" required />
                 </div>
-                <div>
-                    <span>도번</span><input type="text" placeholder="도번을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>도면</span><input type="file" />
-                </div>
+
                 <div class="three-items">
 
                     <div>
@@ -607,53 +590,24 @@
                         </select>
 
                     </div>
-                    <div>
-                        <span>규격</span>
-                        <select required>
-                            <option value="">규격을 선택해주세요</option>
-                            <option value="1">규격1</option>
-                            <option value="2">규격2</option>
-                            <option value="3">규격3</option>
-                        </select>
 
-                    </div>
                     <div>
                         <span>수량</span><input type="text" placeholder="수량을 입력해주세요" required />
                     </div>
-                </div>
-
-                <div>
-                    <span>링 유무</span>
                     <div>
-                        <label><input type="radio" name="ring" value="유" />유</label>
-                        <label><input type="radio" name="ring" value="무" />무</label>
+                        <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
+
                     </div>
                 </div>
-                <div>
-                    <span>링 깊이</span><input type="text" placeholder="링 깊이를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>포장방식</span><input type="text" placeholder="포장방식을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>공정 설정</span>
-                    <select required>
-                        <option value="">공정 설정을 선택해주세요</option>
-                        <option value="1">공정 설정1</option>
-                        <option value="2">공정 설정2</option>
-                        <option value="3">공정 설정3</option>
-                    </select>
 
+
+
+                <div class="modal-buttons" style="grid-column-start: 2;">
+                    <input type="submit" value="등록" name="save" style="display: none;">
+                    <input type="submit" value="수정" name="edit" style="display: block;">
+                    <input type="button" value="취소" onclick="closeModal()">
                 </div>
-                <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save" />
-                    <input type="submit" value="수정" name="edit"/>
-                    <input type="button" value="취소" onclick="closeModal()" />
-                </div>
-        </form>
+            </form>
         </div>
 
     </div>
@@ -661,78 +615,78 @@
 </body>
 <script src="/js/top.js"></script>
 
-    <script>
+<script>
 
-        //Slide 버튼
-        function toggleText(el) {
-            const label = document.getElementById('toggleState');
-            label.textContent = el.checked ? '납기일' : '착수일';
+    //Slide 버튼
+    function toggleText(el) {
+        const label = document.getElementById('toggleState');
+        label.textContent = el.checked ? '납기일' : '착수일';
+    }
+
+    let currentTh = null;
+    let currentOrder = 'desc';
+
+    function order(thValue) {//정렬
+        const allArrows = document.querySelectorAll("th a");
+        allArrows.forEach(a => a.textContent = '↓');
+
+        if (currentTh === thValue) {
+            currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+        } else {
+            currentOrder = 'asc';
+            currentTh = thValue;
         }
 
-        let currentTh = null;
-        let currentOrder = 'desc';
-
-        function order(thValue) {//정렬
-            const allArrows = document.querySelectorAll("th a");
-            allArrows.forEach(a => a.textContent = '↓');
-
-            if (currentTh === thValue) {
-                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-            } else {
-                currentOrder = 'asc';
-                currentTh = thValue;
-            }
-
-            const arrow = thValue.querySelector('a');
-            arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-        }
+        const arrow = thValue.querySelector('a');
+        arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+    }
 
 
 
 
 
-        //Modal ~ 
-        function openModal() {
-            const title = document.getElementById('modalTitle');
-            title.textContent = '접수 등록';
-            document.getElementById('modal').style.display = 'flex';
-            document.querySelector('#modalForm input[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
-        }
+    //Modal ~ 
+    function openModal() {
+        const title = document.getElementById('modalTitle');
+        title.textContent = '접수 등록';
+        document.getElementById('modal').style.display = 'flex';
+        document.querySelector('#modalForm input[name="save"]').style.display = 'block';
+        document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
+    }
 
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
 
-        function outsideClick(e) {
-            if (e.target.id === 'modal') {
-                closeModal();
-            }
-        }
-        function submitModal(event) {
-            event.preventDefault();
-            const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-            console.log(currentTab + ' 등록됨:', siteName);
+    function outsideClick(e) {
+        if (e.target.id === 'modal') {
             closeModal();
         }
+    }
+    function submitModal(event) {
+        event.preventDefault();
+        const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+        console.log(currentTab + ' 등록됨:', siteName);
+        closeModal();
+    }
 
-//테이블 클릭 시 출력되는 modal
-        function opendatail() {
-            openModal();
-            document.getElementById('modalTitle').textContent = '접수 정보';
-            
-            document.querySelector('#modalForm input[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-        	  document.querySelectorAll('table').forEach(table => {
-        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
-        	    firstCells.forEach(td => {
-        	      td.setAttribute('onclick', 'event.stopPropagation()');
-        	    });
-        	  });
-        	});
-    </script>
+    //테이블 클릭 시 출력되는 modal
+    function opendatail() {
+        openModal();
+        document.getElementById('modalTitle').textContent = '접수 정보';
+
+        document.querySelector('#modalForm input[name="save"]').style.display = 'none';
+        document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('table').forEach(table => {
+            const firstCells = table.querySelectorAll('tbody tr td:first-child');
+            firstCells.forEach(td => {
+                td.setAttribute('onclick', 'event.stopPropagation()');
+            });
+        });
+    });
+</script>
 
 </html>
