@@ -349,11 +349,11 @@
             grid-column-start: 3;
         }
 
-        .modal-content .modal-buttons>input:hover {
+        .modal-content .modal-buttons>button:hover {
             filter: brightness(0.9);
         }
 
-        .modal-content .modal-buttons>input {
+        .modal-content .modal-buttons>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -406,7 +406,7 @@
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
 							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 검색
+								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
                         </div>
                     </div>
@@ -521,9 +521,16 @@
                     </div>
                 </div>
                 <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save" />
-                    <input type="submit" value="수정" name="edit" />
-                    <input type="button" value="취소" onclick="closeModal()" />
+                    <button type="button" name="save">
+						<span class="material-symbols-outlined">check</span> 등록
+					</button>
+					<button type="button" name="edit">
+						<span class="material-symbols-outlined">edit</span> 수정
+					</button>
+					<button type="button" onclick="closeModal()">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
+
                 </div>
             </form>
         </div>
@@ -566,8 +573,8 @@
             const title = document.getElementById('modalTitle');
             title.textContent = '신규 발주 등록';
             document.getElementById('modal').style.display = 'flex';
-            document.querySelector('#modalForm input[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
+            document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+            document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
         }
 
         function closeModal() {
@@ -590,10 +597,11 @@
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
             openModal();
-            document.getElementById('modalTitle').textContent = '발주 정보';
+            document.getElementById('modalTitle').textContent = '자재 정보';
+            
+            document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
+            document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
 
-            document.querySelector('#modalForm input[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
