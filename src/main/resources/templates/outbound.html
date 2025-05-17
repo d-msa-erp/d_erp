@@ -511,13 +511,17 @@
                 <div class="table-wrapper">
                     <div>
                         <div>
+                            <select style="width: 100%;">
+                                <option value="전체">전체</option>
+                                <option value="출고전">출고 전</option>
+                                <option value="출고완료">출고 완료</option>
 
+                            </select>
                         </div>
 
                         <input type="text" placeholder="검색" />
                         <div>
                             <input type="button" value="검색" />
-                            <input type="button" value="신규등록" onclick="openModal()" />
                             <input type="button" value="삭제" />
                         </div>
                     </div>
@@ -599,7 +603,7 @@
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle">출고 등록</h3>
+            <h3 id="modalTitle">출고 정보</h3>
             <form id="modalForm" class="modalForm" style="display: gird;">
 
                 <div>
