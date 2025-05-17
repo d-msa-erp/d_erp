@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>top 공통</title>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
   <style th:fragment="topstyle">
     * {
       margin: 0;
@@ -221,6 +222,36 @@
             flex-direction: column;
         }
 
+        .userName:hover{
+          text-decoration: underline;
+          cursor: pointer;
+        }
+        /* Tooltip 스타일 */
+        .userName-tooltip {
+          visibility: hidden;
+          background-color: #333;
+          color: #fff;
+          text-align: center;
+          border-radius: 4px;
+          padding: 5px 10px;
+          position: absolute;
+          z-index: 1;
+          top: 78%;
+    left: 89%;
+          transform: translateX(-50%);
+          white-space: nowrap;
+          font-size: 0.95rem;
+          opacity: 0;
+          transition: opacity 0.2s;
+        }
+        .userName:hover + .userName-tooltip,
+        .userName:focus + .userName-tooltip {
+          visibility: visible;
+          opacity: 1;
+        }
+        .top-bar {
+          position: relative;
+        }
   </style>
 </head>
 <body>
@@ -229,7 +260,8 @@
       <div class="top-bar">
         <div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
         <div class="text-sm">
-          홍길동 님 | <button class="logout">로그아웃</button><!--로그인 안되어있으면 login버튼만 출력-->
+          <span onclick="location.href='/mypage'" class="userName">
+<span class="material-symbols-outlined">person</span>홍길동</span> 님 <div class="userName-tooltip">마이페이지로 이동</div>| <button class="logout">로그아웃</button><!--로그인 안되어있으면 login버튼만 출력-->
         </div>
       </div>
 

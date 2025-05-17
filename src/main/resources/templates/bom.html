@@ -265,17 +265,12 @@
 		}
 
 		.pagination-wrap>div button {
-			width: 40px;
-			background: #007bff;
-			color: white;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 2px;
-			font-size: 16px;
+width: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 		}
 
 		.table-wrapper button:hover {
@@ -498,7 +493,7 @@
 		}
 
 		#category-table {
-			grid-template-columns: 0.3fr 1fr 1fr 1fr 1fr 0.3fr !important;
+			grid-template-columns: 0.3fr 1fr 1fr 1fr 2fr 0.3fr !important;
 		}
 
 		#category-table input[type="text"] {
@@ -532,7 +527,7 @@
 
 		.category-sub-add {
 			display: grid;
-			grid-template-columns: 1.2fr 1fr 0.7fr !important;
+			grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
 			gap: 6px;
 			margin-top: 4px;
 		}
@@ -853,17 +848,25 @@
 						</div>
 					</div>
 				</div>
-				<div class="modal-buttons">
-					<button type="button" name="save">
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save" style="display: none;">
 						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit">
+					<button type="button" name="edit" style="display: block;">
 						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal('modal')">
 						<span class="material-symbols-outlined">close</span> 취소
 					</button>
 				</div>
+				</div>
+
+
+
+				
 			</form>
 		</div>
 
@@ -927,7 +930,8 @@
 					</table>
 				</div>
 				<div class="category-add-row">
-					<input type="text" id="new-category" placeholder="새 대분류명" required />
+					<input type="text" id="new-category" placeholder="대분류명" required />
+					<input type="text" id="new-category-code" placeholder="대분류코드" required />
 					<input type="text" id="new-category-memo" placeholder="비고" />
 					<button type="button" onclick="addCategoryRow()">
 						<span class="material-symbols-outlined">add</span> 대분류 추가
@@ -935,15 +939,30 @@
 				</div>
 				<div class="category-add-row">
 					<input type="text" id="new-subcategory-name" placeholder="소분류명" />
+					<input type="text" id="new-subcategory-code" placeholder="소분류코드" />
 					<input type="text" id="new-subcategory-memo" placeholder="비고" />
 					<button type="button" onclick="addSubCategoryToChecked()">
 						<span class="material-symbols-outlined">add</span> 소분류 추가
 					</button>
 				</div>
-				<div class="modal-buttons">
+				<!-- <div class="modal-buttons">
 					<button type="button"><span class="material-symbols-outlined">save</span> 등록</button>
 					<button type="button" onclick="closeModal('modal-category')"><span
 							class="material-symbols-outlined">close</span> 닫기</button>
+				</div> -->
+
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+			
+					<button type="button" onclick="closeModal('modal-category')" style="background: #777;">
+						<span class="material-symbols-outlined" >close</span> 취소
+					</button>
+				</div>
 				</div>
 			</form>
 		</div>
@@ -952,8 +971,10 @@
 		// 체크박스 선택된 대분류에 소분류 추가
 		function addSubCategoryToChecked() {
 			const nameInput = document.getElementById('new-subcategory-name');
+			const codeInput = document.getElementById('new-subcategory-code');
 			const memoInput = document.getElementById('new-subcategory-memo');
 			const name = nameInput.value.trim();
+			const code = codeInput.value.trim();
 			const memo = memoInput.value.trim();
 			if (!name) return;
 			const checkboxes = document.querySelectorAll('#category-table .category-checkbox:checked');
@@ -967,12 +988,14 @@
 				const newTr = document.createElement('tr');
 				newTr.innerHTML = `
 					<td><input type="text" value="${name}" /></td>
+					<td><input type="text" value="${code}" /></td>
 					<td><input type="text" value="${memo}" /></td>
 					<td><button type="button" onclick="removeSubCategoryRow(this)">삭제</button></td>
 				`;
 				tbody.appendChild(newTr);
 			});
 			nameInput.value = '';
+			codeInput.value = '';
 			memoInput.value = '';
 		}
 	</script>
@@ -980,8 +1003,10 @@
 		// 대분류 추가
 		function addCategoryRow() {
 			const input = document.getElementById('new-category');
+			const codeInput = document.getElementById('new-category-code');
 			const memoInput = document.getElementById('new-category-memo');
 			const value = input.value.trim();
+			const code = codeInput.value.trim();
 			const memo = memoInput.value.trim();
 			if (!value) return;
 			const table = document.getElementById('category-table').getElementsByTagName('tbody')[0];
@@ -989,13 +1014,14 @@
 			row.innerHTML = `
 				<td><input type="checkbox" class="category-checkbox"/></td>
 				<td><input type="text" value="${value}" style="width:98%;" /></td>
-				<td><input type="text" value="" style="width:98%;" /></td>
+				<td><input type="text" value="${code}" style="width:98%;" /></td>
 				<td><input type="text" value="${memo}" style="width:98%;" /></td>
 				<td style="padding:0 !important; display:flex; flex-direction:column;">
-					<table class="grid-table" style="background:#f9f9f9; grid-template-columns: 1.2fr 1fr 0.7fr !important; margin:0 !important;">
+					<table class="grid-table" style="background:#f9f9f9; grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important; margin:0 !important;">
 						<thead>
 							<tr>
 								<th style="font-size:13px;">소분류명</th>
+								<th style="font-size:13px;">소분류코드</th>
 								<th style="font-size:13px;">비고</th>
 								<th style="font-size:13px;">삭제</th>
 							</tr>
@@ -1097,11 +1123,20 @@
 				</div>
 				<div style="display:flex; gap:10px; margin-top:10px;"></div>
 				<input type="text" id="new-spec-unit" placeholder="새 단위 입력" style="flex:1;" required />
-				<div class="modal-buttons">
-					<button type="submit"><span class="material-symbols-outlined">add</span>
-						추가</button><!--추가는 진짜 추가만 되는거고-->
-					<button type="button" onclick="closeModal('modal-spec')"><span
-							class="material-symbols-outlined">close</span> 닫기</button>
+	
+
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+		
+					<button type="button" style="background: #777;" onclick="closeModal('modal-spec')">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
+				</div>
 				</div>
 			</form>
 		</div>

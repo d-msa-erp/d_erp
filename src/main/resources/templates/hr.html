@@ -265,18 +265,12 @@
         }
 
         .pagination-wrap>div button {
-    width: 40px;
+      width: 20px;
     background: #007bff;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    display: flex
-;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    font-size: 16px;
         }
 
         .table-wrapper button:hover {
@@ -550,7 +544,7 @@
                         </table>
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
-                            <div class="paigination">
+                            <div class="pagination">
                                <button type="button" id="btn-prev-page">
 									<span class="material-symbols-outlined">chevron_left</span>
 								</button>
@@ -598,11 +592,20 @@
                     <label>퇴사자 <input type="radio" name="userStatus" /></label>
                 </div>
 
-                <div class="modal-buttons">
-                    <button type="submit" name="save">등록</button>
-                    <button type="submit" name="edit">수정</button>
-                    <button type="submit" onclick="closeModal()">취소</button>
-                </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+						<button type="button" name="save" style="display: none;">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+						<button type="button" name="edit" style="display: flex;">
+							<span class="material-symbols-outlined">edit</span> 수정
+						</button>
+						<button type="button" onclick="closeModal()">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
+				</div>
             </form>
         </div>
 

@@ -263,7 +263,7 @@
             text-align: center;
         }
 
-        .pagination-wrap>div input[type="button"] {
+        .pagination-wrap>div button {
             width: 20px;
             background: #007bff;
             color: white;
@@ -272,7 +272,7 @@
             cursor: pointer;
         }
 
-        .table-wrapper input[type="button"]:hover {
+        .table-wrapper button:hover {
             filter: brightness(0.9);
         }
 
@@ -460,14 +460,18 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <div class="pagination-wrap">
-                            총 n건 1/n페이지
-                            <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
-                            </div>
-                        </div>
+                   <div class="pagination-wrap">
+							총 n건 1/n페이지
+					<div class="pagiination">
+								<button type="button" id="btn-prev-page">
+									<span class="material-symbols-outlined">chevron_left</span>
+								</button>
+								<input type="text" value="1">
+								<button type="button" id="btn-next-page">
+									<span class="material-symbols-outlined">chevron_right</span>
+								</button>
+							</div>
+						</div>
                     </div>
 
 
@@ -520,18 +524,20 @@
                         <input type="date" />
                     </div>
                 </div>
-                <div class="modal-buttons">
-                    <button type="button" name="save">
-						<span class="material-symbols-outlined">check</span> 등록
-					</button>
-					<button type="button" name="edit">
-						<span class="material-symbols-outlined">edit</span> 수정
-					</button>
-					<button type="button" onclick="closeModal()">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
-                </div>
+					<div class="modal-buttons" style="grid-column-start: 3;">
+						<button type="button" name="save" style="display: none;">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+						<button type="button" name="edit" style="display: block;">
+							<span class="material-symbols-outlined">edit</span> 수정
+						</button>
+						<button type="button" onclick="closeModal()">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
+				</div>
             </form>
         </div>
 

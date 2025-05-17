@@ -5,9 +5,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>출고 관리</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
-    
+
     <style>
         * {
             margin: 0;
@@ -117,7 +117,7 @@
             gap: 10px;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"] {
+        .table-wrapper>div:nth-child(1)>div button {
             width: 30%;
             background: #fff;
             border: none;
@@ -125,7 +125,7 @@
             cursor: pointer;
         }
 
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 input[type="button"] {
+        .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
             padding: 5px;
             gap: 10px;
             background: #fff;
@@ -134,17 +134,14 @@
             cursor: pointer;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
             background: #007bff;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
-            background: #28a745;
-            color: white;
-        }
+    
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
             background: #dc3545;
             color: white;
         }
@@ -191,7 +188,7 @@
             width: 200px;
         }
 
-        .print-wrap>input[type="button"] {
+        .print-wrap>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -246,7 +243,6 @@
             background: #f0f0f0;
             font-weight: bold;
             cursor: pointer;
-            font-size: 0.7rem;
         }
 
         table input[type="text"] {
@@ -272,7 +268,7 @@
             text-align: center;
         }
 
-        .pagination-wrap>div input[type="button"] {
+        .pagination-wrap>div button {
             width: 20px;
             background: #007bff;
             color: white;
@@ -281,22 +277,22 @@
             cursor: pointer;
         }
 
-        .table-wrapper input[type="button"]:hover {
+        .table-wrapper button:hover {
             filter: brightness(0.9);
         }
 
         .modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
 
         .modal-content {
@@ -365,11 +361,11 @@
             width: 100%;
         }
 
-        .modal-content .modal-buttons>input[type="button"]:hover {
+        .modal-content .modal-buttons>button:hover {
             filter: brightness(0.9);
         }
 
-        .modal-content .modal-buttons>input {
+        .modal-content .modal-buttons>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -378,10 +374,9 @@
             cursor: pointer;
             padding: 5px;
         }
-
-        .modal-content .modal-buttons>:nth-child(2)[type="button"] {
-            background: #777;
-        }
+.modal-buttons button:nth-of-type(3) {
+    background: #777 !important;
+}
 
         /* 슬라이드 css */
         .toggle-wrapper {
@@ -499,7 +494,7 @@
 </head>
 
 <body>
-<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">출고 관리</h1>
@@ -521,8 +516,13 @@
 
                         <input type="text" placeholder="검색" />
                         <div>
-                            <input type="button" value="검색" />
-                            <input type="button" value="삭제" />
+                            <button type="button">
+                                <span class="material-symbols-outlined">search</span> 검색
+                            </button>
+
+                            <button type="button">
+                                <span class="material-symbols-outlined">delete</span> 삭제
+                            </button>
                         </div>
                     </div>
                     <div class="shipping-info" id="shipping-info">
@@ -540,15 +540,21 @@
                                 </select></div>
                         </div>
                     </div>
-                    
+
                     <span class="smallTitle" id="inTitle">출고 목록</span>
 
                     <!--출고파트 테이블-->
-                    <div id="table-customer" style="padding: 20px; position: relative; overflow-x: auto;">
+                    <div id="table-customer" style="padding: 20px; position: relative;">
                         <div class="print-wrap">
-                            <input type="button" value="엑셀"></input>
-                            <input type="button" value="인쇄"></input>
+                            <button type="button">
+                                <span class="material-symbols-outlined">table_view</span> 엑셀
+                            </button>
+                            <button type="button">
+                                <span class="material-symbols-outlined">print</span> 인쇄
+                            </button>
                         </div>
+
+
                         <p class="nodata">등록된 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
                         <table class="grid-table">
 
@@ -585,11 +591,15 @@
                         </table>
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
-                            <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
-                            </div>
+                       <div class="paigination">
+								<button type="button">
+									<span class="material-symbols-outlined">chevron_left</span>
+								</button>
+								<input type="text" value="1">
+								<button type="button">
+									<span class="material-symbols-outlined">chevron_right</span>
+								</button>
+							</div>
                         </div>
                     </div>
 
@@ -597,7 +607,7 @@
 
 
             </div>
-    </form>
+        </form>
     </div>
 
     <!--신규 등록 Modal-->
@@ -634,17 +644,26 @@
                     </select>
                 </div>
 
-                <div class="modal-buttons">
-                    <input type="submit" value="등록" name="save" />
-                    <input type="submit" value="저장" name="edit" />
-                    <input type="button" value="취소" onclick="closeModal()" />
-                </div>
             </form>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+                  <div class="modal-buttons" style="grid-column-start: 3;">
+                      <button type="button" name="save" style="display: none;">
+                          <span class="material-symbols-outlined">save</span> 등록
+                      </button>
+                      <button type="button" name="edit">
+                          <span class="material-symbols-outlined">edit</span> 수정
+                      </button>
+                      <button type="button" onclick="closeModal()">
+                          <span class="material-symbols-outlined">close</span> 취소
+                      </button>
+                  </div>
+              </div>
         </div>
     </div>
 
 
-<script src="/js/top.js"></script>
+    <script src="/js/top.js"></script>
     <script>
 
         //Modal
@@ -706,18 +725,18 @@
 
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
-            openModal();          
+            openModal();
         }
 
 
         document.addEventListener('DOMContentLoaded', () => {
-        	  document.querySelectorAll('table').forEach(table => {
-        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
-        	    firstCells.forEach(td => {
-        	      td.setAttribute('onclick', 'event.stopPropagation()');
-        	    });
-        	  });
-        	});
+            document.querySelectorAll('table').forEach(table => {
+                const firstCells = table.querySelectorAll('tbody tr td:first-child');
+                firstCells.forEach(td => {
+                    td.setAttribute('onclick', 'event.stopPropagation()');
+                });
+            });
+        });
     </script>
 </body>
 

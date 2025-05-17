@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>거래처 관리</title>
+
+  <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
   <style th:replace="~{/top.html :: topstyle}"></style>
   <style>
     * {
@@ -102,7 +104,7 @@
       justify-content: space-between;
     }
 
-    .table-wrapper>div:nth-child(1)>div input[type="button"] {
+    .table-wrapper>div:nth-child(1)>div button {
       width: 30%;
       background: #fff;
       border: none;
@@ -110,17 +112,17 @@
       cursor: pointer;
     }
 
-    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+    .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
       background: #007bff;
       color: white;
     }
 
-    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
+    .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
       background: #28a745;
       color: white;
     }
 
-    .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+    .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
       background: #dc3545;
       color: white;
     }
@@ -139,7 +141,7 @@
 
     .table-wrapper>div:nth-child(2)>span.active {
       font-weight: bold;
-      text-decoration: underline;
+      border-bottom: 2px solid #46a6ff;
     }
 
     .table-wrapper>div:nth-child(3) {
@@ -160,7 +162,7 @@
       width: 200px;
     }
 
-    .print-wrap>input[type="button"] {
+    .print-wrap>button {
       width: 100%;
       background: #007bff;
       color: #fff;
@@ -237,7 +239,7 @@
       text-align: center;
     }
 
-    .pagination-wrap>div input[type="button"] {
+    .pagination-wrap>div button {
       width: 20px;
       background: #007bff;
       color: white;
@@ -246,7 +248,7 @@
       cursor: pointer;
     }
 
-    .table-wrapper input[type="button"]:hover {
+    .table-wrapper button:hover {
       filter: brightness(0.9);
     }
 
@@ -270,7 +272,7 @@
       position: relative;
     }
 
-    .modal-content .modalForm {
+    .modalForm {
       margin-top: 20px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -279,47 +281,47 @@
       align-items: center;
     }
 
-    .modal-content .modalForm>div,
-    .modal-content .modalForm>label {
+    .modalForm>div,
+    .modalForm>label {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .modal-content .modalForm>div>span,
-    .modal-content .modalForm>label>span {
+    .modalForm>div>span,
+    .modalForm>label>span {
       white-space: nowrap;
       padding-right: 10px;
     }
 
-    .modal-content input[type="text"] {
+    input[type="text"] {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
     }
 
-    .modal-content input[type="color"] {
+    input[type="color"] {
       width: 100%;
       height: 40px;
       border: none;
       margin-top: 10px;
     }
 
-    .modal-content .modal-buttons {
-      margin-top: 15px;
+    .modal-buttons {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
       width: 100%;
+      height: 100%;
       grid-column-start: 3;
     }
 
-    .modal-content .modal-buttons>input:hover {
+    .modal-buttons>input:hover {
       filter: brightness(0.9);
     }
 
-    .modal-content .modal-buttons>input {
+    .modal-buttons>input {
       width: 100%;
       background: #007bff;
       color: #fff;
@@ -329,14 +331,20 @@
       padding: 5px;
     }
 
-    .modal-content .modal-buttons>:nth-child(2)[type="button"] {
-      background: #777;
+    .modal-buttons>button {
+      width: 100%;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      padding: 5px;
     }
   </style>
 </head>
 
 <body>
-<div th:replace="~{/top.html :: top}"></div>
+  <div th:replace="~{/top.html :: top}"></div>
   <div class="site-Wrapper flx-col">
     <h1 style="font-size: 24px; margin-bottom: 16px;">거래처 관리</h1>
     <form id="frm" method="get" action="#">
@@ -348,9 +356,15 @@
           <div>
             <input type="text" placeholder="검색" />
             <div>
-              <input type="button" value="검색" />
-              <input type="button" value="신규등록" onclick="openModal()" />
-              <input type="button" value="삭제" />
+              <button type="button">
+                <span class="material-symbols-outlined">search</span> 검색
+              </button>
+              <button type="button" onclick="openModal()">
+                <span class="material-symbols-outlined">add</span> 신규등록
+              </button>
+              <button type="button">
+                <span class="material-symbols-outlined">delete</span> 삭제
+              </button>
             </div>
           </div>
           <div>
@@ -359,8 +373,12 @@
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
-              <input type="button" value="엑셀"></input>
-              <input type="button" value="인쇄"></input>
+              <button type="button">
+                <span class="material-symbols-outlined">table_view</span> 엑셀
+              </button>
+              <button type="button">
+                <span class="material-symbols-outlined">print</span> 인쇄
+              </button>
             </div>
             <p class="nodata">거래처 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
             <table class="grid-table">
@@ -394,16 +412,24 @@
             <div class="pagination-wrap">
               총 n건 1/n페이지
               <div class="paigination">
-                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                <input type="text" value="1" />
-                <input type="button" value="▶" />
+                <button type="button" id="btn-prev-page">
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <input type="text" value="1">
+                <button type="button" id="btn-next-page">
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
               </div>
             </div>
           </div>
           <div id="table-vendor" style="display: none; padding: 20px; position: relative;">
-            <div class="print-wrap">
-              <input type="button" value="엑셀"></input>
-              <input type="button" value="인쇄"></input>
+           <div class="print-wrap">
+              <button type="button">
+                <span class="material-symbols-outlined">table_view</span> 엑셀
+              </button>
+              <button type="button">
+                <span class="material-symbols-outlined">print</span> 인쇄
+              </button>
             </div>
             <p class="nodata">발주처 데이터가 없습니다.</p>
             <table class="grid-table">
@@ -438,10 +464,14 @@
             </table>
             <div class="pagination-wrap">
               총 n건 1/n페이지
-              <div class="paigination">
-                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                <input type="text" value="1" />
-                <input type="button" value="▶" />
+            <div class="paigination">
+                <button type="button" id="btn-prev-page">
+                  <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <input type="text" value="1">
+                <button type="button" id="btn-next-page">
+                  <span class="material-symbols-outlined">chevron_right</span>
+                </button>
               </div>
             </div>
           </div>
@@ -479,11 +509,11 @@
           <span>Fax</span><input type="text" placeholder="Fax를 입력해주세요" required />
         </div>
         <div>
-          
+
           <span>업태</span><input type="text" placeholder="업태를 입력해주세요" required />
         </div>
         <div>
-          
+
           <span>종목</span><input type="text" placeholder="종목을 입력해주세요" required />
         </div>
         <div>
@@ -492,18 +522,25 @@
         <div style="grid-column: span 2;">
 
           <span>주소</span><input type="text" placeholder="주소를 입력해주세요" required />
-        </div>
-      		<div class="modal-buttons">
-					<button type="button" name="save">등록</button>
-					<button type="button" name="edit">수정</button>
-					<button type="button" onclick="closeModal()">취소</button>
-				</div>
+          </div>
+           <div class="modal-buttons">
+            <button type="button" name="save" style="display: none;">
+              <span class="material-symbols-outlined">save</span> 등록
+            </button>
+            <button type="button" name="edit" style="display: block;">
+              <span class="material-symbols-outlined">edit</span> 수정
+            </button>
+            <button type="button" onclick="closeModal('modal')">
+              <span class="material-symbols-outlined">close</span> 취소
+            </button>
+          </div>
       </form>
+     
     </div>
   </div>
 
 
-<script src="/js/top.js"></script>
+  <script src="/js/top.js"></script>
   <script>
     let currentTh = null;
     let currentOrder = 'desc';
@@ -541,9 +578,9 @@
       const title = document.getElementById('modalTitle');
       title.textContent = currentTab === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
       document.getElementById('modal').style.display = 'flex';
-       document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-      
+      document.querySelector('#modalForm button[name="save"]').style.display = 'block';
+      document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+
     }
 
     function closeModal() {
@@ -576,15 +613,15 @@
     }
 
 
- 
 
-        //테이블 클릭 시 출력되는 modal
-        function opendatail(e) {
-            openModal();
-            
-            document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-        }
+
+    //테이블 클릭 시 출력되는 modal
+    function opendatail(e) {
+      openModal();
+
+      document.querySelector('#modalForm button[name="save"]').style.display = 'none';
+      document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
+    }
   </script>
 </body>
 

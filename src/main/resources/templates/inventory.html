@@ -303,8 +303,7 @@
 
 		.modal-content .modalForm {
 			margin-top: 20px;
-			display: flex;
-			flex-direction: column;
+			display: grid;
 			gap: 20px;
 			justify-items: center;
 			align-items: center;
@@ -338,7 +337,6 @@
 		}
 
 		.modal-content .modal-buttons {
-			margin-top: 15px;
 			display: flex;
 			justify-content: flex-end;
 			gap: 10px;
@@ -396,7 +394,7 @@
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
 							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 검색
+								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
 						</div>
 					</div>
@@ -456,10 +454,14 @@
 						</table>
 						<div class="pagination-wrap">
 							총 n건 1/n페이지
-							<div class="paigination">
-								<input type="button" value="◀" />
-								<!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-								<input type="text" value="1" /> <input type="button" value="▶" />
+					<div class="paigination">
+								<button type="button" id="btn-prev-page">
+									<span class="material-symbols-outlined">chevron_left</span>
+								</button>
+								<input type="text" value="1">
+								<button type="button" id="btn-next-page">
+									<span class="material-symbols-outlined">chevron_right</span>
+								</button>
 							</div>
 						</div>
 					</div>
@@ -501,10 +503,19 @@
 				<div>
 					<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
 				</div>
-				<div class="modal-buttons">
-					<button type="button" name="save">등록</button>
-					<button type="button" name="edit">수정</button>
-					<button type="button" onclick="closeModal()">취소</button>
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons">
+					<button type="button" name="save" style="display: none;">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+					<button type="button" name="edit" style="display: block;">
+						<span class="material-symbols-outlined">edit</span> 수정
+					</button>
+					<button type="button" onclick="closeModal('modal')">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
+				</div>
 				</div>
 			</form>
 		</div>

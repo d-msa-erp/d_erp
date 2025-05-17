@@ -117,7 +117,7 @@
             gap: 10px;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"] {
+        .table-wrapper>div:nth-child(1)>div button {
             width: 30%;
             background: #fff;
             border: none;
@@ -125,7 +125,7 @@
             cursor: pointer;
         }
 
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 input[type="button"] {
+        .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
             padding: 5px;
             gap: 10px;
             background: #fff;
@@ -134,17 +134,17 @@
             cursor: pointer;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
             background: #007bff;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
             background: #28a745;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
             background: #dc3545;
             color: white;
         }
@@ -193,7 +193,7 @@
             width: 200px;
         }
 
-        .print-wrap>input[type="button"] {
+        .print-wrap>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -274,7 +274,7 @@
             text-align: center;
         }
 
-        .pagination-wrap>div input[type="button"] {
+        .pagination-wrap>div button {
             width: 20px;
             background: #007bff;
             color: white;
@@ -283,7 +283,7 @@
             cursor: pointer;
         }
 
-        .table-wrapper input[type="button"]:hover {
+        .table-wrapper button:hover {
             filter: brightness(0.9);
         }
 
@@ -307,8 +307,6 @@
             border-radius: 10px;
             width: 80%;
             position: relative;
-            overflow-x: scroll;
-            overflow-y: hidden;
         }
 
         .modal-content .modalForm {
@@ -352,12 +350,7 @@
             border: 1px solid #ccc;
         }
 
-        .modal-content input[type="color"] {
-            width: 100%;
-            height: 40px;
-            border: none;
-            margin-top: 10px;
-        }
+
 
         .modal-content .modal-buttons {
             margin-top: 15px;
@@ -367,11 +360,11 @@
             width: 100%;
         }
 
-        .modal-content .modal-buttons>input[type="button"]:hover {
+        .modal-content .modal-buttons>button:hover {
             filter: brightness(0.9);
         }
 
-        .modal-content .modal-buttons>input {
+        .modal-content .modal-buttons>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -381,7 +374,7 @@
             padding: 5px;
         }
 
-        .modal-content .modal-buttons>:nth-child(3)[type="button"] {
+        .modal-content .modal-buttons>:nth-child(3)button {
             background: #777;
         }
 
@@ -484,16 +477,26 @@
 
                         <input type="text" placeholder="검색" />
                         <div>
-                            <input type="button" value="검색" />
-                            <input type="button" value="신규등록" onclick="openModal()" />
-                            <input type="button" value="삭제" />
+                            <button type="button">
+                                <span class="material-symbols-outlined">search</span> 검색
+                            </button>
+                            <button type="button" onclick="openModal()">
+                                <span class="material-symbols-outlined">add</span> 신규등록
+                            </button>
+                            <button type="button">
+                                <span class="material-symbols-outlined">delete</span> 검색
+                            </button>
                         </div>
                     </div>
                     <div></div>
-                    <div id="table-customer" style="padding: 20px; position: relative; overflow-x: auto;">
+                    <div id="table-customer" style="padding: 20px; position: relative; ">
                         <div class="print-wrap">
-                            <input type="button" value="엑셀"></input>
-                            <input type="button" value="인쇄"></input>
+                            <button type="button">
+                                <span class="material-symbols-outlined">table_view</span> 엑셀
+                            </button>
+                            <button type="button">
+                                <span class="material-symbols-outlined">print</span> 인쇄
+                            </button>
                         </div>
                         <p class="nodata">등록된 품목이 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
                         <table class="grid-table">
@@ -535,9 +538,13 @@
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
                             <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
+                                <button type="button" id="btn-prev-page">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <input type="text" value="1">
+                                <button type="button" id="btn-next-page">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -602,10 +609,16 @@
 
 
 
-                <div class="modal-buttons" style="grid-column-start: 2;">
-                    <input type="submit" value="등록" name="save" style="display: none;">
-                    <input type="submit" value="수정" name="edit" style="display: block;">
-                    <input type="button" value="취소" onclick="closeModal()">
+                <div class="modal-buttons" style="grid-column-start: 3;">
+                    <button type="button" name="save" style="display: none;">
+                        <span class="material-symbols-outlined">save</span> 등록
+                    </button>
+                    <button type="button" name="edit">
+                        <span class="material-symbols-outlined">edit</span> 수정
+                    </button>
+                    <button type="button" onclick="closeModal()">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
                 </div>
             </form>
         </div>

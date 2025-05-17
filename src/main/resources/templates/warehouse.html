@@ -204,6 +204,7 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	justify-content: center;
 }
 
 table.grid-table {
@@ -346,9 +347,7 @@ button:hover {
 	display: flex;
 	justify-content: flex-end;
 	gap: 10px;
-	width: 50% !important;
-	grid-column-start: 3;
-	align-self: flex-end;
+	width: 100%;
 }
 
 .modal-content .modal-buttons>button:hover {
@@ -372,10 +371,10 @@ button:hover {
 .modal-buttons button:nth-of-type(3) {
 	background: #777 !important;
 }
-.w
+
 .wh_db {
 	display: flex;
-	flex-direction: column;
+	flex-direction: column !important;
 }
 
 .wh_db .grid-table {
@@ -485,67 +484,84 @@ button:hover {
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 id="modalTitle" style="padding-bottom: 20px;">창고 수정</h3>
 			<!-- 토글 버튼 추가 -->
-		<button type="button" onclick="toggleWarehouseInfo()" style="margin-bottom: 10px;">창고 기본 정보 접기/펼치기</button>
+			<button type="button" onclick="toggleWarehouseInfo()" style="margin-bottom: 10px;">창고 기본 정보 접기/펼치기</button>
 
-		<form id="modalForm" class="modalForm">
-			<!-- 창고 기본 정보 영역 -->
-			<div id="warehouseInfo" style="display: none;">
-				<div>
-					<span>창고명</span><input type="text" placeholder="창고명을 입력해주세요" required />
+			<form id="modalForm" class="modalForm">
+				<!-- 창고 기본 정보 영역 -->
+				<div id="warehouseInfo" style="display: none;">
+					<div>
+						<span>창고명</span><input type="text" placeholder="창고명을 입력해주세요" required />
+					</div>
+					<div>
+						<span>창고코드</span><input type="text" placeholder="창고코드를 입력해주세요" required />
+					</div>
+					<div>
+						<label>자재 창고 <input type="checkbox" /></label>
+						<label>제품 창고 <input type="checkbox" /></label>
+						<label>반품 창고 <input type="checkbox" /></label>
+					</div>
+					<div>
+						<span>사용여부</span><input type="checkbox" />
+					</div>
+					<div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
+					</div>
 				</div>
-				<div>
-					<span>창고코드</span><input type="text" placeholder="창고코드를 입력해주세요" required />
-				</div>
-				<div>
-					<label>자재 창고 <input type="checkbox" /></label>
-					<label>제품 창고 <input type="checkbox" /></label>
-					<label>반품 창고 <input type="checkbox" /></label>
-				</div>
-				<div>
-					<span>사용여부</span><input type="checkbox" />
-				</div>
-				<div>
-					<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
-				</div>
-			</div>
 
-			<!-- 창고 재고 영역 -->
-			<div class="wh_db">
-				<h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
-				<table class="grid-table">
-					<thead>
-						<tr>
-							<th>품명</th>
-							<th>품번</th>
-							<th>수량</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr><td>test</td><td>test</td><td>test</td></tr>
-						<tr><td>test</td><td>test</td><td>test</td></tr>
-					</tbody>
-				</table>
-			</div>
+				<!-- 창고 재고 영역 -->
+				<div class="wh_db">
+					<h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
+					<table class="grid-table">
+						<thead>
+							<tr>
+								<th>품명</th>
+								<th>품번</th>
+								<th>수량</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</tr>
+							<tr>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
 
-			<!-- 버튼 영역 -->
-			<div class="modal-buttons">
-				<button type="button" name="save"><span class="material-symbols-outlined">check</span> 등록</button>
-				<button type="button" name="edit"><span class="material-symbols-outlined">edit</span> 수정</button>
-				<button type="button" onclick="closeModal()"><span class="material-symbols-outlined">close</span> 취소</button>
-			</div>
-		</form>
+				<!-- 버튼 영역 -->
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+						<button type="button" name="save" style="display: none;">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+						<button type="button" name="edit" style="display: block;">
+							<span class="material-symbols-outlined">edit</span> 수정
+						</button>
+						<button type="button" onclick="closeModal()">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
 	</div>
-</div>
 
 
 	<script src="/js/top.js"></script>
-<script>
-	function toggleWarehouseInfo() {
-		const section = document.getElementById('warehouseInfo');
-		section.style.display = section.style.display === 'none' ? 'block' : 'none';
-	}
-</script>
-<script>
+	<script>
+		function toggleWarehouseInfo() {
+			const section = document.getElementById('warehouseInfo');
+			section.style.display = section.style.display === 'none' ? 'block' : 'none';
+		}
+	</script>
+	<script>
 		let currentTh = null;
 		let currentOrder = 'desc';
 
