@@ -117,7 +117,7 @@
             gap: 10px;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"] {
+        .table-wrapper>div:nth-child(1)>div button {
             width: 30%;
             background: #fff;
             border: none;
@@ -134,17 +134,17 @@
             cursor: pointer;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(1) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
             background: #007bff;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(2) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
             background: #28a745;
             color: white;
         }
 
-        .table-wrapper>div:nth-child(1)>div input[type="button"]:nth-child(3) {
+        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
             background: #dc3545;
             color: white;
         }
@@ -191,7 +191,7 @@
             width: 200px;
         }
 
-        .print-wrap>input[type="button"] {
+        .print-wrap>button {
             width: 100%;
             background: #007bff;
             color: #fff;
@@ -517,9 +517,15 @@
 
                         <input type="text" placeholder="검색" />
                         <div>
-                            <input type="button" value="검색" />
-                            <input type="button" value="신규등록" onclick="openModal()" />
-                            <input type="button" value="삭제" />
+                            <button type="button">
+								<span class="material-symbols-outlined">search</span> 검색
+							</button>
+							<button type="button" onclick="openModal()">
+								<span class="material-symbols-outlined">add</span> 신규등록
+							</button>
+							<button type="button">
+								<span class="material-symbols-outlined">delete</span> 검색
+							</button>
                         </div>
                     </div>
                     <div class="shipping-info" id="shipping-info">
@@ -543,8 +549,12 @@
                     <!--입고파트 테이블-->
                     <div id="table-customer" style="padding: 20px; position: relative; overflow-x: auto;">
                         <div class="print-wrap">
-                            <input type="button" value="엑셀"></input>
-                            <input type="button" value="인쇄"></input>
+                            <button type="button">
+								<span class="material-symbols-outlined">table_view</span> 엑셀
+							</button>
+							<button type="button">
+								<span class="material-symbols-outlined">print</span> 인쇄
+							</button>
                         </div>
                         <p class="nodata">등록된 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
                         <table class="grid-table">
