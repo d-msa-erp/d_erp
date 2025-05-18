@@ -4,7 +4,7 @@
 
 <!-- TB_USERMST 테이블 전체 조회 -->
 <select id="selectAllUsers" resultType="kr.co.d_erp.dtos.User">
-select * from TB_USERMST order by USER_IDX desc
+SELECT * FROM TB_USERMST ORDER BY USER_IDX DESC
 </select>
 
 </mapper>
