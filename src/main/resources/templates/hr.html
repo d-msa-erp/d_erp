@@ -504,9 +504,11 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
 
-                        <p class="nodata">등록된 데이터가 없습니다.</p>
-                        <!--데이터 없을 땐 이렇게 표기-->
-                        <table class="grid-table">
+                        <!--데이터 없을 때 -->
+                        <p class="nodata" th:if="${#lists.isEmpty(users)}">등록된 데이터가 없습니다.</p>
+
+                        <!--데이터 있을 때 -->
+                        <table class="grid-table" th:if="${!#lists.isEmpty(users)}">
 
                             <thead>
 
@@ -516,35 +518,26 @@
                                     <th onclick="order(this)">ID<a>↓</a></th>
                                     <th onclick="order(this)">직통번호<a>↓</a></th>
                                     <th onclick="order(this)">H.P<a>↓</a></th>
-                                    <th onclick="order(this)">부서서<a>↓</a></th>
+                                    <th onclick="order(this)">부서<a>↓</a></th>
                                     <th onclick="order(this)">직책<a>↓</a></th>
                                     <th onclick="order(this)">재직상태<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()">
+                                <tr onclick="opendatail()" th:each="user : ${users}">
                                     <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>재직자</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>퇴사자</td>
+                                    <td th:text="${user.USER_NM}"></td>
+                                    <td th:text="${user.USER_ID}"></td>
+                                    <td th:text="${user.USER_TEL}"></td>
+                                    <td th:text="${user.USER_HP}"></td>
+                                    <td th:text="${user.USER_DEPT}"></td>
+                                    <td th:text="${user.USER_POSITION}"></td>
+                                    <td th:text="${user.USER_STATUS}"></td>
                                 </tr>
                             </tbody>
                         </table>
+                        
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
                             <div class="pagination">
