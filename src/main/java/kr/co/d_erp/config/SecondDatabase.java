@@ -12,27 +12,25 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 
-//Oracle
+//Mysql
 @Configuration
-public class FirstDatabase {
+public class SecondDatabase {
 
 	// Properties파일을 로드
 	Properties pp = new Properties();
 	String pname = "database.properties"; // Properties파일명
 
-	public FirstDatabase() throws Exception {
+	public SecondDatabase() throws Exception {
 				this.pp.load(this.getClass().getClassLoader().getResourceAsStream(pname));
-				this.pp.setProperty("spring.datasource.driver-class-name",this.pp.getProperty("spring.first.datasource.driver-class-name"));
-				this.pp.setProperty("spring.datasource.url", this.pp.getProperty("spring.first.datasource.url"));
-				this.pp.setProperty("spring.datasource.username", this.pp.getProperty("spring.first.datasource.username"));
-				this.pp.setProperty("spring.datasource.password", this.pp.getProperty("spring.first.datasource.password"));
+				this.pp.setProperty("spring.datasource.driver-class-name",this.pp.getProperty("spring.second.datasource.driver-class-name"));
+				this.pp.setProperty("spring.datasource.url", this.pp.getProperty("spring.second.datasource.url"));
+				this.pp.setProperty("spring.datasource.username", this.pp.getProperty("spring.second.datasource.username"));
+				this.pp.setProperty("spring.datasource.password", this.pp.getProperty("spring.second.datasource.password"));
 			}
 
-	@Primary	// 주 데이터 소스/MyBatis 설정
-	@Bean(name = "Oracle") // 주석하면 안돌아감
+	@Bean(name = "Mysql") // 주석하면 안돌아감
 	public DataSource datasource() {
 		// DataSource룰 변경시 Mybatis에서 Database 서버 정보응 변경함
 		String classnm = this.pp.getProperty("spring.datasource.driver-class-name");
@@ -49,8 +47,8 @@ public class FirstDatabase {
 		return dsb.build();
 	}
 
-	@Bean(name = "sqlfactory")
-	public SqlSessionFactory sqlfactory(@Qualifier("Oracle") DataSource ds, ApplicationContext ac) throws Exception {
+	@Bean(name = "sqlfactory2")
+	public SqlSessionFactory sqlfactory(@Qualifier("Mysql") DataSource ds, ApplicationContext ac) throws Exception {
 		SqlSessionFactoryBean sqlf = new SqlSessionFactoryBean();
 		sqlf.setDataSource(ds);
 		sqlf.setMapperLocations(ac.getResources("classpath:/mapper/*.xml"));
@@ -58,8 +56,8 @@ public class FirstDatabase {
 		return sqlf.getObject();
 	}
 
-	@Bean(name = "sqltemplate")
-	public SqlSessionTemplate sqltemplate(@Qualifier("sqlfactory") SqlSessionFactory sf) throws Exception {
+	@Bean(name = "sqltemplate2")
+	public SqlSessionTemplate sqltemplate(@Qualifier("sqlfactory2") SqlSessionFactory sf) throws Exception {
 		SqlSessionTemplate stp = new SqlSessionTemplate(sf);
 		return stp;
 	}
