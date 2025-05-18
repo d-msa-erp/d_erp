@@ -368,8 +368,10 @@
             </div>
           </div>
           <div>
-            <span class="active" onclick="switchTab(this, 'customer')">거래처</span>
-            <span onclick="switchTab(this, 'vendor')">발주처</span>
+			  <span th:classappend="${bizFlag == '01'} ? 'active' : ''"
+			        onclick="location.href='/customer?bizFlag=01'">거래처</span>
+			  <span th:classappend="${bizFlag == '02'} ? 'active' : ''"
+			        onclick="location.href='/customer?bizFlag=02'">발주처</span>
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
@@ -380,35 +382,29 @@
                 <span class="material-symbols-outlined">print</span> 인쇄
               </button>
             </div>
-            <p class="nodata">거래처 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
-            <table class="grid-table">
-              <thead>
-                <tr>
-                  <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">거래처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
-                </tr>
-              </thead>
-              <tbody>
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-              </tbody>
-            </table>
+            <p class="nodata" th:if="${#lists.isEmpty(AllList)}" th:text="${bizFlag == '01'} ? '거래처 데이터가 없습니다.' : '발주처 데이터가 없습니다.'"></p>
+
+
+			  <table class="grid-table" th:if="${!#lists.isEmpty(AllList)}">
+			    <thead>
+			      <tr>
+			        <th><input type="checkbox" /></th>
+			        <th onclick="order(this)">거래처명<a>↓</a></th>
+			        <th onclick="order(this)">담당자명<a>↓</a></th>
+			        <th onclick="order(this)">연락처<a>↓</a></th>
+			        <th onclick="order(this)">이메일<a>↓</a></th>
+			      </tr>
+			    </thead>
+			    <tbody>
+			      <tr th:each="cust : ${AllList}" onclick="opendatail(this)">
+			        <td><input type="checkbox" /></td>
+			        <td th:text="${cust.CUST_NM}">거래처명</td>
+			        <td th:text="${cust.PRESIDENT_NM}">담당자명</td>
+			        <td th:text="${cust.BIZ_TEL}">연락처</td>
+			        <td th:text="${cust.CUST_E_MAIL}">이메일</td>
+			      </tr>
+			    </tbody>
+			  </table>
             <div class="pagination-wrap">
               총 n건 1/n페이지
               <div class="paigination">
@@ -431,37 +427,29 @@
                 <span class="material-symbols-outlined">print</span> 인쇄
               </button>
             </div>
-            <p class="nodata">발주처 데이터가 없습니다.</p>
-            <table class="grid-table">
+            <p class="nodata" th:if="${#lists.isEmpty(AllList)}" th:text="${bizFlag == '01'} ? '거래처 데이터가 없습니다.' : '발주처 데이터가 없습니다.'"></p>
 
-              <thead>
 
-                <tr>
-                  <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">발주처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
-                </tr>
-              </thead>
-              <tbody>
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-              </tbody>
-            </table>
+				  <table class="grid-table" th:if="${!#lists.isEmpty(AllList)}">
+				    <thead>
+				      <tr>
+				        <th><input type="checkbox" /></th>
+				        <th onclick="order(this)">발주처명<a>↓</a></th>
+				        <th onclick="order(this)">담당자명<a>↓</a></th>
+				        <th onclick="order(this)">연락처<a>↓</a></th>
+				        <th onclick="order(this)">이메일<a>↓</a></th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr th:each="vendor : ${AllList}" onclick="opendatail(this)">
+				        <td><input type="checkbox" /></td>
+				        <td th:text="${vendor.CUST_NM}">발주처명</td>
+				        <td th:text="${vendor.PRESIDENT_NM}">담당자명</td>
+				        <td th:text="${vendor.BIZ_TEL}">연락처</td>
+				        <td th:text="${vendor.CUST_E_MAIL}">이메일</td>
+				      </tr>
+				    </tbody>
+				  </table>
             <div class="pagination-wrap">
               총 n건 1/n페이지
             <div class="paigination">
@@ -568,6 +556,8 @@
 
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
+      
+      location.href = `/customer?bizFlag=${type === 'customer' ? '01' : '02'}`;
     }
 
 

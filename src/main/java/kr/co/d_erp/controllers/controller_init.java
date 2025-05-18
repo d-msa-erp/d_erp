@@ -37,10 +37,10 @@ public class controller_init {
 	}
 	*/
 	
-	@GetMapping("/customer")
-	public String customer() {
-		return "/customer.html";
-	}
+//	@GetMapping("/customer")
+//	public String customer() {
+//		return "/customer.html";
+//	}
 	
 	@GetMapping("/purchase")
 	public String purchase() {
