@@ -265,17 +265,12 @@
 		}
 
 		.pagination-wrap>div button {
-			width: 40px;
-			background: #007bff;
-			color: white;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			gap: 2px;
-			font-size: 16px;
+width: 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 		}
 
 		.table-wrapper button:hover {
@@ -400,7 +395,6 @@
 		}
 
 		.bomTab1 input {
-			height: 100%;
 			width: 100%;
 			padding: 5px;
 		}
@@ -412,7 +406,6 @@
 
 		.bomTab2 {
 			display: grid;
-			grid-template-columns: 2.7fr 1fr;
 			gap: 10px;
 		}
 
@@ -424,9 +417,9 @@
 			overflow-y: auto;
 		}
 
-		.bomTab2>div>div {
+		/* .bomTab2>div>div {
 			height: 100%;
-		}
+		} */
 
 		.bomTab2>div>ul {
 			display: flex;
@@ -439,9 +432,10 @@
 		}
 
 		.bomTab3 {
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
+	    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    justify-content: space-between;
 		}
 
 		.bomTab3>div {
@@ -478,7 +472,7 @@
 		}
 
 		.bomTab5 .grid-table {
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
 		}
 
 		.catetable {
@@ -499,7 +493,7 @@
 		}
 
 		#category-table {
-			grid-template-columns: 0.3fr 1fr 1fr 1fr 1fr 0.3fr !important;
+			grid-template-columns: 0.3fr 1fr 1fr 1fr 2fr 0.3fr !important;
 		}
 
 		#category-table input[type="text"] {
@@ -519,7 +513,7 @@
 			grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
 			margin: 0 !important;
 			max-height: 69px;
-	overflow: auto;
+			overflow: auto;
 		}
 
 		#category-table .grid-table th {
@@ -533,7 +527,7 @@
 
 		.category-sub-add {
 			display: grid;
-			grid-template-columns: 1.2fr 1fr 0.7fr !important;
+			grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
 			gap: 6px;
 			margin-top: 4px;
 		}
@@ -672,6 +666,7 @@
 					<div class="bomTab2">
 						<div>
 							<div>
+								<input placeholder="검색"/>
 								<table class="grid-table">
 									<thead>
 										<tr>
@@ -690,37 +685,45 @@
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
-											<td><select>
+											<td>
+												<select>
 													<option value="">--</option>
 													<option value="g">g</option>
 													<option value="kg">kg</option>
 													<option value="mL">mL</option>
 													<option value="L">L</option>
 													<option value="ea">ea</option>
-												</select></td>
-											<td><input type="checkbox" /></td>
+												</select>
+											</td>
+											<td>
+												<input type="radio" name="item-select" />
+											</td>
 										</tr>
-
 										<tr>
 											<td>2</td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
-											<td><select>
+											<td>
+												<select>
 													<option value="">--</option>
 													<option value="g">g</option>
 													<option value="kg">kg</option>
 													<option value="mL">mL</option>
 													<option value="L">L</option>
 													<option value="ea">ea</option>
-												</select></td>
-											<td><input type="checkbox" /></td>
+												</select>
+											</td>
+											<td>
+												<input type="radio" name="item-select" />
+											</td>
 										</tr>
 									</tbody>
 								</table>
 
 							</div>
 							<div>
+								<input placeholder="검색"/>
 								<table class="grid-table">
 									<thead>
 										<tr>
@@ -769,33 +772,25 @@
 
 							</div>
 						</div>
-						<div>
-							<ul style="list-style: none;">
-								품목
-								<li>원자재1</li>
-								<li>원자재2</li>
-								<li>원자재3</li>
-								<li>원자재4</li>
-							</ul>
-						</div>
+						
 					</div>
 
 					<div class="bomTab3">
-						<div><span>품목코드</span><input type="text" /></div>
-						<div><span>품목명</span><input type="text" /></div>
+						<div class="flex-row">
+							<div><span>품목코드</span><input type="text" /></div>
+							<div><span>품목명</span><input type="text" /></div>
+						</div>
+						<div><span>생산성</span><input type="text" /></div>
 						<div class="flex-row">
 							<div><span>원자재코드</span><input type="text" /></div>
-							<div><span>순번</span><input type="text" /></div>
-						</div>
-						<div><span>원자재명</span><input type="text" /></div>
-						<div class="flex-row">
-							<div><span>소요량</span><input type="text" /></div>
-							<div><span>재료비</span><input type="text" /></div>
+							<div><span>원자재명</span><input type="text" /></div>
 						</div>
 						<div class="flex-row">
-							<div><span>로스율</span><input type="text" /></div>
-							<div><span>생산성</span><input type="text" /></div>
+							<div><span>소요량</span><input type="text" /><span>kg</span></div>
+							<div><span>단가</span><input type="text" /><span>원</span></div>
+							<div><span>로스율</span><input type="text" /><span>%</span></div>
 						</div>
+					
 						<div><span>비고</span><input type="text" /></div>
 					</div>
 
@@ -809,10 +804,9 @@
 										<th>No</th>
 										<th>품목명</th>
 										<th>원자재명</th>
-										<th>순번</th>
 										<th>소요량</th>
 										<th>로스율</th>
-										<th>재료비</th>
+										<th>단가</th>
 										<th>비고</th>
 									</tr>
 								</thead>
@@ -826,9 +820,8 @@
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-
 									</tr>
+									
 									<tr>
 										<td>2</td>
 										<td><input type="text" value="test" /></td>
@@ -837,8 +830,8 @@
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
 									</tr>
+									
 									<tr>
 										<td>3</td>
 										<td><input type="text" value="test" /></td>
@@ -847,25 +840,33 @@
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
 									</tr>
+									
 
 								</tbody>
 							</table>
 						</div>
 					</div>
 				</div>
-				<div class="modal-buttons">
-					<button type="button" name="save">
+
+<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save" style="display: none;">
 						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit">
+					<button type="button" name="edit" style="display: block;">
 						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal('modal')">
 						<span class="material-symbols-outlined">close</span> 취소
 					</button>
 				</div>
+				</div>
+
+
+
+				
 			</form>
 		</div>
 
@@ -891,7 +892,7 @@
 						</thead>
 						<tbody>
 							<tr>
-								<td><input type="checkbox" class="category-checkbox"/></td>
+								<td><input type="checkbox" class="category-checkbox" /></td>
 								<td><input type="text" value="예시대분류" /></td>
 								<td><input type="text" value="분류코드 111111" /></td>
 								<td><input type="text" value="대분류 비고" /></td>
@@ -910,13 +911,15 @@
 												<td><input type="text" value="예시소분류1" /></td>
 												<td><input type="text" value="소분류코드1" /></td>
 												<td><input type="text" value="소분류비고1" /></td>
-												<td><button type="button" onclick="removeSubCategoryRow(this)">삭제</button></td>
+												<td><button type="button"
+														onclick="removeSubCategoryRow(this)">삭제</button></td>
 											</tr>
 											<tr>
 												<td><input type="text" value="예시소분류2" /></td>
 												<td><input type="text" value="예시소코드2" /></td>
 												<td><input type="text" value="소분류비고2" /></td>
-												<td><button type="button" onclick="removeSubCategoryRow(this)">삭제</button></td>
+												<td><button type="button"
+														onclick="removeSubCategoryRow(this)">삭제</button></td>
 											</tr>
 										</tbody>
 									</table>
@@ -927,7 +930,8 @@
 					</table>
 				</div>
 				<div class="category-add-row">
-					<input type="text" id="new-category" placeholder="새 대분류명" required />
+					<input type="text" id="new-category" placeholder="대분류명" required />
+					<input type="text" id="new-category-code" placeholder="대분류코드" required />
 					<input type="text" id="new-category-memo" placeholder="비고" />
 					<button type="button" onclick="addCategoryRow()">
 						<span class="material-symbols-outlined">add</span> 대분류 추가
@@ -935,14 +939,30 @@
 				</div>
 				<div class="category-add-row">
 					<input type="text" id="new-subcategory-name" placeholder="소분류명" />
+					<input type="text" id="new-subcategory-code" placeholder="소분류코드" />
 					<input type="text" id="new-subcategory-memo" placeholder="비고" />
 					<button type="button" onclick="addSubCategoryToChecked()">
 						<span class="material-symbols-outlined">add</span> 소분류 추가
 					</button>
 				</div>
-				<div class="modal-buttons">
+				<!-- <div class="modal-buttons">
 					<button type="button"><span class="material-symbols-outlined">save</span> 등록</button>
-					<button type="button" onclick="closeModal('modal-category')"><span class="material-symbols-outlined">close</span> 닫기</button>
+					<button type="button" onclick="closeModal('modal-category')"><span
+							class="material-symbols-outlined">close</span> 닫기</button>
+				</div> -->
+
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+			
+					<button type="button" onclick="closeModal('modal-category')" style="background: #777;">
+						<span class="material-symbols-outlined" >close</span> 취소
+					</button>
+				</div>
 				</div>
 			</form>
 		</div>
@@ -951,8 +971,10 @@
 		// 체크박스 선택된 대분류에 소분류 추가
 		function addSubCategoryToChecked() {
 			const nameInput = document.getElementById('new-subcategory-name');
+			const codeInput = document.getElementById('new-subcategory-code');
 			const memoInput = document.getElementById('new-subcategory-memo');
 			const name = nameInput.value.trim();
+			const code = codeInput.value.trim();
 			const memo = memoInput.value.trim();
 			if (!name) return;
 			const checkboxes = document.querySelectorAll('#category-table .category-checkbox:checked');
@@ -966,12 +988,14 @@
 				const newTr = document.createElement('tr');
 				newTr.innerHTML = `
 					<td><input type="text" value="${name}" /></td>
+					<td><input type="text" value="${code}" /></td>
 					<td><input type="text" value="${memo}" /></td>
 					<td><button type="button" onclick="removeSubCategoryRow(this)">삭제</button></td>
 				`;
 				tbody.appendChild(newTr);
 			});
 			nameInput.value = '';
+			codeInput.value = '';
 			memoInput.value = '';
 		}
 	</script>
@@ -979,8 +1003,10 @@
 		// 대분류 추가
 		function addCategoryRow() {
 			const input = document.getElementById('new-category');
+			const codeInput = document.getElementById('new-category-code');
 			const memoInput = document.getElementById('new-category-memo');
 			const value = input.value.trim();
+			const code = codeInput.value.trim();
 			const memo = memoInput.value.trim();
 			if (!value) return;
 			const table = document.getElementById('category-table').getElementsByTagName('tbody')[0];
@@ -988,13 +1014,14 @@
 			row.innerHTML = `
 				<td><input type="checkbox" class="category-checkbox"/></td>
 				<td><input type="text" value="${value}" style="width:98%;" /></td>
-				<td><input type="text" value="" style="width:98%;" /></td>
+				<td><input type="text" value="${code}" style="width:98%;" /></td>
 				<td><input type="text" value="${memo}" style="width:98%;" /></td>
 				<td style="padding:0 !important; display:flex; flex-direction:column;">
-					<table class="grid-table" style="background:#f9f9f9; grid-template-columns: 1.2fr 1fr 0.7fr !important; margin:0 !important;">
+					<table class="grid-table" style="background:#f9f9f9; grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important; margin:0 !important;">
 						<thead>
 							<tr>
 								<th style="font-size:13px;">소분류명</th>
+								<th style="font-size:13px;">소분류코드</th>
 								<th style="font-size:13px;">비고</th>
 								<th style="font-size:13px;">삭제</th>
 							</tr>
@@ -1096,13 +1123,23 @@
 				</div>
 				<div style="display:flex; gap:10px; margin-top:10px;"></div>
 				<input type="text" id="new-spec-unit" placeholder="새 단위 입력" style="flex:1;" required />
-				<div class="modal-buttons">
-					<button type="submit"><span class="material-symbols-outlined">add</span> 추가</button><!--추가는 진짜 추가만 되는거고-->
-					<button type="button" onclick="closeModal('modal-spec')"><span class="material-symbols-outlined">close</span> 닫기</button>
+	
+
+
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+		
+					<button type="button" style="background: #777;" onclick="closeModal('modal-spec')">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
 				</div>
+				</div>
+			</form>
 		</div>
-		</form>
-	</div>
 	</div>
 	<script>
 		function addSpecUnit(event) {
@@ -1212,23 +1249,23 @@
 				closeModal(modalId);
 			}
 		}
-		
+
 		document.addEventListener('DOMContentLoaded', () => {
-			  document.querySelectorAll('table').forEach(table => {
+			document.querySelectorAll('table').forEach(table => {
 				const firstCells = table.querySelectorAll('tbody tr td:first-child');
 				firstCells.forEach(td => {
-				  td.setAttribute('onclick', 'event.stopPropagation()');
+					td.setAttribute('onclick', 'event.stopPropagation()');
 				});
-			  });
-
-			  // 페이지네이션 버튼 이벤트
-			  document.getElementById('btn-prev-page').addEventListener('click', function() {
-				  // 이전 페이지 이동 로직
-			  });
-			  document.getElementById('btn-next-page').addEventListener('click', function() {
-				  // 다음 페이지 이동 로직
-			  });
 			});
+
+			// 페이지네이션 버튼 이벤트
+			document.getElementById('btn-prev-page').addEventListener('click', function () {
+				// 이전 페이지 이동 로직
+			});
+			document.getElementById('btn-next-page').addEventListener('click', function () {
+				// 다음 페이지 이동 로직
+			});
+		});
 	</script>
 
 </body>

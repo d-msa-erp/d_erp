@@ -2,12 +2,12 @@
 <html lang="ko">
 
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>창고 관리</title>
-<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-<style th:replace="~{/top.html :: topstyle}"></style>
-<style>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>창고 관리</title>
+	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+	<style th:replace="~{/top.html :: topstyle}"></style>
+	<style>
 /* ... 기존 스타일 유지 ... */
 * {
 	margin: 0;
@@ -87,7 +87,7 @@ body {
 }
 
 .table-wrapper>div:nth-child(1) {
-	padding: 20px 20px 0 20px;
+	padding: 20px;
 	display: flex;
 	justify-content: flex-end;
 	gap: 20px;
@@ -126,6 +126,7 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	justify-content: center;
 }
 
 .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
@@ -203,17 +204,19 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	justify-content: center;
 }
 
 table.grid-table {
 	width: 100%;
 	border-collapse: collapse;
 	display: grid;
-	grid-template-columns: 1fr 2fr 2fr 2fr 2fr 3fr;
+	grid-template-columns: 0.5fr 2fr 1fr 2fr 1fr 2fr 3fr;
 }
 
 thead, tbody, tr {
 	display: contents;
+	white-space: nowrap;
 }
 
 tbody>tr:nth-child(even) td {
@@ -238,12 +241,14 @@ th, td {
 	border: 1px solid #ccc;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 }
 
 thead th {
 	background: #f0f0f0;
 	font-weight: bold;
 	cursor: pointer;
+	justify-content: center;
 }
 
 table input[type="text"] {
@@ -269,7 +274,7 @@ table input[type="text"] {
 	text-align: center;
 }
 
-.pagination-wrap>div  button {
+.pagination-wrap>div button {
 	width: 20px;
 	background: #007bff;
 	color: white;
@@ -282,24 +287,22 @@ table input[type="text"] {
 	gap: 5px;
 }
 
-.table-wrapper  button:hover {
+button:hover {
 	filter: brightness(0.9);
 }
 
 .modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			
-			
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.4);
+	justify-content: center;
+	align-items: center;
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 }
 
 .modal-content {
@@ -332,12 +335,6 @@ table input[type="text"] {
 	padding-right: 10px;
 }
 
-.modal-content input[type="text"] {
-	width: 100%;
-	padding: 10px;
-	border: 1px solid #ccc;
-}
-
 .modal-content input[type="color"] {
 	width: 100%;
 	height: 40px;
@@ -351,14 +348,13 @@ table input[type="text"] {
 	justify-content: flex-end;
 	gap: 10px;
 	width: 100%;
-	grid-column-start: 3;
 }
 
 .modal-content .modal-buttons>button:hover {
 	filter: brightness(0.9);
 }
 
-.modal-content .modal-buttons>button {
+.modal-content button {
 	width: 100%;
 	background: #007bff;
 	color: #fff;
@@ -369,10 +365,23 @@ table input[type="text"] {
 	display: flex;
 	align-items: center;
 	gap: 5px;
+	justify-content: center;
 }
 
 .modal-buttons button:nth-of-type(3) {
-  background: #777 !important;
+	background: #777 !important;
+}
+
+.wh_db {
+	display: flex;
+	flex-direction: column !important;
+}
+
+.wh_db .grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr !important;
 }
 </style>
 
@@ -389,7 +398,7 @@ table input[type="text"] {
 				</div>
 				<div class="table-wrapper">
 					<div>
-						
+
 						<input type="text" placeholder="검색" />
 						<div>
 							<button type="button">
@@ -403,7 +412,6 @@ table input[type="text"] {
 							</button>
 						</div>
 					</div>
-					<div></div>
 					<div id="table-customer" style="padding: 20px; position: relative;">
 						<div class="print-wrap">
 							<button type="button">
@@ -425,6 +433,7 @@ table input[type="text"] {
 									<th onclick="order(this)">창고 명<a>↓</a></th>
 									<th onclick="order(this)">창고 타입<a>↓</a></th>
 									<th onclick="order(this)">사용 여부<a>↓</a></th>
+									<th onclick="order(this)">주소<a>↓</a></th>
 									<th onclick="order(this)">비고<a>↓</a></th>
 								</tr>
 							</thead>
@@ -437,9 +446,11 @@ table input[type="text"] {
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
+									<td>test</td>
 								</tr>
 								<tr>
 									<td><input type="checkbox" /></td>
+									<td>test</td>
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
@@ -471,50 +482,85 @@ table input[type="text"] {
 	<!--신규 등록 Modal-->
 	<div class="modal" id="modal" onclick="outsideClick(event)">
 		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3 id="modalTitle">신규 등록</h3>
+			<h3 id="modalTitle" style="padding-bottom: 20px;">창고 수정</h3>
+			<!-- 토글 버튼 추가 -->
+			<button type="button" onclick="toggleWarehouseInfo()" style="margin-bottom: 10px;">창고 기본 정보 접기/펼치기</button>
+
 			<form id="modalForm" class="modalForm">
-				<div>
-					<span>창고코드</span><input type="text" placeholder="창고코드를 입력해주세요"
-						required />
-				</div>
-				<div>
-					<span>창고명</span><input type="text" placeholder="창고명을 입력해주세요"
-						required />
-				</div>
+				<!-- 창고 기본 정보 영역 -->
+				<div id="warehouseInfo" style="display: none;">
 					<div>
-					<label>자재 창고 <input type="checkbox"/></label>
-				
-					<label>제품 창고 <input type="checkbox"/></label>
-				
-					<label>반품 창고 <input type="checkbox"/></label>
+						<span>창고명</span><input type="text" placeholder="창고명을 입력해주세요" required />
+					</div>
+					<div>
+						<span>창고코드</span><input type="text" placeholder="창고코드를 입력해주세요" required />
+					</div>
+					<div>
+						<label>자재 창고 <input type="checkbox" /></label>
+						<label>제품 창고 <input type="checkbox" /></label>
+						<label>반품 창고 <input type="checkbox" /></label>
+					</div>
+					<div>
+						<span>사용여부</span><input type="checkbox" />
+					</div>
+					<div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
+					</div>
 				</div>
-				<div>
-					<span>사용여부</span><input type="checkbox"/>
+
+				<!-- 창고 재고 영역 -->
+				<div class="wh_db">
+					<h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
+					<table class="grid-table">
+						<thead>
+							<tr>
+								<th>품명</th>
+								<th>품번</th>
+								<th>수량</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</tr>
+							<tr>
+								<td>test</td>
+								<td>test</td>
+								<td>test</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
-				<div>
-					<span>비고</span><input type="text" placeholder="비고를 입력해주세요"
-						required />
-				</div>
-				<div>
-					
-				</div>
-				<div class="modal-buttons">
-					<button type="button" name="save">
-						<span class="material-symbols-outlined">check</span> 등록
-					</button>
-					<button type="button" name="edit">
-						<span class="material-symbols-outlined">edit</span> 수정
-					</button>
-					<button type="button" onclick="closeModal()">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
+
+				<!-- 버튼 영역 -->
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons" style="grid-column-start: 3;">
+						<button type="button" name="save" style="display: none;">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+						<button type="button" name="edit" style="display: block;">
+							<span class="material-symbols-outlined">edit</span> 수정
+						</button>
+						<button type="button" onclick="closeModal()">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>
-
 	</div>
 
+
 	<script src="/js/top.js"></script>
+	<script>
+		function toggleWarehouseInfo() {
+			const section = document.getElementById('warehouseInfo');
+			section.style.display = section.style.display === 'none' ? 'block' : 'none';
+		}
+	</script>
 	<script>
 		let currentTh = null;
 		let currentOrder = 'desc';
@@ -564,19 +610,19 @@ table input[type="text"] {
 		function opendatail() {
 			openModal();
 			document.getElementById('modalTitle').textContent = '창고 수정';
-			
+
 			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
 			document.querySelector('#modalForm button[name="edit"]').style.display = 'flex';
 		}
-		
+
 		document.addEventListener('DOMContentLoaded', () => {
 			document.querySelectorAll('table').forEach(table => {
 				const firstCells = table.querySelectorAll('tbody tr td:first-child');
 				firstCells.forEach(td => {
-				td.setAttribute('onclick', 'event.stopPropagation()');
+					td.setAttribute('onclick', 'event.stopPropagation()');
 				});
 			});
-			});
+		});
 	</script>
 
 </body>

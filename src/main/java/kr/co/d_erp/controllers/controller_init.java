@@ -78,6 +78,10 @@ public class controller_init {
 	public String pagesettings() {
 		return "/pagesettings.html";
 	}
+	@GetMapping("/mypage")
+	public String mypage() {
+		return "/mypage.html";
+	}
 	
 	
 	@GetMapping("/test")

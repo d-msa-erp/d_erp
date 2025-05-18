@@ -201,7 +201,7 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 2fr;
+            grid-template-columns: 1fr 2fr 2fr 1fr 1fr 2fr 1fr ;
         }
 
         thead,
@@ -267,7 +267,7 @@
             text-align: center;
         }
 
-        .pagination-wrap>div input[type="button"] {
+        .pagination-wrap>div button {
             width: 20px;
             background: #007bff;
             color: white;
@@ -276,7 +276,7 @@
             cursor: pointer;
         }
 
-        .table-wrapper input[type="button"]:hover {
+        .table-wrapper button:hover {
             filter: brightness(0.9);
         }
 
@@ -429,6 +429,8 @@
                                     <th onclick="order(this)">자재/품목코드<a>↓</a></th>
                                     <th onclick="order(this)">자재/품목명<a>↓</a></th>
                                     <th onclick="order(this)">수량<a>↓</a></th>
+                                    <th onclick="order(this)">적정재고<a>↓</a></th>
+                                    <th onclick="order(this)">창고명<a>↓</a></th>
                                     <th onclick="order(this)">단위<a>↓</a></th>
                                 </tr>
                             </thead>
@@ -440,9 +442,13 @@
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
                                 </tr>
                                 <tr>
                                     <td><input type="checkbox" /></td>
+                                    <td>test</td>
+                                    <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
                                     <td>test</td>
@@ -452,10 +458,14 @@
                         </table>
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
-                            <div class="paigination">
-                                <input type="button" value="◀" /> <!--클릭 시 input이 -1, +1 되거나 input에 숫자 넣어서 핸들링링-->
-                                <input type="text" value="1" />
-                                <input type="button" value="▶" />
+                            <div class="pagiination">
+                                <button type="button" id="btn-prev-page">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <input type="text" value="1">
+                                <button type="button" id="btn-next-page">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -510,17 +520,19 @@
                    <div>
                     <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
                 </div>
-                <div class="modal-buttons">
-                    <button type="button" name="save">
-						<span class="material-symbols-outlined">check</span> 등록
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+
+					<div class="modal-buttons">
+					<button type="button" name="save" style="display: none;">
+						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit">
+					<button type="button" name="edit" style="display: block;">
 						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal()">
 						<span class="material-symbols-outlined">close</span> 취소
 					</button>
-                </div>
+				</div>
         </form>
         </div>
 
