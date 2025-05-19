@@ -504,11 +504,12 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
 
-                        <!--데이터 없을 때 -->
+                        <!--데이터 없을 때 
                         <p class="nodata" th:if="${#lists.isEmpty(users)}">등록된 데이터가 없습니다.</p>
+                        -->
 
                         <!--데이터 있을 때 -->
-                        <table class="grid-table" th:if="${!#lists.isEmpty(users)}">
+                        <table class="grid-table" >
 
                             <thead>
 
@@ -523,20 +524,33 @@
                                     <th onclick="order(this)">재직상태<a>↓</a></th>
                                 </tr>
                             </thead>
+                            
+                            <tbody id="userTableBody">
+        </tbody>
+        <!-- 
                             <tbody>
-                                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()" th:each="user : ${users}">
+                                <tr onclick="opendatail()">
                                     <td><input type="checkbox" /></td>
-                                    <td th:text="${user.USER_NM}"></td>
-                                    <td th:text="${user.USER_ID}"></td>
-                                    <td th:text="${user.USER_TEL}"></td>
-                                    <td th:text="${user.USER_HP}"></td>
-                                    <td th:text="${user.USER_DEPT}"></td>
-                                    <td th:text="${user.USER_POSITION}"></td>
-                                    <td th:text="${user.USER_STATUS}"></td>
+                                    <td ></td>
+                                    <td ></td>
+                                    <td ></td>
+                                    <td ></td>
+                                    <td ></td>
+                                    <td ></td>
+                                    <td ></td>
                                 </tr>
                             </tbody>
+                            
+         -->
                         </table>
+                        
+                        <select>
+								<option value="5">5</option>
+								<option value="10">10</option>
+								<option value="15">15</option>
+								<option value="20">20</option>
+
+							</select>
                         
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
@@ -625,75 +639,7 @@
     </div>
 
     <script src="/js/top.js"></script>
-    <script>
-        let currentTh = null;
-        let currentOrder = 'desc';
-
-        function order(thValue) {//정렬
-            const allArrows = document.querySelectorAll("th a");
-            allArrows.forEach(a => a.textContent = '↓');
-
-            if (currentTh === thValue) {
-                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-            } else {
-                currentOrder = 'asc';
-                currentTh = thValue;
-            }
-
-            const arrow = thValue.querySelector('a');
-            arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-        }
-
-
-
-
-
-        //Modal ~ 
-        function openModal() {
-            const title = document.getElementById('modalTitle');
-            title.textContent = '신규 사원 등록';
-            document.getElementById('modal').style.display = 'flex';
-            document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function outsideClick(e) {
-            if (e.target.id === 'modal') {
-                closeModal();
-            }
-        }
-
-
-
-        function submitModal(event) {
-            event.preventDefault();
-            const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-            console.log(currentTab + ' 등록됨:', siteName);
-            closeModal();
-        }
-
-        //테이블 클릭 시 출력되는 modal
-        function opendatail() {
-            openModal();
-            document.getElementById('modalTitle').textContent = '사원 수정';
-
-            document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('table').forEach(table => {
-                const firstCells = table.querySelectorAll('tbody tr td:first-child');
-                firstCells.forEach(td => {
-                    td.setAttribute('onclick', 'event.stopPropagation()');
-                });
-            });
-        });
-    </script>
+    <script src="/js/hr.js"></script>
 
 </body>
 
