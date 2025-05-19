@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManagerFactory;
 import javax.sql.DataSource; // import jakarta.sql.DataSource; 에 맞게 사용하세요
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +31,8 @@ import java.util.Map;
     transactionManagerRef = "firstTransactionManager" // 기본 TransactionManager 빈 이름 지정
     // secondary 설정에서 스캔하는 패키지와 겹치지 않도록 주의하거나 excludeFilters를 사용할 수 있습니다.
 )
+@EntityScan(basePackages = "kr.co.d_erp.domain") // 엔티티 스캔 추가...  이거 해야지 domain 읽어옴
+
 public class FirstJpaConfig { // 클래스 이름이 FirstJpaConfig로 변경되었습니다.
 
     // Primary DataSource 빈을 주입받습니다. (@Qualifier로 특정 이름 지정 또는 @Primary DataSource 주입)
@@ -46,7 +49,7 @@ public class FirstJpaConfig { // 클래스 이름이 FirstJpaConfig로 변경되
                 .dataSource(primaryDataSource) // 사용할 Oracle 데이터 소스를 지정합니다.
                 // **** 엔티티 클래스(Usermst 등)가 있는 실제 패키지를 지정합니다. ****
                 // SecondJpaConfig의 packages 설정과 겹치지 않도록 주의하세요.
-                .packages("kr.co.d_erp.dtos") // <-- Usermst.java 파일이 이 패키지에 있다고 가정하고 수정
+                .packages("kr.co.d_erp.dtos", "kr.co.d_erp.domain") // <-- Usermst.java 파일이 이 패키지에 있다고 가정하고 수정 + domain추가 (선익)
                 // 만약 다른 엔티티 클래스가 다른 패키지에 있다면 여기에 추가합니다.
                 // 예: .packages("kr.co.d_erp.dtos", "다른.엔티티.패키지")
                 .persistenceUnit("firstPU") // Persistence Unit 이름 지정 (옵션이지만 다중 DataSource 시 구분 용이) - 선택적으로 변경
