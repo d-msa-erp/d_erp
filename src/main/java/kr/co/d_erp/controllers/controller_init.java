@@ -73,13 +73,15 @@ public class controller_init {
 	public String mrp() {
 		return "/mrp.html";
 	}
-	/*
+	
+	
 	//UserController로 이동 
 	@GetMapping("/hr")
 	public String hr() {
 		return "/hr.html";
 	}
-	*/
+	
+	
 	@GetMapping("/pagesettings")
 	public String pagesettings() {
 		return "/pagesettings.html";

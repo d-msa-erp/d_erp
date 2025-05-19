@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kr.co.d_erp.dtos.Notice;
-import kr.co.d_erp.repository.NoticeRepository;
+import kr.co.d_erp.repository.mysql.NoticeRepository;
 
 import java.util.List;
 import java.util.Optional;

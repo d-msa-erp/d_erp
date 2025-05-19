@@ -1,4 +1,4 @@
-package kr.co.d_erp.repository;
+package kr.co.d_erp.repository.mysql;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -16,7 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UserController {
 	@Resource(name = "UserDao")
 	UserDao userdao;
-
+/*
 	@GetMapping("/hr")
 	public String getUserPage(Model m) {
 		try {
@@ -29,4 +29,5 @@ public class UserController {
 		return "/hr.html";
 	}
 
+*/
 }
