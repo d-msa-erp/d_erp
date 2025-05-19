@@ -189,6 +189,13 @@
             gap: 10px;
             width: 100%;
         }
+        .myPageLine{
+            width: 100% !important;
+        }
+        .myPageLine input{width: 100%;}
+        button:hover{
+            filter: brightness(0.9);
+        }
     </style>
 </head>
 
@@ -204,29 +211,29 @@
                 </div>
                 <div class="table-wrapper">
                     <div>
-                        <div><span>아이디</span><input type="text" value="test" readonly /></div>
-                        <div><span>비밀번호</span>
+                        <div class="myPageLine"><span>아이디</span><input type="text" value="test" readonly /></div>
+                        <div class="myPageLine"><span>비밀번호</span>
                             <input type="password" value="test" readonly />
                             <button type="button"
                                 onclick="document.getElementById('pw-change-modal').style.display='block'">변경</button>
                         </div>
-                        <div><span>이름</span><input type="text" value="test" readonly/></div>
-                        <div><span>이메일</span><input type="text" value="test" /></div>
-                        <div><span>직통번호</span><input type="text" value="test" /></div>
-                        <div><span>연락처</span><input type="text" value="test" /></div>
-                        <div><span>직책</span><input type="text" value="test" readonly/></div>
-                        <div><span>부서</span><input type="text" value="test"readonly /></div>
-                        <div><span>입사일</span><input type="date" readonly/></div>
-                        <div><span>퇴사일</span><input type="date" readonly/></div>
-                        <div><span>권한</span><input type="text" readonly/></div>
-                        <div><span>재직상태</span><input type="text" readonly/></div>
+                        <div class="myPageLine"><span>이름</span><input type="text" value="test" readonly/></div>
+                        <div class="myPageLine"><span>이메일</span><input type="text" value="test" readonly/></div>
+                        <div class="myPageLine"><span>직통번호</span><input type="text" value="test" readonly/></div>
+                        <div class="myPageLine"><span>연락처</span><input type="text" value="test" readonly/></div>
+                        <div class="myPageLine"><span>직책</span><input type="text" value="test" readonly/></div>
+                        <div class="myPageLine"><span>부서</span><input type="text" value="test"readonly /></div>
+                        <div class="myPageLine"><span>입사일</span><input type="date" readonly/></div>
+                        <div class="myPageLine"><span>퇴사일</span><input type="date" readonly/></div>
+                        <div class="myPageLine"><span>권한</span><input type="text"  value="test" readonly/></div>
+                        <div class="myPageLine"><span>재직상태</span><input type="text"   value="test" readonly/></div>
                     </div>
                 </div>
                 <!-- 비밀번호 변경 모달 -->
                 <div id="pw-change-modal"
                     style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999;">
                     <div
-                        style="background:#fff; padding:30px; border-radius:8px; width:320px; margin:100px auto; position:relative;">
+                        style="background:#fff; padding:30px; border-radius:8px; width:320px; margin:100px auto; position:relative; top:20%;">
                         <h3 style="margin-bottom:16px;">비밀번호 변경</h3>
                         <div style="margin-bottom:10px;">
                             <input type="password" id="currentPw" placeholder="현재 비밀번호"
@@ -241,8 +248,8 @@
                         </div>
                         <div style="display:flex; justify-content:flex-end; gap:8px;">
                             <button type="button"
-                                onclick="document.getElementById('pw-change-modal').style.display='none'">취소</button>
-                            <button type="button" onclick="changePassword()">변경</button>
+                                onclick="document.getElementById('pw-change-modal').style.display='none'"><span class="material-symbols-outlined">close</span>취소</button>
+                            <button type="button" onclick="changePassword()"><span class="material-symbols-outlined">edit</span>변경</button>
                         </div>
                         <div id="pw-change-msg" style="color:red; margin-top:10px; font-size:13px;"></div>
                     </div>
