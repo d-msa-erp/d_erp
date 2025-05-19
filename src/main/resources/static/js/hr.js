@@ -27,70 +27,75 @@ document.addEventListener('DOMContentLoaded', () => {
             // 응답을 JSON 형식으로 파싱
             const users = await response.json();
 
-            // 기존 tbody 내용을 지웁니다. (th:if가 false일 때 nodata 메시지가 있다면 남겨두는 것이 좋습니다.
-            // 여기서는 th:if가 true일 때만 이 스크립트가 실행된다고 가정하고 tbody를 비웁니다.)
-             userTableBody.innerHTML = '';
-
+            // 기존 tbody 내용을 지웁니다.
+            userTableBody.innerHTML = '';
 
             // 가져온 사용자 데이터로 테이블 행 생성
             if (users && users.length > 0) {
                 users.forEach(user => {
                     const row = document.createElement('tr');
                     // 클릭 이벤트 핸들러 연결 (opendatail 함수는 별도로 정의되어 있어야 합니다)
-                    row.onclick = opendatail;
+                    // 행 클릭 시 해당 user 객체 정보를 함께 넘겨주는 것도 고려할 수 있습니다.
+                    // 예: row.onclick = () => opendatail(user);
+                    row.onclick = opendatail; // opendatail 함수는 아래 예시 참고
+
+                    // 테이블 헤더 순서에 맞춰 셀을 생성하고 데이터 채우기
+                    // 헤더 순서: 체크박스, 이름, ID, 직통번호, H.P, 부서, 직책, 재직상태
 
                     // 체크박스 셀 (첫 번째 컬럼)
                     const checkboxCell = document.createElement('td');
                     const checkbox = document.createElement('input');
                     checkbox.type = 'checkbox';
+                    // 필요하다면 체크박스에 user.USER_IDX 또는 user.userId 같은 값을 data 속성으로 저장해 둘 수 있습니다.
+                    // checkbox.dataset.userIdx = user.userIdx; // DTO에 USER_IDX가 Integer로 있음
                     checkboxCell.appendChild(checkbox);
                     row.appendChild(checkboxCell);
 
-                    // 데이터 셀 추가 - Usermst 객체의 실제 필드명에 맞게 'user.필드명' 부분을 수정해야 합니다!
-                    // HTML th 순서: 체크박스, 이름, ID, 직통번호, H.P, 부서, 직책, 재직상태 (총 8개)
-                    // Usermst 객체에 다음 필드들이 있다고 가정합니다. 실제 Usermst에 맞춰 수정하세요.
-
+                    // 이름 (두 번째 컬럼): DTO 필드 USER_NM -> JSON userNm
                     const nameCell = document.createElement('td');
-                    nameCell.textContent = user.name || ''; // 예: Usermst에 'name' 필드가 있다면
+                    nameCell.textContent = user.userNm || ''; // user.userNm 사용
                     row.appendChild(nameCell);
 
+                    // ID (세 번째 컬럼): DTO 필드 USER_ID -> JSON userId
                     const userIdCell = document.createElement('td');
-                    userIdCell.textContent = user.userId || user.id || ''; // 예: 'userId' 또는 'id' 필드가 있다면
+                    userIdCell.textContent = user.userId || ''; // user.userId 사용
                     row.appendChild(userIdCell);
 
-                    const phoneCell = document.createElement('td');
-                    phoneCell.textContent = user.phone || ''; // 예: 'phone' 필드가 있다면
-                    row.appendChild(phoneCell);
+                    // 직통번호 (네 번째 컬럼): DTO 필드 USER_TEL -> JSON userTel
+                    const userTelCell = document.createElement('td');
+                    userTelCell.textContent = user.userTel || ''; // user.userTel 사용
+                    row.appendChild(userTelCell);
 
-                    const mobileCell = document.createElement('td');
-                    mobileCell.textContent = user.mobile || user.hp || ''; // 예: 'mobile' 또는 'hp' 필드가 있다면
-                    row.appendChild(mobileCell);
+                    // H.P (다섯 번째 컬럼): DTO 필드 USER_HP -> JSON userHp
+                    const userHpCell = document.createElement('td');
+                    userHpCell.textContent = user.userHp || ''; // user.userHp 사용
+                    row.appendChild(userHpCell);
 
-                    const departmentCell = document.createElement('td');
-                    // 만약 부서가 객체 { id: 1, name: '개발팀' } 형태라면 user.department.name || ''
-                    departmentCell.textContent = user.department || ''; // 예: 'department' 필드가 있다면
-                    row.appendChild(departmentCell);
+                    // 부서 (여섯 번째 컬럼): DTO 필드 USER_DEPT -> JSON userDept
+                    const userDeptCell = document.createElement('td');
+                    userDeptCell.textContent = user.userDept || ''; // user.userDept 사용
+                    row.appendChild(userDeptCell);
 
-                    const positionCell = document.createElement('td');
-                    positionCell.textContent = user.position || ''; // 예: 'position' 필드가 있다면
-                    row.appendChild(positionCell);
+                    // 직책 (일곱 번째 컬럼): DTO 필드 USER_POSITION -> JSON userPosition
+                    const userPositionCell = document.createElement('td');
+                    userPositionCell.textContent = user.userPosition || ''; // user.userPosition 사용
+                    row.appendChild(userPositionCell);
 
-                    const statusCell = document.createElement('td');
-                    // 재직상태 코드를 텍스트로 변환하는 로직이 필요할 수 있습니다.
-                    statusCell.textContent = user.status || ''; // 예: 'status' 필드가 있다면
-                    row.appendChild(statusCell);
-
+                    // 재직상태 (여덟 번째 컬럼): DTO 필드 USER_STATUS -> JSON userStatus
+                    const userStatusCell = document.createElement('td');
+                    // 필요하다면 '01', '02' 등의 코드를 '재직중', '퇴사' 등으로 변환하는 로직 추가
+                    userStatusCell.textContent = user.userStatus || ''; // user.userStatus 사용
+                    row.appendChild(userStatusCell);
 
                     // 생성된 행을 tbody에 추가
                     userTableBody.appendChild(row);
                 });
             } else {
-                // 데이터가 없을 경우 메시지 표시 (th:if 조건에 따라 이 부분은 필요 없을 수도 있습니다)
-                // 만약 th:if 없이 항상 tbody가 있고, 데이터 없음을 js에서 처리한다면 이 코드를 사용합니다.
+                // 데이터가 없을 경우 메시지 표시
                  const noDataRow = document.createElement('tr');
                  const noDataCell = document.createElement('td');
                  noDataCell.colSpan = 8; // 테이블 컬럼 수에 맞게 colspan 조정 (체크박스 포함 총 8개 컬럼)
-                 noDataCell.textContent = '등록된 데이터가 없습니다.';
+                 noDataCell.textContent = '등록된 사용자 데이터가 없습니다.';
                  noDataCell.style.textAlign = 'center';
                  noDataRow.appendChild(noDataCell);
                  userTableBody.appendChild(noDataRow);
@@ -103,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
              const errorRow = document.createElement('tr');
              const errorCell = document.createElement('td');
              errorCell.colSpan = 8; // 테이블 컬럼 수에 맞게 colspan 조정
-             errorCell.textContent = '데이터 로딩 실패';
+             errorCell.textContent = '데이터 로딩 실패: ' + error.message; // 오류 메시지 간략 표시
              errorCell.style.color = 'red';
              errorCell.style.textAlign = 'center';
              errorRow.appendChild(errorCell);
@@ -114,6 +119,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 페이지 로드 시 데이터 로딩 함수 호출
     loadUsersTable();
 });
+
+// opendatail 함수 정의 (테이블 행 클릭 시 실행될 함수) - 예시
+// 이 함수는 별도의 <script> 태그나 파일에 정의되어 있을 수도 있습니다.
+function opendatail() {
+    // 클릭된 행에 대한 상세 정보를 처리하는 로직을 여기에 작성합니다.
+    // 예: 클릭된 행의 데이터를 가져와서 상세 페이지로 이동하거나 모달 창을 띄우는 등
+    console.log('테이블 행이 클릭되었습니다.');
+    // this 는 클릭된 <tr> 요소를 가리킵니다.
+    // 만약 loadUsersTable 함수에서 row.onclick = () => opendatail(user); 와 같이 사용자 객체를 넘겼다면
+    // 여기서는 function opendatail(userData) { ... } 와 같이 userData 매개변수로 사용자 정보에 접근할 수 있습니다.
+}
 
 // opendatail 함수 정의 (테이블 행 클릭 시 실행될 함수)
 // 이 함수는 별도의 <script> 태그나 파일에 정의되어 있을 수도 있습니다.
