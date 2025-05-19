@@ -368,8 +368,10 @@
             </div>
           </div>
           <div>
-            <span class="active" onclick="switchTab(this, 'customer')">거래처</span>
-            <span onclick="switchTab(this, 'vendor')">발주처</span>
+            <span th:classappend="${bizFlag == '01'} ? 'active' : ''"
+			        onclick="location.href='/customer?bizFlag=01'">거래처</span>
+			  <span th:classappend="${bizFlag == '02'} ? 'active' : ''"
+			        onclick="location.href='/customer?bizFlag=02'">발주처</span>
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
@@ -563,6 +565,8 @@
 
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
+      
+      location.href = `/customer?bizFlag=${type === 'customer' ? '01' : '02'}`;
     }
 
 
