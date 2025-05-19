@@ -599,12 +599,11 @@ width: 20px;
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
-						<p class="nodata">등록된 데이터가 없습니다.</p>
 						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
-
+							
 							<thead>
-
+								
 								<tr>
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
@@ -617,6 +616,36 @@ width: 20px;
 							</thead>
 							<tbody>
 								<!--몇개씩 자를지는 상의해봐요 ~ -->
+								<tr>
+									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
+								<tr onclick="opendatail()">
+									<td><input type="checkbox" /></td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>10000000</td>
+								</tr>
+								<tr onclick="opendatail()">
+									<td><input type="checkbox" /></td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>10000000</td>
+								</tr>
+								<tr onclick="opendatail()">
+									<td><input type="checkbox" /></td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>test</td>
+									<td>10000000</td>
+								</tr>
 								<tr onclick="opendatail()">
 									<td><input type="checkbox" /></td>
 									<td>test</td>
@@ -681,6 +710,9 @@ width: 20px;
 									<tbody>
 										<!--등록된 품목 리스트가 쭉 나오게 ~ -->
 										<tr>
+												<tr>
+									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 											<td>1</td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
@@ -738,6 +770,9 @@ width: 20px;
 									<tbody>
 										<!--등록된 자재 리스트가 쭉 나오게 ~ -->
 										<tr>
+												<tr>
+									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 											<td>1</td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
@@ -812,6 +847,9 @@ width: 20px;
 								</thead>
 								<tbody>
 									<!--등록된 품목 리스트가 쭉 나오게 ~ -->
+										<tr>
+									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 									<tr>
 										<td>1</td>
 										<td><input type="text" value="test" /></td>
@@ -891,6 +929,9 @@ width: 20px;
 							</tr>
 						</thead>
 						<tbody>
+								<tr>
+									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 							<tr>
 								<td><input type="checkbox" class="category-checkbox" /></td>
 								<td><input type="text" value="예시대분류" /></td>
@@ -907,6 +948,7 @@ width: 20px;
 											</tr>
 										</thead>
 										<tbody class="subcategory-tbody">
+											
 											<tr>
 												<td><input type="text" value="예시소분류1" /></td>
 												<td><input type="text" value="소분류코드1" /></td>
@@ -1088,6 +1130,9 @@ width: 20px;
 							</tr>
 						</thead>
 						<tbody>
+								<tr>
+									<td class="nodata" style="grid-column: span 3;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 							<tr>
 								<td>1</td>
 								<td><input type="text" value="ea" /></td>

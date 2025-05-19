@@ -484,7 +484,6 @@ input:checked+.slider::before {
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
-						<p class="nodata">등록된 품목이 없습니다.</p>
 						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
 
@@ -501,6 +500,9 @@ input:checked+.slider::before {
 								</tr>
 							</thead>
 							<tbody>
+									<tr>
+									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
+								</tr>
 								<!--몇개씩 자를지는 상의해봐요 ~ -->
 								<tr onclick="opendatail()">
 									<td><input type="checkbox" /></td>
