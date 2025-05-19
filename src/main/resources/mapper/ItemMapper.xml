@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.d_erp.mappers.ItemMapper">
+
+<select id="selectALLItem" resultType="kr.co.d_erp.dtos.Item">
+select ITEM_NM, ITEM_CD, ITEM_CAT1, ITEM_CAT2, CUST_IDX, ITEM_UNIT, ITEM_COST,
+COALESCE(inv.STOCK_QTY, 0) AS QTY, unit.UNIT_NM AS UNIT_NM FROM TB_ITEMMST itm 
+LEFT JOIN TB_INVENTORY inv ON itm.ITEM_IDX = inv.ITEM_IDX
+LEFT JOIN TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
+</select>
+        <select id="selectPagingItem" parameterType="map" resultType="kr.co.d_erp.dtos.Item">
+            SELECT
+                itm.ITEM_NM,
+                itm.ITEM_CD,
+                itm.ITEM_CAT1,
+                itm.ITEM_CAT2,
+                itm.CUST_IDX,
+                itm.ITEM_UNIT,
+                itm.ITEM_COST,
+                COALESCE(inv.STOCK_QTY, 0) AS QTY,
+                unit.UNIT_NM
+            FROM
+                TB_ITEMMST itm
+            LEFT JOIN
+                TB_INVENTORY inv ON itm.ITEM_IDX = inv.ITEM_IDX
+            LEFT JOIN
+                TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
+            WHERE ROWNUM <![CDATA[ <= ]]> #{offset} + #{pageSize}
+              AND itm.ITEM_IDX IN (SELECT ITEM_IDX FROM (SELECT ITEM_IDX, row_number() OVER (ORDER BY ITEM_IDX DESC) AS rn FROM TB_ITEMMST) WHERE rn > #{offset})
+
+        </select>
+
+        <select id="selectCountItem" resultType="long">
+            SELECT COUNT(*)
+            FROM TB_ITEMMST
+        </select>
+
+</mapper>

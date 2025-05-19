@@ -172,7 +172,11 @@
 		}
 
 		.nodata {
+			grid-column:span 9;
+		}
+		.nodata p{
 			text-align: center;
+			width: 100%;
 		}
 
 		.print-wrap {
@@ -196,6 +200,7 @@
 		}
 
 		table.grid-table {
+			margin-top:25px;
 			width: 100%;
 			border-collapse: collapse;
 			display: grid;
@@ -408,7 +413,7 @@
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
-						<p class="nodata">등록된 품목이 없습니다.</p>
+						<!-- <p class="nodata">등록된 품목이 없습니다.</p> -->
 						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
 
@@ -426,35 +431,130 @@
 									<th onclick="order(this)">단가<a>↓</a></th>
 								</tr>
 							</thead>
-							<tbody>
-								<!--몇개씩 자를지는 상의해봐요 ~ -->
-								<tr onclick="opendatail()">
-									<td onclick="event.stopPropagation()"><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
+							<tbody id="itembody">
+								<tr id="Noitem" style="display: none;">
+									<td class="nodata" colspan="9"><p>등록된 품목이 없습니다.</p></td>
 								</tr>
-								<tr>
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-								</tr>
+							
+							    <!-- <tr th:if="${#lists.isEmpty(items)}">
+                					<td class="nodata"><p>등록된 품목이 없습니다.</p></td>
+            					</tr>
+								몇개씩 자를지는 상의해봐요 ~
+								<tr onclick="opendatail()" th:each="item : ${items}">
+									<td onclick="event.stopPropagation()">
+									<input type="checkbox" /></td>
+									<td th:text="${item.ITEM_NM}"></td>
+									<td th:text="${item.ITEM_CD}"></td>
+									<td th:text="${item.ITEM_CAT1}"></td>
+									<td th:text="${item.ITEM_CAT2}"></td>
+									<td th:text="${item.CUST_IDX}"></td>
+									<td th:text="${item.UNIT_NM}"></td>
+									<td th:text="${item.QTY}"></td>
+									<td th:text="${item.ITEM_COST}"></td>
+								</tr> -->
 							</tbody>
 						</table>
-						<div class="pagination-wrap">
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const itemTableBody = document.getElementById('itembody');
+            const noDataRow = document.getElementById('Noitem');
+            const prevPageButton = document.getElementById('btn-prev-page');
+            const nextPageButton = document.getElementById('btn-next-page');
+            const currentPageInput = document.getElementById('currentPageInput');
+            const totalCountSpan = document.querySelector('.pagination-wrap span:first-child');
+            const currentPageSpan = document.querySelector('.pagination-wrap span:nth-child(2)');
+
+            let currentPage = 1;
+            let totalPages = 1;
+            const pageSize = 10;
+
+            function fetchItems(page) {
+                fetch(`/api/items?page=${page}&size=${pageSize}`)
+                    .then(response => { // 첫 번째 .then()에서 response 객체 받음
+                        const totalCount = response.headers.get('X-Total-Count'); // 헤더 추출
+                        return response.json().then(data => ({ data: data, totalCount: totalCount })); // 데이터와 총 개수 함께 반환
+                    })
+                    .then(({ data, totalCount }) => { // 두 번째 .then()에서 받음
+                        console.log('서버 응답 데이터:', data);
+                        console.log('총 개수:', totalCount);
+
+                        const items = data; // 서버가 배열 형태로 데이터를 반환한다고 가정
+                        totalPages = Math.ceil(totalCount / pageSize);
+                        currentPage = page;
+
+                        totalCountSpan.textContent = `총 ${totalCount || 0}건`;
+                        currentPageSpan.textContent = `${currentPage}/${totalPages || 1}페이지`;
+                        prevPageButton.disabled = currentPage === 1;
+                        nextPageButton.disabled = currentPage === totalPages;
+                        currentPageInput.value = currentPage;
+
+                        itemTableBody.innerHTML = '';
+                        if (items && items.length > 0) {
+                            noDataRow.style.display = 'none';
+                            items.forEach(item => {
+                                const row = itemTableBody.insertRow();
+                                const checkboxCell = row.insertCell();
+                                const checkbox = document.createElement('input');
+                                checkbox.type = 'checkbox';
+                                checkboxCell.appendChild(checkbox);
+                                const itemNameCell = row.insertCell();
+                                itemNameCell.textContent = item.item_NM || "";
+                                const itemCodeCell = row.insertCell();
+                                itemCodeCell.textContent = item.item_CD || "";
+                                const itemCat1Cell = row.insertCell();
+                                itemCat1Cell.textContent = item.item_CAT1 || "";
+                                const itemCat2Cell = row.insertCell();
+                                itemCat2Cell.textContent = item.item_CAT2 || "";
+                                const custIdxCell = row.insertCell();
+                                custIdxCell.textContent = item.CUST_IDX || ""; 
+                                const unitNmCell = row.insertCell();
+                                unitNmCell.textContent = item.UNIT_NM || "";   
+                                const qtyCell = row.insertCell();
+                                qtyCell.textContent = item.QTY || "";         
+                                const itemCostCell = row.insertCell();
+                                itemCostCell.textContent = item.item_COST || "";
+                            });
+                        } else {
+                            noDataRow.style.display = '';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('데이터를 가져오는 중 오류 발생:', error);
+                        noDataRow.style.display = '';
+                    });
+            }
+
+            // 초기 데이터 로딩 (1페이지)
+            fetchItems(currentPage);
+
+            prevPageButton.addEventListener('click', function() {
+                if (currentPage > 1) {
+                    fetchItems(currentPage - 1);
+                }
+            });
+
+            nextPageButton.addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    fetchItems(currentPage + 1);
+                }
+            });
+
+            currentPageInput.addEventListener('change', function() {
+                const pageNumber = parseInt(this.value);
+                if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+                    fetchItems(pageNumber);
+                } else {
+                    alert('유효한 페이지 번호를 입력하세요.');
+                    this.value = currentPage;
+                }
+            });
+        });
+    </script>				
+						
+						
+<!-- 						<div class="pagination-wrap">
 							총 n건 1/n페이지
-					<div class="paigination">
+							<div class="paigination">
 								<button type="button" id="btn-prev-page">
 									<span class="material-symbols-outlined">chevron_left</span>
 								</button>
@@ -463,7 +563,20 @@
 									<span class="material-symbols-outlined">chevron_right</span>
 								</button>
 							</div>
-						</div>
+						</div> -->
+						 <div class="pagination-wrap">
+					        <span th:text="|총 ${totalCount}건|">총 n건</span>
+					        <span th:text="|${currentPage}/${totalPages}페이지|">1/n페이지</span>
+					        <div class="paigination">
+					            <button type="button" id="btn-prev-page" th:disabled="${currentPage == 1}">
+					                <span class="material-symbols-outlined">chevron_left</span>
+					            </button>
+					            <input type="text" th:value="${currentPage}" id="currentPageInput">
+					            <button type="button" id="btn-next-page" th:disabled="${currentPage == totalPages}">
+					                <span class="material-symbols-outlined">chevron_right</span>
+					            </button>
+					        </div>
+					    </div>
 					</div>
 
 
