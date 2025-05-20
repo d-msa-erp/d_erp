@@ -1,3 +1,4 @@
+/*
 package kr.co.d_erp.daos;
 
 import java.util.List;
@@ -25,3 +26,4 @@ public class CustomerDao implements CustomerMapper {
 	}
 	
 }
+*/

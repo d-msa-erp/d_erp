@@ -1,3 +1,4 @@
+/*
 package kr.co.d_erp.mappers;
 
 import java.util.List;
@@ -10,3 +11,4 @@ import kr.co.d_erp.dtos.Customer;
 public interface CustomerMapper {
 	List<Customer> ViewAllCustomer(String BIZ_FLAG);
 }
+*/
