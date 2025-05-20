@@ -34,3 +34,4 @@ public class BomDetailViewController {
         return ResponseEntity.ok(bomDetails);
     }
 }
+

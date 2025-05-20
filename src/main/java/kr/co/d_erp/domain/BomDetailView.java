@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,30 +30,59 @@ public class BomDetailView {
     @Column(name = "P_ITEM_CD")
     private String pItemCd;
 
-    // 복합 Primary Key의 두 번째 컬럼
+    // 하위 품목 코드 (Primary Key의 두 번째 부분)
     @Id
     @Column(name = "S_ITEM_CD")
     private String sItemCd;
 
-    // 뷰의 다른 컬럼들과 매핑
+    // --- 상위 품목 (완제품) 정보 ---
     @Column(name = "P_ITEM_NM")
-    private String pItemNm;
+    private String pItemNm; // 상위 품목명
 
+    @Column(name = "P_ITEM_FLAG")
+    private String pItemFlag; // 상위 품목 유형 플래그 (예: '02' = 완제품)
+
+    @Column(name = "P_UNIT_NM")
+    private String pUnitNm; // 상위 품목 단위명
+
+    @Column(name = "P_CUST_NM")
+    private String pCustNm; // 상위 품목 고객사명
+
+    @Column(name = "P_CYCLE_TIME")
+    private Integer pCycleTime; // 상위 품목 생산성 (Cycle Time)
+
+    // --- 하위 품목 (원자재) 정보 ---
     @Column(name = "S_ITEM_NM")
-    private String sItemNm;
+    private String sItemNm; // 하위 품목명
 
-    @Column(name = "CUST_NM")
-    private String custNm;
+    @Column(name = "S_ITEM_FLAG")
+    private String sItemFlag; // 하위 품목 유형 플래그 (예: '01' = 자재)
 
+    @Column(name = "S_UNIT_NM")
+    private String sUnitNm; // 하위 품목 단위명
+
+    @Column(name = "S_CUST_NM")
+    private String sCustNm; // 하위 품목 고객사명
+
+    // --- BOM 및 원가 관련 정보 ---
+    @Column(name = "BOM_USE_QTY")
+    private BigDecimal  bomUseQty; // BOM 소요량 (소수점 3자리 포함 가능성에 따라 BigDecimal)
+
+    @Column(name = "S_ITEM_UNIT_PRICE")
+    private BigDecimal sItemUnitPrice; // 하위 품목의 개별 단가 (소수점 3자리까지 포함 가능성에 따라 BigDecimal)
+
+    @Column(name = "S_ITEM_CALCULATED_COST")
+    private BigDecimal sItemCalculatedCost; // 하위 품목의 계산된 원가 (소요량 * 단가)
+
+    @Column(name = "P_TOTAL_COST")
+    private BigDecimal pTotalRawMaterialCost; // 상위 품목(완제품)의 총 원자재 원가
+
+    // --- 기타 정보 ---
     @Column(name = "CAT_NM")
-    private String catNm;
+    private String catNm; // 대분류명 (하위 품목의 대분류)
 
-    @Column(name = "UNIT_NM")
-    private String unitNm;
-
-    @Column(name = "ITEM_PRICE")
-    private Double itemPrice; // DECIMAL/NUMERIC 타입에 따라 Double 또는 BigDecimal 사용
-
+    
+    
     // 기본 생성자, 모든 필드 생성자, getter, setter 필요
     // Lombok으로 대체
 }

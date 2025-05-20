@@ -2,558 +2,550 @@
 <html lang="ko">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>BOM 관리</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-	<style th:replace="~{/top.html :: topstyle}"></style>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		body {
-			font-family: sans-serif;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-		}
-
-		.site-Wrapper {
-			width: 100%;
-			max-width: 1200px;
-			align-self: center;
-			padding: 20px;
-		}
-
-		.site-Dataset {
-			width: 100%;
-			border: 1px solid #777;
-			border-radius: 10px;
-			overflow: hidden;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.site-Dataset .header {
-			background: #46a6ff;
-			color: white;
-			padding: 10px 20px;
-			font-size: 20px;
-		}
-
-		.site-Dataset .form-content {
-			display: flex;
-			flex-wrap: wrap;
-			padding: 20px;
-			gap: 20px;
-		}
-
-		.form-item {
-			display: flex;
-			align-items: center;
-			width: calc(33.333% - 13.33px);
-		}
-
-		.form-item.addr {
-			width: calc(66.666% - 10px);
-		}
-
-		.form-item span {
-			padding-right: 10px;
-			white-space: nowrap;
-		}
-
-		.form-item input {
-			width: 100%;
-			height: 100%;
-			border-radius: 3px;
-			padding: 5px;
-			font-size: 14px;
-			border: 1px solid #ccc;
-		}
-
-		.form-item input:focus {
-			border: 1px solid #46a6ff;
-			outline: none;
-		}
-
-		.table-wrapper {
-			width: 100%;
-			max-width: 1200px;
-		}
-
-		.table-wrapper>div:nth-child(1) {
-			padding: 20px 20px 0 20px;
-			display: flex;
-			justify-content: flex-end;
-			gap: 20px;
-			position: relative;
-		}
-
-		.table-wrapper>div:nth-child(1)>input[type="text"] {
-			width: 30%;
-			padding: 5px;
-		}
-
-		.table-wrapper>div:nth-child(1)>div {
-			width: 30%;
-			display: flex;
-			justify-content: space-between;
-		}
-
-		.table-wrapper>div:nth-child(1)>.btn-wrap1 {
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			position: absolute;
-			left: 20px;
-			display: flex;
-			justify-content: flex-start;
-			gap: 10px;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button {
-			width: 30%;
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			white-space: nowrap;
-		}
-
-		.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
-			padding: 5px;
-			gap: 10px;
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			white-space: nowrap;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-			background: #007bff;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-			background: #28a745;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-			background: #dc3545;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(2) {
-			padding: 20px 20px 0 20px;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.table-wrapper>div:nth-child(2)>span {
-			width: 30%;
-			padding-right: 10px;
-			text-align: center;
-			cursor: pointer;
-		}
-
-		.table-wrapper>div:nth-child(2)>span.active {
-			font-weight: bold;
-			text-decoration: underline;
-		}
-
-		.table-wrapper>div:nth-child(3) {
-			position: relative;
-		}
-
-		.nodata {
-			text-align: center;
-		}
-
-		.print-wrap {
-			position: absolute;
-			top: 0;
-			right: 0;
-			padding: 0 20px;
-			display: flex;
-			gap: 10px;
-			width: 200px;
-		}
-
-		.print-wrap>button {
-			width: 100%;
-			background: #007bff;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			padding: 5px;
-		}
-
-		table.grid-table {
-			width: 100%;
-			border-collapse: collapse;
-			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr 1fr;
-		}
-
-		thead,
-		tbody,
-		tr {
-			display: contents;
-		}
-
-		tbody>tr:nth-child(even) td {
-			background: #f9f9f9;
-		}
-
-		tbody>tr:hover td {
-			background: #46a6ff;
-			cursor: pointer;
-		}
-
-		tr th:nth-child(1),
-		tr td:nth-child(1),
-		tr th:nth-last-child(1) {
-			justify-content: center;
-		}
-
-		tr td:nth-last-child(1) {
-			justify-content: right;
-		}
-
-		th,
-		td {
-			padding: 10px;
-			border: 1px solid #ccc;
-			display: flex;
-			align-items: center;
-		}
-
-		thead th {
-			background: #f0f0f0;
-			font-weight: bold;
-			cursor: pointer;
-		}
-
-		table input[type="text"] {
-			width: 100%;
-			padding: 5px;
-		}
-
-		.pagination-wrap {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-			padding-top: 20px;
-		}
-
-		.pagination-wrap>div {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-		}
-
-		.pagination-wrap>div input[type="text"] {
-			width: 50px;
-			text-align: center;
-		}
-
-		.pagination-wrap>div button {
-width: 20px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-		}
-
-		.table-wrapper button:hover {
-			filter: brightness(0.9);
-		}
-
-		.modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
-		}
-
-		.modal-content {
-			background: white;
-			padding: 20px;
-			border-radius: 10px;
-			width: 80%;
-			position: relative;
-		}
-
-		.modal-content .modalForm {
-			margin-top: 20px;
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-			justify-items: center;
-			align-items: center;
-		}
-
-		.modal-content .modalForm>div,
-		.modal-content .modalForm>label {
-			width: 100%;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.modal-content .modalForm>div>span,
-		.modal-content .modalForm>label>span {
-			white-space: nowrap;
-			padding-right: 10px;
-		}
-
-		.modal-content input[type="text"] {
-			width: 100%;
-			padding: 10px;
-			border: 1px solid #ccc;
-		}
-
-		.modal-content input[type="color"] {
-			width: 100%;
-			height: 40px;
-			border: none;
-			margin-top: 10px;
-		}
-
-		.modal-content .modal-buttons {
-			margin-top: 15px;
-			display: flex;
-			justify-content: flex-end;
-			gap: 10px;
-			width: 100%;
-		}
-
-		.modal-content .modal-buttons>button:hover {
-			filter: brightness(0.9);
-		}
-
-		.modal-content .modal-buttons>button {
-			width: 100%;
-			background: #007bff;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			padding: 5px;
-		}
-
-		.modal-buttons button:nth-of-type(3) {
-			background: #777 !important;
-		}
-
-		.modal-content .modalForm th,
-		.modal-content .modalForm td {
-			margin: 0 !important;
-			padding: 0 !important;
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		.modal-content .bomTab1 select {
-			height: 100%;
-			width: 100%;
-		}
-
-		.modal-content .grid-table {
-			width: 100%;
-			height: 100%;
-			border-collapse: collapse;
-			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
-			padding: 0;
-		}
-
-		.modal-content .grid-table button {
-			width: 100%;
-			height: 100%;
-		}
-
-		.bomTab1 {
-			display: grid !important;
-			grid-template-columns: 1fr 1fr;
-			gap: 10px;
-		}
-
-		.bomTab1 input {
-			width: 100%;
-			padding: 5px;
-		}
-
-		.bomTab1>div {
-			height: 100%;
-			align-self: stretch;
-		}
-
-		.bomTab2 {
-			display: grid;
-			gap: 10px;
-		}
-
-		.bomTab2>div {
-			display: flex;
-			flex-direction: column;
-			gap: 10px !important;
-			justify-content: space-between;
-		}
-
-		 .bomTab2>div>div {
-			height: 100%;
-			overflow-y: auto;
-		} 
-
-		.bomTab2>div>ul {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-
-		.bomTab2>div>ul>li {
-			padding-left: 10px;
-		}
-
-		.bomTab3 {
-	    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    justify-content: space-between;
-		}
-
-		.bomTab3>div {
-			display: flex;
-			white-space: nowrap;
-			gap: 10px;
-			align-items: center;
-		}
-
-		.bomTab3 .flex-row {
-			display: flex;
-			gap: 10px;
-			width: 100%;
-		}
-
-		.bomTab3 .flex-row>div {
-			flex: 1;
-			display: flex;
-			align-items: center;
-		}
-
-		.bomTab3 .flex-row>div span {
-			white-space: nowrap;
-			padding-right: 10px;
-		}
-
-		.bomTab3 .flex-row>div input {
-			width: 100%;
-		}
-
-		.bomTab5 {
-			max-height: 300px;
-			overflow-y: auto;
-		}
-
-		.bomTab5 .grid-table {
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
-		}
-
-		.catetable {
-			grid-template-columns: 1fr 1fr 1fr 1fr !important;
-		}
-
-		.stretable {
-			grid-template-columns: 1fr 1fr 1fr !important;
-		}
-
-		.modal-content h3 {
-			margin-bottom: 10px;
-		}
-
-		.modalForm {
-			display: flex;
-			flex-direction: column;
-		}
-
-		#category-table {
-			grid-template-columns: 0.3fr 1fr 1fr 1fr 2fr 0.3fr !important;
-		}
-
-		#category-table input[type="text"] {
-			width: 98%;
-		}
-
-		#category-table td {
-			padding: 0 !important;
-			display: flex;
-			flex-direction: column-reverse;
-			max-height: 113px;
-			justify-content: center;
-		}
-
-		#category-table .grid-table {
-			background: #f9f9f9;
-			grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
-			margin: 0 !important;
-			max-height: 69px;
-			overflow: auto;
-		}
-
-		#category-table .grid-table th {
-			font-size: 13px;
-		}
-
-		.subcategory-tbody input[type="text"] {
-			width: 95%;
-		}
-
-
-		.category-sub-add {
-			display: grid;
-			grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
-			gap: 6px;
-			margin-top: 4px;
-		}
-
-		.category-sub-add button {
-			width: auto;
-		}
-
-		.category-sub-add input {
-			flex: 1;
-		}
-
-		.category-add-row {
-			display: flex;
-			gap: 10px;
-			margin-top: 10px;
-		}
-
-		.category-add-row input {
-			flex: 1;
-		}
-
-		.modal-buttons button {
-			margin-right: 10px;
-		}
-	</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BOM 관리</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:replace="~{/top.html :: topstyle}"></style>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.site-Wrapper {
+	width: 100%;
+	max-width: 1200px;
+	align-self: center;
+	padding: 20px;
+}
+
+.site-Dataset {
+	width: 100%;
+	border: 1px solid #777;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.site-Dataset .header {
+	background: #46a6ff;
+	color: white;
+	padding: 10px 20px;
+	font-size: 20px;
+}
+
+.site-Dataset .form-content {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 20px;
+	gap: 20px;
+}
+
+.form-item {
+	display: flex;
+	align-items: center;
+	width: calc(33.333% - 13.33px);
+}
+
+.form-item.addr {
+	width: calc(66.666% - 10px);
+}
+
+.form-item span {
+	padding-right: 10px;
+	white-space: nowrap;
+}
+
+.form-item input {
+	width: 100%;
+	height: 100%;
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+}
+
+.form-item input:focus {
+	border: 1px solid #46a6ff;
+	outline: none;
+}
+
+.table-wrapper {
+	width: 100%;
+	max-width: 1200px;
+}
+
+.table-wrapper>div:nth-child(1) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
+	position: relative;
+}
+
+.table-wrapper>div:nth-child(1)>input[type="text"] {
+	width: 30%;
+	padding: 5px;
+}
+
+.table-wrapper>div:nth-child(1)>div {
+	width: 30%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 {
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	position: absolute;
+	left: 20px;
+	display: flex;
+	justify-content: flex-start;
+	gap: 10px;
+}
+
+.table-wrapper>div:nth-child(1)>div button {
+	width: 30%;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
+	padding: 5px;
+	gap: 10px;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
+	background: #007bff;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
+	background: #28a745;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
+	background: #dc3545;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(2) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.table-wrapper>div:nth-child(2)>span {
+	width: 30%;
+	padding-right: 10px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.table-wrapper>div:nth-child(2)>span.active {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.table-wrapper>div:nth-child(3) {
+	position: relative;
+}
+
+.nodata {
+	text-align: center;
+}
+
+.print-wrap {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0 20px;
+	display: flex;
+	gap: 10px;
+	width: 200px;
+}
+
+.print-wrap>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+table.grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr;
+}
+
+thead, tbody, tr {
+	display: contents;
+}
+
+tbody>tr:nth-child(even) td {
+	background: #f9f9f9;
+}
+
+tbody>tr:hover td {
+	background: #46a6ff;
+	cursor: pointer;
+}
+
+tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
+	justify-content: center;
+}
+
+tr td:nth-last-child(1) {
+	justify-content: right;
+}
+
+th, td {
+	padding: 10px;
+	border: 1px solid #ccc;
+	display: flex;
+	align-items: center;
+}
+
+thead th {
+	background: #f0f0f0;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+table input[type="text"] {
+	width: 100%;
+	padding: 5px;
+}
+
+.pagination-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	padding-top: 20px;
+}
+
+.pagination-wrap>div {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pagination-wrap>div input[type="text"] {
+	width: 50px;
+	text-align: center;
+}
+
+.pagination-wrap>div button {
+	width: 20px;
+	background: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.table-wrapper button:hover {
+	filter: brightness(0.9);
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.4);
+	justify-content: center;
+	align-items: center;
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+	width: 80%;
+	position: relative;
+}
+
+.modal-content .modalForm {
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	justify-items: center;
+	align-items: center;
+}
+
+.modal-content .modalForm>div, .modal-content .modalForm>label {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.modal-content .modalForm>div>span, .modal-content .modalForm>label>span
+	{
+	white-space: nowrap;
+	padding-right: 10px;
+}
+
+.modal-content input[type="text"] {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+.modal-content input[type="color"] {
+	width: 100%;
+	height: 40px;
+	border: none;
+	margin-top: 10px;
+}
+
+.modal-content .modal-buttons {
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	width: 100%;
+}
+
+.modal-content .modal-buttons>button:hover {
+	filter: brightness(0.9);
+}
+
+.modal-content .modal-buttons>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+.modal-buttons button:nth-of-type(3) {
+	background: #777 !important;
+}
+
+.modal-content .modalForm th, .modal-content .modalForm td {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+}
+
+.modal-content .bomTab1 select {
+	height: 100%;
+	width: 100%;
+}
+
+.modal-content .grid-table {
+	width: 100%;
+	height: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
+	padding: 0;
+}
+
+.modal-content .grid-table button {
+	width: 100%;
+	height: 100%;
+}
+
+.bomTab1 {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.bomTab1 input {
+	width: 100%;
+	padding: 5px;
+}
+
+.bomTab1>div {
+	height: 100%;
+	align-self: stretch;
+}
+
+.bomTab2 {
+	display: grid;
+	gap: 10px;
+}
+
+.bomTab2>div {
+	display: flex;
+	flex-direction: column;
+	gap: 10px !important;
+	justify-content: space-between;
+}
+
+.bomTab2>div>div {
+	height: 100%;
+	overflow-y: auto;
+}
+
+.bomTab2>div>ul {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.bomTab2>div>ul>li {
+	padding-left: 10px;
+}
+
+.bomTab3 {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	justify-content: space-between;
+}
+
+.bomTab3>div {
+	display: flex;
+	white-space: nowrap;
+	gap: 10px;
+	align-items: center;
+}
+
+.bomTab3 .flex-row {
+	display: flex;
+	gap: 10px;
+	width: 100%;
+}
+
+.bomTab3 .flex-row>div {
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.bomTab3 .flex-row>div span {
+	white-space: nowrap;
+	padding-right: 10px;
+}
+
+.bomTab3 .flex-row>div input {
+	width: 100%;
+}
+
+.bomTab5 {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.bomTab5 .grid-table {
+	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
+}
+
+.catetable {
+	grid-template-columns: 1fr 1fr 1fr 1fr !important;
+}
+
+.stretable {
+	grid-template-columns: 1fr 1fr 1fr !important;
+}
+
+.modal-content h3 {
+	margin-bottom: 10px;
+}
+
+.modalForm {
+	display: flex;
+	flex-direction: column;
+}
+
+#category-table {
+	grid-template-columns: 0.3fr 1fr 1fr 1fr 2fr 0.3fr !important;
+}
+
+#category-table input[type="text"] {
+	width: 98%;
+}
+
+#category-table td {
+	padding: 0 !important;
+	display: flex;
+	flex-direction: column-reverse;
+	max-height: 113px;
+	justify-content: center;
+}
+
+#category-table .grid-table {
+	background: #f9f9f9;
+	grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
+	margin: 0 !important;
+	max-height: 69px;
+	overflow: auto;
+}
+
+#category-table .grid-table th {
+	font-size: 13px;
+}
+
+.subcategory-tbody input[type="text"] {
+	width: 95%;
+}
+
+.category-sub-add {
+	display: grid;
+	grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.category-sub-add button {
+	width: auto;
+}
+
+.category-sub-add input {
+	flex: 1;
+}
+
+.category-add-row {
+	display: flex;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.category-add-row input {
+	flex: 1;
+}
+
+.modal-buttons button {
+	margin-right: 10px;
+}
+</style>
 
 </head>
 
@@ -601,21 +593,21 @@ width: 20px;
 						</div>
 						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
-							
+
 							<thead>
-								
+
 								<tr>
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
 									<th onclick="order(this)">품목명<a>↓</a></th>
-									<th onclick="order(this)">고객사<a>↓</a></th>
+									<!-- 									<th onclick="order(this)">고객사<a>↓</a></th> -->
 									<th onclick="order(this)">대분류<a>↓</a></th>
 									<th onclick="order(this)">단위<a>↓</a></th>
 									<th onclick="order(this)">단가<a>↓</a></th>
 								</tr>
 							</thead>
-<tbody id="bomTbody">
-</tbody>
+							<tbody id="bomTbody">
+							</tbody>
 						</table>
 						<div class="pagination-wrap">
 							총 n건 1/n페이지
@@ -646,7 +638,7 @@ width: 20px;
 					<div class="bomTab2">
 						<div>
 							<div>
-								<input placeholder="검색"/>
+								<input placeholder="검색" />
 								<table class="grid-table">
 									<thead>
 										<tr>
@@ -661,52 +653,46 @@ width: 20px;
 									<tbody>
 										<!--등록된 품목 리스트가 쭉 나오게 ~ -->
 										<tr>
-												<tr>
-									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td>
-												<select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select>
-											</td>
-											<td>
-												<input type="radio" name="item-select" />
-											</td>
+										<tr>
+											<td class="nodata"
+												style="grid-column: span 6; justify-content: center;">등록된
+												데이터가 없습니다.</td>
+										</tr>
+										<td>1</td>
+										<td><input type="text" value="test" /></td>
+										<td><input type="text" value="test" /></td>
+										<td><input type="text" value="test" /></td>
+										<td><select>
+												<option value="">--</option>
+												<option value="g">g</option>
+												<option value="kg">kg</option>
+												<option value="mL">mL</option>
+												<option value="L">L</option>
+												<option value="ea">ea</option>
+										</select></td>
+										<td><input type="radio" name="item-select" /></td>
 										</tr>
 										<tr>
 											<td>2</td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
 											<td><input type="text" value="test" /></td>
-											<td>
-												<select>
+											<td><select>
 													<option value="">--</option>
 													<option value="g">g</option>
 													<option value="kg">kg</option>
 													<option value="mL">mL</option>
 													<option value="L">L</option>
 													<option value="ea">ea</option>
-												</select>
-											</td>
-											<td>
-												<input type="radio" name="item-select" />
-											</td>
+											</select></td>
+											<td><input type="radio" name="item-select" /></td>
 										</tr>
 									</tbody>
 								</table>
 
 							</div>
 							<div>
-								<input placeholder="검색"/>
+								<input placeholder="검색" />
 								<table class="grid-table">
 									<thead>
 										<tr>
@@ -721,22 +707,24 @@ width: 20px;
 									<tbody>
 										<!--등록된 자재 리스트가 쭉 나오게 ~ -->
 										<tr>
-												<tr>
-									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select></td>
-											<td><input type="checkbox" /></td>
+										<tr>
+											<td class="nodata"
+												style="grid-column: span 6; justify-content: center;">등록된
+												데이터가 없습니다.</td>
+										</tr>
+										<td>1</td>
+										<td><input type="text" value="test" /></td>
+										<td><input type="text" value="test" /></td>
+										<td><input type="text" value="test" /></td>
+										<td><select>
+												<option value="">--</option>
+												<option value="g">g</option>
+												<option value="kg">kg</option>
+												<option value="mL">mL</option>
+												<option value="L">L</option>
+												<option value="ea">ea</option>
+										</select></td>
+										<td><input type="checkbox" /></td>
 										</tr>
 										<tr>
 											<td>2</td>
@@ -750,7 +738,7 @@ width: 20px;
 													<option value="mL">mL</option>
 													<option value="L">L</option>
 													<option value="ea">ea</option>
-												</select></td>
+											</select></td>
 											<td><input type="checkbox" /></td>
 										</tr>
 									</tbody>
@@ -758,26 +746,44 @@ width: 20px;
 
 							</div>
 						</div>
-						
+
 					</div>
 
 					<div class="bomTab3">
 						<div class="flex-row">
-							<div><span>품목코드</span><input type="text" /></div>
-							<div><span>품목명</span><input type="text" /></div>
+							<div>
+								<span>품목코드</span><input type="text" />
+							</div>
+							<div>
+								<span>품목명</span><input type="text" />
+							</div>
 						</div>
-						<div><span>생산성</span><input type="text" /></div>
+						<div>
+							<span>생산성</span><input type="text" />
+						</div>
 						<div class="flex-row">
-							<div><span>원자재코드</span><input type="text" /></div>
-							<div><span>원자재명</span><input type="text" /></div>
+							<div>
+								<span>원자재코드</span><input type="text" />
+							</div>
+							<div>
+								<span>원자재명</span><input type="text" />
+							</div>
 						</div>
 						<div class="flex-row">
-							<div><span>소요량</span><input type="text" /><span>kg</span></div>
-							<div><span>단가</span><input type="text" /><span>원</span></div>
-							<div><span>로스율</span><input type="text" /><span>%</span></div>
+							<div>
+								<span>소요량</span><input type="text" /><span>kg</span>
+							</div>
+							<div>
+								<span>단가</span><input type="text" /><span>원</span>
+							</div>
+							<div>
+								<span>로스율</span><input type="text" /><span>%</span>
+							</div>
 						</div>
-					
-						<div><span>비고</span><input type="text" /></div>
+
+						<div>
+							<span>비고</span><input type="text" />
+						</div>
 					</div>
 
 				</div>
@@ -798,9 +804,11 @@ width: 20px;
 								</thead>
 								<tbody>
 									<!--등록된 품목 리스트가 쭉 나오게 ~ -->
-										<tr>
-									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
+									<tr>
+										<td class="nodata"
+											style="grid-column: span 7; justify-content: center;">등록된
+											데이터가 없습니다.</td>
+									</tr>
 									<tr>
 										<td>1</td>
 										<td><input type="text" value="test" /></td>
@@ -810,7 +818,7 @@ width: 20px;
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 									</tr>
-									
+
 									<tr>
 										<td>2</td>
 										<td><input type="text" value="test" /></td>
@@ -820,7 +828,7 @@ width: 20px;
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 									</tr>
-									
+
 									<tr>
 										<td>3</td>
 										<td><input type="text" value="test" /></td>
@@ -830,7 +838,7 @@ width: 20px;
 										<td><input type="text" value="test" /></td>
 										<td><input type="text" value="test" /></td>
 									</tr>
-									
+
 
 								</tbody>
 							</table>
@@ -838,24 +846,24 @@ width: 20px;
 					</div>
 				</div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
 					<div class="modal-buttons" style="grid-column-start: 3;">
-					<button type="button" name="save" style="display: none;">
-						<span class="material-symbols-outlined">save</span> 등록
-					</button>
-					<button type="button" name="edit" style="display: block;">
-						<span class="material-symbols-outlined">edit</span> 수정
-					</button>
-					<button type="button" onclick="closeModal('modal')">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
+						<button type="button" name="save" style="display: none;">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+						<button type="button" name="edit" style="display: block;">
+							<span class="material-symbols-outlined">edit</span> 수정
+						</button>
+						<button type="button" onclick="closeModal('modal')">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
 				</div>
-				</div>
 
 
 
-				
+
 			</form>
 		</div>
 
@@ -863,10 +871,11 @@ width: 20px;
 
 
 	<!-- 대분류/소분류 관리 Modal -->
-	<div class="modal" id="modal-category" onclick="outsideClick(event, 'modal-category')">
+	<div class="modal" id="modal-category"
+		onclick="outsideClick(event, 'modal-category')">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3>분류 관리</h3>
-			<form class="modalForm" onsubmit="return false;">
+			<form class="modalForm">
 				<div>
 					<table class="grid-table" id="category-table">
 						<thead>
@@ -880,9 +889,11 @@ width: 20px;
 							</tr>
 						</thead>
 						<tbody>
-								<tr>
-									<td class="nodata" style="grid-column: span 6;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
+							<tr>
+								<td class="nodata"
+									style="grid-column: span 6; justify-content: center;">등록된
+									데이터가 없습니다.</td>
+							</tr>
 							<tr>
 								<td><input type="checkbox" class="category-checkbox" /></td>
 								<td><input type="text" value="예시대분류" /></td>
@@ -899,7 +910,7 @@ width: 20px;
 											</tr>
 										</thead>
 										<tbody class="subcategory-tbody">
-											
+
 											<tr>
 												<td><input type="text" value="예시소분류1" /></td>
 												<td><input type="text" value="소분류코드1" /></td>
@@ -924,8 +935,9 @@ width: 20px;
 				</div>
 				<div class="category-add-row">
 					<input type="text" id="new-category" placeholder="대분류명" required />
-					<input type="text" id="new-category-code" placeholder="대분류코드" required />
-					<input type="text" id="new-category-memo" placeholder="비고" />
+					<input type="text" id="new-category-code" placeholder="대분류코드"
+						required /> <input type="text" id="new-category-memo"
+						placeholder="비고" />
 					<button type="button" onclick="addCategoryRow()">
 						<span class="material-symbols-outlined">add</span> 대분류 추가
 					</button>
@@ -948,14 +960,15 @@ width: 20px;
 				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
 					<div class="modal-buttons" style="grid-column-start: 3;">
-					<button type="button" name="save">
-						<span class="material-symbols-outlined">save</span> 등록
-					</button>
-			
-					<button type="button" onclick="closeModal('modal-category')" style="background: #777;">
-						<span class="material-symbols-outlined" >close</span> 취소
-					</button>
-				</div>
+						<button type="button" name="save">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+
+						<button type="button" onclick="closeModal('modal-category')"
+							style="background: #777;">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>
@@ -1067,10 +1080,11 @@ width: 20px;
 	</script>
 
 	<!-- 단위관리 Modal -->
-	<div class="modal" id="modal-spec" onclick="outsideClick(event, 'modal-spec')">
+	<div class="modal" id="modal-spec"
+		onclick="outsideClick(event, 'modal-spec')">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3>단위 관리</h3>
-			<form class="modalForm" onsubmit="addSpecUnit(event)">
+			<form class="modalForm">
 				<div>
 					<table class="grid-table stretable" id="spec-table">
 						<thead>
@@ -1080,92 +1094,34 @@ width: 20px;
 								<th>삭제</th>
 							</tr>
 						</thead>
-						<tbody>
-								<tr>
-									<td class="nodata" style="grid-column: span 3;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-							<tr>
-								<td>1</td>
-								<td><input type="text" value="ea" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
-							<tr>
-								<td>2</td>
-								<td><input type="text" value="kg" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
-							<tr>
-								<td>3</td>
-								<td><input type="text" value="g" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
-							<tr>
-								<td>4</td>
-								<td><input type="text" value="cm" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
-							<tr>
-								<td>5</td>
-								<td><input type="text" value="mL" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
-							<tr>
-								<td>6</td>
-								<td><input type="text" value="L" /></td>
-								<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-							</tr>
+						<tbody id="UnitBody">
+
 						</tbody>
 					</table>
 				</div>
-				<div style="display:flex; gap:10px; margin-top:10px;"></div>
-				<input type="text" id="new-spec-unit" placeholder="새 단위 입력" style="flex:1;" required />
-	
+				<div style="display: flex; gap: 10px; margin-top: 10px;"></div>
+				<input type="text" id="new-spec-unit" placeholder="단위명을 입력하세요"
+					style="flex: 1;" required />
+
 
 
 				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
 					<div class="modal-buttons" style="grid-column-start: 3;">
-					<button type="button" name="save">
-						<span class="material-symbols-outlined">save</span> 등록
-					</button>
-		
-					<button type="button" style="background: #777;" onclick="closeModal('modal-spec')">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
-				</div>
+						<button type="submit" name="save">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
+
+						<button type="button" style="background: #777;"
+							onclick="closeModal('modal-spec')">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
 				</div>
 			</form>
 		</div>
 	</div>
-	<script>
-		function addSpecUnit(event) {
-			event.preventDefault();
-			const input = document.getElementById('new-spec-unit');
-			const value = input.value.trim();
-			if (!value) return;
-			const table = document.getElementById('spec-table').getElementsByTagName('tbody')[0];
-			const rowCount = table.rows.length + 1;
-			const row = table.insertRow();
-			row.innerHTML = `
-			<td>${rowCount}</td>
-			<td><input type="text" value="${value}" /></td>
-			<td><button type="button" onclick="removeSpecRow(this)">삭제</button></td>
-		`;
-			input.value = '';
-			updateSpecRowNumbers();
-		}
-		function removeSpecRow(btn) {
-			const row = btn.closest('tr');
-			row.parentNode.removeChild(row);
-			updateSpecRowNumbers();
-		}
-		function updateSpecRowNumbers() {
-			const table = document.getElementById('spec-table').getElementsByTagName('tbody')[0];
-			Array.from(table.rows).forEach((row, idx) => {
-				row.cells[0].textContent = idx + 1;
-			});
-		}
-	</script>
+
 
 	<script src="/js/top.js"></script>
 
@@ -1263,79 +1219,218 @@ width: 20px;
 			});
 		});
 	</script>
+
 	<script>
+	//UNIT(단위 모달용)
+	document.addEventListener('DOMContentLoaded', () => {
+  const modal    = document.getElementById('modal-spec');
+  const tbody    = document.getElementById('UnitBody');
+  const openBtn  = document.querySelector('button[onclick="openSpecModal()"]');
+  const closeAll = () => { modal.style.display = 'none'; };
+
+  // 1) 모달 열기 함수 재정의: 렌더링 후 보이기
+  window.openSpecModal = () => {
+    loadAndRenderUnits();
+    modal.style.display = 'flex';
+  };
+
+  // 2) 모달 외부 클릭 시 닫기
+  modal.addEventListener('click', e => {
+    if (e.target === modal) closeAll();
+  });
+
+  // 3) 단위 목록 로드 & 렌더링
+  function loadAndRenderUnits() {
+    tbody.innerHTML = '<tr><td colspan="3">단위 정보를 불러오는 중...</td></tr>';
+    fetch('/api/unit/details')
+      .then(res => {
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+      })
+      .then(units => {
+        units.sort((a, b) => a.unitNm.localeCompare(b.unitNm));
+        if (units.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3">등록된 단위가 없습니다.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = '';
+        units.forEach((unit, i) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${i + 1}</td>
+            <td>${unit.unitNm}</td>
+            <td>
+              <button type="button"
+                      class="delete-unit-btn"
+                      data-idx="${unit.unitIdx}">
+                삭제
+              </button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        tbody.innerHTML = `<tr>
+          <td colspan="3">오류 발생: ${err.message}</td>
+        </tr>`;
+      });
+  }
+
+  // 4) 삭제 버튼 클릭 처리 (이벤트 위임)
+ tbody.addEventListener('click', e => {
+    if (!e.target.classList.contains('delete-unit-btn')) return;
+    const unitIdx = e.target.dataset.idx;
+    if (!confirm('정말 이 단위를 삭제하시겠습니까?')) return;
+    fetch(`/api/unit/${unitIdx}`, { method: 'DELETE' })
+      .then(res => {
+        if (!res.ok) throw new Error(res.statusText);
+        alert('삭제되었습니다.');
+        loadAndRenderUnits();
+      })
+      .catch(err => {
+        alert('삭제 실패: ' + err.message);
+      });
+  });
+
+  // 5) 신규 단위 등록 폼 처리
+  const form = modal.querySelector('form');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const input = document.getElementById('new-spec-unit');
+    const nm = input.value.trim();
+    if (!nm) {
+    	     alert('단위명을 입력하세요');
+    	     return;
+    	   }
+    fetch('/api/unit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unitNm: nm })
+    })
+    .then(res => {
+      if (!res.ok) return res.json().then(j=>{ throw new Error(j.message||res.statusText) });
+      return res.json();
+    })
+    .then(() => {
+      alert(`'${nm}' 단위가 등록되었습니다.`);
+      input.value = '';
+      loadAndRenderUnits();
+    })
+    .catch(err => {
+      alert('등록 실패: ' + err.message);
+    });
+  });
+});
+</script>
+
+
+
+
+	<script>
+	//BOM 리스트 출력용 스크립트!!
 	document.addEventListener('DOMContentLoaded', function() {
-	    fetch('/api/bom/details') // 백엔드 API 엔드포인트
+	    fetch('/api/bom/details')
 	        .then(response => {
 	            if (!response.ok) {
+	                // HTTP 응답 코드가 200-299 범위가 아닐 경우 에러 처리
 	                throw new Error('Network response was not ok ' + response.statusText);
 	            }
-	            return response.json();
+	            return response.json(); // 응답을 JSON 형태로 파싱
 	        })
 	        .then(data => {
-	            console.log("API에서 받은 데이터:", data); // 데이터가 잘 넘어왔는지 콘솔에서 확인
+	            console.log("API에서 받은 모든 데이터:", data); // API에서 받은 원본 데이터 확인 (디버깅 용도)
+
 	            const tbody = document.getElementById('bomTbody');
 	            if (!tbody) {
 	                 console.error("ID가 'bomTbody'인 요소를 찾을 수 없습니다.");
-	                 return; // tbody가 없으면 여기서 중단
+	                 return; // 요소를 찾지 못하면 함수 종료
 	            }
-	            tbody.innerHTML = ''; // 기존 내용 비우기 (선택 사항)
+	            tbody.innerHTML = ''; // 기존 테이블 내용 비우기
 
-	            data.forEach(item => {
+	            // --- 'pitemFlag'가 '02'인 완제품 상위 품목만 필터링 ---
+	            // 즉, 상위 품목의 유형이 '완제품'인 데이터만 남깁니다.
+	            const finishedProductsData = data.filter(item => {
+	                return item.pitemFlag === '02'; 
+	            });
+
+	            console.log("필터링된 완제품 데이터 (pitemFlag = '02'):", finishedProductsData); // 필터링 결과 확인
+
+	            // --- 각 상위 품목 코드를 딱 한 번만 출력하기 위한 Set ---
+	            // Set을 사용하여 이미 테이블에 추가된 'pitemCd'를 추적합니다.
+	            const displayedPItemCds = new Set(); 
+
+	            // 필터링된 데이터(finishedProductsData)를 순회하며 테이블 행 생성
+	            finishedProductsData.forEach(item => { 
+
+	                // 만약 이 상위 품목 코드(pitemCd)가 이미 테이블에 추가되었다면,
+	                // 이 행은 건너뛰고 다음 데이터로 넘어갑니다. (중복 방지)
+	                if (displayedPItemCds.has(item.pitemCd)) {
+	                    return; 
+	                }
+
+	                // 아직 테이블에 추가되지 않은 pitemCd라면, Set에 추가하고 행을 생성합니다.
+	                displayedPItemCds.add(item.pitemCd);
+
+	                // --- HTML 테이블 행(<tr>)과 셀(<td>) 생성 ---
 	                const tr = document.createElement('tr');
 
-	                // 체크박스 컬럼
+	                // 1. 체크박스 컬럼
 	                const tdCheckbox = document.createElement('td');
-	                tdCheckbox.innerHTML = '<input type="checkbox" />';
+	                tdCheckbox.innerHTML = '<input type="checkbox" />'; // 체크박스 input 태그 추가
 	                tr.appendChild(tdCheckbox);
 
-	                // 품목코드 (sitemCd) - JSON 키 이름 사용
-	                const tdSItemCd = document.createElement('td');
-	                tdSItemCd.textContent = item.sitemCd; // <<< 여기 수정
-	                tr.appendChild(tdSItemCd);
+	                // 2. 품목코드 (P_ITEM_CD)
+	                const tdPItemCd = document.createElement('td');
+	                tdPItemCd.textContent = item.pitemCd; 
+	                tr.appendChild(tdPItemCd);
 
-	                // 품목명 (sitemNm) - JSON 키 이름 사용
-	                const tdSItemNm = document.createElement('td');
-	                tdSItemNm.textContent = item.sitemNm; // <<< 여기 수정
-	                tr.appendChild(tdSItemNm);
+	                // 3. 품목명 (P_ITEM_NM)
+	                const tdPItemNm = document.createElement('td');
+	                tdPItemNm.textContent = item.pitemNm; 
+	                tr.appendChild(tdPItemNm);
 
-	                // 고객사 (custNm)
-	                const tdCustNm = document.createElement('td');
-	                tdCustNm.textContent = item.custNm;
-	                tr.appendChild(tdCustNm);
-
-	                // 대분류 (catNm)
+	                // 4. 대분류 (CAT_NM)
+	                // 주의: 현재 CAT_NM은 하위 품목(원자재)의 대분류입니다. 
+	                // 만약 완제품 자체의 대분류가 필요하다면 SQL 뷰 수정이 필요합니다.
 	                const tdCatNm = document.createElement('td');
-	                tdCatNm.textContent = item.catNm;
+	                tdCatNm.textContent = item.catNm || ''; // null 또는 undefined인 경우 빈 문자열 표시
 	                tr.appendChild(tdCatNm);
 
-	                // 단위 (unitNm)
-	                const tdUnitNm = document.createElement('td');
-	                tdUnitNm.textContent = item.unitNm;
-	                tr.appendChild(tdUnitNm);
+	                // 5. 단위 (P_UNIT_NM) - 상위 품목의 단위
+	                const tdPUnitNm = document.createElement('td');
+	                tdPUnitNm.textContent = item.punitNm || ''; // null 또는 undefined인 경우 빈 문자열 표시
+	                tr.appendChild(tdPUnitNm);
 
-	                // 단가 (itemPrice)
-	                const tdItemPrice = document.createElement('td');
-	                tdItemPrice.textContent = item.itemPrice;
-	                tr.appendChild(tdItemPrice);
+	                // 6. 단가 (P_TOTAL_RAW_MATERIAL_COST) - 계산된 총 원자재 원가
+	                const tdTotalCost = document.createElement('td');
+	                // P_TOTAL_RAW_MATERIAL_COST가 null이 아니면 통화 형식으로 포맷하고 '원' 추가, 아니면 '0원' 표시
+	                tdTotalCost.textContent = item.ptotalRawMaterialCost != null ? 
+	                                          item.ptotalRawMaterialCost.toLocaleString() + '원' : '0원';
+	                tr.appendChild(tdTotalCost);
 
+	                // 완성된 행을 테이블의 <tbody>에 추가
 	                tbody.appendChild(tr);
 	            });
 	        })
 	        .catch(error => {
 	            console.error('BOM 상세 정보를 가져오는 중 오류 발생:', error);
-	            // 사용자에게 오류 메시지 표시 등
+	            // 사용자에게 오류 메시지를 표시하여 문제 상황을 알림
+	            const tbody = document.getElementById('bomTbody');
+	            if (tbody) {
+	                tbody.innerHTML = '<tr><td colspan="6">데이터를 불러오는 데 실패했습니다. 다시 시도해주세요.</td></tr>';
+	            }
 	        });
 	});
 
-	// order 함수 (정렬 기능)는 별도로 구현해야 합니다.
+	// 정렬 기능 함수 (현재는 콘솔 로그만 출력하며, 실제 정렬 로직은 별도로 구현해야 합니다.)
+	// 이 함수는 클릭된 헤더에 따라 테이블 데이터를 정렬하는 로직을 포함할 수 있습니다.
 	function order(header) {
 	    console.log("Sorting requested for:", header.textContent);
-	    // 여기에 정렬 로직 추가 (클라이언트 측 또는 서버 측 정렬)
+	    // 여기에 실제 정렬 로직 (클라이언트 사이드 또는 서버 요청)을 추가할 수 있습니다.
 	}
 	</script>
-	
-	
+
+
 
 
 </body>
