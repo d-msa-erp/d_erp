@@ -359,10 +359,10 @@
               <button type="button">
                 <span class="material-symbols-outlined">search</span> 검색
               </button>
-              <button type="button" onclick="openModal()">
+              <button type="button" onclick="openModal(null, window.currentBizFlag)">
                 <span class="material-symbols-outlined">add</span> 신규등록
               </button>
-              <button type="button">
+              <button type="button" id="deleteSelectedBtn">
                 <span class="material-symbols-outlined">delete</span> 삭제
               </button>
             </div>
@@ -383,7 +383,7 @@
             <table class="grid-table">
               <thead>
                 <tr>
-                  <th><input type="checkbox" /></th>
+                  <th><input type="checkbox" id="selectAllCheckbox"/></th>
                   <th id="customerNameHeader" onclick="order(this)">거래처명<a>↓</a></th>
                   <th onclick="order(this)">담당자명<a>↓</a></th>
                   <th onclick="order(this)">연락처<a>↓</a></th>
@@ -426,15 +426,15 @@
         </div>
         <div>
 
-          <span>사업자번호</span><input type="text" placeholder="사업자번호 입력해주세요" required />
+          <span>사업자번호</span><input type="text" id="bizNumber" placeholder="사업자번호 입력해주세요" required />
         </div>
         <div>
 
-          <span>연락처</span><input type="text" placeholder="연락처를 입력해주세요" required />
+          <span>연락처</span><input type="text" id="phoneNumber" placeholder="연락처를 입력해주세요" required />
         </div>
         <div>
 
-          <span>이메일</span><input type="text" placeholder="이메일 입력해주세요" required />
+          <span>이메일</span><input type="text" id="eMail" placeholder="이메일 입력해주세요" required />
         </div>
         <div>
 
@@ -450,6 +450,9 @@
         </div>
         <div>
           <span>담당자명</span><input type="text" placeholder="담당자명을 입력해주세요" required />
+        </div>
+        <div>
+          <span>사업자번호</span><input type="text" id="compNumber" placeholder="사업장번호를 입력해주세요" required />
         </div>
         <div style="grid-column: span 2;">
 
@@ -538,13 +541,14 @@
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
     }
 */
+/*
     function submitModal(event) {
       event.preventDefault();
       const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
       console.log(currentTab + ' 등록됨:', siteName);
       closeModal();
     }
-
+*/
 
 
 

@@ -24,7 +24,7 @@ public class Custmst {
     @Column(name = "CUST_IDX")
     private Long custIdx;
 
-    @Column(name = "CUST_CD", nullable = false, length = 10)
+    @Column(name = "CUST_CD", nullable = false, length = 10, insertable = false, updatable = false)
     private String custCd;
 
     @Column(name = "CUST_NM", nullable = false, length = 50)
