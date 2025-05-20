@@ -1,7 +1,7 @@
 let currentTh = null;
 let currentOrder = 'desc';
 
-// 정렬 함수
+// 정렬 함수 (전역)
 function order(thValue) {
 	const allArrows = document.querySelectorAll("th a");
 	allArrows.forEach(a => a.textContent = '↓');
@@ -15,55 +15,141 @@ function order(thValue) {
 
 	const arrow = thValue.querySelector('a');
 	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-    // 정렬 로직 추가하기 + 리로드
+    // 실제 정렬 로직은 이 함수에 추가되어야 합니다. (데이터 재 로드 또는 정렬)
 }
 
-// 신규 등록 Modal 열기 함수
-function openNewModal() {
-    // 모달 폼 초기화
-    const newModalForm = document.getElementById('newModalForm');
+// 하나의 공유 Modal 열기 함수 (모드와 userIdx를 인자로 받음)
+async function openSharedModal(mode, userIdx = null) {
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalForm = document.getElementById('modalForm');
+    const saveButton = modalForm ? modalForm.querySelector('button[name="save"]') : null;
+    const editButton = modalForm ? modalForm.querySelector('button[name="edit"]') : null;
+    const userIdxInput = modalForm ? modalForm.querySelector('input[name="userIdx"]') : null;
+    const userIdInput = modalForm ? modalForm.querySelector('input[name="userId"]') : null; // ID 입력 필드
 
-    if (newModalForm) {
-        newModalForm.reset(); // 폼 내용 초기화
-        // 필요하다면 userIdx 숨김 필드 초기화
-        const editingUserIdxInput = newModalForm.querySelector('input[name="userIdx"]');
-        if (editingUserIdxInput) editingUserIdxInput.value = '';
+
+    if (!modal || !modalForm || !modalTitle) {
+        console.error('모달 관련 요소를 찾을 수 없습니다.');
+        return; // 필수 요소 없으면 중지
     }
 
-    const newModal = document.getElementById('newModal');
+    // 폼 초기화 및 userIdx 숨김 필드 비우기
+    modalForm.reset();
+    if (userIdxInput) userIdxInput.value = '';
+    if (userIdInput) userIdInput.readOnly = false; // ID 필드 쓰기 가능하게 (신규 등록용)
+    if (saveButton) saveButton.style.display = 'none'; // 일단 두 버튼 모두 숨김
+    if (editButton) editButton.style.display = 'none';
 
-    if (newModal) {
-        newModal.style.display = 'flex'; // 신규 등록 모달 표시
+
+    if (mode === 'new') {
+        // 신규 등록 모드
+        modalTitle.textContent = '신규 사원 등록';
+        if (saveButton) saveButton.style.display = 'block'; // 등록 버튼 표시
+        if (userIdInput) userIdInput.focus(); // ID 필드에 포커스
+        // password 필드를 required로 만듭니다. (HTML에서 이미 설정)
+
+    } else if (mode === 'edit' && userIdx !== null) {
+        // 사원 수정 모드
+        modalTitle.textContent = '사원 수정';
+        if (editButton) editButton.style.display = 'block'; // 수정 버튼 표시
+        if (userIdInput) userIdInput.readOnly = true; // ID 필드 읽기 전용으로 (수정 불가)
+        // password 필드의 required 속성을 제거하거나 false로 설정합니다. (HTML에서 조정)
+        // 예: modalForm.querySelector('input[name="userPswd"]').required = false;
+
+
+        // userIdx를 사용하여 특정 사용자 상세 정보를 가져오는 API 호출
+        const detailApiUrl = `/api/users/${userIdx}`; // 특정 사용자 조회 API URL
+        try {
+            const response = await fetch(detailApiUrl);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const userData = await response.json(); // 단일 사용자 정보 파싱
+
+            // 가져온 userData 객체의 필드 값으로 모달 폼의 입력 필드를 채웁니다.
+            // HTML의 modalForm 내 입력 필드들에 name 속성이 올바르게 설정되어 있어야 합니다!
+            // DTO 필드명(SNAKE_CASE) -> JSON 필드명(camelCase) 매핑에 주의
+
+            // userIdx 숨김 필드 채우기
+            if (userIdxInput) userIdxInput.value = userData.userIdx || ''; // userIdx 필드가 DTO에 있다고 가정
+
+            // 텍스트/날짜 입력 필드 채우기
+            if (userIdInput) userIdInput.value = userData.userId || '';
+            // modalForm.querySelector('input[name="userPswd"]').value = ''; // 수정 시 비밀번호 필드는 비워둠
+            const userNmInput = modalForm.querySelector('input[name="userNm"]');
+            if (userNmInput) userNmInput.value = userData.userNm || '';
+            const userEmailInput = modalForm.querySelector('input[name="userEmail"]');
+            if (userEmailInput) userEmailInput.value = userData.userEmail || '';
+            const userTelInput = modalForm.querySelector('input[name="userTel"]');
+            if (userTelInput) userTelInput.value = userData.userTel || '';
+            const userHpInput = modalForm.querySelector('input[name="userHp"]');
+            if (userHpInput) userHpInput.value = userData.userHp || '';
+            const hireDtInput = modalForm.querySelector('input[name="hireDt"]');
+            if (hireDtInput) hireDtInput.value = userData.hireDt || ''; // 'YYYY-MM-DD' 형식
+            const retireDtInput = modalForm.querySelector('input[name="retireDt"]');
+            if (retireDtInput) retireDtInput.value = userData.retireDt || ''; // 'YYYY-MM-DD' 형식
+
+            // Select 박스 값 설정
+            const userRoleSelect = modalForm.querySelector('select[name="userRole"]');
+            if (userRoleSelect && userData.userRole) userRoleSelect.value = userData.userRole;
+            const userDeptSelect = modalForm.querySelector('select[name="userDept"]');
+            if (userDeptSelect && userData.userDept) userDeptSelect.value = userData.userDept;
+            const userPositionSelect = modalForm.querySelector('select[name="userPosition"]');
+            if (userPositionSelect && userData.userPosition) userPositionSelect.value = userData.userPosition;
+
+            // Radio 버튼 값 설정
+            if (userData.userStatus) {
+                const statusRadios = modalForm.querySelectorAll('input[name="userStatus"][type="radio"]');
+                statusRadios.forEach(radio => {
+                    if (radio.value === userData.userStatus) {
+                        radio.checked = true;
+                    } else {
+                        radio.checked = false;
+                    }
+                });
+            }
+
+        } catch (error) {
+            console.error('사용자 상세 정보를 불러오는 중 오류 발생:', error);
+            alert('사용자 정보를 불러오는데 실패했습니다.');
+            closeModal(); // 오류 발생 시 모달 닫기
+            return; // 오류 발생 시 모달 열지 않고 종료
+        }
+    } else {
+         console.error('openSharedModal 함수 호출 오류: 유효하지 않은 모드 또는 userIdx가 누락되었습니다.', mode, userIdx);
+         alert('모달을 여는 중 오류가 발생했습니다.');
+         return; // 오류 발생 시 모달 열지 않고 종료
     }
-     // 버튼 상태 설정은 HTML에서 display 스타일로 이미 되어 있어야 함
+
+    // 모든 설정이 완료되면 모달 표시
+    modal.style.display = 'flex';
 }
 
-// Modal 닫기 함수 (어떤 모달을 닫을지 인자로 받음)
-function closeModal(modalId) {
-    const newModal = document.getElementById('newModal');
-    const editModal = document.getElementById('editModal');
 
-    if (modalId === 'newModal' && newModal) {
-        newModal.style.display = 'none';
-    } else if (modalId === 'editModal' && editModal) {
-        editModal.style.display = 'none';
+// Modal 닫기 함수 (하나의 모달 대상 - 전역)
+function closeModal() {
+    const modal = document.getElementById('modal');
+    if (modal) {
+        modal.style.display = 'none'; // 모달 숨김
     }
-    // 특정 모달 ID가 주어지지 않으면 열려있는 모달 모두 숨김 (안전 장치)
-    if (!modalId) {
-         if (newModal) newModal.style.display = 'none';
-         if (editModal) editModal.style.display = 'none';
+    // 모달 닫을 때 폼 내용 초기화 (선택 사항이지만, 다음번 모달 열 때 깨끗하게 시작하기 좋음)
+    const modalForm = document.getElementById('modalForm');
+    if (modalForm) {
+        modalForm.reset();
+         // userIdx 숨김 필드 초기화
+        const userIdxInput = modalForm.querySelector('input[name="userIdx"]');
+        if (userIdxInput) userIdxInput.value = '';
     }
 }
 
-// Modal 외부 클릭 시 닫기 함수 (어떤 모달이 열려 있는지 확인 - 전역)
+// Modal 외부 클릭 시 닫기 함수 (하나의 모달 대상 - 전역)
 function outsideClick(e) {
-     const newModal = document.getElementById('newModal');
-     const editModal = document.getElementById('editModal');
-
-    if (e.target === newModal) { // 클릭된 요소가 신규 등록 모달 배경이면
-        closeModal('newModal');
-    } else if (e.target === editModal) { // 클릭된 요소가 수정 모달 배경이면
-        closeModal('editModal');
+     const modal = document.getElementById('modal');
+    if (e.target === modal) { // 클릭된 요소가 모달 배경이면
+        closeModal(); // 모달 닫기
     }
 }
 
@@ -72,9 +158,8 @@ function outsideClick(e) {
 document.addEventListener('DOMContentLoaded', () => {
 	// 데이터를 채울 tbody 요소를 가져옴
 	const userTableBody = document.getElementById('userTableBody');
-    // 모달 폼 요소 가져옴 (모달 자체는 전역에서 접근)
-    const newModalForm = document.getElementById('newModalForm');
-    const editModalForm = document.getElementById('editModalForm');
+    // ★★★ 수정: 하나의 모달 폼 요소만 가져옴 ★★★
+    const modalForm = document.getElementById('modalForm');
 
 
 	// userTableBody 요소가 없으면 스크립트 실행 중지
@@ -83,9 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		return; // 요소가 없으면 더 이상 진행하지 않습니다.
 	}
      // 모달 폼 요소도 없다면 경고
-     if (!newModalForm || !editModalForm) {
-        console.warn("신규 또는 수정 모달 폼 요소를 찾을 수 없습니다.");
-        // 계속 진행할 수도 있지만, 폼 관련 기능은 작동하지 않음
+     if (!modalForm) {
+        console.warn("모달 폼 요소(modalForm)를 찾을 수 없습니다. 폼 관련 기능이 작동하지 않습니다.");
      }
 
 
@@ -117,24 +201,21 @@ document.addEventListener('DOMContentLoaded', () => {
 					// 행에 userIdx 값을 data 속성으로 저장
 					row.dataset.userIdx = user.userIdx; // user.userIdx는 API 응답 JSON의 필드명
 
-					// 클릭 이벤트 핸들러 연결: opendatail 함수 호출
-					row.onclick = opendatail; // opendatail는 이 DOMContentLoaded 스코프 내에 정의될 예정
+					// ★★★ 수정: 클릭 이벤트 핸들러는 openSharedModal 함수를 'edit' 모드로 호출 ★★★
+					// userIdx를 인자로 전달합니다.
+					row.onclick = () => openSharedModal('edit', user.userIdx);
 
 					// 테이블 헤더 순서에 맞춰 셀을 생성하고 데이터 채우기
-					// 헤더 순서: 체크박스, 이름, ID, 직통번호, H.P, 부서, 직책, 재직상태
-
-					// 체크박스 셀 (첫 번째 컬럼) - 클릭 시 이벤트 전파 중지
+					// ... (셀 생성 및 데이터 채우는 코드 그대로 유지 - 이전 hr.js 내용 참고) ...
+                    // 체크박스 셀 (첫 번째 컬럼) - 클릭 시 이벤트 전파 중지
 					const checkboxCell = document.createElement('td');
 					const checkbox = document.createElement('input');
 					checkbox.type = 'checkbox';
                     checkbox.addEventListener('click', (event) => {
                          event.stopPropagation(); // 체크박스 클릭 시 행 클릭 이벤트 방지
                     });
-                    // 필요하다면 체크박스에 user.userIdx 같은 값을 data 속성으로 저장
-                    // checkbox.dataset.userIdx = user.userIdx;
 					checkboxCell.appendChild(checkbox);
 					row.appendChild(checkboxCell);
-
 
 					// 이름 (두 번째 컬럼): DTO 필드 USER_NM -> JSON userNm
 					const nameCell = document.createElement('td');
@@ -195,11 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					row.appendChild(userStatusCell);
 
+
 					// 생성된 행을 tbody에 추가
 					userTableBody.appendChild(row);
 				});
 			} else {
-				// 데이터가 없을 경우 메시지 표시
+				// 데이터가 없을 경우 메시지 표시 (이전과 동일)
 				userTableBody.innerHTML = `
 					<tr>
 						<td class="nodata" style="grid-column: span 8;justify-content: center;">등록된 데이터가 없습니다.</td>
@@ -226,120 +308,55 @@ document.addEventListener('DOMContentLoaded', () => {
 	loadUsersTable();
 
 
-    // 테이블 행 클릭 시 호출될 async 함수 opendatail (수정 Modal 열기 및 데이터 채우기)
-    async function opendatail() {
-        // 'this'는 클릭된 <tr> 요소
-        const clickedRow = this;
+    // --- 폼 제출 핸들러 (하나의 모달 폼에 대해 구현) ---
 
-        // 행에 저장된 userIdx 값을 data 속성에서 가져옴 
-        const userIdx = clickedRow.dataset.userIdx;
-
-        if (!userIdx) {
-            console.error('클릭된 행에서 사용자 ID를 찾을 수 없습니다.');
-            alert('사용자 정보를 가져올 수 없습니다.');
-            return; // userIdx가 없으면 함수 실행 중지
-        }
-
-        // 사원 수정 모달 열기
-        editModal.style.display = 'flex'; // 수정 모달 표시
-
-        // userIdx를 사용하여 특정 사용자 상세 정보를 가져오는 API 호출
-        const detailApiUrl = `${apiUrl}/${userIdx}`; // 특정 사용자 조회 API URL (userIdx를 경로 변수로 사용)
-        try {
-            const response = await fetch(detailApiUrl); // API 호출
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const userData = await response.json(); // 단일 사용자 정보를 JSON으로 파싱
-
-            // 가져온 userData 객체의 필드 값으로 사원 수정 모달 폼 (editModalForm)의 입력 필드를 채웁니다.
-            // HTML의 editModalForm 내 입력 필드들에 name 속성이 올바르게 설정되어 있어야 합니다!
-            // DTO 필드명(SNAKE_CASE) -> JSON 필드명(camelCase) 매핑에 주의
-
-            // 숨겨진 input 필드에 userIdx 저장 (수정/삭제 시 필요)
-            const editingUserIdxInput = editModalForm.querySelector('input[name="userIdx"]');
-             if (editingUserIdxInput) editingUserIdxInput.value = userData.userIdx || ''; // userIdx 필드가 DTO에 있다고 가정
-
-            // 텍스트 입력 필드 채우기 (name 속성 사용)
-            // 비밀번호는 보통 수정 시 값을 자동으로 채우지 않습니다.
-            const userIdInput = editModalForm.querySelector('input[name="userId"]');
-            if (userIdInput) userIdInput.value = userData.userId || '';
-            const userPswdInput = editModalForm.querySelector('input[name="userPswd"]');
-            if (userPswdInput) userPswdInput.value = ''; // 수정 시 비밀번호 필드는 비워둠 (보안)
-
-            const userNmInput = editModalForm.querySelector('input[name="userNm"]');
-             if (userNmInput) userNmInput.value = userData.userNm || '';
-
-            const userEMailInput = editModalForm.querySelector('input[name="userEMail"]');
-             if (userEMailInput) userEMailInput.value = userData.userEmail || '';
-
-            const userTelInput = editModalForm.querySelector('input[name="userTel"]');
-             if (userTelInput) userTelInput.value = userData.userTel || '';
-
-            const userHpInput = editModalForm.querySelector('input[name="userHp"]');
-             if (userHpInput) userHpInput.value = userData.userHp || '';
-
-
-            // 날짜 입력 필드 채우기 (name 속성 사용)
-            // API 응답에서 'YYYY-MM-DD' 형식의 문자열로 넘어와야 input type="date"에 잘 들어갑니다.
-            const hireDtInput = editModalForm.querySelector('input[name="hireDt"]');
-             if (hireDtInput) hireDtInput.value = userData.hireDt || '';
-
-            const retireDtInput = editModalForm.querySelector('input[name="retireDt"]');
-             if (retireDtInput) retireDtInput.value = userData.retireDt || '';
-
-
-            // Select 박스 값 설정 (name 속성과 option의 value 속성 일치 필요)
-            const userRoleSelect = editModalForm.querySelector('select[name="userRole"]');
-             if (userRoleSelect && userData.userRole) userRoleSelect.value = userData.userRole;
-
-            const userDeptSelect = editModalForm.querySelector('select[name="userDept"]');
-             if (userDeptSelect && userData.userDept) userDeptSelect.value = userData.userDept;
-
-            const userPositionSelect = editModalForm.querySelector('select[name="userPosition"]');
-             if (userPositionSelect && userData.userPosition) userPositionSelect.value = userData.userPosition;
-
-
-            // Radio 버튼 값 설정 (name 속성과 value 속성 일치 필요)
-            if (userData.userStatus) {
-                const statusRadios = editModalForm.querySelectorAll('input[name="userStatus"][type="radio"]');
-                statusRadios.forEach(radio => {
-                    if (radio.value === userData.userStatus) {
-                        radio.checked = true;
-                    } else {
-                        radio.checked = false; // 다른 라디오 버튼 체크 해제
-                    }
-                });
-            }
-
-        } catch (error) {
-            // 오류 발생 시
-            console.error('사용자 상세 정보를 불러오는 중 오류 발생:', error);
-            alert('사용자 정보를 불러오는데 실패했습니다.'); // 사용자에게 알림
-            closeModal('editModal'); // 오류 발생 시 수정 모달 닫기
-        }
-    }
-
-
-    // --- 폼 제출 핸들러 (각 모달 폼에 대해 별도로 구현) ---
-
-    // 신규 등록 폼 제출 핸들러
-    if (newModalForm) { // 폼 요소가 있을 경우에만 이벤트 리스너 연결
-        newModalForm.addEventListener('submit', async (event) => {
+    // ★★★ 수정: 모달 폼 제출 핸들러 (신규 등록/수정 분기) ★★★
+    if (modalForm) { // 폼 요소가 있을 경우에만 이벤트 리스너 연결
+        modalForm.addEventListener('submit', async (event) => {
             event.preventDefault(); // 폼 기본 제출 방지
 
-            // 폼 데이터 수집 (FormData 객체 사용 추천)
-            const formData = new FormData(newModalForm);
+            // 폼 데이터 수집
+            const formData = new FormData(modalForm);
             const userData = Object.fromEntries(formData.entries()); // FormData를 일반 객체로 변환
 
-            console.log('신규 사원 등록 데이터:', userData);
+            // userIdx 값을 확인하여 신규 등록(POST)인지 수정(PUT)인지 판단
+            const userIdxToProcess = userData.userIdx; // userIdx 숨김 필드 값
 
-            // 신규 등록 API 호출 (예: POST /api/users)
+            let method;
+            let submitApiUrl;
+            let successMessage;
+            let errorMessagePrefix;
+
+            if (userIdxToProcess) {
+                // userIdx가 있으면 수정 (PUT 요청)
+                method = 'PUT';
+                submitApiUrl = `${apiUrl}/${userIdxToProcess}`; // 수정할 특정 사용자의 URL
+                successMessage = '사원 정보가 수정되었습니다.';
+                errorMessagePrefix = '사원 수정';
+            } else {
+                // userIdx가 없으면 신규 등록 (POST 요청)
+                method = 'POST';
+                submitApiUrl = apiUrl; // 신규 등록 URL (/api/users)
+                successMessage = '신규 사원이 등록되었습니다.';
+                errorMessagePrefix = '신규 사원 등록';
+                 // 신규 등록 시에는 userIdx를 데이터에서 제외 (백엔드에서 자동 생성)
+                 delete userData.userIdx;
+
+                 // 신규 등록 시 비밀번호 필드가 비어있으면 제출 중단 (required는 HTML에서 처리)
+                 if (!userData.userPswd || userData.userPswd.trim() === '') {
+                     alert('신규 등록 시 비밀번호는 필수입니다.');
+                     return; // 제출 중단
+                 }
+            }
+
+            console.log(`${errorMessagePrefix} 데이터:`, userData);
+             console.log(`API 호출: ${method} ${submitApiUrl}`);
+
+
+            // API 호출 (POST 또는 PUT)
             try {
-                 const response = await fetch(apiUrl, { // apiUrl은 /api/users
-                     method: 'POST', // 신규 등록은 보통 POST 메소드
+                 const response = await fetch(submitApiUrl, {
+                     method: method,
                      headers: {
                          'Content-Type': 'application/json' // JSON 형식으로 보낼 때 헤더 설정
                          // 필요시 인증 헤더 등 추가
@@ -354,79 +371,31 @@ document.addEventListener('DOMContentLoaded', () => {
                  }
 
                  // 성공 시
-                 // const result = await response.json(); // 백엔드에서 응답 본문에 저장된 사원 정보를 담는다면 파싱
-                 console.log('신규 사원 등록 성공'); // result 사용 안 할 경우 로그 단순화
-                 alert('신규 사원이 등록되었습니다.'); // 사용자에게 알림
+                 // const result = await response.json(); // 백엔드에서 응답 본문에 정보를 담는다면 파싱
+                 console.log(`${errorMessagePrefix} 성공`);
+                 alert(successMessage); // 사용자에게 알림
 
-                 closeModal('newModal'); // 신규 등록 모달 닫기
+                 closeModal(); // 모달 닫기
                  loadUsersTable(); // 테이블 데이터 새로고침 (필요시)
 
             } catch (error) {
-                console.error('신규 사원 등록 중 오류 발생:', error);
-                alert('신규 사원 등록에 실패했습니다. 오류: ' + error.message); // 사용자에게 알림
+                console.error(`${errorMessagePrefix} 중 오류 발생:`, error);
+                alert(`${errorMessagePrefix}에 실패했습니다. 오류: ` + error.message); // 사용자에게 알림
             }
         });
     } else {
-        console.warn("신규 등록 폼 요소(newModalForm)를 찾을 수 없습니다. 신규 등록 기능을 사용할 수 없습니다.");
+         console.warn("모달 폼 요소(modalForm)를 찾을 수 없습니다. 폼 제출 기능이 작동하지 않습니다.");
     }
 
 
-    // 사원 수정 폼 제출 핸들러
-    if (editModalForm) { // 폼 요소가 있을 경우에만 이벤트 리스너 연결
-         editModalForm.addEventListener('submit', async (event) => {
-            event.preventDefault(); // 폼 기본 제출 방지
+    // --- 나머지 JavaScript 함수들 ---
 
-            // 폼 데이터 수집 (userIdx 포함)
-            const formData = new FormData(editModalForm);
-            const userData = Object.fromEntries(formData.entries()); // FormData를 일반 객체로 변환
+    // 정렬 함수 (그대로 유지)
+    // let currentTh = null; // 전역으로 이동됨
+    // let currentOrder = 'desc'; // 전역으로 이동됨
+    // function order(thValue) { ... } // 전역으로 이동됨
 
-            // userIdx는 숨김 필드에서 가져와야 합니다.
-            const userIdxToEdit = userData.userIdx; // FormData에서 userIdx 가져오기
-             if (!userIdxToEdit) {
-                console.error('수정할 사용자 ID가 없습니다.');
-                alert('수정 오류: 사용자 정보를 찾을 수 없습니다.');
-                return;
-            }
-
-            console.log('사원 수정 데이터 (userIdx:', userIdxToEdit, '):', userData);
-
-            // 사원 수정 API 호출 (예: PUT /api/users/{userIdx})
-            const updateApiUrl = `${apiUrl}/${userIdxToEdit}`; // 수정할 특정 사용자의 URL
-            try {
-                 const response = await fetch(updateApiUrl, {
-                     method: 'PUT', // 수정은 보통 PUT 메소드
-                      headers: {
-                         'Content-Type': 'application/json'
-                         // 필요시 인증 헤더 등 추가
-                     },
-                     body: JSON.stringify(userData) // 수정 데이터 전송
-                 });
-
-                 if (!response.ok) {
-                     const errorText = await response.text();
-                     throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
-                 }
-
-                  // 성공 시
-                 // const result = await response.json(); // 백엔드에서 응답 본문에 수정된 사원 정보를 담는다면 파싱
-                 console.log('사원 수정 성공'); // result 사용 안 할 경우 로그 단순화
-                 alert('사원 정보가 수정되었습니다.'); // 사용자에게 알림
-
-                 closeModal('editModal'); // 수정 모달 닫기
-                 loadUsersTable(); // 테이블 데이터 새로고침 (필요시)
-
-            } catch (error) {
-                console.error('사원 수정 중 오류 발생:', error);
-                alert('사원 수정에 실패했습니다. 오류: ' + error.message); // 사용자에게 알림
-            }
-        });
-    } else {
-         console.warn("사원 수정 폼 요소(editModalForm)를 찾을 수 없습니다. 사원 수정 기능을 사용할 수 없습니다.");
-    }
-
-
-    // ★★★ 통합: 테이블 첫 번째 td (체크박스) 클릭 시 이벤트 전파 중지 ★★★
-    // 기존의 두 번째 DOMContentLoaded 리스너 내용이 이 위치로 이동하고 통합되었습니다.
+    // 통합: 테이블 첫 번째 td (체크박스) 클릭 시 이벤트 전파 중지
     document.querySelectorAll('table').forEach(table => {
         const firstCells = table.querySelectorAll('tbody tr td:first-child');
         firstCells.forEach(td => {
@@ -435,7 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
-
 
     // submitModal 함수는 이제 사용되지 않으므로 제거하거나 주석 처리할 수 있습니다.
     /*
