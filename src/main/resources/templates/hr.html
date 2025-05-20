@@ -472,12 +472,14 @@
         .bomTab5 .grid-table {
             grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
         }
+
     </style>
 
 </head>
 
 <body>
     <div th:replace="~{/top.html :: top}"></div>
+
     <div class="site-Wrapper">
         <h1 style="font-size: 24px; margin-bottom: 16px;">사원 관리</h1>
         <form id="frm" method="get" action="#">
@@ -487,13 +489,12 @@
                 </div>
                 <div class="table-wrapper">
                     <div>
-
                         <input type="text" placeholder="검색" />
                         <div>
                             <button type="button">
                                 <span class="material-symbols-outlined">search</span> 검색
                             </button>
-                            <button type="button" onclick="openNewModal()">
+                            <button type="button" onclick="openSharedModal('new')">
                                 <span class="material-symbols-outlined">add</span> 신규등록
                             </button>
                             <button type="button">
@@ -504,11 +505,8 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
 
-                        <!--데이터 있을 때 -->
-                        <table class="grid-table" >
-
+                        <table class="grid-table">
                             <thead>
-
                                 <tr>
                                     <th><input type="checkbox" /></th>
                                     <th onclick="order(this)">이름<a>↓</a></th>
@@ -520,21 +518,10 @@
                                     <th onclick="order(this)">재직상태<a>↓</a></th>
                                 </tr>
                             </thead>
-                            
                             <tbody id="userTableBody">
-                            <!-- 사원 전체 리스트 출력 -->
-					        </tbody>
-					        <!-- 사원이 없을때 js에서 핸들링 (json이 없을 경우) -->
-                        </table>
-                        <!-- 
-	                       <select>
-							<option value="5">5</option>
-							<option value="10">10</option>
-							<option value="15">15</option>
-							<option value="20">20</option>
-						</select>
-                         -->
-                        
+                                </tbody>
+                            </table>
+
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
                             <div class="pagination">
@@ -548,21 +535,20 @@
                             </div>
                         </div>
                     </div>
-
-
                 </div>
             </div>
         </form>
     </div>
 
-<!-- 신규 사원 등록 모달 -->
-     <div class="modal" id="newModal" onclick="outsideClick(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-			<form id="newModalForm" class="modalForm">
-            <h3>신규 사원 등록</h3>             
+    <div class="modal" id="modal" onclick="outsideClick(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modalTitle"></h3> <form id="modalForm" class="modalForm">
+                <input type="hidden" name="userIdx" id="editingUserIdx">
+
                 <div><span>ID</span><input type="text" name="userId" required /></div>
-                <div><span>비밀번호</span><input type="password" name="userPswd" required /></div> <div><span>이름</span><input type="text" name="userNm" required /></div>
-                <div><span>이메일</span><input type="text" name="userEMail" required /></div>
+                <div><span>비밀번호</span><input type="password" name="userPswd" required /></div>
+                <div><span>이름</span><input type="text" name="userNm" required /></div>
+                <div><span>이메일</span><input type="text" name="userEmail" required /></div>
                 <div><span>직통번호</span><input type="text" name="userTel" required /></div>
                 <div><span>H.P</span><input type="text" name="userHp" required /></div>
                 <div>
@@ -573,72 +559,9 @@
                         <option value="02">권한2</option>
                         <option value="03">권한3</option>
                         <option value="04">권한4</option>
-                         <option value="05">권한5</option>
-                         <option value="06">권한6</option>
-                         <option value="07">권한7</option>
-                    </select>
-                    <span>부서</span>
-                    <select name="userDept" required style="width: 100%;padding: 10px;">
-                        <option value="">부서를 선택해주세요</option>
-                        <option value="영업부">영업부</option>
-                        <option value="개발부">개발부</option>
-                        <option value="생산부">생산부</option>
-                        <option value="관리부">관리부</option>
-                        <option value="구매부">구매부</option>
-                    </select>
-                    <span>직책</span>
-                    <select name="userPosition" required style="width: 100%;padding: 10px;">
-                        <option value="">직책을 선택해주세요</option>
-                        <option value="사원">사원</option>
-                        <option value="대리">대리</option>
-                        <option value="과장">과장</option>
-                        <option value="차장">차장</option>
-                        <option value="부장">부장</option>
-                    </select>
-                </div>
-
-                <div style="display: flex; justify-content: space-between; width: 100%;">
-                    <div style="display: flex;gap: 10px; width: 100%;"><span style="white-space: nowrap;">입사일</span><input type="date" name="hireDt" required style="width: 100%;"></div>
-                    <div style="display: flex;gap: 10px; width: 100%;"><span style="white-space: nowrap;">퇴사일</span><input type="date" name="retireDt"  style="width: 100%;"></div>
-                </div>
-                <div><span>재직상태</span>
-                    <label>재직자 <input type="radio" name="userStatus" value="01" /></label>
-                    <label>퇴사자 <input type="radio" name="userStatus" value="02" /></label>
-                    </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-                    <div class="modal-buttons" style="grid-column-start: 3;">
-                        <button type="submit" name="save"> <span class="material-symbols-outlined">save</span> 등록
-                        </button>
-                        <button type="button" class="cancel-button" onclick="closeModal('newModal')"> <span class="material-symbols-outlined">close</span> 취소
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-<!-- 사원 정보 수정 모달 -->
-    <div class="modal" id="editModal" onclick="outsideClick(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3>사원 수정</h3> <form id="editModalForm" class="modalForm">
-                 <input type="hidden" name="userIdx" id="editingUserIdx">
-
-                <div><span>ID</span><input type="text" name="userId" required readonly /></div> <div><span>비밀번호</span><input type="password" name="userPswd" placeholder="수정 시에만 입력" /></div> <div><span>이름</span><input type="text" name="userNm" required /></div>
-                <div><span>이메일</span><input type="text" name="userEMail" required /></div>
-                <div><span>직통번호</span><input type="text" name="userTel" required /></div>
-                <div><span>H.P</span><input type="text" name="userHp" required /></div>
-                <div>
-                    <span>권한</span>
-                    <select name="userRole" required style="width: 100%;padding: 10px;">
-                        <option value="">권한을 선택해주세요</option>
-                         <option value="01">권한1</option>
-                        <option value="02">권한2</option>
-                        <option value="03">권한3</option>
-                        <option value="04">권한4</option>
-                         <option value="05">권한5</option>
-                         <option value="06">권한6</option>
-                         <option value="07">권한7</option>
+                        <option value="05">권한5</option>
+                        <option value="06">권한6</option>
+                        <option value="07">권한7</option>
                     </select>
                     <span>부서</span>
                     <select name="userDept" required style="width: 100%;padding: 10px;">
@@ -667,19 +590,25 @@
                 <div><span>재직상태</span>
                     <label>재직자 <input type="radio" name="userStatus" value="01" /></label>
                     <label>퇴사자 <input type="radio" name="userStatus" value="02" /></label>
-                     </div>
+                    </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
                     <div class="modal-buttons" style="grid-column-start: 3;">
-                        <button type="submit" name="edit"> <span class="material-symbols-outlined">edit</span> 수정
+                        <button type="submit" name="save" style="display: block;">
+                            <span class="material-symbols-outlined">save</span> 등록
                         </button>
-                        <button type="button" class="cancel-button" onclick="closeModal('editModal')"> <span class="material-symbols-outlined">close</span> 취소
+                        <button type="submit" name="edit" style="display: none;">
+                            <span class="material-symbols-outlined">edit</span> 수정
+                        </button>
+                        <button type="button" class="cancel-button" onclick="closeModal()">
+                            <span class="material-symbols-outlined">close</span> 취소
                         </button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+
 
     <script src="/js/top.js"></script>
     <script src="/js/hr.js"></script>
