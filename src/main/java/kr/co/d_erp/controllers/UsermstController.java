@@ -16,12 +16,20 @@ public class UsermstController {
 
 	private final UsermstService UsermstService;
 
-	// 전체 사용자 조회
-	@GetMapping
-	public ResponseEntity<List<Usermst>> getAllUsers() {
-		List<Usermst> users = UsermstService.getAllUsers();
-		return ResponseEntity.ok(users);
-	}
+	  @GetMapping
+	    public ResponseEntity<List<Usermst>> getAllUsers(
+	            @RequestParam(defaultValue = "userStatus") String sortBy,
+	            @RequestParam(defaultValue = "desc") String sortDirection,
+	            @RequestParam(required = false) String keyword) {
+	        try {
+	            List<Usermst> users = UsermstService.findAllUsers(sortBy, sortDirection, keyword);
+	            return ResponseEntity.ok(users);
+	        } catch (Exception e) {
+	            // 실제 애플리케이션에서는 더 구체적인 로깅과 에러 처리가 필요합니다.
+	            // 예: logger.error("Failed to retrieve users", e);
+	            return ResponseEntity.status(500).build();
+	        }
+	    }
 
 	// 특정 사용자 조회
 	@GetMapping("/{idx}")
