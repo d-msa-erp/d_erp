@@ -141,7 +141,6 @@ async function openSharedModal(mode, userIdx = null) {
     modal.style.display = 'flex';
 }
 
-
 // --- 사원 목록을 백엔드에서 가져와 테이블을 업데이트하는 핵심 함수 (글로벌로 정의) ---
 // 이 함수가 정렬/검색 후에도 호출되므로, 상태 변환 로직이 포함되어야 합니다.
 async function loadUsersTable(sortBy, sortDirection, keyword = '') {
@@ -273,7 +272,6 @@ function order(thElement) {
     // loadUsersTable 함수 내부에서 화살표 업데이트 처리 로직이 포함되어 있으므로, 여기서는 데이터 로드만 호출
     loadUsersTable(currentSortBy, currentOrder, currentKeyword);
 }
-
 
 // --- 페이지 로드 후 실행될 코드 (하나의 DOMContentLoaded 리스너로 통합) ---
 document.addEventListener('DOMContentLoaded', () => {
