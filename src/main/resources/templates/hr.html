@@ -489,9 +489,9 @@
                 </div>
                 <div class="table-wrapper">
                     <div>
-                        <input type="text" placeholder="검색" />
+                        <input type="text" id="searchInput" placeholder="이름, ID, 부서, 직책으로 검색" />
                         <div>
-                            <button type="button">
+                            <button type="button" id="searchButton">
                                 <span class="material-symbols-outlined">search</span> 검색
                             </button>
                             <button type="button" onclick="openSharedModal('new')">
@@ -509,18 +509,18 @@
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">이름<a>↓</a></th>
-                                    <th onclick="order(this)">ID<a>↓</a></th>
-                                    <th onclick="order(this)">직통번호<a>↓</a></th>
-                                    <th onclick="order(this)">H.P<a>↓</a></th>
-                                    <th onclick="order(this)">부서<a>↓</a></th>
-                                    <th onclick="order(this)">직책<a>↓</a></th>
-                                    <th onclick="order(this)">재직상태<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userNm">이름 <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userId">ID <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userTel">직통번호 <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userHp">H.P <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userDept">부서 <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userPosition">직책 <a href="#" style="visibility: hidden;">↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="userStatus">재직상태 <a href="#" style="visibility: visible;">↓</a></th>
                                 </tr>
                             </thead>
                             <tbody id="userTableBody">
                                 </tbody>
-                            </table>
+                        </table>
 
                         <div class="pagination-wrap">
                             총 n건 1/n페이지
@@ -542,15 +542,16 @@
 
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle"></h3> <form id="modalForm" class="modalForm">
+            <h3 id="modalTitle"></h3>
+            <form id="modalForm" class="modalForm">
                 <input type="hidden" name="userIdx" id="editingUserIdx">
 
                 <div><span>ID</span><input type="text" name="userId" required /></div>
                 <div><span>비밀번호</span><input type="password" name="userPswd" required /></div>
                 <div><span>이름</span><input type="text" name="userNm" required /></div>
-                <div><span>이메일</span><input type="text" name="userEmail" required /></div>
-                <div><span>직통번호</span><input type="text" name="userTel" required /></div>
-                <div><span>H.P</span><input type="text" name="userHp" required /></div>
+                <div><span>이메일</span><input type="text" id="userEmailInput" name="userEmail" required /></div>
+                <div><span>직통번호</span><input type="text" id="userTelInput" name="userTel" placeholder="- 를 제외하고 입력해주세요" maxlength="11" required /></div>
+                <div><span>H.P</span><input type="text" id="userHpInput" name="userHp" placeholder="- 를 제외하고 입력해주세요" maxlength="11" required /></div>
                 <div>
                     <span>권한</span>
                     <select name="userRole" required style="width: 100%;padding: 10px;">
@@ -608,6 +609,7 @@
             </form>
         </div>
     </div>
+
 
 
     <script src="/js/top.js"></script>

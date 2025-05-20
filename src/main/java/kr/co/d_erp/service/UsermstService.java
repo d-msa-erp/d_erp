@@ -110,14 +110,19 @@ public class UsermstService {
     }
 
     /**
-     * 사용자 삭제 (필요시 추가)
-     * @param userIdx 삭제할 사용자 고유 번호
+     * 여러 사용자 ID를 받아 해당 사용자들을 삭제합니다.
+     * 이 작업은 하나의 트랜잭션으로 묶여 원자성을 보장합니다.
+     *
+     * @param userIdxs 삭제할 사용자 ID 목록
+     * @throws IllegalArgumentException userIdxs 목록이 null이거나 비어있을 경우
      */
-    @Transactional
-    public void deleteUser(Long userIdx) {
-        if (!userMstRepository.existsById(userIdx)) {
-            throw new RuntimeException("삭제할 사용자를 찾을 수 없습니다. ID: " + userIdx);
+    @Transactional // 여러 삭제 작업이 하나의 트랜잭션으로 묶이도록 보장
+    public void deleteUsers(List<Long> userIdxs) {
+        if (userIdxs == null || userIdxs.isEmpty()) {
+            throw new IllegalArgumentException("삭제할 사용자 ID 목록이 비어 있습니다.");
         }
-        userMstRepository.deleteById(userIdx);
+
+        // Spring Data JPA의 deleteAllById 메서드를 사용하여 효율적으로 여러 항목 삭제
+        userMstRepository.deleteAllById(userIdxs);
     }
 }
