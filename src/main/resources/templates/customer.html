@@ -368,8 +368,8 @@
             </div>
           </div>
           <div>
-            <span class="active" onclick="switchTab(this, 'customer')">거래처</span>
-            <span onclick="switchTab(this, 'vendor')">발주처</span>
+            <span class="tab active" data-bizflag="01" onclick="switchTab(this, '01')">거래처</span>
+    		<span class="tab" data-bizflag="02" onclick="switchTab(this, '02')">발주처</span>
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
@@ -384,92 +384,19 @@
               <thead>
                 <tr>
                   <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">거래처명<a>↓</a></th>
+                  <th id="customerNameHeader" onclick="order(this)">거래처명<a>↓</a></th>
                   <th onclick="order(this)">담당자명<a>↓</a></th>
                   <th onclick="order(this)">연락처<a>↓</a></th>
                   <th onclick="order(this)">이메일<a>↓</a></th>
                 </tr>
               </thead>
-              <tbody>
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                	<tr>
-									<td class="nodata" style="grid-column: span 5;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
+              <tbody id="customerTableBody">
+
               </tbody>
             </table>
             <div class="pagination-wrap">
               총 n건 1/n페이지
               <div class="paigination">
-                <button type="button" id="btn-prev-page">
-                  <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <input type="text" value="1">
-                <button type="button" id="btn-next-page">
-                  <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div id="table-vendor" style="display: none; padding: 20px; position: relative;">
-           <div class="print-wrap">
-              <button type="button">
-                <span class="material-symbols-outlined">table_view</span> 엑셀
-              </button>
-              <button type="button">
-                <span class="material-symbols-outlined">print</span> 인쇄
-              </button>
-            </div>
-            <table class="grid-table">
-
-              <thead>
-
-                <tr>
-                  <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">발주처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
-                </tr>
-              </thead>
-              <tbody>
-                	<tr>
-									<td class="nodata" style="grid-column: span 5;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="pagination-wrap">
-              총 n건 1/n페이지
-            <div class="paigination">
                 <button type="button" id="btn-prev-page">
                   <span class="material-symbols-outlined">chevron_left</span>
                 </button>
@@ -564,7 +491,7 @@
       const arrow = thValue.querySelector('a');
       arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
     }
-
+/*
     function switchTab(el, type) {//탭 변경
       document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
         span.classList.remove('active');
@@ -574,20 +501,21 @@
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
     }
+*/
 
-
-    let currentTab = 'customer';
+    let currentTab = '';
 
     //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
+    /*
     function openModal() {
       const title = document.getElementById('modalTitle');
-      title.textContent = currentTab === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
+      title.textContent = bizFlag === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
       document.getElementById('modal').style.display = 'flex';
       document.querySelector('#modalForm button[name="save"]').style.display = 'block';
       document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
 
     }
-
+	*/
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
     }
@@ -598,7 +526,7 @@
       }
     }
 
-
+/*
     function switchTab(el, type) {
       currentTab = type;
       document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
@@ -609,7 +537,7 @@
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
     }
-
+*/
     function submitModal(event) {
       event.preventDefault();
       const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
@@ -628,6 +556,7 @@
       document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
     }
   </script>
+  <script src="/js/customer.js"></script>
 </body>
 
 </html>
