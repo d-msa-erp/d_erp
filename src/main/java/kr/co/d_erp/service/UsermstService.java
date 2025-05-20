@@ -3,6 +3,7 @@ package kr.co.d_erp.service;
 import kr.co.d_erp.dtos.Usermst;
 import kr.co.d_erp.repository.oracle.UsermstRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 // import org.springframework.security.crypto.password.PasswordEncoder; // 비밀번호 암호화 시 사용
@@ -12,18 +13,20 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자 자동 주입
-public class UsermstService {
+public class UsermstService{
 
     private final UsermstRepository userMstRepository;
     // private final PasswordEncoder passwordEncoder; // 비밀번호 암호화 시 주입
 
-    /**
-     * 전체 사용자 조회
-     * @return 사용자 목록
-     */
-    @Transactional(readOnly = true)
-    public List<Usermst> getAllUsers() {
-        return userMstRepository.findAll();
+    public List<Usermst> findAllUsers(String sortBy, String sortDirection, String keyword) {
+        // 정렬 방향 (asc/desc) 문자열을 enum으로 변환
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        // sortBy 문자열로 정렬 객체 생성
+        Sort sort = Sort.by(direction, sortBy);
+
+        // keyword를 findAllUsersByKeyword 메서드로 전달
+        // keyword가 null이거나 빈 문자열이면 @Query 내에서 모든 결과를 반환하도록 처리됨
+        return userMstRepository.findAllUsersByKeyword(keyword, sort);
     }
 
     /**
