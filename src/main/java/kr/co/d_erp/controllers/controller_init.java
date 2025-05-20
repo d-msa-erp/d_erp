@@ -29,13 +29,10 @@ public class controller_init {
 		return "/bom.html";
 	}
 	
-	/*
-	//WarehouseController로 이동 
 	@GetMapping("/warehouse")
 	public String warehouse() {
 		return "/warehouse.html";
 	}
-	*/
 	
 	@GetMapping("/customer")
 	public String customer() {
@@ -74,13 +71,10 @@ public class controller_init {
 		return "/mrp.html";
 	}
 	
-	
-	//UserController로 이동 
 	@GetMapping("/hr")
 	public String hr() {
 		return "/hr.html";
 	}
-	
 	
 	@GetMapping("/pagesettings")
 	public String pagesettings() {

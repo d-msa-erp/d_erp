@@ -423,7 +423,7 @@ button:hover {
 						</div>
 						
 						
-						<table class="grid-table" th:if="${!#lists.isEmpty(warehouses)}">
+						<table class="grid-table">
 						<p>&nbsp</p>
 							<thead>
 								<tr>
@@ -442,16 +442,12 @@ button:hover {
 							<tbody>
 								<tr onclick="opendatail()" th:each="warehouse : ${warehouses}">
 									<td><input type="checkbox" /></td>
-									<td th:text="${warehouse.WH_CD}"></td>
-									<td th:text="${warehouse.WH_NM}"></td>
-									<td th:text="${
-    								(warehouse.WH_TYPE1 == 'Y' ? '자재' : '') +
-    								(warehouse.WH_TYPE2 == 'Y' ? (warehouse.WH_TYPE1 == 'Y' ? ', 제품' : '제품') : '') +
-    								(warehouse.WH_TYPE3 == 'Y' ? ((warehouse.WH_TYPE1 == 'Y' or warehouse.WH_TYPE2 == 'Y') ? ', 반품' : '반품') : '')}">
-									</td>
-									<td th:text="${warehouse.USE_FLAG}"></td>
-									<td th:text="${warehouse.WH_LOCATION}"></td>
-									<td th:text="${warehouse.REMARK}"></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
 								</tr>
 							</tbody>
 						</table>
