@@ -461,16 +461,17 @@ input:checked+.slider::before {
 						</div>
 
 
-						<input type="text" placeholder="검색" />
+						<input type="text" placeholder="검색" id="searchInput" />
 						<div>
-							<button type="button">
+							<button type="button" id="searchBtn">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
-							<button type="button" onclick="openModal()">
+							<button type="button"
+								onclick="openModal()">
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
-							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 검색
+							<button type="button" id="deleteSelectedBtn">
+								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
 						</div>
 					</div>
@@ -488,7 +489,6 @@ input:checked+.slider::before {
 						<table class="grid-table">
 
 							<thead>
-
 								<tr>
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">주문번호<a>↓</a></th>
@@ -499,30 +499,9 @@ input:checked+.slider::before {
 									<th onclick="order(this)">납기일<a>↓</a></th>
 								</tr>
 							</thead>
-							<tbody>
-									<tr>
-									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-								<!--몇개씩 자를지는 상의해봐요 ~ -->
-								<tr onclick="opendatail()">
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-								</tr>
-								<tr>
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-								</tr>
-							</tbody>
+							<tbody id="salesTableBody">
+
+              				</tbody>
 						</table>
 						<div class="pagination-wrap">
 							총 n건 1/n페이지
@@ -556,8 +535,7 @@ input:checked+.slider::before {
 					<span>납기일</span><input type="date" required />
 				</div>
 				<div>
-					<span>발주번호</span><input type="text" placeholder="랜덤값으로 들어가게"
-						required />
+					<span>주문번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
 				</div>
 				<div>
 					<span>고객사</span><select required>
@@ -619,7 +597,7 @@ input:checked+.slider::before {
 
 </body>
 <script src="/js/top.js"></script>
-
+<script src="/js/sales.js"></script>
 <script>
 
     //Slide 버튼
@@ -655,8 +633,8 @@ input:checked+.slider::before {
         const title = document.getElementById('modalTitle');
         title.textContent = '접수 등록';
         document.getElementById('modal').style.display = 'flex';
-        document.querySelector('#modalForm input[name="save"]').style.display = 'block';
-        document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
+        document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+        document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
     }
 
     function closeModal() {
