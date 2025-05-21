@@ -47,14 +47,14 @@
                         <table class="grid-table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" /></th>
+                                    <th><input type="checkbox" id="selectAllCheckboxes" /></th>
                                     <th onclick="order(this)" data-sort-by="whCd">창고 코드<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whNm">창고 명<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whType1">창고 타입<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="useFlag">사용 여부<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whLocation">주소<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="remark">비고<a>↓</a></th>
-                                </tr>
+                                    <th onclick="order(this)" data-sort-by="whUserNm">담당자<a>↓</a></th> </tr>
                             </thead>
                             <tbody id="warehouseTableBody">
                                 </tbody>
@@ -85,6 +85,9 @@
                 <input type="hidden" name="whIdx" />
                 <div id="warehouseInfo">
                     <div>
+                        <span>창고 코드</span><input type="text" name="whCd" placeholder="자동 생성" readonly />
+                    </div>
+                    <div>
                         <span>창고명</span><input type="text" name="whNm" placeholder="창고명을 입력해주세요" required />
                     </div>
                     <div>
@@ -101,7 +104,13 @@
                     <div>
                         <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
                     </div>
-                </div>
+                    <div>
+                        <span>담당자</span>
+                        <select name="whUserIdx" id="modalWhUserIdx" required>
+                            <option value="">담당자를 선택해주세요</option>
+                            </select>
+                    </div>
+                    </div>
 
                 <div class="wh_db">
                     <h3 style="align-self: flex-start; padding-bottom: 20px;">창고

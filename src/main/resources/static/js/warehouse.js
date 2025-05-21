@@ -15,6 +15,7 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
     tableBody.innerHTML = ''; // 기존 데이터 초기화
 
     try {
+        // API 호출 시 정렬 및 검색 파라미터 전달
         const response = await fetch(`/api/warehouses?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${keyword}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -22,7 +23,8 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
         const warehouses = await response.json();
 
         if (warehouses.length === 0) {
-            tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 7; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
+            // colspan을 8로 변경 (담당자 컬럼 추가로)
+            tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
             return;
         }
 
@@ -31,17 +33,17 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
             row.dataset.whIdx = warehouse.whIdx; // 데이터 속성으로 whIdx 저장
 
             row.innerHTML = `
-                <td><input type="checkbox" data-wh-idx="${warehouse.whIdx}" /></td>
+                <td><input type="checkbox" class="warehouse-checkbox" data-wh-idx="${warehouse.whIdx}" /></td>
                 <td>${warehouse.whCd || ''}</td>
                 <td>${warehouse.whNm || ''}</td>
                 <td>${(warehouse.whType1 === 'Y' ? '자재 ' : '') + (warehouse.whType2 === 'Y' ? '제품 ' : '') + (warehouse.whType3 === 'Y' ? '반품 ' : '').trim() || ''}</td>
                 <td>${warehouse.useFlag === 'Y' ? '사용' : '미사용'}</td>
                 <td>${warehouse.whLocation || ''}</td>
                 <td>${warehouse.remark || ''}</td>
-            `;
+                <td>${warehouse.whUserNm || '미지정'}</td> `;
+            // 행 전체 클릭 시 모달 열기 (체크박스 클릭 제외)
             row.addEventListener('click', (event) => {
-                // 체크박스 클릭은 제외
-                if (event.target.type === 'checkbox') {
+                if (event.target.type === 'checkbox' || event.target.tagName === 'A') { // A 태그 (화살표) 클릭도 제외
                     return;
                 }
                 openModal('edit', warehouse.whIdx);
@@ -51,15 +53,54 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
 
     } catch (error) {
         console.error('Error loading warehouses:', error);
-        tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 7; justify-content: center; color: red;">데이터 로드 실패</td></tr>';
+        tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center; color: red;">데이터 로드 실패</td></tr>';
     }
 }
+
+// 담당자 목록을 `<select>` 태그에 채우는 함수
+async function loadManagersIntoSelect(selectElementId, selectedUserIdx = null) {
+    const selectBox = document.getElementById(selectElementId);
+    selectBox.innerHTML = ''; // 기존 옵션 비우기
+
+    selectBox.appendChild(createOption('', '담당자를 선택해주세요', true, true)); // 기본 "선택하세요" 옵션
+
+    try {
+        const response = await fetch('/api/users/active-for-selection'); // 담당자 목록 API 경로
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const managers = await response.json();
+
+        managers.forEach(user => {
+            const option = createOption(user.userIdx, `${user.userNm} (${user.userId})`);
+            // selectedUserIdx가 null이 아니며, 현재 user의 userIdx가 selectedUserIdx와 일치하면 선택
+            if (selectedUserIdx !== null && String(user.userIdx) === String(selectedUserIdx)) {
+                option.selected = true;
+            }
+            selectBox.appendChild(option);
+        });
+    } catch (error) {
+        console.error("담당자 목록 로드 실패:", error);
+        alert("담당자 목록을 불러오는 데 실패했습니다.");
+    }
+}
+
+// option 엘리먼트 생성 헬퍼 함수
+function createOption(value, text, disabled = false, selected = false) {
+    const option = document.createElement('option');
+    option.value = value;
+    option.textContent = text;
+    option.disabled = disabled;
+    if (selected) {
+        option.selected = true;
+    }
+    return option;
+}
+
 
 // 정렬 함수
 function order(thElement) {
     const newSortBy = thElement.dataset.sortBy;
-
-    console.log('클릭된 TH의 data-sort-by:', newSortBy); // 디버깅 로그
 
     if (!newSortBy) {
         console.warn("data-sort-by 속성이 정의되지 않았거나 비어있습니다. 정렬 불가.", thElement);
@@ -79,9 +120,9 @@ function order(thElement) {
     });
 
     // 현재 정렬 기준에 맞는 화살표 업데이트
-    const currentTh = document.querySelector(`th[data-sort-by="${currentSortBy}"] a`);
-    if (currentTh) {
-        currentTh.textContent = currentOrder === 'asc' ? '↑' : '↓';
+    const currentThAnchor = thElement.querySelector('a');
+    if (currentThAnchor) {
+        currentThAnchor.textContent = currentOrder === 'asc' ? '↑' : '↓';
     }
 
     loadWarehousesTable(currentSortBy, currentOrder, currentKeyword);
@@ -90,6 +131,10 @@ function order(thElement) {
 // 모달 열기/닫기 함수
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
+    document.getElementById('modalForm').reset(); // 폼 초기화
+    // 모달 닫을 때 whCd input의 readonly 속성 해제 (신규 등록 시 다시 입력 가능하도록)
+    const whCdInput = document.querySelector('#modalForm input[name="whCd"]');
+    if (whCdInput) whCdInput.readOnly = false;
 }
 
 function outsideClick(event) {
@@ -122,7 +167,7 @@ async function openModal(mode, whIdx = null) {
     const whType3Checkbox = modalForm.querySelector('input[name="whType3"]');
     const useFlagCheckbox = modalForm.querySelector('input[name="useFlag"]');
     const whLocationInput = modalForm.querySelector('input[name="whLocation"]');
-    // const whUserIdxInput = modalForm.querySelector('input[name="whUserIdx"]'); // 삭제됨
+    const whUserIdxSelect = document.getElementById('modalWhUserIdx'); // ⭐ select 엘리먼트 가져오기 ⭐
 
     // 모달 폼에 클래스 추가/제거
     if (mode === 'new') {
@@ -147,10 +192,16 @@ async function openModal(mode, whIdx = null) {
             warehouseStockSection.style.display = 'none';
         }
 
-        // 신규 등록 시에는 창고 코드 수정 가능
-        if (whCdInput) whCdInput.readOnly = false;
+        // 신규 등록 시에는 창고 코드 readonly
+        if (whCdInput) {
+            whCdInput.value = '자동 생성'; // 사용자에게 표시
+            whCdInput.readOnly = true; // 읽기 전용
+        }
         // 신규 등록 시 사용 여부 기본값 '사용'
         if (useFlagCheckbox) useFlagCheckbox.checked = true;
+
+        // ⭐ 신규 등록 시 담당자 드롭다운 초기화 ⭐
+        await loadManagersIntoSelect('modalWhUserIdx');
 
 
     } else if (mode === 'edit' && whIdx !== null) {
@@ -190,7 +241,9 @@ async function openModal(mode, whIdx = null) {
             if (whType3Checkbox) whType3Checkbox.checked = (warehouse.whType3 === 'Y');
             if (useFlagCheckbox) useFlagCheckbox.checked = (warehouse.useFlag === 'Y');
             if (whLocationInput) whLocationInput.value = warehouse.whLocation || '';
-            // if (whUserIdxInput) whUserIdxInput.value = warehouse.whUserIdx || ''; // 삭제됨
+
+            // ⭐ 수정 모드 시 담당자 드롭다운 채우고 기존 담당자 선택 ⭐
+            await loadManagersIntoSelect('modalWhUserIdx', warehouse.whUserIdx);
 
         } catch (error) {
             console.error('창고 상세 정보를 불러오는 중 오류 발생:', error);
@@ -203,7 +256,7 @@ async function openModal(mode, whIdx = null) {
         alert('모달을 여는 중 오류가 발생했습니다.');
         return;
     }
-    modal.style.display = 'flex';
+    modal.style.display = 'flex'; // 모달 표시
 }
 
 // 이벤트 리스너
@@ -236,8 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // whUserIdx는 백엔드에서 처리하므로 프론트엔드에서 넘기지 않습니다.
-        // delete data.whUserIdx; // 필요시 주석 해제하여 명시적으로 제거
+        // 담당자 ID 추가
+        data.whUserIdx = document.getElementById('modalWhUserIdx').value;
+
+        // whUserIdx 필수 값 검사
+        if (!data.whUserIdx) {
+            alert("담당자를 선택해 주세요.");
+            return;
+        }
 
         // whIdx가 있으면 수정, 없으면 등록
         const isEditMode = data.whIdx && data.whIdx !== '';
@@ -255,7 +314,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                // 서버에서 보낸 에러 메시지가 JSON 형식일 경우 파싱
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.message || `HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                } catch (e) {
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                }
             }
 
             alert(isEditMode ? '창고 정보가 성공적으로 수정되었습니다.' : '신규 창고가 성공적으로 등록되었습니다.');
@@ -292,7 +357,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    throw new Error(errorJson.message || `HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                } catch (e) {
+                    throw new Error(`HTTP error! Status: ${response.status}, Message: ${errorText}`);
+                }
             }
 
             alert('선택된 창고가 성공적으로 삭제되었습니다.');
@@ -301,5 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Error deleting warehouses:', error);
             alert(`창고 삭제에 실패했습니다: ${error.message}`);
         }
+    });
+
+    // 헤더 체크박스 전체 선택/해제
+    document.getElementById('selectAllCheckboxes').addEventListener('change', function() {
+        const isChecked = this.checked;
+        document.querySelectorAll('.warehouse-checkbox').forEach(checkbox => {
+            checkbox.checked = isChecked;
+        });
     });
 });
