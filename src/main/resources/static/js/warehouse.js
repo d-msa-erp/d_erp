@@ -4,6 +4,7 @@
 let currentSortBy = 'whIdx';
 let currentOrder = 'asc';
 let currentKeyword = '';
+let currentWhIdxForModal = null; // 현재 모달에서 열린 창고의 ID
 
 // 테이블 데이터 로드 함수
 async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = currentOrder, keyword = currentKeyword) {
@@ -15,15 +16,16 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
     tableBody.innerHTML = ''; // 기존 데이터 초기화
 
     try {
-        // API 호출 시 정렬 및 검색 파라미터 전달
         const response = await fetch(`/api/warehouses?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${keyword}`);
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // HTTP 상태 코드가 200이 아닌 경우
+            const errorText = await response.text();
+            console.error(`Error fetching warehouses list: HTTP status ${response.status}`, errorText);
+            throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
         }
         const warehouses = await response.json();
 
         if (warehouses.length === 0) {
-            // colspan을 8로 변경 (담당자 컬럼 추가로)
             tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
             return;
         }
@@ -43,10 +45,10 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
                 <td>${warehouse.whUserNm || '미지정'}</td> `;
             // 행 전체 클릭 시 모달 열기 (체크박스 클릭 제외)
             row.addEventListener('click', (event) => {
-                if (event.target.type === 'checkbox' || event.target.tagName === 'A') { // A 태그 (화살표) 클릭도 제외
+                if (event.target.type === 'checkbox' || event.target.tagName === 'A') {
                     return;
                 }
-                openModal('edit', warehouse.whIdx);
+                openModal('view', warehouse.whIdx); // 'view' 모드로 변경
             });
             tableBody.appendChild(row);
         });
@@ -60,20 +62,21 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
 // 담당자 목록을 `<select>` 태그에 채우는 함수
 async function loadManagersIntoSelect(selectElementId, selectedUserIdx = null) {
     const selectBox = document.getElementById(selectElementId);
-    selectBox.innerHTML = ''; // 기존 옵션 비우기
+    selectBox.innerHTML = '';
 
-    selectBox.appendChild(createOption('', '담당자를 선택해주세요', true, true)); // 기본 "선택하세요" 옵션
+    selectBox.appendChild(createOption('', '담당자를 선택해주세요', true, true));
 
     try {
-        const response = await fetch('/api/users/active-for-selection'); // 담당자 목록 API 경로
+        const response = await fetch('/api/users/active-for-selection');
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`Error fetching managers list: HTTP status ${response.status}`, errorText);
+            throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
         }
         const managers = await response.json();
 
         managers.forEach(user => {
             const option = createOption(user.userIdx, `${user.userNm} (${user.userId})`);
-            // selectedUserIdx가 null이 아니며, 현재 user의 userIdx가 selectedUserIdx와 일치하면 선택
             if (selectedUserIdx !== null && String(user.userIdx) === String(selectedUserIdx)) {
                 option.selected = true;
             }
@@ -81,7 +84,7 @@ async function loadManagersIntoSelect(selectElementId, selectedUserIdx = null) {
         });
     } catch (error) {
         console.error("담당자 목록 로드 실패:", error);
-        alert("담당자 목록을 불러오는 데 실패했습니다.");
+        // alert("담당자 목록을 불러오는 데 실패했습니다."); // 알림은 개발자 도구에서 확인하도록
     }
 }
 
@@ -114,12 +117,10 @@ function order(thElement) {
         currentSortBy = newSortBy;
     }
 
-    // 모든 정렬 화살표 초기화
     document.querySelectorAll('th a').forEach(a => {
-        a.textContent = '↓'; // 기본 화살표
+        a.textContent = '↓';
     });
 
-    // 현재 정렬 기준에 맞는 화살표 업데이트
     const currentThAnchor = thElement.querySelector('a');
     if (currentThAnchor) {
         currentThAnchor.textContent = currentOrder === 'asc' ? '↑' : '↓';
@@ -128,10 +129,51 @@ function order(thElement) {
     loadWarehousesTable(currentSortBy, currentOrder, currentKeyword);
 }
 
-// 모달 열기/닫기 함수
+// 탭 전환 함수
+function openTab(tabName) {
+    const tabContents = document.querySelectorAll('.tab-content');
+    tabContents.forEach(content => {
+        content.classList.remove('active');
+    });
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove('active');
+    });
+
+    document.getElementById(`${tabName}Tab`).classList.add('active');
+    document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+
+    // '정보 수정' 탭으로 가면 저장/수정 버튼 보이게
+    const saveButton = document.querySelector('#modalForm button[name="save"]');
+    const editButton = document.querySelector('#modalForm button[name="edit"]');
+    const whCdInput = document.querySelector('#modalForm input[name="whCd"]');
+
+
+    if (tabName === 'info') {
+        if (currentWhIdxForModal === null) { // 신규 등록 모드
+            saveButton.style.display = 'block';
+            editButton.style.display = 'none';
+            whCdInput.value = '자동 생성';
+            whCdInput.readOnly = true;
+        } else { // 수정 모드
+            saveButton.style.display = 'none';
+            editButton.style.display = 'block';
+            whCdInput.readOnly = true; // 수정 모드에서는 코드 변경 불가
+        }
+    } else { // 재고 현황 탭으로 돌아오면 저장/수정 버튼 숨김
+        saveButton.style.display = 'none';
+        editButton.style.display = 'none';
+    }
+}
+
+
+// 모달 닫기 함수
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
-    document.getElementById('modalForm').reset(); // 폼 초기화
+    document.getElementById('modalForm').reset();
+    currentWhIdxForModal = null; // 모달 닫을 때 현재 창고 ID 초기화
+
     // 모달 닫을 때 whCd input의 readonly 속성 해제 (신규 등록 시 다시 입력 가능하도록)
     const whCdInput = document.querySelector('#modalForm input[name="whCd"]');
     if (whCdInput) whCdInput.readOnly = false;
@@ -143,7 +185,7 @@ function outsideClick(event) {
     }
 }
 
-// 하나의 함수로 신규 등록 및 수정 모달 열기 처리
+// 하나의 함수로 신규 등록 및 수정/조회 모달 열기 처리
 async function openModal(mode, whIdx = null) {
     const modal = document.getElementById('modal');
     const modalTitle = document.getElementById('modalTitle');
@@ -152,9 +194,10 @@ async function openModal(mode, whIdx = null) {
     const editButton = modalForm.querySelector('button[name="edit"]');
 
     const warehouseInfoDiv = document.getElementById('warehouseInfo');
-    const warehouseStockSection = modalForm.querySelector('.wh_db');
+    const warehouseStockTableBody = document.getElementById('warehouseStockTableBody'); // 재고 테이블 바디
 
-    modalForm.reset(); // 폼 초기화
+    modalForm.reset();
+    currentWhIdxForModal = whIdx; // 모달이 열리는 창고의 ID 저장
 
     const whIdxInput = modalForm.querySelector('input[name="whIdx"]');
     if (whIdxInput) whIdxInput.value = '';
@@ -167,71 +210,51 @@ async function openModal(mode, whIdx = null) {
     const whType3Checkbox = modalForm.querySelector('input[name="whType3"]');
     const useFlagCheckbox = modalForm.querySelector('input[name="useFlag"]');
     const whLocationInput = modalForm.querySelector('input[name="whLocation"]');
-    const whUserIdxSelect = document.getElementById('modalWhUserIdx'); // ⭐ select 엘리먼트 가져오기 ⭐
+    const whUserIdxSelect = document.getElementById('modalWhUserIdx');
 
-    // 모달 폼에 클래스 추가/제거
-    if (mode === 'new') {
-        modalForm.classList.add('new-warehouse-form'); // 신규 등록 시 클래스 추가
-    } else {
-        modalForm.classList.remove('new-warehouse-form'); // 수정 시 클래스 제거
-    }
+    // 탭 관련 UI 요소
+    const tabsContainer = document.querySelector('.modal-tabs');
+    const stockTabContent = document.getElementById('stockTab');
+    const infoTabContent = document.getElementById('infoTab');
 
     // --- 모달 모드에 따른 UI 조정 ---
     if (mode === 'new') {
         modalTitle.textContent = '신규 창고 등록';
+        tabsContainer.style.display = 'none'; // 신규 등록 시 탭 숨김
+        stockTabContent.style.display = 'none'; // 재고 탭 숨김
+        infoTabContent.style.display = 'block'; // 정보 수정 탭만 보임
         saveButton.style.display = 'block';
         editButton.style.display = 'none';
 
-        // 신규 등록 시:
-        // 1. '창고 기본 정보'는 항상 보이게 합니다.
-        if (warehouseInfoDiv) {
-            warehouseInfoDiv.style.display = 'block';
-        }
-        // 2. '창고 재고' 섹션은 숨깁니다.
-        if (warehouseStockSection) {
-            warehouseStockSection.style.display = 'none';
-        }
-
-        // 신규 등록 시에는 창고 코드 readonly
         if (whCdInput) {
-            whCdInput.value = '자동 생성'; // 사용자에게 표시
-            whCdInput.readOnly = true; // 읽기 전용
+            whCdInput.value = '자동 생성';
+            whCdInput.readOnly = true;
         }
-        // 신규 등록 시 사용 여부 기본값 '사용'
         if (useFlagCheckbox) useFlagCheckbox.checked = true;
 
-        // ⭐ 신규 등록 시 담당자 드롭다운 초기화 ⭐
         await loadManagersIntoSelect('modalWhUserIdx');
 
+    } else if (mode === 'view' && whIdx !== null) { // 상세 조회 및 수정 모드
+        modalTitle.textContent = '창고 상세 정보';
+        tabsContainer.style.display = 'flex'; // 탭 보이기
+        
+        // ⭐⭐⭐ 이 부분이 중요합니다. 재고 현황 탭을 명시적으로 활성화 ⭐⭐⭐
+        openTab('stock'); 
 
-    } else if (mode === 'edit' && whIdx !== null) {
-        modalTitle.textContent = '창고 수정';
-        saveButton.style.display = 'none';
-        editButton.style.display = 'block';
+        saveButton.style.display = 'none'; // 조회 모드에서는 저장/수정 버튼 숨김
+        editButton.style.display = 'none';
 
-        // 수정 시:
-        // 1. '창고 기본 정보'는 항상 보이게 합니다.
-        if (warehouseInfoDiv) {
-            warehouseInfoDiv.style.display = 'block';
-        }
-        // 2. '창고 재고' 섹션은 보이게 합니다.
-        if (warehouseStockSection) {
-            warehouseStockSection.style.display = 'block';
-            // TODO: 재고 데이터를 로드하는 로직 추가 (추후 구현)
-        }
-
-        // 수정 시 창고 코드는 변경 불가
         if (whCdInput) whCdInput.readOnly = true;
 
-        // --- 수정 모드 시 데이터 로드 ---
         try {
-            const response = await fetch(`/api/warehouses/${whIdx}`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            const warehouseResponse = await fetch(`/api/warehouses/${whIdx}`);
+            if (!warehouseResponse.ok) {
+                const errorText = await warehouseResponse.text();
+                console.error(`Error fetching warehouse details: HTTP status ${warehouseResponse.status}`, errorText);
+                throw new Error(`HTTP error! status: ${warehouseResponse.status}, Message: ${errorText}`);
             }
-            const warehouse = await response.json();
+            const warehouse = await warehouseResponse.json();
 
-            // 가져온 데이터로 폼 필드 채우기
             if (whIdxInput) whIdxInput.value = warehouse.whIdx || '';
             if (whNmInput) whNmInput.value = warehouse.whNm || '';
             if (whCdInput) whCdInput.value = warehouse.whCd || '';
@@ -242,8 +265,38 @@ async function openModal(mode, whIdx = null) {
             if (useFlagCheckbox) useFlagCheckbox.checked = (warehouse.useFlag === 'Y');
             if (whLocationInput) whLocationInput.value = warehouse.whLocation || '';
 
-            // ⭐ 수정 모드 시 담당자 드롭다운 채우고 기존 담당자 선택 ⭐
             await loadManagersIntoSelect('modalWhUserIdx', warehouse.whUserIdx);
+
+            // ⭐ 재고 데이터 로드 (API는 예시, 실제 API로 교체 필요) ⭐
+            // 백엔드에 이 API가 구현되지 않았거나 문제가 있다면 이 부분을 주석 처리하고
+            // 창고 기본 정보 로드만 먼저 테스트해보세요.
+            try {
+                const stockResponse = await fetch(`/api/warehouses/${whIdx}/stock`);
+                if (!stockResponse.ok) {
+                    const errorText = await stockResponse.text();
+                    console.error(`Error fetching warehouse stock: HTTP status ${stockResponse.status}`, errorText);
+                    throw new Error(`HTTP error! status: ${stockResponse.status}, Message: ${errorText}`);
+                }
+                const stockData = await stockResponse.json();
+                warehouseStockTableBody.innerHTML = ''; // 기존 재고 데이터 초기화
+                if (stockData && stockData.length > 0) {
+                    stockData.forEach(item => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${item.itemName || ''}</td>
+                            <td>${item.itemNumber || ''}</td>
+                            <td>${item.quantity || 0}</td>
+                        `;
+                        warehouseStockTableBody.appendChild(row);
+                    });
+                } else {
+                    warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">재고 데이터 없음</td></tr>';
+                }
+            } catch (stockError) {
+                console.error('재고 데이터를 불러오는 중 오류 발생:', stockError);
+                warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">재고 데이터 로드 실패</td></tr>';
+            }
+
 
         } catch (error) {
             console.error('창고 상세 정보를 불러오는 중 오류 발생:', error);
@@ -262,7 +315,7 @@ async function openModal(mode, whIdx = null) {
 
 // 검색 폼 제출 처리 함수
 function handleSearchSubmit(event) {
-    event.preventDefault(); // 폼의 기본 제출 동작을 막습니다 (페이지 새로고침 방지)
+    event.preventDefault();
     const keyword = document.getElementById('searchInput').value;
     loadWarehousesTable(currentSortBy, currentOrder, keyword);
 }
@@ -270,13 +323,16 @@ function handleSearchSubmit(event) {
 
 // 이벤트 리스너
 document.addEventListener('DOMContentLoaded', () => {
-    loadWarehousesTable(); // 페이지 로드 시 창고 목록 로드
+    loadWarehousesTable();
 
-    // ⭐ 검색 버튼 클릭 리스너 제거 (submit으로 변경되었으므로) ⭐
-    // document.getElementById('searchButton').addEventListener('click', () => {
-    //     const keyword = document.getElementById('searchInput').value;
-    //     loadWarehousesTable(currentSortBy, currentOrder, keyword);
-    // });
+    // 탭 버튼 클릭 이벤트 리스너
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            const tabName = event.target.dataset.tab;
+            openTab(tabName);
+        });
+    });
+
 
     // 신규등록 버튼
     document.getElementById('newRegistrationButton').addEventListener('click', () => {
@@ -285,12 +341,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 폼 제출 처리 (등록/수정)
     document.getElementById('modalForm').addEventListener('submit', async (event) => {
-        event.preventDefault(); // 기본 폼 제출 방지
+        event.preventDefault();
 
         const formData = new FormData(event.target);
         const data = {};
         formData.forEach((value, key) => {
-            // 체크박스는 'Y' 또는 'N'으로 변환
             if (key === 'whType1' || key === 'whType2' || key === 'whType3' || key === 'useFlag') {
                 data[key] = event.target.elements[key].checked ? 'Y' : 'N';
             } else {
@@ -298,16 +353,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // 담당자 ID 추가
         data.whUserIdx = document.getElementById('modalWhUserIdx').value;
 
-        // whUserIdx 필수 값 검사
         if (!data.whUserIdx) {
             alert("담당자를 선택해 주세요.");
             return;
         }
 
-        // whIdx가 있으면 수정, 없으면 등록
         const isEditMode = data.whIdx && data.whIdx !== '';
         const url = isEditMode ? `/api/warehouses/${data.whIdx}` : '/api/warehouses';
         const method = isEditMode ? 'PUT' : 'POST';
@@ -323,7 +375,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!response.ok) {
                 const errorText = await response.text();
-                // 서버에서 보낸 에러 메시지가 JSON 형식일 경우 파싱
                 try {
                     const errorJson = JSON.parse(errorText);
                     throw new Error(errorJson.message || `HTTP error! Status: ${response.status}, Message: ${errorText}`);
@@ -334,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             alert(isEditMode ? '창고 정보가 성공적으로 수정되었습니다.' : '신규 창고가 성공적으로 등록되었습니다.');
             closeModal();
-            loadWarehousesTable(); // 데이터 다시 로드하여 업데이트 반영
+            loadWarehousesTable();
         } catch (error) {
             console.error('Error saving warehouse:', error);
             alert(`창고 ${isEditMode ? '수정' : '등록'}에 실패했습니다: ${error.message}`);
@@ -375,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             alert('선택된 창고가 성공적으로 삭제되었습니다.');
-            loadWarehousesTable(); // 데이터 다시 로드하여 삭제 반영
+            loadWarehousesTable();
         } catch (error) {
             console.error('Error deleting warehouses:', error);
             alert(`창고 삭제에 실패했습니다: ${error.message}`);
