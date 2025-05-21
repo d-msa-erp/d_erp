@@ -1,5 +1,7 @@
 package kr.co.d_erp.domain;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -46,10 +48,10 @@ public class Login {
     private String userPosition;
 
     @Column(name = "HIRE_DT") // 입사일 (YYYY-MM-DD 형식의 날짜)
-    private String hireDt;
+    private LocalDateTime  userHireDt;
 
     @Column(name = "RETIRE_DT") // 퇴사일 (YYYY-MM-DD 형식의 날짜)
-    private String retireDt;
+    private LocalDateTime userRetireDt;
 
     @Column(name = "USER_ROLE", length = 10) // 사용자 권한
     private String userRole;

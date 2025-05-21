@@ -79,6 +79,6 @@ public class LoginController {
             return "redirect:/login"; // 세션이 없으면 로그인 페이지로 리다이렉트 (URL이므로 .html 붙이지 않음)
         }
         m.addAttribute("user", loggedInUser);
-        return "/main.html"; // <-- 메인 템플릿도 '/main.html'을 붙였습니다.
+        return "/main.html"; // <-- 메인 템플릿
     }
 }
