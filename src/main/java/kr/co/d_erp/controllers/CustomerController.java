@@ -32,7 +32,7 @@ public class CustomerController {
             @RequestParam(defaultValue = "asc") String sortDirection,
             @RequestParam(required = false) String keyword) {
 
-        return custmstService.getCustomersByBizFlagAndSort(bizFlag, sortBy, sortDirection, keyword);
+        return custmstService.getCustomers(bizFlag, sortBy, sortDirection, keyword);
     }
     
     // 상세 보기
@@ -42,7 +42,6 @@ public class CustomerController {
         return customer.map(ResponseEntity::ok)
                        .orElse(ResponseEntity.notFound().build());
     }
-    
     
     @PutMapping("/api/customer/update/{custIdx}")
     public ResponseEntity<Custmst> updateCustomer(

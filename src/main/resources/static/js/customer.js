@@ -1,9 +1,10 @@
 window.currentBizFlag = '01';
-let currentTh = 'custNm';
-let currentOrder = 'asc';
+let currentTh = 'custIdx';
+let currentOrder = 'desc';
+
 
 // 리스트를 받아오는 ajax 통신
-async function loadCustomers(bizFlag, sortBy = 'custNm', sortDirection = 'asc', keyword = '') {
+async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = currentOrder , keyword = '') {
     const customerTableBody = document.getElementById('customerTableBody');
     if (!customerTableBody) {
         console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
@@ -11,6 +12,7 @@ async function loadCustomers(bizFlag, sortBy = 'custNm', sortDirection = 'asc', 
     }
 
     const apiUrl = `/api/customer/${bizFlag}?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword)}`;
+	console.log(apiUrl);
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
@@ -132,6 +134,7 @@ function updateTableHeader(bizFlag) {
   }
 }
 
+// 탭 변경
 function switchTab(el, type) {
   // 스타일 초기화 후 활성화
   document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
@@ -145,7 +148,7 @@ function switchTab(el, type) {
    updateTableHeader(type);
 
   // 데이터 로드
-  loadCustomers(type);
+  loadCustomers(type, currentTh, currentOrder, '');
 }
 
 // 페이지 처음 로딩 시 기본 데이터 로드
@@ -155,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	tabs.forEach(tab => {
 	    tab.addEventListener('click', () => {
 	        const biztab = tab.dataset.bizflag;
-	        loadCustomers(biztab);
+	        loadCustomers(biztab, currentTh, currentOrder, '');
 	    });
 	});
 	
@@ -513,6 +516,6 @@ function order(thElement) {
 // 검색
 document.getElementById('searchBtn').addEventListener('click', () => {
     const keyword = document.getElementById('searchInput').value.trim();
-    loadCustomers(window.currentBizFlag, 'custNm', 'asc', keyword);
+    loadCustomers(window.currentBizFlag, 'custIdx', 'desc', keyword);
 	console.log(currentTh);
 });

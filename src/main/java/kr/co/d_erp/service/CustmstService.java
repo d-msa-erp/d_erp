@@ -16,11 +16,15 @@ public class CustmstService {
     @Autowired
     private CustmstRepository custmstRepository;
 
-    public List<Custmst> getCustomersByBizFlagAndSort(String bizFlag, String sortBy, String sortDirection, String keyword) {
+    public List<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Sort sort = Sort.by(direction, sortBy);
+        Sort sort = Sort.by(direction, sortKey);
 
-        return custmstRepository.findByBizFlagAndKeyword(bizFlag, keyword, sort);
+        if (keyword == null || keyword.isBlank()) {
+            return custmstRepository.findByBizFlag(bizFlag, sort);
+        } else {
+            return custmstRepository.findByBizFlagAndKeyword(bizFlag, "%" + keyword + "%", sort);
+        }
     }
     
     // 상세 조회

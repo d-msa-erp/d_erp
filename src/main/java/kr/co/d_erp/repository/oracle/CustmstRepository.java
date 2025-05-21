@@ -12,9 +12,12 @@ import java.util.List;
 
 @Repository
 public interface CustmstRepository extends JpaRepository<Custmst, Long> {
+	
+	List<Custmst> findByBizFlag(String bizFlag, Sort sort);
+
 	@Query("SELECT c FROM Custmst c WHERE c.bizFlag = :bizFlag AND " +
-		       "(:keyword IS NULL OR c.custNm LIKE %:keyword% OR c.presidentNm LIKE %:keyword%) OR c.bizTel LIKE %:keyword% OR c.custEmail LIKE %:keyword%")
-		List<Custmst> findByBizFlagAndKeyword(@Param("bizFlag") String bizFlag,
-		                                      @Param("keyword") String keyword,
-		                                      Sort sort);
+	       "(c.custNm LIKE :keyword OR c.presidentNm LIKE :keyword)")
+	List<Custmst> findByBizFlagAndKeyword(@Param("bizFlag") String bizFlag,
+	                                      @Param("keyword") String keyword,
+	                                      Sort sort);
 }
