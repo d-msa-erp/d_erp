@@ -177,6 +177,14 @@ function closeModal() {
     // 모달 닫을 때 whCd input의 readonly 속성 해제 (신규 등록 시 다시 입력 가능하도록)
     const whCdInput = document.querySelector('#modalForm input[name="whCd"]');
     if (whCdInput) whCdInput.readOnly = false;
+
+    // ⭐ 추가: 모달 닫을 때 모든 탭의 active 클래스 제거 ⭐
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
 }
 
 function outsideClick(event) {
@@ -217,12 +225,25 @@ async function openModal(mode, whIdx = null) {
     const stockTabContent = document.getElementById('stockTab');
     const infoTabContent = document.getElementById('infoTab');
 
+    // ⭐⭐⭐ 중요: 모달이 열릴 때 모든 탭의 active 클래스를 초기화합니다. ⭐⭐⭐
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+    });
+
     // --- 모달 모드에 따른 UI 조정 ---
     if (mode === 'new') {
         modalTitle.textContent = '신규 창고 등록';
         tabsContainer.style.display = 'none'; // 신규 등록 시 탭 숨김
-        stockTabContent.style.display = 'none'; // 재고 탭 숨김
-        infoTabContent.style.display = 'block'; // 정보 수정 탭만 보임
+
+        // 신규 등록 시 '정보 수정' 탭만 활성화
+        infoTabContent.classList.add('active');
+        // 해당 탭 버튼도 활성화 (숨겨져 있어도 상태는 정확하게)
+        document.querySelector('.tab-button[data-tab="info"]').classList.add('active');
+
+
         saveButton.style.display = 'block';
         editButton.style.display = 'none';
 
@@ -238,8 +259,9 @@ async function openModal(mode, whIdx = null) {
         modalTitle.textContent = '창고 상세 정보';
         tabsContainer.style.display = 'flex'; // 탭 보이기
         
-        // ⭐⭐⭐ 이 부분이 중요합니다. 재고 현황 탭을 명시적으로 활성화 ⭐⭐⭐
-        openTab('stock'); 
+        // ⭐ 상세 조회 시 무조건 '재고 현황' 탭을 활성화 ⭐
+        stockTabContent.classList.add('active');
+        document.querySelector('.tab-button[data-tab="stock"]').classList.add('active');
 
         saveButton.style.display = 'none'; // 조회 모드에서는 저장/수정 버튼 숨김
         editButton.style.display = 'none';
@@ -275,6 +297,8 @@ async function openModal(mode, whIdx = null) {
                 if (!stockResponse.ok) {
                     const errorText = await stockResponse.text();
                     console.error(`Error fetching warehouse stock: HTTP status ${stockResponse.status}`, errorText);
+                    // 에러 발생 시에도 테이블 내용을 명확히 초기화
+                    warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">재고 데이터 로드 실패</td></tr>';
                     throw new Error(`HTTP error! status: ${stockResponse.status}, Message: ${errorText}`);
                 }
                 const stockData = await stockResponse.json();
