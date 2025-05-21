@@ -1,96 +1,128 @@
 window.currentBizFlag = '01';
+let currentTh = 'custNm';
+let currentOrder = 'asc';
 
-async function loadCustomers(bizFlag) {
-	const customerTableBody = document.getElementById('customerTableBody');
+// 리스트를 받아오는 ajax 통신
+async function loadCustomers(bizFlag, sortBy = 'custNm', sortDirection = 'asc', keyword = '') {
+    const customerTableBody = document.getElementById('customerTableBody');
+    if (!customerTableBody) {
+        console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
+        return;
+    }
 
-	if (!customerTableBody) {
-	    console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
-	    return;
-	}
-	
-
-
-	// JSON 받아올 API 주소 (Spring 컨트롤러에서 @ResponseBody로 반환되는 엔드포인트를 사용하세요)
-	const apiUrl = `/api/customer/${bizFlag}`;
+    const apiUrl = `/api/customer/${bizFlag}?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword)}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const customers = await response.json();
 
+        const customers = await response.json();
         customerTableBody.innerHTML = '';
 
         if (customers && customers.length > 0) {
-            customers.forEach(cust => {
-                const row = document.createElement('tr');
-                row.onclick = () => openCustomerDetail(cust.custIdx, window.currentBizFlag);
-				row.dataset.id = cust.custIdx;
-                // 체크박스
-                const checkboxCell = document.createElement('td');
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkboxCell.appendChild(checkbox);
-                row.appendChild(checkboxCell);
-				// 클릭 시 행 클릭 이벤트 막기
-				checkbox.addEventListener('click', (event) => {
-				    event.stopPropagation();
-				});
-				
-				checkbox.addEventListener('change', () => {
-	                const checkboxes = document.querySelectorAll('#customerTableBody input[type="checkbox"]');
-	                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-	                document.getElementById('selectAllCheckbox').checked = allChecked;
-	            });
-
-                // 거래처명
-                const nameCell = document.createElement('td');
-                nameCell.textContent = cust.custNm || '';
-                row.appendChild(nameCell);
-
-                // 담당자명
-                const presidentCell = document.createElement('td');
-                presidentCell.textContent = cust.presidentNm || '';
-                row.appendChild(presidentCell);
-
-                // 연락처
-                const telCell = document.createElement('td');
-                telCell.textContent = cust.bizTel || '';
-                row.appendChild(telCell);
-
-                // 이메일
-                const emailCell = document.createElement('td');
-                emailCell.textContent = cust.custEmail || '';
-                row.appendChild(emailCell);
-
-                customerTableBody.appendChild(row);
-            });
+            renderCustomers(customers);
         } else {
-			const noDataRow = document.createElement('tr');
-			const noDataCell = document.createElement('td');
-
-			noDataCell.className = 'nodata';
-			noDataCell.setAttribute('style', 'grid-column: span 5; justify-content: center;');
-			noDataCell.colSpan = 5;
-			noDataCell.textContent = '등록된 데이터가 없습니다.';
-
-			noDataRow.appendChild(noDataCell);
-			customerTableBody.appendChild(noDataRow);
+            renderNoDataMessage();
         }
     } catch (error) {
         console.error('데이터 로딩 실패:', error);
-        customerTableBody.innerHTML = '';
-        const errorRow = document.createElement('tr');
-        const errorCell = document.createElement('td');
-        errorCell.colSpan = 5;
-        errorCell.textContent = '데이터 로딩 중 오류가 발생했습니다.';
-        errorCell.style.color = 'red';
-		errorCell.setAttribute('style', 'grid-column: span 5; justify-content: center;');
-        errorCell.style.textAlign = 'center';
-        errorRow.appendChild(errorCell);
-        customerTableBody.appendChild(errorRow);
+        renderErrorMessage('데이터 로딩 중 오류가 발생했습니다.');
     }
 }
+
+// 테이블 랜더링
+function renderCustomers(customers) {
+    const customerTableBody = document.getElementById('customerTableBody');
+    customerTableBody.innerHTML = '';
+
+    if (customers && customers.length > 0) {
+        customers.forEach(cust => {
+            const row = document.createElement('tr');
+            row.dataset.id = cust.custIdx;
+            row.onclick = () => openCustomerDetail(cust.custIdx, window.currentBizFlag);
+
+            // 체크박스 셀
+            const checkboxCell = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.classList.add('customer-checkbox');
+            checkboxCell.appendChild(checkbox);
+            row.appendChild(checkboxCell);
+
+            // 행 클릭 막기
+            checkbox.addEventListener('click', (event) => {
+                event.stopPropagation();
+            });
+
+            // 체크박스 상태 변경 시 전체선택 동기화
+            checkbox.addEventListener('change', () => {
+                const checkboxes = document.querySelectorAll('#customerTableBody input[type="checkbox"]');
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                document.getElementById('selectAllCheckbox').checked = allChecked;
+            });
+
+            // 거래처명
+            const nameCell = document.createElement('td');
+            nameCell.textContent = cust.custNm || '';
+            row.appendChild(nameCell);
+
+            // 담당자명
+            const presidentCell = document.createElement('td');
+            presidentCell.textContent = cust.presidentNm || '';
+            row.appendChild(presidentCell);
+
+            // 연락처
+            const telCell = document.createElement('td');
+            telCell.textContent = cust.bizTel || '';
+            row.appendChild(telCell);
+
+            // 이메일
+            const emailCell = document.createElement('td');
+            emailCell.textContent = cust.custEmail || '';
+            row.appendChild(emailCell);
+
+            customerTableBody.appendChild(row);
+        });
+    } else {
+        renderNoDataMessage();
+    }
+}
+
+function renderNoDataMessage() {
+    const customerTableBody = document.getElementById('customerTableBody');
+    customerTableBody.innerHTML = '';
+
+    const noDataRow = document.createElement('tr');
+    const noDataCell = document.createElement('td');
+
+    noDataCell.className = 'nodata';
+    noDataCell.colSpan = 5;
+    noDataCell.textContent = '등록된 데이터가 없습니다.';
+    noDataCell.setAttribute('style', 'grid-column: span 5; justify-content: center; text-align: center;');
+
+    noDataRow.appendChild(noDataCell);
+    customerTableBody.appendChild(noDataRow);
+}
+
+
+function renderErrorMessage(message) {
+    const customerTableBody = document.getElementById('customerTableBody');
+    customerTableBody.innerHTML = '';
+
+    const errorRow = document.createElement('tr');
+    const errorCell = document.createElement('td');
+
+    errorCell.colSpan = 5;
+    errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
+    errorCell.style.color = 'red';
+    errorCell.setAttribute('style', 'grid-column: span 5; justify-content: center; text-align: center;');
+
+    errorRow.appendChild(errorCell);
+    customerTableBody.appendChild(errorRow);
+}
+
+
 
 // 헤더 텍스트 변경
 function updateTableHeader(bizFlag) {
@@ -455,4 +487,32 @@ document.getElementById('deleteSelectedBtn').addEventListener('click', () => {
 	  console.error(err);
 	  alert(err.message); // 여기서 "품목들을 먼저 삭제해주세요." 같은 메시지를 띄움
 	});
+});
+// 정렬
+function order(thElement) {
+    const allArrows = document.querySelectorAll("th a");
+    allArrows.forEach(a => a.textContent = '↓');
+
+    const key = thElement.dataset.key;
+
+    if (currentTh === thElement) {
+        currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentOrder = 'asc';
+        currentTh = thElement;
+    }
+
+    const arrow = thElement.querySelector('a');
+    arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+
+    // 정렬 기준과 방향을 이용해서 데이터 다시 불러오기
+    const sortBy = key;
+    loadCustomers(window.currentBizFlag, sortBy, currentOrder);
+}
+
+// 검색
+document.getElementById('searchBtn').addEventListener('click', () => {
+    const keyword = document.getElementById('searchInput').value.trim();
+    loadCustomers(window.currentBizFlag, 'custNm', 'asc', keyword);
+	console.log(currentTh);
 });

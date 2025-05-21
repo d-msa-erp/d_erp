@@ -354,9 +354,9 @@
         </div>
         <div class="table-wrapper">
           <div>
-            <input type="text" placeholder="검색" />
+            <input type="text" placeholder="검색" id="searchInput" />
             <div>
-              <button type="button">
+              <button type="button" id="searchBtn">
                 <span class="material-symbols-outlined">search</span> 검색
               </button>
               <button type="button" onclick="openModal(null, window.currentBizFlag)">
@@ -384,10 +384,10 @@
               <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox"/></th>
-                  <th id="customerNameHeader" onclick="order(this)">거래처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
+                  <th id="customerNameHeader" onclick="order(this)" data-key="custNm">거래처명<a>↓</a></th>
+                  <th data-key="presidentNm" onclick="order(this)">담당자명<a>↓</a></th>
+				  <th data-key="bizTel" onclick="order(this)">연락처<a>↓</a></th>
+				  <th data-key="custEmail" onclick="order(this)">이메일<a>↓</a></th>
                 </tr>
               </thead>
               <tbody id="customerTableBody">
@@ -477,6 +477,7 @@
 
   <script src="/js/top.js"></script>
   <script>
+  /*
     let currentTh = null;
     let currentOrder = 'desc';
 
@@ -494,6 +495,7 @@
       const arrow = thValue.querySelector('a');
       arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
     }
+    */
 /*
     function switchTab(el, type) {//탭 변경
       document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
@@ -506,10 +508,10 @@
     }
 */
 
-    let currentTab = '';
 
     //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
     /*
+    let currentTab = '';
     function openModal() {
       const title = document.getElementById('modalTitle');
       title.textContent = bizFlag === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';

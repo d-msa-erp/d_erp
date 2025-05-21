@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -25,9 +26,13 @@ public class CustomerController {
     private CustmstService custmstService;
 
     @GetMapping("/api/customer/{bizFlag}")
-    public List<Custmst> getCustomers(@PathVariable("bizFlag") String bizFlag) {
-        // bizFlag에 따라 조건 걸어서 서비스 호출
-        return custmstService.getCustomersByBizFlag(bizFlag);
+    public List<Custmst> getCustomers(
+            @PathVariable("bizFlag") String bizFlag,
+            @RequestParam(defaultValue = "custNm") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDirection,
+            @RequestParam(required = false) String keyword) {
+
+        return custmstService.getCustomersByBizFlagAndSort(bizFlag, sortBy, sortDirection, keyword);
     }
     
     // 상세 보기
@@ -37,6 +42,7 @@ public class CustomerController {
         return customer.map(ResponseEntity::ok)
                        .orElse(ResponseEntity.notFound().build());
     }
+    
     
     @PutMapping("/api/customer/update/{custIdx}")
     public ResponseEntity<Custmst> updateCustomer(
