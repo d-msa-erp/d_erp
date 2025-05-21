@@ -1,6 +1,6 @@
 // 전역 변수로 현재 정렬 기준, 방향, 검색어를 저장
-let currentSortBy = 'userStatus'; // 초기 정렬 기준 (예: 재직상태)
-let currentOrder = 'desc';        // 초기 정렬 방향 (예: 내림차순)
+let currentSortBy = 'userId'; // 초기 정렬 기준 (아이디)
+let currentOrder = 'desc';        // 초기 정렬 방향 (내림차순)
 let currentKeyword = '';          // 검색 기능이 있다면 현재 검색어를 저장할 변수
 
 // 유틸리티 함수들 (전역 범위에 정의)
@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('사원 삭제 중 오류 발생:', error);
-                alert('사원 삭제에 실패했습니다. 오류: ' + error.message);
+                alert('담당자로 설정된 사원입니다.');
             }
         });
     }
