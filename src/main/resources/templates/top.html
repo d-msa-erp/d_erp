@@ -1,335 +1,343 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>top 공통</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-  <style th:fragment="topstyle">
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>top 공통</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:fragment="topstyle">
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
-    body {
-      font-family: sans-serif;
-    }
+body {
+	font-family: sans-serif;
+}
 
-    .top-Wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background-color: #f8f9fa;
-    }
+.top-Wrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	background-color: #f8f9fa;
+}
 
-    .top-Wrapper .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      padding: 10px 20px;
-    }
+.top-Wrapper .top-bar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	padding: 10px 20px;
+}
 
-  .top-Wrapper .title {
-      font-size: 1.5rem;
-      color: #333;
-    }
+.top-Wrapper .title {
+	font-size: 1.5rem;
+	color: #333;
+}
 
-   .top-Wrapper .logout {
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
+.top-Wrapper .logout {
+	background: none;
+	border: none;
+	cursor: pointer;
+}
 
-   .top-Wrapper nav {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: relative;
-    }
+.top-Wrapper nav {
+	display: flex;
+	justify-content: center;
+	gap: 20px;
+	position: relative;
+}
 
-   .top-Wrapper .menu-item {
-      position: relative;
-    }
+.top-Wrapper .menu-item {
+	position: relative;
+}
 
-   .top-Wrapper .menu-item > .label {
-      padding: 10px;
-      cursor: pointer;
-    }
+.top-Wrapper .menu-item>.label {
+	padding: 10px;
+	cursor: pointer;
+}
 
-   .top-Wrapper .submenu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background-color: #f8f9fa;
-      display: none;
-      min-width: 140px;
-      z-index: 100;
-      border-radius: 3px;
-    }
+.top-Wrapper .submenu {
+	position: absolute;
+	top: 100%;
+	left: 0;
+	background-color: #f8f9fa;
+	display: none;
+	min-width: 140px;
+	z-index: 100;
+	border-radius: 3px;
+}
 
-   .top-Wrapper .submenu span {
-      display: block;
-      padding: 10px;
-      white-space: nowrap;
-      cursor: pointer;
-      border-radius: 3px;
-    }
+.top-Wrapper .submenu span {
+	display: block;
+	padding: 10px;
+	white-space: nowrap;
+	cursor: pointer;
+	border-radius: 3px;
+}
 
-   .top-Wrapper .submenu span:hover {
-      background-color: #eee;
-    }
+.top-Wrapper .submenu span:hover {
+	background-color: #eee;
+}
 
-    /* hover 시 */
-   .top-Wrapper .menu-item:hover .submenu {
-      display: block;
-    }
+/* hover 시 */
+.top-Wrapper .menu-item:hover .submenu {
+	display: block;
+}
 
-    /* 클릭으로 active 클래스가 있으면 고정 표시 */
-   .top-Wrapper .menu-item.active .submenu {
-      display: block;
-    }
+/* 클릭으로 active 클래스가 있으면 고정 표시 */
+.top-Wrapper .menu-item.active .submenu {
+	display: block;
+}
 
+.top-Wrapper .flx {
+	display: flex;
+}
 
-   .top-Wrapper .flx {
-            display: flex;
-        }
+.top-Wrapper .al-c {
+	align-items: center;
+}
 
-       .top-Wrapper .al-c {
-            align-items: center;
-        }
+.top-Wrapper .spbt {
+	justify-content: space-between;
+}
 
-       .top-Wrapper .spbt {
-            justify-content: space-between;
-        }
+.top-Wrapper.flx-col {
+	display: flex;
+	flex-direction: column;
+}
 
-        .top-Wrapper.flx-col {
-            display: flex;
-            flex-direction: column;
-        }
+.top-Wrapper .site-Wrapper {
+	width: 100%;
+	align-items: center;
+}
 
-        .top-Wrapper .site-Wrapper {
-            width: 100%;
-            align-items: center;
-        }
+.top-Wrapper .site-Wrapper form {
+	max-width: 1200px;
+	height: 300px;
+	padding: 0 20px;
+}
 
-       .top-Wrapper .site-Wrapper form {
-            max-width: 1200px;
-            height: 300px;
-            padding: 0 20px;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset {
+	border-radius: 10px;
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: 100%;
+	/* padding: 0px 20px; */
+	border: 1px solid #777;
+}
 
+.top-Wrapper .site-Wrapper .site-Dataset div:nth-child(1) {
+	background: #46a6ff;
+	width: 100%;
+	color: #fff;
+	border-radius: 10px 10px 0 0;
+	font-size: 1.3rem;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset {
-            border-radius: 10px;
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-            /* padding: 0px 20px; */
-            border: 1px solid #777;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset div:nth-child(1)>h4 {
+	padding: 0px 20px;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset div:nth-child(1) {
-            background: #46a6ff;
-            width: 100%;
-            color: #fff;
-            border-radius: 10px 10px 0 0;
-            font-size: 1.3rem;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset div:nth-child(2) {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 20px;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset div:nth-child(1)>h4 {
-            padding: 0px 20px;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset div>ul {
+	height: 100%;
+	width: 100%;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	list-style: none;
+	gap: 20px;
+	white-space: nowrap;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset div:nth-child(2) {
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset ul>li>span {
+	padding-right: 10px;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset div>ul {
-            height: 100%;
-            width: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            list-style: none;
-            gap: 20px;
-            white-space: nowrap;
-        }
+.top-Wrapper  .site-Wrapper .site-Dataset ul li>input {
+	width: 100%;
+	height: 100%;
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset ul>li>span {
-            padding-right: 10px;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset ul li>input:focus {
+	border: 1px solid #46a6ff;
+	outline: none;
+}
 
-      .top-Wrapper  .site-Wrapper .site-Dataset ul li>input {
-            width: 100%;
-            height: 100%;
-            border-radius: 3px;
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
+.top-Wrapper .site-Wrapper .site-Dataset ul .addr {
+	grid-column: span 2;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset ul li>input:focus {
-            border: 1px solid #46a6ff;
-            outline: none;
-        }
+.top-Wrapper .save_site {
+	width: 30%;
+	background: #fff;
+	border: 1px solid #46a6ff;
+	border-radius: 3px;
+	font-size: 1.1rem;
+	cursor: pointer;
+	align-self: end;
+	box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+	margin-bottom: 20px;
+	margin-right: 20px;
+}
 
-       .top-Wrapper .site-Wrapper .site-Dataset ul .addr {
-            grid-column: span 2;
-        }
+.top-Wrapper .save_site:hover {
+	background: #46a6ff;
+	color: #fff;
+}
 
-       .top-Wrapper .save_site {
-            width: 30%;
-            background: #fff;
-            border: 1px solid #46a6ff;
-            border-radius: 3px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            align-self: end;
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
-            margin-bottom: 20px;
-            margin-right: 20px;
-        }
+.top-Wrapper .save_site:active {
+	background: #46a6ff;
+	color: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
 
-       .top-Wrapper .save_site:hover {
-            background: #46a6ff;
-            color: #fff;
-        }
+.top-Wrapper .flx {
+	display: flex;
+}
 
-       .top-Wrapper .save_site:active {
-            background: #46a6ff;
-            color: #fff;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-       .top-Wrapper .flx {
-            display: flex;
-        }
+.top-Wrapper .al-c {
+	align-items: center;
+}
 
-       .top-Wrapper .al-c {
-            align-items: center;
-        }
+.top-Wrapper .spbt {
+	justify-content: space-between;
+}
 
-        .top-Wrapper .spbt {
-            justify-content: space-between;
-        }
+.top-Wrapper .flx-col {
+	display: flex;
+	flex-direction: column;
+}
 
-        .top-Wrapper .flx-col {
-            display: flex;
-            flex-direction: column;
-        }
+.userName:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
+/* Tooltip 스타일 */
+.userName-tooltip {
+	visibility: hidden;
+	background-color: #333;
+	color: #fff;
+	text-align: center;
+	border-radius: 4px;
+	padding: 5px 10px;
+	position: absolute;
+	z-index: 1;
+	top: 78%;
+	left: 89%;
+	transform: translateX(-50%);
+	white-space: nowrap;
+	font-size: 0.95rem;
+	opacity: 0;
+	transition: opacity 0.2s;
+}
 
-        .userName:hover{
-          text-decoration: underline;
-          cursor: pointer;
-        }
-        /* Tooltip 스타일 */
-        .userName-tooltip {
-          visibility: hidden;
-          background-color: #333;
-          color: #fff;
-          text-align: center;
-          border-radius: 4px;
-          padding: 5px 10px;
-          position: absolute;
-          z-index: 1;
-          top: 78%;
-    left: 89%;
-          transform: translateX(-50%);
-          white-space: nowrap;
-          font-size: 0.95rem;
-          opacity: 0;
-          transition: opacity 0.2s;
-        }
-        .userName:hover + .userName-tooltip,
-        .userName:focus + .userName-tooltip {
-          visibility: visible;
-          opacity: 1;
-        }
-        .top-bar {
-          position: relative;
-        }
-        #table-customer{
-        padding-top: 50px !important;}
-        table{
-        max-height: 300px;
-        overflow-y:auto;}
-  </style>
+.userName:hover+.userName-tooltip, .userName:focus+.userName-tooltip {
+	visibility: visible;
+	opacity: 1;
+}
+
+.top-bar {
+	position: relative;
+}
+
+#table-customer {
+	padding-top: 50px !important;
+}
+
+table {
+	max-height: 300px;
+	overflow-y: auto;
+}
+</style>
 </head>
 <body>
-  <header  th:fragment="top">
-    <div class="top-Wrapper">
-      <div class="top-bar">
-        <div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
-        <div class="text-sm">
-          <span onclick="location.href='/mypage'" class="userName">
-<span class="material-symbols-outlined">person</span>홍길동</span> 님 <div class="userName-tooltip">마이페이지로 이동</div>| <button class="logout">로그아웃</button><!--로그인 안되어있으면 login버튼만 출력-->
-        </div>
-      </div>
+	<header th:fragment="top">
+		<div class="top-Wrapper">
+			<div class="top-bar">
+				<div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
+				<div class="text-sm">
+					<span
+						class="material-symbols-outlined">person</span><span onclick="location.href='/mypage'" class="userName" th:text="${user?.userNm} ?: '방문객'"> </span> 님
+					<div class="userName-tooltip">마이페이지로 이동</div>
+					|
+					<button class="logout" onclick="location.href='logout'">로그아웃</button>
+					<!--로그인 안되어있으면 login버튼만 출력-->
+				</div>
+			</div>
 
-      <!--아래의 모든 기능은 로그인 하지 않으면 로그인 페이지로 Redirect 시켜주세요~-->
-      <nav>
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">기준 정보 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='/site'">사업장 관리</span>
-            <span onclick="location.href='/customer'">거래처 관리</span>
-            <span onclick="location.href='/inventory'">품목 관리</span>
-            <span onclick="location.href='/bom'">BOM 관리</span>
-<!--             <span onclick="location.href='#'">공정 관리</span> -->
-            <span onclick="location.href='/warehouse'">창고 관리</span>
-          </div>
-        </div>
+			<!--아래의 모든 기능은 로그인 하지 않으면 로그인 페이지로 Redirect 시켜주세요~-->
+			<nav>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">기준 정보 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='/site'">사업장 관리</span> <span
+							onclick="location.href='/customer'">거래처 관리</span> <span
+							onclick="location.href='/inventory'">품목 관리</span> <span
+							onclick="location.href='/bom'">BOM 관리</span>
+						<!--             <span onclick="location.href='#'">공정 관리</span> -->
+						<span onclick="location.href='/warehouse'">창고 관리</span>
+					</div>
+				</div>
 
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">구매 / 영업 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='/purchase'">발주 관리</span>
-            <span onclick="location.href='/sales'">주문 관리</span>
-            <span onclick="location.href='/outbound'">출고 관리</span>
-<!--             <span onclick="location.href='#'">반품 관리</span> -->
-            <span onclick="location.href='mrp'">자재 소요량 계산(MRP)</span>
-          </div>
-        </div>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">구매 / 영업 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='/purchase'">발주 관리</span> <span
+							onclick="location.href='/sales'">주문 관리</span> <span
+							onclick="location.href='/outbound'">출고 관리</span>
+						<!--             <span onclick="location.href='#'">반품 관리</span> -->
+						<span onclick="location.href='mrp'">자재 소요량 계산(MRP)</span>
+					</div>
+				</div>
 
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">자재 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='inbound'">입고 관리</span>
-            <span onclick="location.href='stock'">재고 관리</span>
-        </div>
-        </div>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">자재 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='inbound'">입고 관리</span> <span
+							onclick="location.href='stock'">재고 관리</span>
+					</div>
+				</div>
 
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">생산 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='planning'">생산 계획</span>
-            <span onclick="location.h">생산 지시</span>
-            <span onclick="location.h">생산 실적 관리</span>
-          </div>
-        </div>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">생산 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='planning'">생산 계획</span> <span
+							onclick="location.h">생산 지시</span> <span onclick="location.h">생산
+							실적 관리</span>
+					</div>
+				</div>
 
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">인사 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='/hr'">사원관리 관리</span>
-          </div>
-        </div>
-        <div class="menu-item" onclick="toggleMenu(event, this)">
-          <div class="label">페이지 관리</div>
-          <div class="submenu">
-            <span onclick="location.href='/pagesettings'">페이지 관리</span>
-          </div>
-        </div>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">인사 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='/hr'">사원관리 관리</span>
+					</div>
+				</div>
+				<div class="menu-item" onclick="toggleMenu(event, this)">
+					<div class="label">페이지 관리</div>
+					<div class="submenu">
+						<span onclick="location.href='/pagesettings'">페이지 관리</span>
+					</div>
+				</div>
 
-      </nav>
-    </div>
-  </header>
+			</nav>
+		</div>
+	</header>
 
 
-  
+
 </body>
 </html>

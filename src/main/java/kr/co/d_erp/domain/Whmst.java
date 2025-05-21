@@ -36,8 +36,9 @@ public class Whmst {
     @Column(name = "WH_IDX")
     private Long whIdx;
 
-    @Column(name = "WH_CD", nullable = false, length = 10, unique = true)
-    private String whCd; // 창고 코드
+    // WH_CD는 DB 트리거가 자동 생성하므로, JPA가 INSERT/UPDATE 쿼리에 포함하지 않도록 설정
+    @Column(name = "WH_CD", length = 10, unique = true, insertable = false, updatable = false)
+    private String whCd; // 창고 코드 (트리거가 자동 생성)
 
     @Column(name = "WH_NM", nullable = false, length = 50)
     private String whNm; // 창고명
@@ -62,7 +63,4 @@ public class Whmst {
 
     @Column(name = "WH_USER_IDX")
     private Long whUserIdx; // 담당 사원 고유 번호 (FK)
-
-    // DTO 변환을 위한 메서드 (필요시 WhmstDto를 별도 생성하여 활용)
-    // 여기서는 일단 엔티티 그대로 사용합니다.
 }
