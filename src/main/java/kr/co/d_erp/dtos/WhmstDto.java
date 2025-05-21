@@ -1,21 +1,21 @@
 package kr.co.d_erp.dtos;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+public interface WhmstDto { // ⭐ class 대신 interface로 변경 ⭐
 
-@Getter
-@Setter
-@ToString
-public class WhmstDto {
-    private Long whIdx; // 신규 등록 시에는 null, 수정 시에는 값 존재
-    private String whCd; // 프론트에서 입력받지 않지만, 응답 시에는 포함될 수 있음
-    private String whNm;
-    private String remark;
-    private String whType1; // 'Y' or 'N'
-    private String whType2; // 'Y' or 'N'
-    private String whType3; // 'Y' or 'N'
-    private String useFlag; // 'Y' or 'N'
-    private String whLocation;
-    // private Long whUserIdx; // 담당 사원 IDX는 백엔드에서 자동 처리
+    Long getWhIdx();
+    String getWhCd();
+    String getWhNm();
+    String getRemark();
+    String getWhType1();
+    String getWhType2();
+    String getWhType3();
+    String getUseFlag();
+    String getWhLocation();
+    Long getWhUserIdx();
+    String getWhUserNm(); // Getter 메서드 정의
+    String getWhUserId(); // Getter 메서드 정의
+
+    // 필요하다면 setter 대신 Builder 패턴을 사용하는 DTO 클래스를 별도로 두거나,
+    // 생성/수정용 DTO를 따로 정의하는 것이 좋습니다.
+    // 현재는 이 인터페이스는 조회(read) 목적으로만 사용합니다.
 }
