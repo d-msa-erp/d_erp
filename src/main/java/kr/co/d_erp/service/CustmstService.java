@@ -7,14 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import kr.co.d_erp.dtos.Custmst;
+import kr.co.d_erp.domain.Custmst;
 import kr.co.d_erp.repository.oracle.CustmstRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CustmstService {
 
-    @Autowired
-    private CustmstRepository custmstRepository;
+    
+    private final CustmstRepository custmstRepository;
 
     public List<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);

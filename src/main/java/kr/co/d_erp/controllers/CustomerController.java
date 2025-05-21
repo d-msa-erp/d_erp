@@ -1,7 +1,8 @@
 package kr.co.d_erp.controllers;
 
-import kr.co.d_erp.dtos.Custmst;
+import kr.co.d_erp.domain.Custmst;
 import kr.co.d_erp.service.CustmstService;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,10 +21,11 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequiredArgsConstructor
 public class CustomerController {
 
-    @Autowired
-    private CustmstService custmstService;
+    
+    private final CustmstService custmstService;
 
     @GetMapping("/api/customer/{bizFlag}")
     public List<Custmst> getCustomers(

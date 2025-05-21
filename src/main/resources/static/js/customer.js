@@ -12,7 +12,6 @@ async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = curren
     }
 
     const apiUrl = `/api/customer/${bizFlag}?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword)}`;
-	console.log(apiUrl);
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
@@ -148,7 +147,7 @@ function switchTab(el, type) {
    updateTableHeader(type);
 
   // 데이터 로드
-  loadCustomers(type, currentTh, currentOrder, '');
+  loadCustomers(type, 'custIdx', 'desc', '');
 }
 
 // 페이지 처음 로딩 시 기본 데이터 로드
@@ -498,11 +497,11 @@ function order(thElement) {
 
     const key = thElement.dataset.key;
 
-    if (currentTh === thElement) {
+    if (currentTh === key) {
         currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
     } else {
         currentOrder = 'asc';
-        currentTh = thElement;
+        currentTh = key;
     }
 
     const arrow = thElement.querySelector('a');
