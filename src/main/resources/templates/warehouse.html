@@ -14,8 +14,7 @@
     <div th:replace="~{/top.html :: top}"></div>
     <div class="site-Wrapper">
         <h1 style="font-size: 24px; margin-bottom: 16px;">창고 관리</h1>
-        <form id="frm" method="get" action="#">
-            <div class="site-Dataset">
+        <form id="frm" onsubmit="handleSearchSubmit(event)"> <div class="site-Dataset">
                 <div class="header">
                     <h4 style="margin: 0;">창고 관리</h4>
                 </div>
@@ -23,8 +22,7 @@
                     <div>
                         <input type="text" id="searchInput" placeholder="검색" />
                         <div>
-                            <button type="button" id="searchButton">
-                                <span class="material-symbols-outlined">search</span> 검색
+                            <button type="submit" id="searchButton"> <span class="material-symbols-outlined">search</span> 검색
                             </button>
                             <button type="button" id="newRegistrationButton">
                                 <span class="material-symbols-outlined">add</span> 신규등록
@@ -54,10 +52,11 @@
                                     <th onclick="order(this)" data-sort-by="useFlag">사용 여부<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whLocation">주소<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="remark">비고<a>↓</a></th>
-                                    <th onclick="order(this)" data-sort-by="whUserNm">담당자<a>↓</a></th> </tr>
+                                    <th onclick="order(this)" data-sort-by="whUserNm">담당자<a>↓</a></th>
+                                </tr>
                             </thead>
                             <tbody id="warehouseTableBody">
-                                </tbody>
+                            </tbody>
                         </table>
 
                         <div class="pagination-wrap">
@@ -108,9 +107,9 @@
                         <span>담당자</span>
                         <select name="whUserIdx" id="modalWhUserIdx" required>
                             <option value="">담당자를 선택해주세요</option>
-                            </select>
+                        </select>
                     </div>
-                    </div>
+                </div>
 
                 <div class="wh_db">
                     <h3 style="align-self: flex-start; padding-bottom: 20px;">창고

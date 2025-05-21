@@ -259,15 +259,24 @@ async function openModal(mode, whIdx = null) {
     modal.style.display = 'flex'; // 모달 표시
 }
 
+
+// 검색 폼 제출 처리 함수
+function handleSearchSubmit(event) {
+    event.preventDefault(); // 폼의 기본 제출 동작을 막습니다 (페이지 새로고침 방지)
+    const keyword = document.getElementById('searchInput').value;
+    loadWarehousesTable(currentSortBy, currentOrder, keyword);
+}
+
+
 // 이벤트 리스너
 document.addEventListener('DOMContentLoaded', () => {
     loadWarehousesTable(); // 페이지 로드 시 창고 목록 로드
 
-    // 검색 버튼
-    document.getElementById('searchButton').addEventListener('click', () => {
-        const keyword = document.getElementById('searchInput').value;
-        loadWarehousesTable(currentSortBy, currentOrder, keyword);
-    });
+    // ⭐ 검색 버튼 클릭 리스너 제거 (submit으로 변경되었으므로) ⭐
+    // document.getElementById('searchButton').addEventListener('click', () => {
+    //     const keyword = document.getElementById('searchInput').value;
+    //     loadWarehousesTable(currentSortBy, currentOrder, keyword);
+    // });
 
     // 신규등록 버튼
     document.getElementById('newRegistrationButton').addEventListener('click', () => {
