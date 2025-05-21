@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import kr.co.d_erp.dtos.Custmst;
@@ -15,9 +16,11 @@ public class CustmstService {
     @Autowired
     private CustmstRepository custmstRepository;
 
-    public List<Custmst> getCustomersByBizFlag(String bizFlag) {
-        // bizFlag로 조회하는 쿼리 실행 (예시)
-        return custmstRepository.findByBizFlag(bizFlag);
+    public List<Custmst> getCustomersByBizFlagAndSort(String bizFlag, String sortBy, String sortDirection, String keyword) {
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort sort = Sort.by(direction, sortBy);
+
+        return custmstRepository.findByBizFlagAndKeyword(bizFlag, keyword, sort);
     }
     
     // 상세 조회
