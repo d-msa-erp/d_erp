@@ -35,7 +35,7 @@ public class LoginController {
         if (session.getAttribute("loggedInUser") != null) {
             return "redirect:/main";
         }
-    	return "/login.html"; // <-- 여기에 '/login.html'을 붙였습니다.
+    	return "/login.html";
     }
 
     // 로그인 폼 제출(POST) 요청 처리 (login.html의 form action="/loginchk"에 해당)
@@ -43,7 +43,7 @@ public class LoginController {
     public String loginCheck(@RequestParam("uId") String userId,
                              @RequestParam("uPw") String userPswd,
                              HttpServletRequest request,
-                             Model model) {
+                             Model m) {
         Optional<Login> authenticatedUser = loginService.authenticate(userId, userPswd);
 
         if (authenticatedUser.isPresent()) {
@@ -54,12 +54,13 @@ public class LoginController {
             session.setMaxInactiveInterval(30 * 60);
 
             System.out.println("로그인 성공: " + user.getUserId());
-            return "redirect:/main"; // 리다이렉트는 URL 경로이므로 .html을 붙이지 않습니다.
+       
+            return "redirect:/main"; // 리다이렉트
         } else {
             // 로그인 실패
             System.out.println("로그인 실패: " + userId);
-            model.addAttribute("errorMessage", "아이디 또는 비밀번호가 올바르지 않습니다.");
-            return "/login.html"; // <-- 로그인 실패 시 다시 로그인 페이지로, '/login.html'을 붙였습니다.
+            m.addAttribute("errorMessage", "아이디 또는 비밀번호가 올바르지 않습니다.");
+            return "/login.html"; // <-- 로그인 실패 시 다시 로그인 페이지로
         }
     }
 
@@ -67,17 +68,17 @@ public class LoginController {
     @GetMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate(); // 세션 무효화
-        return "redirect:/login?logout=true"; // 리다이렉트는 URL 경로이므로 .html을 붙이지 않습니다.
+        return "redirect:/login?logout=true"; // 리다이렉트
     }
 
     // 메인 화면을 보여주는 GET 요청 처리
     @GetMapping("/main")
-    public String mainPage(HttpSession session, Model model) {
+    public String mainPage(HttpSession session, Model m) {
         Login loggedInUser = (Login) session.getAttribute("loggedInUser");
         if (loggedInUser == null) {
             return "redirect:/login"; // 세션이 없으면 로그인 페이지로 리다이렉트 (URL이므로 .html 붙이지 않음)
         }
-        model.addAttribute("user", loggedInUser);
+        m.addAttribute("user", loggedInUser);
         return "/main.html"; // <-- 메인 템플릿도 '/main.html'을 붙였습니다.
     }
 }

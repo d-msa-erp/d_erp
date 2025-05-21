@@ -94,4 +94,9 @@ public class controller_init {
 	public String outbound() {
 		return "/outbound.html";
 	}
+	
+	@GetMapping("/mypage")
+	public String mypage() {
+		return "/mypage.html";
+	}
 }
