@@ -200,7 +200,12 @@ table.grid-table {
 	width: 100%;
 	border-collapse: collapse;
 	display: grid;
-	grid-template-columns: 0.5fr 2fr 1fr 2fr 1fr 2fr 3fr;
+	/* ⭐⭐ 여기만 수정합니다. ⭐⭐ */
+	/* 기존: 0.5fr 2fr 1fr 2fr 1fr 2fr 3fr (7개 컬럼) */
+	/* 요구사항: 담당자 컬럼이 하나 더 추가되어 8개 컬럼이므로 0.5fr (체크박스) + 7개 컬럼 + 1fr (담당자) = 9개 컬럼으로 보정 */
+    /* 이미지 확인 결과: 체크박스, 창고 코드, 창고명, 창고타입, 사용여부, 주소, 비고, 담당자 (총 8개 컬럼)
+       따라서 grid-template-columns는 8개의 값으로 구성되어야 합니다. */
+    grid-template-columns: 0.5fr 1.5fr 1.5fr 1.5fr 1fr 2fr 2.5fr 1.5fr; /* 8개 컬럼 비율 조정 */
 }
 
 thead, tbody, tr {
@@ -217,21 +222,33 @@ tbody>tr:hover td {
 	cursor: pointer;
 }
 
-tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
+/* 기존 첫 번째 컬럼(체크박스) 중앙 정렬 유지 */
+tr th:nth-child(1), tr td:nth-child(1) {
 	justify-content: center;
 }
 
-tr td:nth-last-child(1) {
-	justify-content: right;
+/* 추가된 담당자 컬럼(마지막 컬럼)에 대한 정렬 추가 */
+/* 이미지에서 담당자 헤더는 우측 정렬, 데이터는 좌측 정렬되어 있는 것처럼 보입니다. */
+/* 하지만 일반적으로 헤더와 데이터는 일관된 정렬을 가집니다. 여기서는 중앙 정렬을 유지합니다. */
+tr th:nth-last-child(1), tr td:nth-last-child(1) {
+    justify-content: center; /* 담당자 컬럼 중앙 정렬 */
 }
+
 
 th, td {
 	padding: 10px;
 	border: 1px solid #ccc;
 	display: flex;
 	align-items: center;
-	justify-content: center;
+	justify-content: flex-start; /* 기본은 좌측 정렬 */
 }
+
+/* 특정 컬럼 정렬 */
+th:nth-child(1), td:nth-child(1) { justify-content: center; } /* 체크박스 */
+th:nth-child(2), td:nth-child(2) { justify-content: center; } /* 창고 코드 */
+th:nth-child(5), td:nth-child(5) { justify-content: center; } /* 사용 여부 */
+th:nth-child(8), td:nth-child(8) { justify-content: center; } /* 담당자 */
+
 
 thead th {
 	background: #f0f0f0;
