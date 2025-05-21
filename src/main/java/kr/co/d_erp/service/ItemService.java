@@ -30,4 +30,14 @@ public class ItemService {
 	public long getTotalItemCount() {
 	    return itemMapper.selectCountItem();
 	}
+	
+    public Item getItemById(int item_IDX) {
+        // ItemMapper에 해당 ID로 품목을 조회하는 메서드가 필요합니다.
+        return itemMapper.selectItemById(item_IDX);
+    }
+
+    public void updateItem(Item item) {
+        // ItemMapper에 품목 정보를 업데이트하는 메서드가 필요합니다.
+        itemMapper.updateItem(item);
+    }
 }

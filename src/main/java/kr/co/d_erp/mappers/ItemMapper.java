@@ -13,4 +13,9 @@ public interface ItemMapper {
 	List<Item> selectPagingItem(@Param("offset") int offset, @Param("pageSize") int pageSize);
 	long selectCountItem();
 
+    // 특정 ID로 품목 조회
+    Item selectItemById(int item_IDX);
+
+    // 품목 정보 업데이트
+    void updateItem(Item item);
 }

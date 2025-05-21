@@ -8,26 +8,51 @@ COALESCE(inv.STOCK_QTY, 0) AS QTY, unit.UNIT_NM AS UNIT_NM FROM TB_ITEMMST itm
 LEFT JOIN TB_INVENTORY inv ON itm.ITEM_IDX = inv.ITEM_IDX
 LEFT JOIN TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
 </select>
+<select id="selectItemById" parameterType="int" resultType="kr.co.d_erp.dtos.Item">
+    SELECT ITEM_IDX, ITEM_NM, ITEM_CD, ITEM_CAT1, ITEM_CAT2,CUST_IDX, ITEM_UNIT, ITEM_COST, ITEM_SPEC, REMARK
+    FROM TB_ITEMMST WHERE ITEM_IDX = #{ITEM_IDX}
+</select>
+
+<update id="updateItem" parameterType="kr.co.d_erp.dtos.Item">
+    UPDATE TB_ITEMMST SET ITEM_NM = #{ITEM_NM}, ITEM_CD = #{ITEM_CD}, ITEM_CAT1 = #{ITEM_CATX1}, ITEM_CAT2 = #{ITEM_CATX2},
+        CUST_IDX = #{CUST_IDX}, ITEM_UNIT = #{ITEM_UNIT}, ITEM_COST = #{ITEM_COST}, ITEM_SPEC = #{ITEM_SPEC},
+        REMARK = #{REMARK}
+    WHERE
+        ITEM_IDX = #{ITEM_IDX}
+</update>
+
         <select id="selectPagingItem" parameterType="map" resultType="kr.co.d_erp.dtos.Item">
-            SELECT
+SELECT
+            	itm.ITEM_IDX,
                 itm.ITEM_NM,
                 itm.ITEM_CD,
-                itm.ITEM_CAT1,
-                itm.ITEM_CAT2,
-                itm.CUST_IDX,
+		        tic1.CAT_NM AS ITEM_CATX1,
+		        tic2.CAT_NM AS ITEM_CATX2,
+                tct.CUST_NM,
                 itm.ITEM_UNIT,
                 itm.ITEM_COST,
                 COALESCE(inv.STOCK_QTY, 0) AS QTY,
-                unit.UNIT_NM
+                unit.UNIT_NM,
+                itm.ITEM_SPEC,
+                itm.ITEM_COST,
+                itm.REMARK
             FROM
                 TB_ITEMMST itm
+		    LEFT JOIN
+		        TB_ITEM_CAT tic1 ON itm.ITEM_CAT1 = tic1.CAT_IDX
+		        AND tic1.PARENT_IDX IS NULL
+		    LEFT JOIN
+		        TB_ITEM_CAT tic2 ON itm.ITEM_CAT2 = tic2.CAT_IDX
+		        AND tic2.PARENT_IDX = itm.ITEM_CAT1
+		    LEFT JOIN
+		    	TB_CUSTMST tct ON itm.CUST_IDX = tct.CUST_IDX
             LEFT JOIN
                 TB_INVENTORY inv ON itm.ITEM_IDX = inv.ITEM_IDX
             LEFT JOIN
                 TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
-            WHERE ROWNUM <![CDATA[ <= ]]> #{offset} + #{pageSize}
-              AND itm.ITEM_IDX IN (SELECT ITEM_IDX FROM (SELECT ITEM_IDX, row_number() OVER (ORDER BY ITEM_IDX DESC) AS rn FROM TB_ITEMMST) WHERE rn > #{offset})
-
+        ORDER BY itm.ITEM_IDX DESC
+        OFFSET #{offset} ROWS
+        FETCH NEXT #{pageSize} ROWS ONLY
         </select>
 
         <select id="selectCountItem" resultType="long">

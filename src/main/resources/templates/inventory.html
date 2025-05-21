@@ -493,26 +493,37 @@
                             noDataRow.style.display = 'none';
                             items.forEach(item => {
                                 const row = itemTableBody.insertRow();
+                                row.style.cursor = 'pointer'; // 클릭 가능한 스타일 추가
+                                row.addEventListener('click', () => openDetail(item)); // 클릭 이벤트 리스너 추가
                                 const checkboxCell = row.insertCell();
                                 const checkbox = document.createElement('input');
                                 checkbox.type = 'checkbox';
                                 checkboxCell.appendChild(checkbox);
                                 const itemNameCell = row.insertCell();
                                 itemNameCell.textContent = item.item_NM || "";
+                                
                                 const itemCodeCell = row.insertCell();
                                 itemCodeCell.textContent = item.item_CD || "";
+                                
                                 const itemCat1Cell = row.insertCell();
-                                itemCat1Cell.textContent = item.item_CAT1 || "";
+                                itemCat1Cell.textContent = item.item_CATX1 || "";
+                                
                                 const itemCat2Cell = row.insertCell();
-                                itemCat2Cell.textContent = item.item_CAT2 || "";
-                                const custIdxCell = row.insertCell();
-                                custIdxCell.textContent = item.CUST_IDX || ""; 
+                                itemCat2Cell.textContent = item.item_CATX2 || ""; 
+                                
+                                const custNmCell = row.insertCell();
+                                custNmCell.textContent = item.cust_NM || ""; 
+                                
                                 const unitNmCell = row.insertCell();
-                                unitNmCell.textContent = item.UNIT_NM || "";   
+                                unitNmCell.textContent = item.unit_NM || "";   
+                                
                                 const qtyCell = row.insertCell();
-                                qtyCell.textContent = item.QTY || "";         
+                                qtyCell.textContent = item.qty || "";         
+                                
                                 const itemCostCell = row.insertCell();
                                 itemCostCell.textContent = item.item_COST || "";
+                                
+                                row.dataset.item = JSON.stringify(item);
                             });
                         } else {
                             noDataRow.style.display = '';
@@ -591,30 +602,28 @@
 			<h3 id="modalTitle">신규 등록</h3>
 			<form id="modalForm" class="modalForm">
 				<div>
-					<span>품목코드</span><input type="text" placeholder="품목코드를 입력해주세요" required />
+					<span>품목코드</span><input type="text" name="item_CD" placeholder="품목코드를 입력해주세요" required />
 				</div>
 				<div>
-					<span>품목명</span><input type="text" placeholder="품목명을 입력해주세요" required />
+					<span>품목명</span><input type="text" name="item_NM" placeholder="품목명을 입력해주세요" required />
 				</div>
 				<div>
-					<span>거래처</span><input type="text" placeholder="거래처를 입력해주세요" required />
+					<span>거래처</span><input type="text" name="cust_NM" placeholder="거래처를 입력해주세요" required />
 				</div>
 				<div>
-					<span>대분류</span><input type="text" placeholder="대분류를 입력해주세요" required />
-				</div>
-
-				<div>
-					<span>소분류</span><input type="text" placeholder="소분류를 입력해주세요" required />
+					<span>대분류</span><input type="text" name="item_CATX1" placeholder="대분류를 입력해주세요" required />
 				</div>
 				<div>
-
-					<span>규격</span><input type="text" placeholder="규격을 입력해주세요" required />
+					<span>소분류</span><input type="text" name="item_CATX2" placeholder="소분류를 입력해주세요" required />
 				</div>
 				<div>
-					<span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
+					<span>규격</span><input type="text" name="item_SPEC" placeholder="규격을 입력해주세요" required />
 				</div>
 				<div>
-					<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
+					<span>단가</span><input type="text" name="item_COST" placeholder="단가를 입력해주세요" required />
+				</div>
+				<div>
+					<span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" required />
 				</div>
 				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
@@ -666,35 +675,152 @@
 			document.getElementById('modal').style.display = 'flex';
 			document.querySelector('#modalForm button[name="save"]').style.display = 'block';
 			document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+			
+            document.querySelector('#modalForm input[name="item_CD"]').value = '';
+            document.querySelector('#modalForm input[name="item_NM"]').value = '';
+            document.querySelector('#modalForm input[name="cust_NM"]').value = '';
+            document.querySelector('#modalForm input[name="item_CATX1"]').value = '';
+            document.querySelector('#modalForm input[name="item_CATX2"]').value = '';
+            document.querySelector('#modalForm input[name="item_SPEC"]').value = '';
+            document.querySelector('#modalForm input[name="item_COST"]').value = '';
+            document.querySelector('#modalForm input[name="remark"]').value = '';
+
 		}
 
-		function closeModal() {
-			document.getElementById('modal').style.display = 'none';
-		}
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
 
-		function outsideClick(e) {
-			if (e.target.id === 'modal') {
-				closeModal();
-			}
-		}
+        function outsideClick(e) {
+            if (e.target.id === 'modal') {
+                closeModal('modal');
+            }
+        }
 
 
 
-		function submitModal(event) {
-			event.preventDefault();
-			const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-			console.log(currentTab + ' 등록됨:', siteName);
-			closeModal();
-		}
+        function submitModal(event) {
+            event.preventDefault();
+            const formData = new FormData(document.getElementById('modalForm'));
+            const newItem = Object.fromEntries(formData.entries());
+
+            fetch('/api/items', { // 신규 등록 API 엔드포인트
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newItem)
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('새로운 품목이 등록되었습니다.');
+                    closeModal('modal');
+                    fetchItems(1); // 첫 페이지 다시 로드
+                } else {
+                    alert('품목 등록에 실패했습니다.');
+                    console.error('품목 등록 실패:', response);	
+                }
+            })
+            .catch(error => {
+                alert('서버 통신 중 오류가 발생했습니다.');
+                console.error('서버 통신 오류:', error);
+            });
+        }
+
+        const modalForm = document.getElementById('modalForm');
+        modalForm.addEventListener('submit', submitModal);
 
 		//테이블 클릭 시 출력되는 modal
-		function opendatail() {
-			openModal();
+		function openDetail(item) {
+			openModal('modal');
 			document.getElementById('modalTitle').textContent = '품목 수정';
+		    const modalItemCode = document.querySelector('#modalForm > div:nth-child(1) > input');
+		    const modalItemName = document.querySelector('#modalForm > div:nth-child(2) > input');
+		    const modalCustNm = document.querySelector('#modalForm > div:nth-child(3) > input');
+		    const modalItemCat1 = document.querySelector('#modalForm > div:nth-child(4) > input');
+		    const modalItemCat2 = document.querySelector('#modalForm > div:nth-child(5) > input');
+		    const modalItemSpec = document.querySelector('#modalForm > div:nth-child(6) > input');
+		    const modalItemCost = document.querySelector('#modalForm > div:nth-child(7) > input');
+		    const modalRemark = document.querySelector('#modalForm > div:nth-child(8) > input');
+		    // 단위는 테이블에 있지만 모달 폼에는 없으므로 필요하다면 추가해야 합니다.
+
+		    // 클릭된 행의 데이터로 모달 폼 채우기
+		    modalItemCode.value = item.item_CD || "";
+		    modalItemName.value = item.item_NM || "";
+		    modalCustNm.value = item.cust_NM || "";
+		    modalItemCat1.value = item.item_CATX1 || "";
+		    modalItemCat2.value = item.item_CATX2 || "";
+		    modalItemSpec.value = item.item_SPEC || "";
+		    modalItemCost.value = item.item_COST || "";
+		    modalRemark.value = item.remark || "";
 
 			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
 			document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
+			
+			const editButton = document.querySelector('#modalForm button[name="edit"]');
+			
+		    editButton.onclick = () => updateItem(item.item_IDX);
+		    console.log("수정 버튼 클릭 시 item.ITEM_IDX:", item.item_IDX);
 		}
+		
+		function updateItem(item_IDX) {
+			
+            // 모달 폼 요소에서 변경된 값 가져오기
+            const modalItemCode = document.querySelector('#modalForm input[name="item_CD"]').value;
+            const modalItemName = document.querySelector('#modalForm input[name="item_NM"]').value;
+            const modalCustNm = document.querySelector('#modalForm input[name="cust_NM"]').value;
+            const modalItemCat1 = document.querySelector('#modalForm input[name="item_CATX1"]').value;
+            const modalItemCat2 = document.querySelector('#modalForm input[name="item_CATX2"]').value;
+            const modalItemSpec = document.querySelector('#modalForm input[name="item_SPEC"]').value;
+            const modalItemCost = document.querySelector('#modalForm input[name="item_COST"]').value;
+            const modalRemark = document.querySelector('#modalForm input[name="remark"]').value;
+            // 단위는 모달 폼에 없으므로 가져오지 않습니다.
+
+            const updatedItem = {
+            	ITEM_IDX : item_IDX,
+                ITEM_CD: modalItemCode,
+                ITEM_NM: modalItemName,
+                CUST_NM: modalCustNm,
+                ITEM_CATX1: modalItemCat1,
+                ITEM_CATX2: modalItemCat2,
+                ITEM_SPEC: modalItemSpec,
+                ITEM_COST: modalItemCost,
+                REMARK: modalRemark
+                
+            };
+            console.log("1번",updatedItem.ITEM_NM);
+            console.log("3번",item_IDX);
+            
+            
+
+            // 서버로 업데이트된 데이터 전송 (PUT 또는 PATCH 요청)
+            fetch(`/api/items/${item_IDX}`, {
+                method: 'PUT', // 또는 'PATCH' (서버 API에 맞춰 선택)
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updatedItem)
+            })
+            .then(response => {
+                if (response.ok) {
+                	console.log("3번",updatedItem.ITEM_NM);
+                    alert('품목 정보가 수정되었습니다.');
+                    closeModal('modal');
+                    fetchItems(currentPage); // 현재 페이지 다시 로드
+                } else {
+                	console.log("4번",updatedItem.ITEM_NM);
+                    alert('품목 정보 수정에 실패했습니다.');
+                    console.error('품목 정보 수정 실패:', response);
+                }
+            })
+            .catch(error => {
+                alert('서버 통신 중 오류가 발생했습니다.');
+                console.error('서버 통신 오류:', error);
+            });
+        }
 	</script>
 
 </body>
