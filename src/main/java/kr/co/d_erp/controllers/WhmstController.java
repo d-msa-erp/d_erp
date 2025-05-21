@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import kr.co.d_erp.dtos.Usermst; // Usermst 엔티티 import (담당자 목록 API용)
+import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.dtos.WhmstDto; // WhmstDto import
 import kr.co.d_erp.service.WhmstService;
 import lombok.RequiredArgsConstructor;
