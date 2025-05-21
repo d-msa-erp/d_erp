@@ -1,4 +1,4 @@
-package kr.co.d_erp.dtos;
+package kr.co.d_erp.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;

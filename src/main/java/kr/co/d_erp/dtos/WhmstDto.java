@@ -1,21 +1,28 @@
 package kr.co.d_erp.dtos;
 
-public interface WhmstDto { // ⭐ class 대신 interface로 변경 ⭐
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    Long getWhIdx();
-    String getWhCd();
-    String getWhNm();
-    String getRemark();
-    String getWhType1();
-    String getWhType2();
-    String getWhType3();
-    String getUseFlag();
-    String getWhLocation();
-    Long getWhUserIdx();
-    String getWhUserNm(); // Getter 메서드 정의
-    String getWhUserId(); // Getter 메서드 정의
-
-    // 필요하다면 setter 대신 Builder 패턴을 사용하는 DTO 클래스를 별도로 두거나,
-    // 생성/수정용 DTO를 따로 정의하는 것이 좋습니다.
-    // 현재는 이 인터페이스는 조회(read) 목적으로만 사용합니다.
+@Getter
+@Setter
+@NoArgsConstructor // JSON을 객체로 변환할 때 필요
+@AllArgsConstructor // 모든 필드를 인자로 받는 생성자 (JPA DTO Projection에 사용)
+@Builder // 필요하다면 Builder 패턴 사용
+public class WhmstDto {
+    private Long whIdx;
+    private String whCd;
+    private String whNm;
+    private String remark;
+    private String whType1;
+    private String whType2;
+    private String whType3;
+    private String useFlag;
+    private String whLocation;
+    private Long whUserIdx;
+    private String whUserNm; // 뷰에서 가져올 필드
+    private String whUserId; // 뷰에서 가져올 필드
+    // createdBy, createdDate, modifiedBy, modifiedDate 등은 엔티티에서만 관리하고 DTO에서는 제외하거나 필요에 따라 추가
 }

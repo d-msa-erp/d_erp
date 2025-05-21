@@ -1,66 +1,58 @@
 package kr.co.d_erp.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Entity
+@Table(name = "TB_WHMST") // 실제 창고 테이블 이름
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Entity
-@Table(name = "TB_WHMST") // 데이터베이스 테이블명과 매핑
-@SequenceGenerator(
-    name = "whmst_seq_generator",
-    sequenceName = "TB_WHMST_WH_IDX_SEQ", // 오라클 시퀀스 이름
-    initialValue = 1,
-    allocationSize = 1
-)
 public class Whmst {
 
     @Id
-    @GeneratedValue(
-        strategy = GenerationType.SEQUENCE,
-        generator = "whmst_seq_generator"
-    )
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "whmst_seq_generator")
+    @SequenceGenerator(name = "whmst_seq_generator", sequenceName = "WHMST_SEQ", allocationSize = 1) // 실제 시퀀스 이름 확인
     @Column(name = "WH_IDX")
     private Long whIdx;
 
-    // WH_CD는 DB 트리거가 자동 생성하므로, JPA가 INSERT/UPDATE 쿼리에 포함하지 않도록 설정
-    @Column(name = "WH_CD", length = 10, unique = true, insertable = false, updatable = false)
-    private String whCd; // 창고 코드 (트리거가 자동 생성)
+    @Column(name = "WH_CD", insertable = false, updatable = false)
+    private String whCd;
 
-    @Column(name = "WH_NM", nullable = false, length = 50)
-    private String whNm; // 창고명
+    @Column(name = "WH_NM")
+    private String whNm;
 
-    @Column(name = "REMARK", length = 200)
-    private String remark; // 비고
+    @Column(name = "REMARK")
+    private String remark;
 
-    @Column(name = "WH_TYPE1", nullable = false, length = 1)
-    private String whType1; // 자재창고 여부 ('Y'/'N')
+    @Column(name = "WH_TYPE1")
+    private String whType1;
 
-    @Column(name = "WH_TYPE2", nullable = false, length = 1)
-    private String whType2; // 제품창고 여부 ('Y'/'N')
+    @Column(name = "WH_TYPE2")
+    private String whType2;
 
-    @Column(name = "WH_TYPE3", nullable = false, length = 1)
-    private String whType3; // 반품창고 여부 ('Y'/'N')
+    @Column(name = "WH_TYPE3")
+    private String whType3;
 
-    @Column(name = "USE_FLAG", nullable = false, length = 1)
-    private String useFlag; // 사용 여부 ('Y'/'N')
+    @Column(name = "USE_FLAG")
+    private String useFlag;
 
-    @Column(name = "WH_LOCATION", nullable = false, length = 200)
-    private String whLocation; // 창고 위치
+    @Column(name = "WH_LOCATION")
+    private String whLocation;
 
-    @Column(name = "WH_USER_IDX")
-    private Long whUserIdx; // 담당 사원 고유 번호 (FK)
+    // ⭐ 기존 whUserIdx 필드를 삭제하고, Usermst 엔티티와의 관계 매핑 추가 ⭐
+    // @Column(name = "WH_USER_IDX") // 이 필드는 더 이상 필요 없음
+    // private Long whUserIdx;
+
+    @ManyToOne(fetch = FetchType.LAZY) // ManyToOne 관계 (창고는 한 명의 담당자를 가짐)
+    @JoinColumn(name = "WH_USER_IDX", referencedColumnName = "USER_IDX") // WH_USER_IDX 컬럼이 Usermst 엔티티의 USER_IDX를 참조
+    private Usermst whUser; // Usermst 엔티티 타입의 필드 (관계의 주체)
+
+    // (생성/수정 시간 등 Audit 필드는 필요에 따라 추가)
 }
