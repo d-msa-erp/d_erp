@@ -4,7 +4,13 @@
 
 
 <select id="selectUnits" resultType="kr.co.d_erp.dtos.Item">
-	SELECT UNIT_IDX,UNIT_NM FROM TB_UNIT_MST ORDER BY UNIT_IDX
+	SELECT	uni.UNIT_NM,
+			i.ITEM_IDX,
+			i.ITEM_CD,
+			i.ITEM_UNIT
+			FROM TB_ITEMMST i 
+			LEFT JOIN TB_UNIT_MST uni on i.ITEM_UNIT = uni.UNIT_IDX
+			ORDER BY uni.UNIT_IDX
 </select>
 <select id="selectALLcat1" resultType="kr.co.d_erp.dtos.Item">
         SELECT CAT_IDX, CAT_NM, PARENT_IDX
@@ -52,7 +58,7 @@ LEFT JOIN TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
 		 WHERE ITEM_IDX = #{ITEM_IDX}
 </update>
 
-        <select id="selectPagingItem" parameterType="map" resultType="kr.co.d_erp.dtos.Item">
+<select id="selectPagingItem" parameterType="map" resultType="kr.co.d_erp.dtos.Item">
 SELECT
             	itm.ITEM_IDX,
                 itm.ITEM_NM,
@@ -92,4 +98,72 @@ SELECT
             FROM TB_ITEMMST
         </select>
 
+<!-- 검색 데이터 -->
+<select id="getSearchItem" resultType="kr.co.d_erp.dtos.Item">
+	SELECT
+            	itm.ITEM_IDX, itm.ITEM_NM, itm.ITEM_CD, tic1.CAT_NM AS ITEM_CATX1, tic2.CAT_NM AS ITEM_CATX2, 
+                tct.CUST_NM, ITM.OPTIMAL_INV, itm.ITEM_COST, COALESCE(inv.STOCK_QTY, 0) AS QTY, 
+                unit.UNIT_NM, itm.ITEM_SPEC, itm.REMARK, itm.CUST_IDX
+            FROM TB_ITEMMST itm
+		    LEFT JOIN
+		        TB_ITEM_CAT tic1 ON itm.ITEM_CAT1 = tic1.CAT_IDX
+		        AND tic1.PARENT_IDX IS NULL
+		    LEFT JOIN
+		        TB_ITEM_CAT tic2 ON itm.ITEM_CAT2 = tic2.CAT_IDX
+		        AND tic2.PARENT_IDX = itm.ITEM_CAT1
+		    LEFT JOIN TB_CUSTMST tct ON itm.CUST_IDX = tct.CUST_IDX
+            LEFT JOIN TB_INVENTORY inv ON itm.ITEM_IDX = inv.ITEM_IDX
+            LEFT JOIN TB_UNIT_MST unit ON itm.ITEM_UNIT = unit.UNIT_IDX
+    <where>
+        <if test="CsearchItem != null and CsearchItem != ''">
+            <choose>
+                <when test="CsearchCat == 'itemBigCat'">
+                    tic1.CAT_NM LIKE '%' || #{CsearchItem} || '%'
+                </when>
+                <when test="CsearchCat == 'itemSmallCat'">
+                    tic2.CAT_NM LIKE '%' || #{CsearchItem} || '%'
+                </when>
+                <when test="CsearchCat == 'ItemName'"> itm.ITEM_NM LIKE '%' || #{CsearchItem} || '%'
+                </when>
+                <otherwise>
+                    itm.ITEM_NM LIKE '%' || #{CsearchItem} || '%'
+                </otherwise>
+            </choose>
+        </if>
+    </where>
+    ORDER BY itm.ITEM_IDX DESC
+    <if test="pageable != null">
+        OFFSET #{pageable.offset} ROWS FETCH NEXT #{pageable.pageSize} ROWS ONLY
+    </if>
+</select>
+
+<select id="getTotalSearchItemCount" resultType="long">
+    SELECT COUNT(*) FROM TB_ITEMMST itm
+    LEFT JOIN TB_ITEM_CAT tc1 ON itm.ITEM_CAT1 = tc1.CAT_IDX
+    LEFT JOIN TB_ITEM_CAT tc2 ON itm.ITEM_CAT2 = tc2.CAT_IDX
+    <where>
+        <if test="CsearchItem != null and CsearchItem != ''">
+            <choose>
+                <when test="CsearchCat == 'itemBigCat'">
+                    tc1.CAT_NM LIKE '%' || #{CsearchItem} || '%'
+                </when>
+                <when test="CsearchCat == 'itemSmallCat'">
+                    tc2.CAT_NM LIKE '%' || #{CsearchItem} || '%'
+                </when>
+                <otherwise>
+                    itm.ITEM_NM LIKE '%' || #{CsearchItem} || '%'
+                </otherwise>
+            </choose>
+        </if>
+    </where>
+</select>
+
+<!-- 삭제 -->
+<delete id="deleteItems">
+	DELETE FROM TB_ITEMMST
+	WHERE ITEM_IDX IN
+	    <foreach collection="itemIdx" item="itemIdx" open="(" separator="," close=")">
+        #{itemIdx}
+    </foreach>
+</delete>
 </mapper>

@@ -1,18 +1,28 @@
 package kr.co.d_erp.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.dtos.Item;
-import kr.co.d_erp.mappers.CustMapper;
 import kr.co.d_erp.mappers.ItemMapper;
 
 @Service
 public class ItemService {
+
+    
 	
 	@Autowired
 	private final ItemMapper itemMapper;
@@ -24,6 +34,69 @@ public class ItemService {
 
 	}
 	
+	//삭제
+	public void deleteItems(List<Integer> itemIdx) {
+		itemMapper.deleteItems(itemIdx);
+	}
+	
+	//엑셀 다운로드
+	 public byte[] createExcelFile(String CsearchCat, String CsearchItem) throws IOException {
+	        // getSearchItem 메서드를 호출하되, pageable 파라미터를 null로 전달
+	        List<Item> items = itemMapper.getSearchItem(CsearchCat, CsearchItem, null); // <-- 이 부분 변경
+
+	        Workbook workbook = new XSSFWorkbook();
+	        Sheet sheet = workbook.createSheet("품목 리스트");
+
+	        // 헤더 생성 및 데이터 채우는 로직은 이전과 동일
+	        String[] headers = {
+	            "품목 코드", "품목명", "대분류", "소분류", "거래처명", "단위", "수량", "품목원가", "규격", "비고"
+	        };
+	        Row headerRow = sheet.createRow(0);
+	        for (int i = 0; i < headers.length; i++) {
+	            Cell cell = headerRow.createCell(i);
+	            cell.setCellValue(headers[i]);
+	            CellStyle headerStyle = workbook.createCellStyle();
+	            Font headerFont = workbook.createFont();
+	            headerFont.setBold(true);
+	            headerStyle.setFont(headerFont);
+	            cell.setCellStyle(headerStyle);
+	        }
+
+	        int rowNum = 1;
+	        for (Item item : items) {
+	            Row row = sheet.createRow(rowNum++);
+	            row.createCell(0).setCellValue(item.getITEM_CD());
+	            row.createCell(1).setCellValue(item.getITEM_NM());
+	            row.createCell(2).setCellValue(item.getITEM_CATX1());
+	            row.createCell(3).setCellValue(item.getITEM_CATX2());
+	            row.createCell(4).setCellValue(item.getCUST_NM());
+	            row.createCell(5).setCellValue(item.getUNIT_NM());
+	            row.createCell(6).setCellValue(item.getQTY());
+	            row.createCell(7).setCellValue(item.getITEM_COST());
+	            row.createCell(8).setCellValue(item.getITEM_SPEC());
+	            row.createCell(9).setCellValue(item.getREMARK());
+	        }
+
+	        for (int i = 0; i < headers.length; i++) {
+	            sheet.autoSizeColumn(i);
+	        }
+
+	        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	        workbook.write(outputStream);
+	        workbook.close();
+
+	        return outputStream.toByteArray();
+	    }
+	
+	//검색 리스트
+	public List<Item> getSearchItem(Pageable pageable, String CsearchCat, String CsearchItem) {
+        
+        return itemMapper.getSearchItem(CsearchCat, CsearchItem, pageable); // MyBatis 또는 JPA에 따라 다름
+    }
+	//검색 데이터 갯수
+    public long getTotalSearchItemCount(String CsearchCat, String CsearchItem) {
+        return itemMapper.getTotalSearchItemCount(CsearchCat, CsearchItem);
+    }
 	
 	//품목 리스트 출력 
 	public List<Item> getAllItem() {

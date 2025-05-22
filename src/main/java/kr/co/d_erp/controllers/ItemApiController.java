@@ -1,5 +1,10 @@
 package kr.co.d_erp.controllers;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,7 +39,32 @@ public class ItemApiController {
 	        this.itemService = itemService;
 	    }
 	    
-	  //품목 코드 중복 확인 및 자동 생성 메소드
+	    @GetMapping("/excel")
+	    public ResponseEntity<byte[]> downloadExcel(
+	            @RequestParam(value = "CsearchCat", required = false, defaultValue = "") String CsearchCat,
+	            @RequestParam(value = "CsearchItem", required = false, defaultValue = "") String CsearchItem
+	    ) {
+	        try {
+	            byte[] excelContent = itemService.createExcelFile(CsearchCat, CsearchItem);
+
+	            String fileName = "품목_리스트_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
+	            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.toString()).replaceAll("\\+", "%20");
+
+	            HttpHeaders headers = new HttpHeaders();
+	            headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+	            headers.setContentDispositionFormData("attachment", encodedFileName);
+	            headers.setContentLength(excelContent.length);
+
+	            return new ResponseEntity<>(excelContent, headers, HttpStatus.OK);
+
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	    }   
+	    
+	    
+	    //품목 코드 중복 확인 및 자동 생성 메소드
 	    @GetMapping("/check")
 	    public Map<String, Boolean> checkCode(@RequestParam("itemCd") String itemCd){
 	    	boolean isUni = itemService.itemCdUnique(itemCd);
@@ -97,11 +128,22 @@ public class ItemApiController {
 	    @GetMapping
 	    public ResponseEntity<List<Item>> getAllItems(
 	            @RequestParam(value = "page", defaultValue = "1") int page,
-	            @RequestParam(value = "size", defaultValue = "10") int size) {
-	        Pageable pageable = PageRequest.of(page - 1, size); // Spring Data Pageable 사용 (간편)
-	        List<Item> items = itemService.getPagingItem(pageable);
-	        long totalCount = itemService.getTotalItemCount();
-
+	            @RequestParam(value = "size", defaultValue = "10") int size,
+	            @RequestParam(value = "CsearchCat", required = false) String CsearchCat,
+	            @RequestParam(value =  "CsearchItem", required = false) String CsearchItem) {
+	        
+	    	Pageable pageable = PageRequest.of(page - 1, size); // Spring Data Pageable 사용 (간편)
+	        
+	    	List<Item> items;
+	        long totalCount;
+	        
+	        if(CsearchItem != null && !CsearchItem.trim().isEmpty()) {
+	        	items = itemService.getSearchItem(pageable, CsearchCat, CsearchItem);
+	        	totalCount = itemService.getTotalSearchItemCount(CsearchCat, CsearchItem);
+	        }else {
+	        	items = itemService.getPagingItem(pageable);
+	        	totalCount = itemService.getTotalItemCount();
+	        }
 	        HttpHeaders headers = new HttpHeaders();
 	        headers.add("X-Total-Count", String.valueOf(totalCount));
 	        //test
@@ -151,8 +193,23 @@ public class ItemApiController {
 	        return new ResponseEntity<>(updated, HttpStatus.OK); // 성공 시 200 OK와 업데이트된 정보 반환
 	        
 	    }
-
-
+	    
+	    //삭제 메소드
+	    @PostMapping("/deletes")
+	    public ResponseEntity<String> deleteItem(@RequestBody List<Integer> itemIdx){
+	    	if (itemIdx == null || itemIdx.isEmpty()) {
+	            return ResponseEntity.badRequest().body("삭제할 품목 ID가 없습니다.");
+	        }
+	        try {
+	            itemService.deleteItems(itemIdx);
+	            return ResponseEntity.ok("선택된 품목이 성공적으로 삭제되었습니다.");
+	        } catch (Exception e) {
+	            // 상세한 예외 로깅
+	            e.printStackTrace();
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("품목 삭제 중 오류가 발생했습니다: " + e.getMessage());
+	        }
+	    }
+	    
 	    /*
 	    @GetMapping("/Item") // 예시 URL
 	    public String getItemList(Model m) {

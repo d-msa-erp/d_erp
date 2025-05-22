@@ -1,11 +1,13 @@
 package kr.co.d_erp.mappers;
 
+
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.data.domain.Pageable;
 
 import kr.co.d_erp.dtos.Item;
 
@@ -14,6 +16,22 @@ public interface ItemMapper {
 	public List<Item> selectALLItem();
 	List<Item> selectPagingItem(@Param("offset") int offset, @Param("pageSize") int pageSize);
 	long selectCountItem();
+
+	//삭제 메소드
+	int deleteItems(@Param("itemIdx") List<Integer> itemIdx);
+	
+	//검색 메소드
+	List<Item> getSearchItem(
+			@Param("CsearchCat") String CsearchCat,
+	        @Param("CsearchItem") String CsearchItem,
+	        @Param("pageable") Pageable pageable
+			);
+	
+	long getTotalSearchItemCount(
+			@Param("CsearchCat") String CsearchCat,
+	        @Param("CsearchItem") String CsearchItem
+			);
+	
 
 	@Select("SELECT CUST_IDX FROM TB_CUSTMST WHERE CUST_NM = #{custNm}")
 	Integer getCustIdxByCustNm(@Param("custNm") String custNm);
