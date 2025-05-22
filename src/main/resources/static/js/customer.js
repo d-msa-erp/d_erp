@@ -1,9 +1,10 @@
-window.currentBizFlag = '01';
-let currentTh = 'custNm';
-let currentOrder = 'asc';
+window.currentBizFlag = '02';
+let currentTh = 'custIdx';
+let currentOrder = 'desc';
+
 
 // 리스트를 받아오는 ajax 통신
-async function loadCustomers(bizFlag, sortBy = 'custNm', sortDirection = 'asc', keyword = '') {
+async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = currentOrder , keyword = '') {
     const customerTableBody = document.getElementById('customerTableBody');
     if (!customerTableBody) {
         console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
@@ -128,10 +129,11 @@ function renderErrorMessage(message) {
 function updateTableHeader(bizFlag) {
   const nameHeader = document.querySelector('#customerNameHeader');
   if (nameHeader) {
-    nameHeader.innerHTML = (bizFlag === '02' ? '발주처명' : '거래처명') + '<a>↓</a>';
+    nameHeader.innerHTML = (bizFlag === '01' ? '발주처명' : '거래처명') + '<a>↓</a>';
   }
 }
 
+// 탭 변경
 function switchTab(el, type) {
   // 스타일 초기화 후 활성화
   document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
@@ -145,7 +147,7 @@ function switchTab(el, type) {
    updateTableHeader(type);
 
   // 데이터 로드
-  loadCustomers(type);
+  loadCustomers(type, 'custIdx', 'desc', '');
 }
 
 // 페이지 처음 로딩 시 기본 데이터 로드
@@ -155,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	tabs.forEach(tab => {
 	    tab.addEventListener('click', () => {
 	        const biztab = tab.dataset.bizflag;
-	        loadCustomers(biztab);
+	        loadCustomers(biztab, currentTh, currentOrder, '');
 	    });
 	});
 	
@@ -225,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	 
 	// 기본 로딩
-	updateTableHeader('01');
-	loadCustomers('01');
+	updateTableHeader('02');
+	loadCustomers('02');
 });
 
 // 고객 클릭 시 호출하는 함수
@@ -260,7 +262,7 @@ function openModal(data = null, bizFlag) {
   
   if (data) {
     // 수정 모드
-	title.textContent = (bizFlag === '02' ? '발주처 정보 수정' : '거래처 정보 수정');
+	title.textContent = (bizFlag === '01' ? '발주처 정보 수정' : '거래처 정보 수정');
     saveBtn.style.display = 'none';
     editBtn.style.display = 'block';
 
@@ -279,7 +281,7 @@ function openModal(data = null, bizFlag) {
 	window.currentCustIdx = data.custIdx;
   } else {
     // 신규 등록 모드
-	title.textContent = (bizFlag === '02' ? '발주처 신규 등록' : '거래처 신규 등록');
+	title.textContent = (bizFlag === '01' ? '발주처 신규 등록' : '거래처 신규 등록');
     saveBtn.style.display = 'block';
     editBtn.style.display = 'none';
 
@@ -328,7 +330,7 @@ async function editCustomer() {
 
     alert('수정이 완료되었습니다!');
     closeModal('modal');
-    loadCustomers(updatedCustomer.bizFlag || '01');  // 다시 리스트 갱신
+    loadCustomers(updatedCustomer.bizFlag || '02');  // 다시 리스트 갱신
   } catch (error) {
     console.error(error);
     alert('수정 중 오류가 발생했습니다.');
@@ -495,11 +497,11 @@ function order(thElement) {
 
     const key = thElement.dataset.key;
 
-    if (currentTh === thElement) {
+    if (currentTh === key) {
         currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
     } else {
         currentOrder = 'asc';
-        currentTh = thElement;
+        currentTh = key;
     }
 
     const arrow = thElement.querySelector('a');
@@ -513,6 +515,6 @@ function order(thElement) {
 // 검색
 document.getElementById('searchBtn').addEventListener('click', () => {
     const keyword = document.getElementById('searchInput').value.trim();
-    loadCustomers(window.currentBizFlag, 'custNm', 'asc', keyword);
+    loadCustomers(window.currentBizFlag, 'custIdx', 'desc', keyword);
 	console.log(currentTh);
 });

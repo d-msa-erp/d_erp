@@ -1,14 +1,17 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>마이페이지</title>
+    
     <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    
     <style th:replace="~{/top.html :: topstyle}"></style>
 
     <style>
+        /* 기본 CSS 초기화 */
         * {
             margin: 0;
             padding: 0;
@@ -18,274 +21,291 @@
         body {
             font-family: sans-serif;
             display: flex;
-            justify-content: center;
-            flex-direction: column;
+            flex-direction: column; /* 세로 방향으로 정렬 */
+            min-height: 100vh; /* 최소 높이 100vh로 설정하여 푸터가 하단에 위치하도록 */
         }
 
         .site-Wrapper {
+            flex-grow: 1; /* 남은 공간을 차지하도록 설정 */
             width: 100%;
-            align-self: center;
             max-width: 1200px;
-            padding: 20px
+            padding: 20px;
+            margin: 20px auto; /* 중앙 정렬 및 상하 여백 */
         }
 
+        /* 마이페이지 폼 스타일 */
         .site-Dataset {
             width: 100%;
-            border: 1px solid #777;
-            border-radius: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .site-Dataset .header {
-            background: #46a6ff;
+            background-color: #46a6ff;
             color: white;
-            padding: 10px 20px;
-            font-size: 20px;
-        }
-
-        .site-Dataset .form-content {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .form-item {
-            display: flex;
-            align-items: center;
-            width: calc(33.333% - 13.33px);
-        }
-
-        .form-item.addr {
-            width: calc(66.666% - 10px);
-        }
-
-        .form-item span {
-            padding-right: 10px;
-            white-space: nowrap;
-        }
-
-        .form-item input {
-            width: 100%;
-            height: 100%;
-            border-radius: 3px;
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
-
-        .form-item input:focus {
-            border: 1px solid #46a6ff;
-            outline: none;
-        }
-
-        .table-wrapper {
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        .table-wrapper>div:nth-child(1) {
-            padding: 20px;
-            display: flex;
-            gap: 20px;
-            position: relative;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .table-wrapper>div:nth-child(1)>input[type="text"] {
-            width: 30%;
-            padding: 5px;
-        }
-
-        .table-wrapper>div:nth-child(1)>div {
-            width: 30%;
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .table-wrapper>div:nth-child(1)>div>span {
-            white-space: nowrap;
-        }
-
-        .table-wrapper>div:nth-child(1)>div>select {
-            width: 100%;
-        }
-
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 {
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            position: absolute;
-            left: 20px;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button {
-            width: 30%;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 input[type="button"] {
-            padding: 5px;
-            gap: 10px;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-            background: #007bff;
-            color: white;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-            background: #28a745;
-            color: white;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-            background: #dc3545;
-            color: white;
-        }
-
-        .table-wrapper>div:nth-child(2) {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-wrapper>div:nth-child(2)>span {
-            width: 30%;
-            padding-right: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(2)>span.active {
+            padding: 15px 20px;
+            font-size: 1.2em;
             font-weight: bold;
-            text-decoration: underline;
         }
 
-        .table-wrapper>div:nth-child(3) {
-            position: relative;
+        .data-Row {
+            display: flex;
+            border-bottom: 1px solid #eee;
         }
 
-        .nodata {
+        .data-Row:last-child {
+            border-bottom: none;
+        }
+
+        .data-Label, .data-Value {
+            padding: 12px 20px;
+            font-size: 0.95em;
+        }
+
+        .data-Label {
+            flex: 0 0 150px; /* 고정 너비 */
+            background-color: #f2f2f2;
+            font-weight: bold;
+            color: #555;
+            display: flex;
+            align-items: center;
+        }
+
+        .data-Value {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .data-Value input[type="text"],
+        .data-Value input[type="email"],
+        .data-Value input[type="tel"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        /* 버튼 스타일 */
+        .button-Group {
+            display: flex;
+            justify-content: flex-end;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+        }
+
+        .button-Group button {
+            padding: 10px 20px;
+            margin-left: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .button-Group .update-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .button-Group .change-pw-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             text-align: center;
         }
 
-        .flex-row {
-            display: flex;
-            gap: 10px;
-            width: 100%;
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #333;
         }
-        .myPageLine{
-            width: 100% !important;
+
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
-        .myPageLine input{width: 100%;}
-        button:hover{
-            filter: brightness(0.9);
+
+        .modal-content button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .modal-content .close-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .modal-content .save-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        #pw-change-msg {
+            color: red;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .success-message {
+            color: green;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .error-message {
+            color: red;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 
 <body>
-    <div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: .top-Wrapper}"></div>
 
-    <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">마이페이지</h1>
-        <form id="frm" method="get" action="#">
+    <div class="site-Wrapper">
+        <h1 style="text-align: center; margin-bottom: 30px; color: #333;">마이페이지</h1>
+
+        <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
+
+        <form th:action="@{/mypage/update}" method="post">
+            <input type="hidden" name="userIdx" th:value="${user.userIdx}" />
+            <input type="hidden" name="userId" th:value="${user.userId}" /> 
+            
             <div class="site-Dataset">
-                <div class="header">
-                    <h4 style="margin: 0;">마이페이지</h4>
+                <div class="header">내 정보</div>
+                <div class="data-Row">
+                    <div class="data-Label">아이디</div>
+                    <div class="data-Value" th:text="${user.userId}"></div>
                 </div>
-                <div class="table-wrapper">
-                    <div>
-                        <div class="myPageLine"><span>아이디</span><input type="text" value="test" readonly /></div>
-                        <div class="myPageLine"><span>비밀번호</span>
-                            <input type="password" value="test" readonly />
-                            <button type="button"
-                                onclick="document.getElementById('pw-change-modal').style.display='block'">변경</button>
-                        </div>
-                        <div class="myPageLine"><span>이름</span><input type="text" value="test" readonly/></div>
-                        <div class="myPageLine"><span>이메일</span><input type="text" value="test" readonly/></div>
-                        <div class="myPageLine"><span>직통번호</span><input type="text" value="test" readonly/></div>
-                        <div class="myPageLine"><span>연락처</span><input type="text" value="test" readonly/></div>
-                        <div class="myPageLine"><span>직책</span><input type="text" value="test" readonly/></div>
-                        <div class="myPageLine"><span>부서</span><input type="text" value="test"readonly /></div>
-                        <div class="myPageLine"><span>입사일</span><input type="date" readonly/></div>
-                        <div class="myPageLine"><span>퇴사일</span><input type="date" readonly/></div>
-                        <div class="myPageLine"><span>권한</span><input type="text"  value="test" readonly/></div>
-                        <div class="myPageLine"><span>재직상태</span><input type="text"   value="test" readonly/></div>
+                <div class="data-Row">
+                    <div class="data-Label">이름</div>
+                    <div class="data-Value">
+                        <input type="text" id="userNm" name="userNm" th:value="${user.userNm}" required />
                     </div>
                 </div>
-                <!-- 비밀번호 변경 모달 -->
-                <div id="pw-change-modal"
-                    style="display:none; position:fixed; left:0; top:0; width:100vw; height:100vh; background:rgba(0,0,0,0.3); z-index:9999;">
-                    <div
-                        style="background:#fff; padding:30px; border-radius:8px; width:320px; margin:100px auto; position:relative; top:20%;">
-                        <h3 style="margin-bottom:16px;">비밀번호 변경</h3>
-                        <div style="margin-bottom:10px;">
-                            <input type="password" id="currentPw" placeholder="현재 비밀번호"
-                                style="width:100%;padding:8px;" />
-                        </div>
-                        <div style="margin-bottom:10px;">
-                            <input type="password" id="newPw" placeholder="새 비밀번호" style="width:100%;padding:8px;" />
-                        </div>
-                        <div style="margin-bottom:16px;">
-                            <input type="password" id="newPw2" placeholder="새 비밀번호 확인"
-                                style="width:100%;padding:8px;" />
-                        </div>
-                        <div style="display:flex; justify-content:flex-end; gap:8px;">
-                            <button type="button"
-                                onclick="document.getElementById('pw-change-modal').style.display='none'"><span class="material-symbols-outlined">close</span>취소</button>
-                            <button type="button" onclick="changePassword()"><span class="material-symbols-outlined">edit</span>변경</button>
-                        </div>
-                        <div id="pw-change-msg" style="color:red; margin-top:10px; font-size:13px;"></div>
+                <div class="data-Row">
+                    <div class="data-Label">이메일</div>
+                    <div class="data-Value">
+                        <input type="email" id="userEMail" name="userEMail" th:value="${user.userEMail}" required />
                     </div>
                 </div>
-                <script>
-                    //우선 비밀번호 변경 모달만 ...
-                    function changePassword() {
-                        var current = document.getElementById('currentPw').value;
-                        var pw1 = document.getElementById('newPw').value;
-                        var pw2 = document.getElementById('newPw2').value;
-                        var msg = document.getElementById('pw-change-msg');
-                        msg.textContent = '';
-                        if (!current || !pw1 || !pw2) {
-                            msg.textContent = '모든 항목을 입력하세요.';
-                            return;
-                        }
-                        if (pw1 !== pw2) {
-                            msg.textContent = '새 비밀번호가 일치하지 않습니다.';
-                            return;
-                        }
-                        // 실제 비밀번호 변경 로직은 서버 연동 필요
-                        msg.style.color = 'green';
-                        msg.textContent = '비밀번호가 변경되었습니다.';
-                        setTimeout(function () {
-                            document.getElementById('pw-change-modal').style.display = 'none';
-                            msg.style.color = 'red';
-                            document.getElementById('currentPw').value = '';
-                            document.getElementById('newPw').value = '';
-                            document.getElementById('newPw2').value = '';
-                            msg.textContent = '';
-                        }, 1200);
-                    }
-                </script>
+                <div class="data-Row">
+                    <div class="data-Label">전화번호</div>
+                    <div class="data-Value">
+                        <input type="tel" id="userTel" name="userTel" th:value="${user.userTel}" />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">휴대폰</div>
+                    <div class="data-Value">
+                        <input type="tel" id="userHp" name="userHp" th:value="${user.userHp}" />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">부서</div>
+                    <div class="data-Value">
+                        <input type="text" id="userDept" name="userDept" th:value="${user.userDept}" readonly />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">직책</div>
+                    <div class="data-Value">
+                        <input type="text" id="userPosition" name="userPosition" th:value="${user.userPosition}" readonly />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">입사일</div>
+                    <div class="data-Value">
+                        <input type="text" id="hireDt" name="hireDt" th:value="${user.userHireDt}" readonly />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">퇴사일</div>
+                    <div class="data-Value">
+                        <input type="text" id="retireDt" name="retireDt" th:value="${user.userRetireDt}" readonly />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">권한</div>
+                    <div class="data-Value">
+                        <input type="text" id="userRole" name="userRole" th:value="${user.userRole}" readonly />
+                    </div>
+                </div>
+                <div class="data-Row">
+                    <div class="data-Label">재직상태</div>
+                    <div class="data-Value">
+                        <input type="text" id="userStatus" name="userStatus" th:value="${user.userStatus}" readonly />
+                    </div>
+                </div>
+            </div>
+            <div class="button-Group">
+                <button type="submit" class="update-btn">정보 수정</button>
+                <button type="button" class="change-pw-btn" onclick="openPwChangeModal()">비밀번호 변경</button>
             </div>
         </form>
     </div>
+
+    <div id="pw-change-modal" class="modal">
+        <form th:action="@{/mypage/updatePassword}" method="post" class="modal-content">
+            <h2>비밀번호 변경</h2>
+            <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호" required>
+            <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 확인" required>
+            <div id="pw-change-msg"></div>
+            <button type="submit" class="save-btn">변경</button>
+            <button type="button" class="close-btn" onclick="closePwChangeModal()">취소</button>
+        </form>
+    </div>
+
+    <script>
+        function openPwChangeModal() {
+            document.getElementById('pw-change-modal').style.display = 'flex';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('pw-change-msg').textContent = '';
+        }
+
+        function closePwChangeModal() {
+            document.getElementById('pw-change-modal').style.display = 'none';
+        }
+    </script>
 </body>
 
 </html>
