@@ -20,7 +20,7 @@ import java.util.Map;
 @EnableTransactionManagement // 트랜잭션 관리를 활성화합니다.
 // 이 JPA 설정을 사용할 Repository 인터페이스들이 있는 기본 패키지를 지정합니다.
 @EnableJpaRepositories(
-    basePackages = "kr.co.d_erp.repository", // NoticeRepository가 있는 패키지 경로 (이 경로는 그대로 둡니다)
+    basePackages = "kr.co.d_erp.repository.mysql", // NoticeRepository가 있는 패키지 경로 (이 경로는 그대로 둡니다)
     entityManagerFactoryRef = "secondEntityManagerFactory", // EntityManagerFactory 빈 이름 지정
     transactionManagerRef = "secondTransactionManager" // TransactionManager 빈 이름 지정
 )
