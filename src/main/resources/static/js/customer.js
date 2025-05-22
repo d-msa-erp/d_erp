@@ -1,4 +1,4 @@
-window.currentBizFlag = '01';
+window.currentBizFlag = '02';
 let currentTh = 'custIdx';
 let currentOrder = 'desc';
 
@@ -129,7 +129,7 @@ function renderErrorMessage(message) {
 function updateTableHeader(bizFlag) {
   const nameHeader = document.querySelector('#customerNameHeader');
   if (nameHeader) {
-    nameHeader.innerHTML = (bizFlag === '02' ? '발주처명' : '거래처명') + '<a>↓</a>';
+    nameHeader.innerHTML = (bizFlag === '01' ? '발주처명' : '거래처명') + '<a>↓</a>';
   }
 }
 
@@ -227,8 +227,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 	 
 	// 기본 로딩
-	updateTableHeader('01');
-	loadCustomers('01');
+	updateTableHeader('02');
+	loadCustomers('02');
 });
 
 // 고객 클릭 시 호출하는 함수
@@ -262,7 +262,7 @@ function openModal(data = null, bizFlag) {
   
   if (data) {
     // 수정 모드
-	title.textContent = (bizFlag === '02' ? '발주처 정보 수정' : '거래처 정보 수정');
+	title.textContent = (bizFlag === '01' ? '발주처 정보 수정' : '거래처 정보 수정');
     saveBtn.style.display = 'none';
     editBtn.style.display = 'block';
 
@@ -281,7 +281,7 @@ function openModal(data = null, bizFlag) {
 	window.currentCustIdx = data.custIdx;
   } else {
     // 신규 등록 모드
-	title.textContent = (bizFlag === '02' ? '발주처 신규 등록' : '거래처 신규 등록');
+	title.textContent = (bizFlag === '01' ? '발주처 신규 등록' : '거래처 신규 등록');
     saveBtn.style.display = 'block';
     editBtn.style.display = 'none';
 
@@ -330,7 +330,7 @@ async function editCustomer() {
 
     alert('수정이 완료되었습니다!');
     closeModal('modal');
-    loadCustomers(updatedCustomer.bizFlag || '01');  // 다시 리스트 갱신
+    loadCustomers(updatedCustomer.bizFlag || '02');  // 다시 리스트 갱신
   } catch (error) {
     console.error(error);
     alert('수정 중 오류가 발생했습니다.');
