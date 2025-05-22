@@ -130,7 +130,6 @@ public class ItemService {
     		int existingCustIdx = item.getCUST_IDX();
     		int updatedRows = itemMapper.updateCustNmByCustIdx(existingCustIdx, newCustNmToUpdate);
         }
-    	System.out.println("ITEM_NM to be updated: " + item.getITEM_NM());
         itemMapper.updateItem(item);
     }
     
@@ -166,6 +165,8 @@ public class ItemService {
     	if(itemMapper.countCdItem(item.getITEM_CD().trim()) > 0) {
     		throw new IllegalArgumentException("품목 코드 '"+item.getITEM_CD()+"'는 사용중입니다.");
     	}
+    	
+
     	if (item.getCUST_IDX() == null || item.getCUST_IDX() < 0) { // CUST_IDX가 유효하지 않은 경우
             
             item.setCUST_IDX(0);
