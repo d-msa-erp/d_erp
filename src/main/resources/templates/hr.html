@@ -556,13 +556,13 @@
                     <span>권한</span>
                     <select name="userRole" required style="width: 100%;padding: 10px;">
                         <option value="">권한을 선택해주세요</option>
-                        <option value="01">권한1</option>
-                        <option value="02">권한2</option>
-                        <option value="03">권한3</option>
-                        <option value="04">권한4</option>
-                        <option value="05">권한5</option>
-                        <option value="06">권한6</option>
-                        <option value="07">권한7</option>
+                        <option value="01">시스템관리자</option>
+                        <option value="02">대표</option>
+                        <option value="03">영업 담당자</option>
+                        <option value="04">구매 담당자</option>
+                        <option value="05">생산 관리자</option>
+                        <option value="06">재고 관리자</option>
+                        <option value="07">인사 담당자</option>
                     </select>
                     <span>부서</span>
                     <select name="userDept" required style="width: 100%;padding: 10px;">
@@ -589,8 +589,14 @@
                     <div style="display: flex;gap: 10px; width: 100%;"><span style="white-space: nowrap;">퇴사일</span><input type="date" name="retireDt" style="width: 100%;"></div>
                 </div>
                 <div><span>재직상태</span>
-                    <label>재직자 <input type="radio" name="userStatus" value="01" /></label>
-                    <label>퇴사자 <input type="radio" name="userStatus" value="02" /></label>
+                	<select name="userStatus" required style="width: 30%;padding: 10px;">
+                        <option value="">재직상태를 선택해주세요</option>
+                        <option value="01">재직중</option>
+                        <option value="02">퇴사</option>
+                        <option value="03">휴직</option>
+                        <option value="04">대기</option>
+                        <option value="05">정직</option>
+                    </select>
                     </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
