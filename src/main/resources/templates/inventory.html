@@ -413,6 +413,8 @@
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
+						<!-- <p class="nodata">등록된 품목이 없습니다.</p> -->
+						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
 
 							<thead>
@@ -429,34 +431,9 @@
 									<th onclick="order(this)">단가<a>↓</a></th>
 								</tr>
 							</thead>
-
-							<tbody>
-									<tr>
-									<td class="nodata" style="grid-column: span 9;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-								<!--몇개씩 자를지는 상의해봐요 ~ -->
-								<tr onclick="opendatail()">
-									<td onclick="event.stopPropagation()"><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-								</tr>
-								<tr>
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-
+							<tbody id="itembody">
+								<tr id="Noitem" style="display: none;">
+									<td class="nodata" colspan="9"><p>등록된 품목이 없습니다.</p></td>
 								</tr>
 							
 							</tbody>
@@ -623,11 +600,9 @@
                             itemNameCell.textContent = item.item_NM || "";
                             
                             const itemCodeCell = row.insertCell();
-                            
                             itemCodeCell.textContent = item.item_CD || "";
                             
                             const itemCat1Cell = row.insertCell();
-                            //itemCat1Cell.value = item.item_CAT1 || "";
                             itemCat1Cell.textContent = item.item_CATX1 || "";
                             
                             const itemCat2Cell = row.insertCell();
@@ -859,7 +834,6 @@
 		async function selectCat1(selectedCatIdx=null) {
 			const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
 			cat1Select.innerHTML = '<option value="">대분류를 선택해주세요</option>';
-			console.log("selectCat1 called with selectedCatIdx:", selectedCatIdx); // 추가
 			
 			try{
 				const response = await fetch(`/api/items/cats`); // 백엔드 API 호출
@@ -885,7 +859,6 @@
 		        console.error('대분류 목록 로드 실패:', error);
 				alert('대분류 목록을 불러오는 중 오류가 발생했습니다.');
 			}
-			
 		}
 		// 대분류 선택 변경 시 소분류를 로드하는 이벤트 핸들러
 		async function cat2Change() {
@@ -970,16 +943,13 @@
 		            const option = document.createElement('option');
 		            option.value = unit.unit_IDX; // option의 value는 item_UNIT
 		            option.textContent = unit.unit_NM; // option의 텍스트는 UNIT_NM
-		        	
 		            unitSelect.appendChild(option);
 		        });
 
 		        if (selectedUnitIdx !== null) {
 		            unitSelect.value = selectedUnitIdx; // 수정 모드일 때 선택된 단위 설정
-		            
 		        } else {
 		            unitSelect.value = ""; // 신규 모드일 때 초기화
-		           
 		        }
 		    } catch (error) {
 		        console.error('단위 목록 로드 실패:', error);
@@ -991,7 +961,7 @@
 		    const title = document.getElementById('modalTitle');
 		    const form = document.getElementById('modalForm');
 		    form.reset(); // 폼 초기화
-		    
+		
 		    // 품목코드 필드 (수정 가능/불가 제어)
 		    const modalItemCode = document.querySelector('#modalForm input[name="item_CD"]');
 		    // 거래처 선택 필드 (select 태그)
@@ -999,8 +969,12 @@
 		    const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
 		    const cat2Select = document.querySelector('#modalForm select[name="item_CATX2"]');
 		    const unitSelect = document.querySelector('#modalForm select[name="item_UNIT"]');
-
-		  
+		    selectCat1(null).then(() => {
+		    	cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
+		    	cat2Select.disabled = true;
+		    })
+		    selectUnit();
+		
 		    // 수정 모드일 때 (item 객체가 전달됨)
 		    if (item) {
 		        title.textContent = '품목 수정';
@@ -1011,8 +985,8 @@
 		        document.querySelector('#modalForm input[name="item_CD"]').value = item.item_CD || "";
 		        document.querySelector('#modalForm input[name="item_NM"]').value = item.item_NM || "";
 		        
-		        document.querySelector('#modalForm select[name="item_CATX1"]').value = item.item_CAT1 || ""; // 대분류명
-		        document.querySelector('#modalForm select[name="item_CATX2"]').value = item.item_CAT2 || ""; // 소분류명
+		        document.querySelector('#modalForm select[name="item_CATX1"]').value = item.item_CATX1 || ""; // 대분류명
+		        document.querySelector('#modalForm select[name="item_CATX2"]').value = item.item_CATX2 || ""; // 소분류명
 		        document.querySelector('#modalForm input[name="item_SPEC"]').value = item.item_SPEC || "";
 		        document.querySelector('#modalForm input[name="item_COST"]').value = item.item_COST || "";
 		        document.querySelector('#modalForm input[name="remark"]').value = item.remark || "";
@@ -1021,7 +995,7 @@
 		        document.querySelector('#modalForm input[name="item_IDX"]').value = item.item_IDX || ""; // item_IDX 필드 추가 가정
 		
 		        // 품목코드는 수정 불가하도록 readonly 설정
-		       modalItemCode.readOnly = true;
+		        document.querySelector('#modalForm input[name="item_CD"]').readOnly = true;
 		
 		        // 거래처 드롭다운 로드 및 해당 품목의 거래처 선택
 		        selectCust().then(() => {
@@ -1035,26 +1009,22 @@
 		       /*  selectUnit().then(() => {
 		        	if (unitSelect && item.item_UNIT)
 		        }) */
-		        selectCat1(item.item_CAT1).then(() => { // item.item_CAT1으로 대분류 로드 및 선택
-		            // 대분류 선택이 완료된 후에 소분류 로드 및 선택을 진행
-		            if (item.item_CAT1) {
-		                selectCat2(item.item_CAT1, item.item_CAT2).catch(error => {
-		                    console.error('소분류 로드 중 오류 발생:', error);
-		                });
-		            } else {
-		                cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
-		                cat2Select.value = "";
-		                cat2Select.disabled = true;
-		            }
-		        }).catch(error => {
-		            console.error('대분류 목록 로드 또는 선택 중 오류 발생:', error);
-		            alert('대분류 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
-		        });    
-		        selectUnit(item.item_UNIT).catch(error => { // item.item_UNIT으로 단위 로드 및 선택
-		            console.error('단위 목록 로드 또는 선택 중 오류 발생:', error);
-		            alert('단위 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
-		        });
 		        
+	            if (item.item_CAT1) {
+	            	cat2Select.value = item.item_CAT1; // 대분류 선택
+	                // 대분류 선택 후 소분류 로드 및 선택
+	                selectCat2(item.item_CAT1, item.item_CAT2).catch(error => {
+	                     console.error('소분류 로드 중 오류 발생:', error);
+	                });
+	            } else {
+	            	cat2Select.value = ""; // 대분류 없을 경우 초기화
+	            }
+	            if (unitSelect && item.item_UNIT) { // item.item_UNIT에 해당 단위 ID가 있다고 가정
+	                unitSelect.value = item.item_UNIT;
+	            } else {
+	                unitSelect.value = "";
+	            }
+		
 		        // 수정 버튼 이벤트 리스너 연결
 		        const editButton = document.querySelector('#modalForm button[name="edit"]');
 		        editButton.removeEventListener('click', updateItem); // 기존 리스너 제거 (중복 방지)
@@ -1073,13 +1043,7 @@
 		
 		        // 거래처 드롭다운 로드 (선택된 값 없음)
 		        selectCust(null);
-				
-		        selectCat1(null).then(() => {
-		            cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
-		            cat2Select.disabled = true;
-		        });
-		        selectUnit(null);
-		        
+		
 		        // 등록 버튼 이벤트 리스너 연결
 		        const saveBtn = document.querySelector('#modalForm button[name="save"]');
 		        saveBtn.removeEventListener('click', submitModal); // 기존 리스너 제거 (중복 방지)
@@ -1131,23 +1095,12 @@
             newItem.item_CAT2 = selectedCat2Idx; // 백엔드 DTO 필드명: ITEM_CAT2 (예시)
             
             
-            let selectedUnitIdx = 0; // 이 라인이 추가 또는 수정되었습니다.
-            if (newItem.item_UNIT && String(newItem.item_UNIT).trim() !== '') {
+            let selectedUnitIdx = 0;
+            if (newItem.item_UNIT && String(newItem.item_UNIT).trim() !== '') { // name="item_UNIT"
                 selectedUnitIdx = parseInt(newItem.item_UNIT);
-                // 추가 유효성 검사: 숫자로 변환되지 않았다면 알림
-                if (isNaN(selectedUnitIdx)) {
-                    alert("단위는 유효한 숫자여야 합니다.");
-                    return;
-                }
-            } else {
-                // 단위가 선택되지 않았을 경우 필수 입력 알림
-                alert("단위를 선택해주세요.");
-                return;
             }
             newItem.item_UNIT = selectedUnitIdx;
             console.log("전송될 데이터 : ",newItem);
-            
-            //유효성 검사
             if (!newItem.item_NM || newItem.item_NM.trim() === '') {
                 alert("품목명은 필수 입력 사항입니다.");
                 return;
@@ -1213,28 +1166,28 @@
 		    updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
 		    if(updatedItem.cust_NM){
 		    	updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
-		        
+		        delete updatedItem.cust_NM;
 		    }
 		    if (updatedItem.item_CATX1) {
 		        updatedItem.item_CAT1 = parseInt(updatedItem.item_CATX1);
-		        
+		        delete updatedItem.item_CAT1;
 		    }
 		    if (updatedItem.item_CATX2) {
 		        updatedItem.item_CAT2 = parseInt(updatedItem.item_CATX2);
-		       
+		        delete updatedItem.item_CAT2;
 		    }
 		    if (updatedItem.item_UNIT) {
 		        updatedItem.item_UNIT = parseInt(updatedItem.item_UNIT);
-		        
+		        delete updatedItem.item_UNIT;
 		    }
 		    if (updatedItem.item_COST) {
 		        updatedItem.item_COST = parseInt(updatedItem.item_COST);
 		    }
 
-		     if (updatedItem.item_CAT1 === 1) {
-		         updatedItem.item_FLAG = '01';
+		     if (updatedItem.ITEM_CAT1 === 1) {
+		         updatedItem.ITEM_FLAG = '01';
 		     } else {
-		         updatedItem.item_FLAG = '02';
+		         updatedItem.ITEM_FLAG = '02';
 		     }
 		    
             console.log("전송될 updatedItem:", updatedItem); 
