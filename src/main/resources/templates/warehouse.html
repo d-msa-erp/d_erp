@@ -14,7 +14,7 @@
     <div th:replace="~{/top.html :: top}"></div>
     <div class="site-Wrapper">
         <h1 style="font-size: 24px; margin-bottom: 16px;">창고 관리</h1>
-        <form id="frm" method="get" action="#">
+        <form id="frm" onsubmit="handleSearchSubmit(event)">
             <div class="site-Dataset">
                 <div class="header">
                     <h4 style="margin: 0;">창고 관리</h4>
@@ -23,7 +23,7 @@
                     <div>
                         <input type="text" id="searchInput" placeholder="검색" />
                         <div>
-                            <button type="button" id="searchButton">
+                            <button type="submit" id="searchButton">
                                 <span class="material-symbols-outlined">search</span> 검색
                             </button>
                             <button type="button" id="newRegistrationButton">
@@ -47,17 +47,18 @@
                         <table class="grid-table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" /></th>
+                                    <th><input type="checkbox" id="selectAllCheckboxes" /></th>
                                     <th onclick="order(this)" data-sort-by="whCd">창고 코드<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whNm">창고 명<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whType1">창고 타입<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="useFlag">사용 여부<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="whLocation">주소<a>↓</a></th>
                                     <th onclick="order(this)" data-sort-by="remark">비고<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="whUserNm">담당자<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody id="warehouseTableBody">
-                                </tbody>
+                            </tbody>
                         </table>
 
                         <div class="pagination-wrap">
@@ -80,51 +81,70 @@
 
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle" style="padding-bottom: 20px;">창고 수정</h3>
-            <form id="modalForm" class="modalForm">
-                <input type="hidden" name="whIdx" />
-                <div id="warehouseInfo">
-                    <div>
-                        <span>창고명</span><input type="text" name="whNm" placeholder="창고명을 입력해주세요" required />
-                    </div>
-                    <div>
-                        <label>자재 창고 <input type="checkbox" name="whType1" value="Y" /></label>
-                        <label>제품 창고 <input type="checkbox" name="whType2" value="Y" /> </label>
-                        <label>반품 창고 <input type="checkbox" name="whType3" value="Y" /></label>
-                    </div>
-                    <div>
-                        <span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
-                    </div>
-                    <div>
-                        <span>주소</span><input type="text" name="whLocation" placeholder="창고 주소를 입력해주세요" required />
-                    </div>
-                    <div>
-                        <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
-                    </div>
+            <h3 id="modalTitle" style="padding-bottom: 20px;">창고 상세 정보</h3>
+
+            <div class="modal-tabs">
+                <button type="button" class="tab-button active" data-tab="stock">재고 현황</button>
+                <button type="button" class="tab-button" data-tab="info">정보 수정</button>
+            </div>
+
+            <div id="stockTab" class="tab-content active"> <h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
+                <table class="grid-table">
+                    <thead>
+                        <tr>
+                            <th>품명</th>
+                            <th>품번</th>
+                            <th>수량</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warehouseStockTableBody">
+                        <tr>
+                            <td colspan="3" style="text-align: center;">재고 데이터 없음</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()">
+                        <span class="material-symbols-outlined">close</span> 닫기
+                    </button>
                 </div>
+            </div>
 
-                <div class="wh_db">
-                    <h3 style="align-self: flex-start; padding-bottom: 20px;">창고
-                        재고</h3>
-                    <table class="grid-table">
-                        <thead>
-                            <tr>
-                                <th>품명</th>
-                                <th>품번</th>
-                                <th>수량</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td colspan="3" style="text-align: center;">재고 데이터 없음</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="infoTab" class="tab-content"> <form id="modalForm" class="modalForm">
+                    <input type="hidden" name="whIdx" />
+                    <div id="warehouseInfo" class="warehouse-info-grid">
+                        <div class="input-group">
+                            <span>창고 코드</span>
+                            <input type="text" name="whCd" placeholder="자동 생성" readonly />
+                        </div>
+                        <div class="input-group">
+                            <span>창고명</span>
+                            <input type="text" name="whNm" placeholder="창고명을 입력해주세요" required />
+                        </div>
+                        <div class="checkbox-group">
+                            <label>자재 창고 <input type="checkbox" name="whType1" value="Y" /></label>
+                            <label>제품 창고 <input type="checkbox" name="whType2" value="Y" /> </label>
+                            <label>반품 창고 <input type="checkbox" name="whType3" value="Y" /></label>
+                        </div>
+                        <div class="input-group">
+                            <span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
+                        </div>
+                        <div class="input-group">
+                            <span>주소</span><input type="text" name="whLocation" placeholder="창고 주소를 입력해주세요"
+                                required />
+                        </div>
+                        <div class="input-group">
+                            <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
+                        </div>
+                        <div class="input-group">
+                            <span>담당자</span>
+                            <select name="whUserIdx" id="modalWhUserIdx" required>
+                                <option value="">담당자를 선택해주세요</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-
-                    <div class="modal-buttons" style="grid-column-start: 3;">
+                    <div class="modal-buttons" style="grid-column: 1 / -1; margin-top: 20px;">
                         <button type="submit" name="save" style="display: none;">
                             <span class="material-symbols-outlined">save</span> 등록
                         </button>
@@ -135,11 +155,10 @@
                             <span class="material-symbols-outlined">close</span> 취소
                         </button>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
-
     <script src="/js/warehouse.js"></script>
     <script src="/js/top.js"></script>
 </body>

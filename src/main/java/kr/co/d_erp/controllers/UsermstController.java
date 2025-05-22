@@ -1,6 +1,7 @@
 package kr.co.d_erp.controllers;
 
-import kr.co.d_erp.dtos.Usermst;
+import kr.co.d_erp.domain.Usermst;
+import kr.co.d_erp.dtos.UserSelectDto;
 import kr.co.d_erp.service.UsermstService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,8 @@ import java.util.List;
 public class UsermstController {
 
 	private final UsermstService UsermstService;
-	
-	//전체 리스트 출력 (+ 정렬)
+
+	// 전체 리스트 출력 (+ 정렬)
 	@GetMapping
 	public ResponseEntity<List<Usermst>> getAllUsers(@RequestParam(defaultValue = "userStatus") String sortBy,
 			@RequestParam(defaultValue = "desc") String sortDirection, @RequestParam(required = false) String keyword) {
@@ -71,5 +72,12 @@ public class UsermstController {
 			// 상세 에러 처리
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 		}
+	}
+
+	// 창고 담당자 셀렉트에 사용 
+	@GetMapping("/active-for-selection") // 예: /api/users/active-for-selection
+	public ResponseEntity<List<UserSelectDto>> getActiveUsersForSelection() {
+		List<UserSelectDto> activeUsers = UsermstService.getActiveUsersForSelection();
+		return ResponseEntity.ok(activeUsers);
 	}
 }
