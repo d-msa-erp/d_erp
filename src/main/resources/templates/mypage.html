@@ -11,197 +11,216 @@
     <style th:replace="~{/top.html :: topstyle}"></style>
 
     <style>
-        /* 기본 CSS 초기화 */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* 기본 CSS 초기화 */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column; /* 세로 방향으로 정렬 */
-            min-height: 100vh; /* 최소 높이 100vh로 설정하여 푸터가 하단에 위치하도록 */
-        }
+body {
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column; /* 세로 방향으로 정렬 */
+	min-height: 100vh; /* 최소 높이 100vh로 설정하여 푸터가 하단에 위치하도록 */
+}
 
-        .site-Wrapper {
-            flex-grow: 1; /* 남은 공간을 차지하도록 설정 */
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            margin: 20px auto; /* 중앙 정렬 및 상하 여백 */
-        }
+.site-Wrapper {
+	flex-grow: 1; /* 남은 공간을 차지하도록 설정 */
+	width: 100%;
+	max-width: 1200px;
+	padding: 20px;
+}
 
-        /* 마이페이지 폼 스타일 */
-        .site-Dataset {
-            width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+/* 마이페이지 폼 스타일 */
+.site-Dataset {
+	width: 100%;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	background-color: #fff;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
-        .site-Dataset .header {
-            background-color: #46a6ff;
-            color: white;
-            padding: 15px 20px;
-            font-size: 1.2em;
-            font-weight: bold;
-        }
+.site-Dataset .header {
+	background-color: #46a6ff;
+	color: white;
+	padding: 15px 20px;
+	font-size: 1.2em;
+	font-weight: bold;
+}
 
-        .data-Row {
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
+.data-Row {
+	display: flex;
+	border-bottom: 1px solid #eee;
+}
 
-        .data-Row:last-child {
-            border-bottom: none;
-        }
+.data-Row:last-child {
+	border-bottom: none;
+}
 
-        .data-Label, .data-Value {
-            padding: 12px 20px;
-            font-size: 0.95em;
-        }
+.data-Label, .data-Value {
+	padding: 12px 20px;
+	font-size: 0.95em;
+}
 
-        .data-Label {
-            flex: 0 0 150px; /* 고정 너비 */
-            background-color: #f2f2f2;
-            font-weight: bold;
-            color: #555;
-            display: flex;
-            align-items: center;
-        }
+.data-Label {
+	flex: 0 0 150px; /* 고정 너비 */
+	background-color: #f2f2f2;
+	font-weight: bold;
+	color: #555;
+	display: flex;
+	align-items: center;
+}
 
-        .data-Value {
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-        }
+.data-Value {
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+}
 
-        .data-Value input[type="text"],
-        .data-Value input[type="email"],
-        .data-Value input[type="tel"] {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.95em;
-        }
+.data-Value input[type="text"], .data-Value input[type="email"],
+	.data-Value input[type="tel"] {
+	width: 100%;
+	padding: 8px 10px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+	font-size: 0.95em;
+}
 
-        /* 버튼 스타일 */
-        .button-Group {
-            display: flex;
-            justify-content: flex-end;
-            padding: 20px;
-            background-color: #f8f8f8;
-            border-top: 1px solid #eee;
-        }
+/* 버튼 스타일 */
+.button-Group {
+	display: flex;
+	justify-content: flex-end;
+	padding: 20px;
+	background-color: #f8f8f8;
+	border-top: 1px solid #eee;
+}
 
-        .button-Group button {
-            padding: 10px 20px;
-            margin-left: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-        }
+.button-Group button {
+	    padding: 10px;
+    margin-left: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    display: flex;
+    font-weight: bold;
+    align-items: center;
+}
 
-        .button-Group .update-btn {
-            background-color: #007bff;
-            color: white;
-        }
+.button-Group button:hover {
+	filter: brightness(0.9);
+}
 
-        .button-Group .change-pw-btn {
-            background-color: #6c757d;
-            color: white;
-        }
+.button-Group .update-btn {
+	background-color: #007bff;
+	color: white;
+}
 
-        /* 모달 스타일 */
-        .modal {
-            display: none; /* Hidden by default */
-            position: fixed; /* Stay in place */
-            z-index: 1000; /* Sit on top */
-            left: 0;
-            top: 0;
-            width: 100%; /* Full width */
-            height: 100%; /* Full height */
-            overflow: auto; /* Enable scroll if needed */
-            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-            justify-content: center;
-            align-items: center;
-        }
+.button-Group .change-pw-btn {
+	background-color: #6c757d;
+	color: white;
+}
 
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 30px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            text-align: center;
-        }
+/* 모달 스타일 */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1000; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+	justify-content: center;
+	align-items: center;
+}
 
-        .modal-content h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
+.modal-content {
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+	width: 80%;
+	position: relative;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	text-align: center;
+}
 
-        .modal-content input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
+.modal-content .btn-Wrap {
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+}
+.modal-content .btn-Wrap > div {
+    grid-column: 3;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .modal-content button {
-            padding: 10px 20px;
-            margin: 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-        }
 
-        .modal-content .close-btn {
-            background-color: #dc3545;
-            color: white;
-        }
+.modal-content h2 {
+	margin-bottom: 20px;
+	color: #333;
+	text-align: left;
+}
 
-        .modal-content .save-btn {
-            background-color: #28a745;
-            color: white;
-        }
-        #pw-change-msg {
-            color: red;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-        .success-message {
-            color: green;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        .error-message {
-            color: red;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-    </style>
+.modal-content input {
+	width: calc(100% - 20px);
+	padding: 10px;
+	margin-bottom: 15px;
+	border: 1px solid #ccc;
+	border-radius: 4px;
+}
+
+.modal-content button {
+width:100%;
+	padding: 10px ;
+	margin: 5px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 1em;
+	font-weight: bold;
+}
+
+.modal-content .close-btn {
+	background-color: #dc3545;
+	color: white;
+}
+
+.modal-content .save-btn {
+	background-color: #28a745;
+	color: white;
+}
+
+#pw-change-msg {
+	color: red;
+	margin-top: 10px;
+	font-weight: bold;
+}
+
+.success-message {
+	color: green;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.error-message {
+	color: red;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+</style>
 </head>
 
 <body>
     <div th:replace="~{/top.html :: .top-Wrapper}"></div>
 
     <div class="site-Wrapper">
-        <h1 style="text-align: center; margin-bottom: 30px; color: #333;">마이페이지</h1>
-
+<h1 style="color: #333;font-size: 24px;margin-bottom: 16px; font-size: 24px;text-align:left">마이페이지</h1>
         <div th:if="${successMessage}" class="success-message" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="error-message" th:text="${errorMessage}"></div>
 
@@ -254,31 +273,33 @@
                 <div class="data-Row">
                     <div class="data-Label">입사일</div>
                     <div class="data-Value">
-                        <input type="text" id="hireDt" name="hireDt" th:value="${user.userHireDt}" readonly />
+                        <input type="text" id="hireDt" name="hireDt" th:value="${#strings.substring(user.userHireDt, 0, 10)}" readonly />
                     </div>
                 </div>
                 <div class="data-Row">
                     <div class="data-Label">퇴사일</div>
                     <div class="data-Value">
-                        <input type="text" id="retireDt" name="retireDt" th:value="${user.userRetireDt}" readonly />
+                        <input type="text" id="retireDt" name="retireDt" th:value="${#strings.substring(user.userRetireDt,0,10)}" readonly />
                     </div>
                 </div>
-                <div class="data-Row">
-                    <div class="data-Label">권한</div>
-                    <div class="data-Value">
-                        <input type="text" id="userRole" name="userRole" th:value="${user.userRole}" readonly />
-                    </div>
-                </div>
+     
                 <div class="data-Row">
                     <div class="data-Label">재직상태</div>
-                    <div class="data-Value">
-                        <input type="text" id="userStatus" name="userStatus" th:value="${user.userStatus}" readonly />
+                    <div class="data-Value" th:switch="${user.userStatus}">
+                    
+                        <input type="text" id="userStatus" name="userStatus" th:case="'01'" value="재직중" readonly />
+                        <input type="text" id="userStatus" name="userStatus" th:case="'02'" value="퇴사" readonly />
+                        <input type="text" id="userStatus" name="userStatus" th:case="'03'" value="휴직" readonly />
+                        <input type="text" id="userStatus" name="userStatus" th:case="'04'" value="대기" readonly />
+                        <input type="text" id="userStatus" name="userStatus" th:case="'05'" value="정직" readonly />
+<!--                         <input type="text" id="userStatus" name="userStatus" th:value="${user.userStatus}" readonly /> -->
                     </div>
                 </div>
             </div>
             <div class="button-Group">
-                <button type="submit" class="update-btn">정보 수정</button>
-                <button type="button" class="change-pw-btn" onclick="openPwChangeModal()">비밀번호 변경</button>
+                <button type="submit" class="update-btn"> <span class="material-symbols-outlined">edit</span>정보 수정</button>
+                <button type="button" class="change-pw-btn" onclick="openPwChangeModal()"><span class="material-symbols-outlined">lock</span>비밀번호 변경</button>
+   
             </div>
         </form>
     </div>
@@ -289,8 +310,12 @@
             <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호" required>
             <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 확인" required>
             <div id="pw-change-msg"></div>
-            <button type="submit" class="save-btn">변경</button>
-            <button type="button" class="close-btn" onclick="closePwChangeModal()">취소</button>
+            <div class="btn-Wrap">
+            <div>
+            <button type="submit" class="save-btn"> <span class="material-symbols-outlined">edit</span>변경</button>
+            <button type="button" class="close-btn" onclick="closePwChangeModal()"> <span class="material-symbols-outlined">close</span>취소</button>
+            </div>
+            </div>
         </form>
     </div>
 
@@ -305,6 +330,16 @@
         function closePwChangeModal() {
             document.getElementById('pw-change-modal').style.display = 'none';
         }
+        
+        //modal 닫기
+        window.addEventListener('click', function (event) {
+            const modal = document.getElementById('pw-change-modal');
+            const content = document.querySelector('#pw-change-modal .modal-content');
+
+            if (event.target === modal) {
+                closePwChangeModal();
+            }
+        });
     </script>
 </body>
 
