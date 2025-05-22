@@ -79,36 +79,44 @@
         </form>
     </div>
 
-    <div class="modal" id="modal" onclick="outsideClick(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle" style="padding-bottom: 20px;">창고 상세 정보</h3>
+<div class="modal" id="modal" onclick="outsideClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h3 id="modalTitle" style="padding-bottom: 20px;">창고 상세 정보</h3>
 
-            <div class="modal-tabs">
-                <button type="button" class="tab-button active" data-tab="stock">재고 현황</button>
-                <button type="button" class="tab-button" data-tab="info">정보 수정</button>
-            </div>
+        <div class="modal-tabs">
+            <button type="button" class="tab-button active" data-tab="stock">재고 현황</button>
+            <button type="button" class="tab-button" data-tab="info">정보 수정</button>
+        </div>
 
-            <div id="stockTab" class="tab-content active"> <h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
-                <table class="grid-table">
-                    <thead>
-                        <tr>
-                            <th>품명</th>
-                            <th>품번</th>
-                            <th>수량</th>
-                        </tr>
-                    </thead>
-                    <tbody id="warehouseStockTableBody">
-                        <tr>
-                            <td colspan="3" style="text-align: center;">재고 데이터 없음</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end;">
-                    <button type="button" onclick="closeModal()">
-                        <span class="material-symbols-outlined">close</span> 닫기
-                    </button>
-                </div>
-            </div>
+        <div id="stockTab" class="tab-content active">
+    <h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
+    <table class="grid-table">
+        <thead>
+            <tr>
+                <th><input type="checkbox" id="selectAllStockCheckboxes" /></th>
+                <th>품명</th>
+                <th>품번</th>
+                <th>규격</th> <th>재고 수량</th> <th>단위</th> <th>거래처명</th> <th>비고</th> </tr>
+        </thead>
+        <tbody id="warehouseStockTableBody">
+            <tr>
+                <td colspan="8" style="text-align: center;">재고 데이터 없음</td> </tr>
+        </tbody>
+    </table>
+    <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end; width: 100%;">
+        <div style="display: flex; gap: 10px; margin-right: auto;">
+            <button type="button" id="moveStockButton" class="green-button">
+                <span class="material-symbols-outlined">sync_alt</span> 창고이동
+            </button>
+            <button type="button" id="deleteStockButton" class="red-button">
+                <span class="material-symbols-outlined">delete</span> 삭제
+            </button>
+        </div>
+        <button type="button" onclick="closeModal()">
+            <span class="material-symbols-outlined">close</span> 닫기
+        </button>
+    </div>
+</div>
 
             <div id="infoTab" class="tab-content"> <form id="modalForm" class="modalForm">
                     <input type="hidden" name="whIdx" />

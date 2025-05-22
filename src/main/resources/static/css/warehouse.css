@@ -529,6 +529,37 @@ button:hover {
     font-size: 1.2rem;
 }
 
-/* 기존 .modal-content .modalForm > div, .modal-content .modalForm > label 스타일은
-   .warehouse-info-grid .input-group 으로 대체되어야 하므로 제거하거나 무시됩니다.
-   새로운 그리드 구조에 맞춰서 하위 요소들을 재정의했습니다. */
+/* 창고이동 삭제 스타일 */
+.modal-buttons .green-button {
+    background-color: #28a745; /* 초록색 (성공/추가 계열) */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 15px; /* 약간 더 작게 또는 기존 버튼과 동일하게 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}
+
+.modal-buttons .green-button:hover {
+    filter: brightness(0.9);
+}
+
+.modal-buttons .red-button {
+    background-color: #dc3545; /* 빨간색 (위험/삭제 계열) */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 10px 15px; /* 약간 더 작게 또는 기존 버튼과 동일하게 */
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: center;
+}
+
+.modal-buttons .red-button:hover {
+    filter: brightness(0.9);
+}

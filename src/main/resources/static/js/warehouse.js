@@ -67,7 +67,7 @@ async function loadManagersIntoSelect(selectElementId, selectedUserIdx = null) {
     selectBox.appendChild(createOption('', '담당자를 선택해주세요', true, true));
 
     try {
-        const response = await fetch('/api/users/active-for-selection');
+        const response = await fetch('/api/warehouses/users/active-for-selection'); // API 경로 수정
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`Error fetching managers list: HTTP status ${response.status}`, errorText);
@@ -185,6 +185,10 @@ function closeModal() {
     document.querySelectorAll('.tab-button').forEach(button => {
         button.classList.remove('active');
     });
+
+    // ⭐ 재고 탭 관련 UI 초기화 ⭐
+    displayNoStockMessage(); // 재고 테이블 초기화 및 메시지 표시
+    document.getElementById('selectAllStockCheckboxes').checked = false; // 재고 전체 선택 체크박스 초기화
 }
 
 function outsideClick(event) {
@@ -203,6 +207,10 @@ async function openModal(mode, whIdx = null) {
 
     const warehouseInfoDiv = document.getElementById('warehouseInfo');
     const warehouseStockTableBody = document.getElementById('warehouseStockTableBody'); // 재고 테이블 바디
+    const selectAllStockCheckboxes = document.getElementById('selectAllStockCheckboxes');
+    const moveStockButton = document.getElementById('moveStockButton');
+    const deleteStockButton = document.getElementById('deleteStockButton');
+
 
     modalForm.reset();
     currentWhIdxForModal = whIdx; // 모달이 열리는 창고의 ID 저장
@@ -225,7 +233,7 @@ async function openModal(mode, whIdx = null) {
     const stockTabContent = document.getElementById('stockTab');
     const infoTabContent = document.getElementById('infoTab');
 
-    // ⭐⭐⭐ 중요: 모달이 열릴 때 모든 탭의 active 클래스를 초기화합니다. ⭐⭐⭐
+    // ⭐⭐⭐ 중요: 모달이 열릴 때 모든 탭의 active 클래스를 초기화하고 기본 탭을 활성화합니다. ⭐⭐⭐
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
@@ -254,11 +262,12 @@ async function openModal(mode, whIdx = null) {
         if (useFlagCheckbox) useFlagCheckbox.checked = true;
 
         await loadManagersIntoSelect('modalWhUserIdx');
+        displayNoStockMessage(); // 신규 등록 시 재고 테이블 초기화
 
     } else if (mode === 'view' && whIdx !== null) { // 상세 조회 및 수정 모드
         modalTitle.textContent = '창고 상세 정보';
         tabsContainer.style.display = 'flex'; // 탭 보이기
-        
+
         // ⭐ 상세 조회 시 무조건 '재고 현황' 탭을 활성화 ⭐
         stockTabContent.classList.add('active');
         document.querySelector('.tab-button[data-tab="stock"]').classList.add('active');
@@ -289,39 +298,9 @@ async function openModal(mode, whIdx = null) {
 
             await loadManagersIntoSelect('modalWhUserIdx', warehouse.whUserIdx);
 
-            // ⭐ 재고 데이터 로드 (API는 예시, 실제 API로 교체 필요) ⭐
-            // 백엔드에 이 API가 구현되지 않았거나 문제가 있다면 이 부분을 주석 처리하고
-            // 창고 기본 정보 로드만 먼저 테스트해보세요.
-            try {
-                const stockResponse = await fetch(`/api/warehouses/${whIdx}/stock`);
-                if (!stockResponse.ok) {
-                    const errorText = await stockResponse.text();
-                    console.error(`Error fetching warehouse stock: HTTP status ${stockResponse.status}`, errorText);
-                    // 에러 발생 시에도 테이블 내용을 명확히 초기화
-                    warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">재고 데이터 로드 실패</td></tr>';
-                    throw new Error(`HTTP error! status: ${stockResponse.status}, Message: ${errorText}`);
-                }
-                const stockData = await stockResponse.json();
-                warehouseStockTableBody.innerHTML = ''; // 기존 재고 데이터 초기화
-                if (stockData && stockData.length > 0) {
-                    stockData.forEach(item => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${item.itemName || ''}</td>
-                            <td>${item.itemNumber || ''}</td>
-                            <td>${item.quantity || 0}</td>
-                        `;
-                        warehouseStockTableBody.appendChild(row);
-                    });
-                } else {
-                    warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center;">재고 데이터 없음</td></tr>';
-                }
-            } catch (stockError) {
-                console.error('재고 데이터를 불러오는 중 오류 발생:', stockError);
-                warehouseStockTableBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: red;">재고 데이터 로드 실패</td></tr>';
-            }
-
-
+            // ⭐ 재고 데이터 로드 (수정된 API 경로 사용) ⭐
+            await loadWarehouseStockDetails(whIdx); // 새로운 함수 호출
+            
         } catch (error) {
             console.error('창고 상세 정보를 불러오는 중 오류 발생:', error);
             alert('창고 정보를 불러오는데 실패했습니다.');
@@ -342,6 +321,80 @@ function handleSearchSubmit(event) {
     event.preventDefault();
     const keyword = document.getElementById('searchInput').value;
     loadWarehousesTable(currentSortBy, currentOrder, keyword);
+}
+
+// ⭐ 재고 데이터 로드 및 렌더링 함수 (추가 또는 수정) ⭐
+async function loadWarehouseStockDetails(whIdx) {
+    const warehouseStockTableBody = document.getElementById('warehouseStockTableBody');
+    const selectAllStockCheckboxes = document.getElementById('selectAllStockCheckboxes');
+    const moveStockButton = document.getElementById('moveStockButton');
+    const deleteStockButton = document.getElementById('deleteStockButton');
+
+    warehouseStockTableBody.innerHTML = ''; // 기존 내용 삭제
+
+    try {
+        // ⭐ 이전에 제안했던 API 경로를 사용합니다. ⭐
+        const response = await fetch(`/api/warehouses/${whIdx}/inventory-details`);
+        if (!response.ok) {
+            // HTTP 상태 코드가 200이 아닌 경우
+            if (response.status === 204) { // 204 No Content (데이터는 없지만 성공)
+                console.warn(`창고 ID ${whIdx}에 대한 재고 정보가 없습니다 (204 No Content).`);
+                displayNoStockMessage();
+                return;
+            }
+            const errorText = await response.text();
+            console.error(`Error fetching warehouse stock details: HTTP status ${response.status}`, errorText);
+            throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
+        }
+        const stockDetails = await response.json();
+
+        if (stockDetails && stockDetails.length > 0) {
+            stockDetails.forEach(stock => {
+                const row = document.createElement('tr');
+                // invIdx를 data 속성으로 저장하여 나중에 삭제/이동 시 사용
+                row.dataset.invIdx = stock.invIdx;
+                row.dataset.itemIdx = stock.itemIdx;
+                row.innerHTML = `
+                    <td><input type="checkbox" class="stock-checkbox" data-inv-idx="${stock.invIdx}" data-item-idx="${stock.itemIdx}" /></td>
+                    <td>${stock.itemNm || 'N/A'}</td>
+                    <td>${stock.itemCd || 'N/A'}</td>
+                    <td>${stock.itemSpec || 'N/A'}</td> <td>${stock.stockQty !== null ? stock.stockQty : '0'}</td> <td>${stock.itemUnitNm || 'N/A'}</td> <td>${stock.itemCustNm || 'N/A'}</td> <td>${stock.itemRemark || 'N/A'}</td> `;
+                warehouseStockTableBody.appendChild(row);
+            });
+            // 재고 데이터가 있으면 '전체 선택' 체크박스 및 버튼 활성화
+            selectAllStockCheckboxes.disabled = false;
+            moveStockButton.disabled = false;
+            deleteStockButton.disabled = false;
+        } else {
+            displayNoStockMessage(); // 재고가 없는 경우 메시지 표시 및 비활성화
+        }
+
+    } catch (error) {
+        console.error('창고 재고 정보를 불러오는 중 오류 발생:', error);
+        displayNoStockMessage(true); // 에러 발생 시 메시지 표시 및 비활성화
+    }
+}
+
+// 재고 없음 메시지 표시 및 버튼 비활성화 함수
+function displayNoStockMessage(isError = false) {
+    const warehouseStockTableBody = document.getElementById('warehouseStockTableBody');
+    const selectAllStockCheckboxes = document.getElementById('selectAllStockCheckboxes');
+    const moveStockButton = document.getElementById('moveStockButton');
+    const deleteStockButton = document.getElementById('deleteStockButton');
+
+    const message = isError ? '재고 데이터 로드 실패' : '재고 데이터 없음';
+    const color = isError ? 'red' : 'inherit';
+    const colspan = 8; // HTML 테이블 헤더 컬럼 수에 맞게 조정
+
+    warehouseStockTableBody.innerHTML = `
+        <tr>
+            <td colspan="${colspan}" style="text-align: center; color: ${color};">${message}</td>
+        </tr>
+    `;
+    selectAllStockCheckboxes.disabled = true;
+    selectAllStockCheckboxes.checked = false; // 체크 해제
+    moveStockButton.disabled = true;
+    deleteStockButton.disabled = true;
 }
 
 
@@ -464,4 +517,55 @@ document.addEventListener('DOMContentLoaded', () => {
             checkbox.checked = isChecked;
         });
     });
+
+    // ⭐ 재고 탭의 전체 선택/해제 체크박스 기능 추가 ⭐
+    document.getElementById('selectAllStockCheckboxes').addEventListener('change', function() {
+        const checkboxes = document.querySelectorAll('#warehouseStockTableBody .stock-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+    });
+
+    // ⭐ 재고 탭의 개별 체크박스 상태 변경 시 전체 선택 체크박스 상태 업데이트 ⭐
+    document.getElementById('warehouseStockTableBody').addEventListener('change', function(event) {
+        if (event.target.classList.contains('stock-checkbox')) {
+            const allCheckboxes = document.querySelectorAll('#warehouseStockTableBody .stock-checkbox');
+            const checkedCheckboxes = document.querySelectorAll('#warehouseStockTableBody .stock-checkbox:checked');
+            document.getElementById('selectAllStockCheckboxes').checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
+        }
+    });
+
+    // ⭐ 재고이동 버튼 클릭 이벤트 (예시) ⭐
+    document.getElementById('moveStockButton').addEventListener('click', function() {
+        const selectedStock = Array.from(document.querySelectorAll('#warehouseStockTableBody .stock-checkbox:checked'))
+                                   .map(cb => ({
+                                       invIdx: cb.dataset.invIdx,
+                                       itemIdx: cb.dataset.itemIdx
+                                   }));
+        if (selectedStock.length > 0) {
+            alert('선택된 재고 이동: ' + JSON.stringify(selectedStock));
+            // 여기에 재고 이동 모달을 열거나, 재고 이동 API 호출 로직 추가
+            // 이동 후 loadWarehouseStockDetails(currentWhIdxForModal) 다시 호출하여 테이블 갱신
+        } else {
+            alert('이동할 재고를 선택해주세요.');
+        }
+    });
+
+    // ⭐ 재고 삭제 버튼 클릭 이벤트 (예시) ⭐
+    document.getElementById('deleteStockButton').addEventListener('click', function() {
+        const selectedInvIdxes = Array.from(document.querySelectorAll('#warehouseStockTableBody .stock-checkbox:checked'))
+                                     .map(cb => cb.dataset.invIdx);
+        if (selectedInvIdxes.length > 0) {
+            if (confirm('선택된 재고를 정말 삭제하시겠습니까?')) {
+                alert('선택된 재고 삭제: ' + JSON.stringify(selectedInvIdxes));
+                // 여기에 재고 삭제 API 호출 로직 추가 (예: POST /api/inventory/delete, DELETE /api/inventory/{invIdxes})
+                // 삭제 후 loadWarehouseStockDetails(currentWhIdxForModal) 다시 호출하여 테이블 갱신
+            }
+        } else {
+            alert('삭제할 재고를 선택해주세요.');
+        }
+    });
+
+    // 초기 로드 시 재고 없음 메시지 및 버튼 비활성화 상태로 시작
+    displayNoStockMessage();
 });

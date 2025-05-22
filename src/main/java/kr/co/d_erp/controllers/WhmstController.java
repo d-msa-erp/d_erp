@@ -1,4 +1,4 @@
-package kr.co.d_erp.controllers; // 패키지 이름이 controllers로 되어 있다면 이대로 유지
+package kr.co.d_erp.controllers;
 
 import java.util.List;
 
@@ -14,7 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.domain.Usermst;
-import kr.co.d_erp.dtos.WhmstDto; // WhmstDto import
+import kr.co.d_erp.dtos.WhmstDto;
+import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; // 창고 재고 상세 DTO import
 import kr.co.d_erp.service.WhmstService;
 import lombok.RequiredArgsConstructor;
 
@@ -89,12 +90,62 @@ public class WhmstController {
         return ResponseEntity.noContent().build();
     }
 
-    // ⭐ 추가: 활성 사용자 목록을 가져오는 API (담당자 드롭다운용) ⭐
-    // 이 API는 UsermstController에 두는 것이 더 적절할 수 있습니다.
-    // 현재는 WhmstService에서 가져오도록 가정하여 WhmstController에 추가합니다.
+    /**
+     * 활성 상태인 사용자 목록을 가져오는 API (담당자 드롭다운용)
+     * @return 활성 사용자 Entity 목록
+     */
     @GetMapping("/users/active-for-selection")
     public ResponseEntity<List<Usermst>> getActiveUsersForSelection() {
         List<Usermst> activeUsers = whmstService.getActiveUsersForSelection();
         return ResponseEntity.ok(activeUsers);
+    }
+
+    // ⭐ 창고 상세 재고 정보 조회 API 추가 ⭐
+
+    /**
+     * 특정 창고의 상세 재고 정보를 조회하는 API (창고 ID로 조회)
+     * GET /api/warehouses/{whIdx}/inventory-details
+     * @param whIdx 창고 고유 번호
+     * @return 해당 창고의 재고 상세 정보 DTO 목록
+     */
+    @GetMapping("/{whIdx}/inventory-details")
+    public ResponseEntity<List<WarehouseInventoryDetailDto>> getWarehouseInventoryDetailsByWhIdx(@PathVariable Long whIdx) {
+        List<WarehouseInventoryDetailDto> details = whmstService.getWarehouseInventoryDetailsByWhIdx(whIdx);
+        if (details.isEmpty()) {
+            // 재고가 없거나 창고가 없으면 404 또는 204 반환
+            // 여기서는 재고가 없는 경우 빈 리스트를 반환하므로 200 OK with empty list가 적절할 수 있음.
+            // 하지만 특정 창고 자체를 찾을 수 없는 경우 404가 더 명확
+            return ResponseEntity.ok(details); // 빈 리스트도 OK로 처리
+        }
+        return ResponseEntity.ok(details);
+    }
+
+    /**
+     * 특정 창고의 상세 재고 정보를 조회하는 API (창고 코드로 조회)
+     * GET /api/warehouses/code/{whCd}/inventory-details
+     * @param whCd 창고 코드
+     * @return 해당 창고의 재고 상세 정보 DTO 목록
+     */
+    @GetMapping("/code/{whCd}/inventory-details")
+    public ResponseEntity<List<WarehouseInventoryDetailDto>> getWarehouseInventoryDetailsByWhCd(@PathVariable String whCd) {
+        List<WarehouseInventoryDetailDto> details = whmstService.getWarehouseInventoryDetailsByWhCd(whCd);
+        if (details.isEmpty()) {
+            return ResponseEntity.ok(details); // 빈 리스트도 OK로 처리
+        }
+        return ResponseEntity.ok(details);
+    }
+
+    /**
+     * 모든 창고의 상세 재고 정보를 조회하는 API
+     * GET /api/warehouses/inventory-details/all
+     * @return 모든 창고의 재고 상세 정보 DTO 목록
+     */
+    @GetMapping("/inventory-details/all")
+    public ResponseEntity<List<WarehouseInventoryDetailDto>> getAllWarehouseInventoryDetails() {
+        List<WarehouseInventoryDetailDto> details = whmstService.getAllWarehouseInventoryDetails();
+        if (details.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 내용 없음
+        }
+        return ResponseEntity.ok(details);
     }
 }

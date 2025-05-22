@@ -20,7 +20,7 @@ public interface UsermstRepository extends JpaRepository<Usermst, Long> {
 
 	// 이메일로 조회 (중복 방지 등에 사용 가능)
 	Optional<Usermst> findByUserEmail(String userEmail);
-
+	
 	/**
 	 * 키워드를 사용하여 여러 필드에서 사용자를 검색하고 정렬합니다. 키워드가 없으면 모든 사용자를 반환합니다. 정렬은 Service 계층에서
 	 * 전달받은 Sort 객체에 의해 처리됩니다.
