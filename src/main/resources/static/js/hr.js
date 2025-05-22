@@ -114,17 +114,8 @@ async function openSharedModal(mode, userIdx = null) {
             if (userDeptSelect && userData.userDept) userDeptSelect.value = userData.userDept;
             const userPositionSelect = modalForm.querySelector('select[name="userPosition"]');
             if (userPositionSelect && userData.userPosition) userPositionSelect.value = userData.userPosition;
-
-            if (userData.userStatus) {
-                const statusRadios = modalForm.querySelectorAll('input[name="userStatus"][type="radio"]');
-                statusRadios.forEach(radio => {
-                    if (radio.value === userData.userStatus) {
-                        radio.checked = true;
-                    } else {
-                        radio.checked = false;
-                    }
-                });
-            }
+            const userStatusSelect = modalForm.querySelector('select[name="userStatus"]');
+            if (userData.userStatus) userStatusSelect.value = userData.userStatus;
 
         } catch (error) {
             console.error('사용자 상세 정보를 불러오는 중 오류 발생:', error);
