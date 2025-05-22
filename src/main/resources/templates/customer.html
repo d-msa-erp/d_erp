@@ -354,22 +354,22 @@
         </div>
         <div class="table-wrapper">
           <div>
-            <input type="text" placeholder="검색" />
+            <input type="text" placeholder="검색" id="searchInput" />
             <div>
-              <button type="button">
+              <button type="button" id="searchBtn">
                 <span class="material-symbols-outlined">search</span> 검색
               </button>
-              <button type="button" onclick="openModal()">
+              <button type="button" onclick="openModal(null, window.currentBizFlag)">
                 <span class="material-symbols-outlined">add</span> 신규등록
               </button>
-              <button type="button">
+              <button type="button" id="deleteSelectedBtn">
                 <span class="material-symbols-outlined">delete</span> 삭제
               </button>
             </div>
           </div>
           <div>
-            <span class="active" onclick="switchTab(this, 'customer')">거래처</span>
-            <span onclick="switchTab(this, 'vendor')">발주처</span>
+            <span class="tab active" data-bizflag="02" onclick="switchTab(this, '02')">거래처</span>
+    		<span class="tab" data-bizflag="01" onclick="switchTab(this, '01')">발주처</span>
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
@@ -380,91 +380,23 @@
                 <span class="material-symbols-outlined">print</span> 인쇄
               </button>
             </div>
-            <p class="nodata">거래처 데이터가 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
             <table class="grid-table">
               <thead>
                 <tr>
-                  <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">거래처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
+                  <th><input type="checkbox" id="selectAllCheckbox"/></th>
+                  <th id="customerNameHeader" onclick="order(this)" data-key="custNm">거래처명<a>↓</a></th>
+                  <th data-key="presidentNm" onclick="order(this)">담당자명<a>↓</a></th>
+				  <th data-key="bizTel" onclick="order(this)">연락처<a>↓</a></th>
+				  <th data-key="custEmail" onclick="order(this)">이메일<a>↓</a></th>
                 </tr>
               </thead>
-              <tbody>
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
+              <tbody id="customerTableBody">
+
               </tbody>
             </table>
             <div class="pagination-wrap">
               총 n건 1/n페이지
               <div class="paigination">
-                <button type="button" id="btn-prev-page">
-                  <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <input type="text" value="1">
-                <button type="button" id="btn-next-page">
-                  <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div id="table-vendor" style="display: none; padding: 20px; position: relative;">
-           <div class="print-wrap">
-              <button type="button">
-                <span class="material-symbols-outlined">table_view</span> 엑셀
-              </button>
-              <button type="button">
-                <span class="material-symbols-outlined">print</span> 인쇄
-              </button>
-            </div>
-            <p class="nodata">발주처 데이터가 없습니다.</p>
-            <table class="grid-table">
-
-              <thead>
-
-                <tr>
-                  <th><input type="checkbox" /></th>
-                  <th onclick="order(this)">발주처명<a>↓</a></th>
-                  <th onclick="order(this)">담당자명<a>↓</a></th>
-                  <th onclick="order(this)">연락처<a>↓</a></th>
-                  <th onclick="order(this)">이메일<a>↓</a></th>
-                </tr>
-              </thead>
-              <tbody>
-                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                <tr onclick="opendatail(this)">
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-                <tr>
-                  <td><input type="checkbox" /></td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                  <td>test</td>
-                </tr>
-              </tbody>
-            </table>
-            <div class="pagination-wrap">
-              총 n건 1/n페이지
-            <div class="paigination">
                 <button type="button" id="btn-prev-page">
                   <span class="material-symbols-outlined">chevron_left</span>
                 </button>
@@ -494,15 +426,15 @@
         </div>
         <div>
 
-          <span>사업자번호</span><input type="text" placeholder="사업자번호 입력해주세요" required />
+          <span>사업자번호</span><input type="text" id="bizNumber" placeholder="사업자번호 입력해주세요" required />
         </div>
         <div>
 
-          <span>연락처</span><input type="text" placeholder="연락처를 입력해주세요" required />
+          <span>연락처</span><input type="text" id="phoneNumber" placeholder="연락처를 입력해주세요" required />
         </div>
         <div>
 
-          <span>이메일</span><input type="text" placeholder="이메일 입력해주세요" required />
+          <span>이메일</span><input type="text" id="eMail" placeholder="이메일 입력해주세요" required />
         </div>
         <div>
 
@@ -518,6 +450,9 @@
         </div>
         <div>
           <span>담당자명</span><input type="text" placeholder="담당자명을 입력해주세요" required />
+        </div>
+        <div>
+          <span>사업자번호</span><input type="text" id="compNumber" placeholder="사업장번호를 입력해주세요" required />
         </div>
         <div style="grid-column: span 2;">
 
@@ -542,6 +477,7 @@
 
   <script src="/js/top.js"></script>
   <script>
+  /*
     let currentTh = null;
     let currentOrder = 'desc';
 
@@ -559,7 +495,8 @@
       const arrow = thValue.querySelector('a');
       arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
     }
-
+    */
+/*
     function switchTab(el, type) {//탭 변경
       document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
         span.classList.remove('active');
@@ -569,20 +506,21 @@
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
     }
+*/
 
-
-    let currentTab = 'customer';
 
     //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
+    /*
+    let currentTab = '';
     function openModal() {
       const title = document.getElementById('modalTitle');
-      title.textContent = currentTab === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
+      title.textContent = bizFlag === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
       document.getElementById('modal').style.display = 'flex';
       document.querySelector('#modalForm button[name="save"]').style.display = 'block';
       document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
 
     }
-
+	*/
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
     }
@@ -593,7 +531,7 @@
       }
     }
 
-
+/*
     function switchTab(el, type) {
       currentTab = type;
       document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
@@ -604,17 +542,18 @@
       document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
       document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
     }
-
+*/
+/*
     function submitModal(event) {
       event.preventDefault();
       const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
       console.log(currentTab + ' 등록됨:', siteName);
       closeModal();
     }
+*/
 
 
-
-
+/*
     //테이블 클릭 시 출력되는 modal
     function opendatail(e) {
       openModal();
@@ -622,7 +561,9 @@
       document.querySelector('#modalForm button[name="save"]').style.display = 'none';
       document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
     }
+    */
   </script>
+  <script src="/js/customer.js"></script>
 </body>
 
 </html>

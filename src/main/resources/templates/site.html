@@ -116,16 +116,17 @@
           <h4 style="margin: 0;">사업장 정보</h4>
         </div>
         <div class="form-content">
-          <div class="form-item"><span>사업장 명</span><input type="text" required oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>대표자 명</span><input type="text" required oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>사업자 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>사업장 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>법인 번호</span><input type="text" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>종목</span><input type="text" required oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>업태</span><input type="text" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>전화번호</span><input type="text" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>팩스</span><input type="text" required oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item addr"><span>주소</span><input type="text" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+        <input type="hidden" id="custCd" value="B01" />
+          <div class="form-item"><span>사업장 명</span><input type="text" id="siteNm" required oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>대표자 명</span><input type="text" id="ceoNm" required oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>사업자 번호</span><input type="text" id="bizNo" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>사업장 번호</span><input type="text" id="compNo" required oninvalid="this.setCustomValidity('사업장 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>법인 번호</span><input type="text" id="corpRegNo" required oninvalid="this.setCustomValidity('법인 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>종목</span><input type="text" id="bizCond" required oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>업태</span><input type="text" id="bizItem" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>전화번호</span><input type="text" id="bizTel" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item"><span>팩스</span><input type="text" id="bizFax" required oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item addr"><span>주소</span><input type="text" id="bizAddr" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
         </div>
         <input type="submit" value="저장" class="save_site" />
       </div>
@@ -133,4 +134,102 @@
   </div>
 </body>
 <script src="/js/top.js"></script>
+<script>
+//사업장 리스트 출력
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/site/details')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('네트워크 응답이 올바르지 않습니다.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // 데이터가 배열로 오고, 그 안에 객체가 하나 있다고 가정합니다.
+            if (data && data.length > 0) {
+                const site = data[0]; // 첫 번째 사업장 정보를 가져옵니다.
+
+                // 각 input 필드에 데이터를 채워 넣습니다.
+                document.getElementById('siteNm').value = site.siteNm || '';
+                document.getElementById('ceoNm').value = site.ceoNm || '';
+                document.getElementById('bizNo').value = site.bizNo || '';
+                document.getElementById('compNo').value = site.compNo || '';
+                document.getElementById('corpRegNo').value = site.corpRegNo || '';
+                document.getElementById('bizCond').value = site.bizCond || '';
+                document.getElementById('bizItem').value = site.bizItem || '';
+                document.getElementById('bizTel').value = site.bizTel || '';
+                document.getElementById('bizFax').value = site.bizFax || ''; // null 가능
+                document.getElementById('bizAddr').value = site.bizAddr || '';
+            } else {
+                console.log('API에서 사업장 정보가 없습니다.');
+                // 여기에 초기화 또는 메시지 표시 로직을 추가할 수 있습니다.
+            }
+        })
+        .catch(error => {
+            console.error('사업장 정보를 불러오는 데 실패했습니다:', error);
+            // 사용자에게 에러 메시지를 표시할 수 있습니다.
+        });
+//사업장 업데이트
+ // 2. 폼 제출 이벤트 리스너 추가 (업데이트 로직)
+    document.getElementById('frm').addEventListener('submit', function(event) {
+        event.preventDefault(); // 폼 기본 제출 동작 방지
+
+        // 필수 필드 유효성 검사 (HTML required 속성이 있지만, JS에서도 한번 더)
+        const requiredInputs = document.querySelectorAll('#frm input[required]');
+        for (const input of requiredInputs) {
+            if (!input.value.trim()) {
+                alert(input.placeholder || input.previousElementSibling.textContent + '을(를) 입력하세요.');
+                input.focus();
+                return; // 유효성 검사 실패 시 함수 종료
+            }
+        }
+
+        // DTO에 담을 데이터 객체 생성
+        const siteData = {
+            custCd: document.getElementById('custCd').value, // 숨겨진 custCd 필드의 값 사용
+            siteNm: document.getElementById('siteNm').value,
+            ceoNm: document.getElementById('ceoNm').value,
+            bizNo: document.getElementById('bizNo').value,
+            compNo: document.getElementById('compNo').value,
+            corpRegNo: document.getElementById('corpRegNo').value,
+            bizCond: document.getElementById('bizCond').value,
+            bizItem: document.getElementById('bizItem').value,
+            bizTel: document.getElementById('bizTel').value,
+            bizFax: document.getElementById('bizFax').value,
+            bizAddr: document.getElementById('bizAddr').value
+        };
+
+        // PUT 요청 보내기
+        fetch('/api/site/update', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(siteData) // JSON 문자열로 변환하여 전송
+        })
+        .then(response => {
+            if (response.ok) { // 상태 코드가 200-299 범위인 경우
+                return response.json(); // 성공 시 응답 JSON 파싱
+            } else if (response.status === 404) {
+                 return response.json().then(err => { throw new Error(err.message || '업데이트할 사업장을 찾을 수 없습니다.'); });
+            } else {
+                // 다른 HTTP 오류 처리
+                return response.text().then(text => { // 오류 응답 본문을 텍스트로 읽음
+                    throw new Error(`업데이트 실패: ${response.status} ${response.statusText} - ${text}`);
+                });
+            }
+        })
+        .then(updatedSite => {
+            console.log('사업장 정보가 성공적으로 업데이트되었습니다:', updatedSite);
+            alert('사업장 정보가 성공적으로 업데이트되었습니다.');
+            // 성공적으로 업데이트되면 페이지 새로고침 또는 UI 업데이트
+            // location.reload(); // 필요하다면 페이지를 새로고침하여 최신 데이터를 다시 로드
+        })
+        .catch(error => {
+            console.error('사업장 정보 업데이트 실패:', error);
+            alert('사업장 정보 업데이트 중 오류가 발생했습니다: ' + error.message);
+        });
+    });
+});
+</script>
 </html>

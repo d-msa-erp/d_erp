@@ -2,555 +2,165 @@
 <html lang="ko">
 
 <head>
-	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<title>창고 관리</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-	<style th:replace="~{/top.html :: topstyle}"></style>
-	<style>
-/* ... 기존 스타일 유지 ... */
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-body {
-	font-family: sans-serif;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
-
-.site-Wrapper {
-	width: 100%;
-	max-width: 1200px;
-	align-self: center;
-	padding: 20px;
-}
-
-.site-Dataset {
-	width: 100%;
-	border: 1px solid #777;
-	border-radius: 10px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-}
-
-.site-Dataset .header {
-	background: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
-}
-
-.site-Dataset .form-content {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 20px;
-	gap: 20px;
-}
-
-.form-item {
-	display: flex;
-	align-items: center;
-	width: calc(33.333% - 13.33px);
-}
-
-.form-item.addr {
-	width: calc(66.666% - 10px);
-}
-
-.form-item span {
-	padding-right: 10px;
-	white-space: nowrap;
-}
-
-.form-item input {
-	width: 100%;
-	height: 100%;
-	border-radius: 3px;
-	padding: 5px;
-	font-size: 14px;
-	border: 1px solid #ccc;
-}
-
-.form-item input:focus {
-	border: 1px solid #46a6ff;
-	outline: none;
-}
-
-.table-wrapper {
-	width: 100%;
-	max-width: 1200px;
-}
-
-.table-wrapper>div:nth-child(1) {
-	padding: 20px;
-	display: flex;
-	justify-content: flex-end;
-	gap: 20px;
-	position: relative;
-}
-
-.table-wrapper>div:nth-child(1)>input[type="text"] {
-	width: 30%;
-	padding: 5px;
-}
-
-.table-wrapper>div:nth-child(1)>div {
-	width: 30%;
-	display: flex;
-	justify-content: space-between;
-}
-
-.table-wrapper>div:nth-child(1)>.btn-wrap1 {
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	position: absolute;
-	left: 20px;
-	display: flex;
-	justify-content: flex-start;
-	gap: 10px;
-}
-
-.table-wrapper>div:nth-child(1)>div button {
-	width: 30%;
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	white-space: nowrap;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	justify-content: center;
-}
-
-.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
-	padding: 5px;
-	gap: 10px;
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	white-space: nowrap;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-	background: #007bff;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-	background: #28a745;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-	background: #dc3545;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(2) {
-	padding: 20px 20px 0 20px;
-	display: flex;
-	flex-direction: column;
-}
-
-.table-wrapper>div:nth-child(2)>span {
-	width: 30%;
-	padding-right: 10px;
-	text-align: center;
-	cursor: pointer;
-}
-
-.table-wrapper>div:nth-child(2)>span.active {
-	font-weight: bold;
-	text-decoration: underline;
-}
-
-.table-wrapper>div:nth-child(3) {
-	position: relative;
-}
-
-.nodata {
-	text-align: center;
-}
-
-.print-wrap {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 0 20px;
-	display: flex;
-	gap: 10px;
-	width: 200px;
-}
-
-.print-wrap>button {
-	width: 100%;
-	background: #007bff;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	padding: 5px;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	justify-content: center;
-}
-
-table.grid-table {
-	width: 100%;
-	border-collapse: collapse;
-	display: grid;
-	grid-template-columns: 0.5fr 2fr 1fr 2fr 1fr 2fr 3fr;
-}
-
-thead, tbody, tr {
-	display: contents;
-	white-space: nowrap;
-}
-
-tbody>tr:nth-child(even) td {
-	background: #f9f9f9;
-}
-
-tbody>tr:hover td {
-	background: #46a6ff;
-	cursor: pointer;
-}
-
-tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
-	justify-content: center;
-}
-
-tr td:nth-last-child(1) {
-	justify-content: right;
-}
-
-th, td {
-	padding: 10px;
-	border: 1px solid #ccc;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-thead th {
-	background: #f0f0f0;
-	font-weight: bold;
-	cursor: pointer;
-	justify-content: center;
-}
-
-table input[type="text"] {
-	width: 100%;
-	padding: 5px;
-}
-
-.pagination-wrap {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	padding-top: 20px;
-}
-
-.pagination-wrap>div {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.pagination-wrap>div input[type="text"] {
-	width: 50px;
-	text-align: center;
-}
-
-.pagination-wrap>div button {
-	width: 20px;
-	background: #007bff;
-	color: white;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 5px;
-}
-
-button:hover {
-	filter: brightness(0.9);
-}
-
-.modal {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background: rgba(0, 0, 0, 0.4);
-	justify-content: center;
-	align-items: center;
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-}
-
-.modal-content {
-	background: white;
-	padding: 20px;
-	border-radius: 10px;
-	width: 80%;
-	position: relative;
-}
-
-.modal-content .modalForm {
-	margin-top: 20px;
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-	justify-items: center;
-	align-items: center;
-}
-
-.modal-content .modalForm>div, .modal-content .modalForm>label {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-.modal-content .modalForm>div>span, .modal-content .modalForm>label>span
-	{
-	white-space: nowrap;
-	padding-right: 10px;
-}
-
-.modal-content input[type="color"] {
-	width: 100%;
-	height: 40px;
-	border: none;
-	margin-top: 10px;
-}
-
-.modal-content .modal-buttons {
-	margin-top: 15px;
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	width: 100%;
-}
-
-.modal-content .modal-buttons>button:hover {
-	filter: brightness(0.9);
-}
-
-.modal-content button {
-	width: 100%;
-	background: #007bff;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	padding: 5px;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	justify-content: center;
-}
-
-.modal-buttons button:nth-of-type(3) {
-	background: #777 !important;
-}
-
-.wh_db {
-	display: flex;
-	flex-direction: column !important;
-}
-
-.wh_db .grid-table {
-	width: 100%;
-	border-collapse: collapse;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr !important;
-}
-</style>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>창고 관리</title>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    <style th:replace="~{/top.html :: topstyle}"></style>
+    <link rel="stylesheet" href="/css/warehouse.css">
 </head>
 
 <body>
-	<div th:replace="~{/top.html :: top}"></div>
-	<div class="site-Wrapper">
-		<h1 style="font-size: 24px; margin-bottom: 16px;">창고 관리</h1>
-		<form id="frm" method="get" action="#">
-			<div class="site-Dataset">
-				<div class="header">
-					<h4 style="margin: 0;">창고 관리</h4>
-				</div>
-				<div class="table-wrapper">
-					<div>
+    <div th:replace="~{/top.html :: top}"></div>
+    <div class="site-Wrapper">
+        <h1 style="font-size: 24px; margin-bottom: 16px;">창고 관리</h1>
+        <form id="frm" onsubmit="handleSearchSubmit(event)">
+            <div class="site-Dataset">
+                <div class="header">
+                    <h4 style="margin: 0;">창고 관리</h4>
+                </div>
+                <div class="table-wrapper">
+                    <div>
+                        <input type="text" id="searchInput" placeholder="검색" />
+                        <div>
+                            <button type="submit" id="searchButton">
+                                <span class="material-symbols-outlined">search</span> 검색
+                            </button>
+                            <button type="button" id="newRegistrationButton">
+                                <span class="material-symbols-outlined">add</span> 신규등록
+                            </button>
+                            <button type="button" id="deleteButton">
+                                <span class="material-symbols-outlined">delete</span> 삭제
+                            </button>
+                        </div>
+                    </div>
+                    <div id="table-customer" style="padding: 20px; position: relative;">
+                        <div class="print-wrap">
+                            <button type="button">
+                                <span class="material-symbols-outlined">table_view</span> 엑셀
+                            </button>
+                            <button type="button">
+                                <span class="material-symbols-outlined">print</span> 인쇄
+                            </button>
+                        </div>
 
-						<input type="text" placeholder="검색" />
-						<div>
-							<button type="button">
-								<span class="material-symbols-outlined">search</span> 검색
-							</button>
-							<button type="button" onclick="openModal()">
-								<span class="material-symbols-outlined">add</span> 신규등록
-							</button>
-							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 삭제
-							</button>
-						</div>
-					</div>
-					<div id="table-customer" style="padding: 20px; position: relative;">
-						<div class="print-wrap">
-							<button type="button">
-								<span class="material-symbols-outlined">table_view</span> 엑셀
-							</button>
-							<button type="button">
-								<span class="material-symbols-outlined">print</span> 인쇄
-							</button>
-						</div>
-						
-						<p th:if="${#lists.isEmpty(warehouses)}">표시할 항목이 없습니다.</p>
-						
-						<table class="grid-table" th:if="${!#lists.isEmpty(warehouses)}">
-						<p>&nbsp</p>
-							<thead>
-								<tr>
-									<th><input type="checkbox" /></th>
-									<th onclick="order(this)">창고 코드<a>↓</a></th>
-									<th onclick="order(this)">창고 명<a>↓</a></th>
-									<th onclick="order(this)">창고 타입<a>↓</a></th>
-									<th onclick="order(this)">사용 여부<a>↓</a></th>
-									<th onclick="order(this)">주소<a>↓</a></th>
-									<th onclick="order(this)">비고<a>↓</a></th>
-								</tr>
-							</thead>
-							
-							<tbody>
-								<tr onclick="opendatail()" th:each="warehouse : ${warehouses}">
-									<td><input type="checkbox" /></td>
-									<td th:text="${warehouse.WH_CD}"></td>
-									<td th:text="${warehouse.WH_NM}"></td>
-									<td th:text="${
-    								(warehouse.WH_TYPE1 == 'Y' ? '자재' : '') +
-    								(warehouse.WH_TYPE2 == 'Y' ? (warehouse.WH_TYPE1 == 'Y' ? ', 제품' : '제품') : '') +
-    								(warehouse.WH_TYPE3 == 'Y' ? ((warehouse.WH_TYPE1 == 'Y' or warehouse.WH_TYPE2 == 'Y') ? ', 반품' : '반품') : '')}">
-									</td>
-									<td th:text="${warehouse.USE_FLAG}"></td>
-									<td th:text="${warehouse.WH_LOCATION}"></td>
-									<td th:text="${warehouse.REMARK}"></td>
-								</tr>
-							</tbody>
-						</table>
-						
-						<div class="pagination-wrap">
-							총 n건 1/n페이지
-							<div class="paigination">
-								<button type="button">
-									<span class="material-symbols-outlined">chevron_left</span>
-								</button>
-								<input type="text" value="1" />
-								<button type="button">
-									<span class="material-symbols-outlined">chevron_right</span>
-								</button>
-							</div>
-						</div>
-					</div>
+                        <table class="grid-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllCheckboxes" /></th>
+                                    <th onclick="order(this)" data-sort-by="whCd">창고 코드<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="whNm">창고 명<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="whType1">창고 타입<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="useFlag">사용 여부<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="whLocation">주소<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="remark">비고<a>↓</a></th>
+                                    <th onclick="order(this)" data-sort-by="whUserNm">담당자<a>↓</a></th>
+                                </tr>
+                            </thead>
+                            <tbody id="warehouseTableBody">
+                            </tbody>
+                        </table>
 
+                        <div class="pagination-wrap">
+                            총 n건 1/n페이지
+                            <div class="paigination">
+                                <button type="button">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <input type="text" value="1" />
+                                <button type="button">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
-				</div>
-			</div>
-		</form>
-	</div>
+    <div class="modal" id="modal" onclick="outsideClick(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 id="modalTitle" style="padding-bottom: 20px;">창고 상세 정보</h3>
 
-	<!--신규 등록 Modal-->
-	<div class="modal" id="modal" onclick="outsideClick(event)">
-		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3 id="modalTitle" style="padding-bottom: 20px;">창고 수정</h3>
-			<!-- 토글 버튼 추가 -->
-			<button type="button" onclick="toggleWarehouseInfo()" style="margin-bottom: 10px;">창고 기본 정보 접기/펼치기</button>
+            <div class="modal-tabs">
+                <button type="button" class="tab-button active" data-tab="stock">재고 현황</button>
+                <button type="button" class="tab-button" data-tab="info">정보 수정</button>
+            </div>
 
-			<form id="modalForm" class="modalForm">
-				<!-- 창고 기본 정보 영역 -->
-				<div id="warehouseInfo" style="display: none;">
-					<div>
-						<span>창고명</span><input type="text" placeholder="창고명을 입력해주세요" required />
-					</div>
-					<div>
-						<span>창고코드</span><input type="text" placeholder="창고코드를 입력해주세요" required />
-					</div>
-					<div>
-						<label>자재 창고 <input type="checkbox" /></label>
-						<label>제품 창고 <input type="checkbox" /></label>
-						<label>반품 창고 <input type="checkbox" /></label>
-					</div>
-					<div>
-						<span>사용여부</span><input type="checkbox" />
-					</div>
-					<div>
-						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
-					</div>
-				</div>
+            <div id="stockTab" class="tab-content active"> <h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
+                <table class="grid-table">
+                    <thead>
+                        <tr>
+                            <th>품명</th>
+                            <th>품번</th>
+                            <th>수량</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warehouseStockTableBody">
+                        <tr>
+                            <td colspan="3" style="text-align: center;">재고 데이터 없음</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="modal-buttons" style="margin-top: 20px; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()">
+                        <span class="material-symbols-outlined">close</span> 닫기
+                    </button>
+                </div>
+            </div>
 
-				<!-- 창고 재고 영역 -->
-				<div class="wh_db">
-					<h3 style="align-self: flex-start; padding-bottom: 20px;">창고 재고</h3>
-					<table class="grid-table">
-						<thead>
-							<tr>
-								<th>품명</th>
-								<th>품번</th>
-								<th>수량</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr>
-								<td>test</td>
-								<td>test</td>
-								<td>test</td>
-							</tr>
-							<tr>
-								<td>test</td>
-								<td>test</td>
-								<td>test</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
+            <div id="infoTab" class="tab-content"> <form id="modalForm" class="modalForm">
+                    <input type="hidden" name="whIdx" />
+                    <div id="warehouseInfo" class="warehouse-info-grid">
+                        <div class="input-group">
+                            <span>창고 코드</span>
+                            <input type="text" name="whCd" placeholder="자동 생성" readonly />
+                        </div>
+                        <div class="input-group">
+                            <span>창고명</span>
+                            <input type="text" name="whNm" placeholder="창고명을 입력해주세요" required />
+                        </div>
+                        <div class="checkbox-group">
+                            <label>자재 창고 <input type="checkbox" name="whType1" value="Y" /></label>
+                            <label>제품 창고 <input type="checkbox" name="whType2" value="Y" /> </label>
+                            <label>반품 창고 <input type="checkbox" name="whType3" value="Y" /></label>
+                        </div>
+                        <div class="input-group">
+                            <span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
+                        </div>
+                        <div class="input-group">
+                            <span>주소</span><input type="text" name="whLocation" placeholder="창고 주소를 입력해주세요"
+                                required />
+                        </div>
+                        <div class="input-group">
+                            <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
+                        </div>
+                        <div class="input-group">
+                            <span>담당자</span>
+                            <select name="whUserIdx" id="modalWhUserIdx" required>
+                                <option value="">담당자를 선택해주세요</option>
+                            </select>
+                        </div>
+                    </div>
 
-				<!-- 버튼 영역 -->
-				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" name="save" style="display: none;">
-							<span class="material-symbols-outlined">save</span> 등록
-						</button>
-						<button type="button" name="edit" style="display: block;">
-							<span class="material-symbols-outlined">edit</span> 수정
-						</button>
-						<button type="button" onclick="closeModal()">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
-
-	<script src="/js/warehouse.js"></script>
-	<script src="/js/top.js"></script>
+                    <div class="modal-buttons" style="grid-column: 1 / -1; margin-top: 20px;">
+                        <button type="submit" name="save" style="display: none;">
+                            <span class="material-symbols-outlined">save</span> 등록
+                        </button>
+                        <button type="submit" name="edit" style="display: block;">
+                            <span class="material-symbols-outlined">edit</span> 수정
+                        </button>
+                        <button type="button" onclick="closeModal()">
+                            <span class="material-symbols-outlined">close</span> 취소
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="/js/warehouse.js"></script>
+    <script src="/js/top.js"></script>
 </body>
 
 </html>

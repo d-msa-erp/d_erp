@@ -2,632 +2,659 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>주문 관리</title>
-    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-    <style th:replace="~{/top.html :: topstyle}"></style>
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-        }
-
-        .site-Wrapper {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            align-self: center;
-        }
-
-        .site-Dataset {
-            width: 100%;
-            border: 1px solid #777;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .site-Dataset .header {
-            background: #46a6ff;
-            color: white;
-            padding: 10px 20px;
-            font-size: 20px;
-        }
-
-        .site-Dataset .form-content {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
-        }
-
-        .form-item {
-            display: flex;
-            align-items: center;
-            width: calc(33.333% - 13.33px);
-        }
-
-        .form-item.addr {
-            width: calc(66.666% - 10px);
-        }
-
-        .form-item span {
-            padding-right: 10px;
-            white-space: nowrap;
-        }
-
-        .form-item input {
-            width: 100%;
-            height: 100%;
-            border-radius: 3px;
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
-
-        .form-item input:focus {
-            border: 1px solid #46a6ff;
-            outline: none;
-        }
-
-        .table-wrapper {
-            width: 100%;
-            max-width: 1200px;
-        }
-
-        .table-wrapper>div:nth-child(1) {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 20px;
-            position: relative;
-            white-space: nowrap;
-        }
-
-        .table-wrapper>div:nth-child(1)>input[type="text"] {
-            width: 30%;
-            padding: 5px;
-        }
-
-        .table-wrapper>div:nth-child(1)>div {
-            width: 30%;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 {
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            position: absolute;
-            left: 20px;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button {
-            width: 30%;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 button {
-            padding: 5px;
-            gap: 10px;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-            background: #007bff;
-            color: white;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-            background: #28a745;
-            color: white;
-        }
-
-        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-            background: #dc3545;
-            color: white;
-        }
-
-        .table-wrapper>div>div>.month-minus,
-        .table-wrapper>div>div>.month-plus {
-            width: 20px !important;
-            background: #a1a1a1 !important;
-            height: 20px;
-            align-self: center;
-        }
-
-        .table-wrapper>div:nth-child(2) {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-wrapper>div:nth-child(2)>span {
-            width: 30%;
-            padding-right: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-
-        .table-wrapper>div:nth-child(2)>span.active {
-            font-weight: bold;
-            text-decoration: underline;
-        }
-
-        .table-wrapper>div:nth-child(3) {
-            position: relative;
-        }
-
-        .nodata {
-            text-align: center;
-        }
-
-        .print-wrap {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 0 20px;
-            display: flex;
-            gap: 10px;
-            width: 200px;
-        }
-
-        .print-wrap>button {
-            width: 100%;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        table.grid-table {
-            width: 100%;
-            border-collapse: collapse;
-            display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr;
-            overflow-x: auto;
-        }
-
-        thead,
-        tbody,
-        tr {
-            display: contents;
-            white-space: nowrap;
-
-        }
-
-        tbody>tr:nth-child(even) td {
-            background: #f9f9f9;
-        }
-
-        tbody>tr:hover td {
-            background: #46a6ff;
-            cursor: pointer;
-        }
-
-        tr th:nth-child(1),
-        tr td:nth-child(1),
-        tr th:nth-last-child(1) {
-            justify-content: center;
-        }
-
-
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        thead th {
-            background: #f0f0f0;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.7rem;
-        }
-
-        table input[type="text"] {
-            width: 100%;
-            padding: 5px;
-        }
-
-        .pagination-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            padding-top: 20px;
-        }
-
-        .pagination-wrap>div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .pagination-wrap>div input[type="text"] {
-            width: 50px;
-            text-align: center;
-        }
-
-        .pagination-wrap>div button {
-            width: 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .table-wrapper button:hover {
-            filter: brightness(0.9);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            position: relative;
-        }
-
-        .modal-content .modalForm {
-            margin-top: 20px;
-            border-collapse: collapse;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .modal-content .modalForm .three-items {
-            grid-column: span 2;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-        }
-
-        .modal-content .modalForm>div,
-        .modal-content .modalForm>label {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-content .modalForm>div>span,
-        .modal-content .modalForm>label>span {
-            white-space: nowrap;
-            padding-right: 10px;
-        }
-
-        .modal-content input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-
-        .modal-content select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
-
-
-
-        .modal-content .modal-buttons {
-            margin-top: 15px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            width: 100%;
-        }
-
-        .modal-content .modal-buttons>button:hover {
-            filter: brightness(0.9);
-        }
-
-        .modal-content .modal-buttons>button {
-            width: 100%;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .modal-content .modal-buttons>:nth-child(3)button {
-            background: #777;
-        }
-
-        /* 슬라이드 css */
-        .toggle-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-family: sans-serif;
-            font-size: 16px;
-            width: 16% !important;
-        }
-
-        .toggle-switch {
-            position: relative;
-            min-width: 30px;
-            max-width: 30px;
-            min-height: 16px;
-            max-height: 16px;
-        }
-
-        .toggle-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #db6969;
-            transition: 0.4s;
-            border-radius: 34px;
-        }
-
-        .slider::before {
-            position: absolute;
-            content: "";
-            height: 10px;
-            width: 10px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: 0.4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: #2196F3;
-        }
-
-        input:checked+.slider::before {
-            transform: translateX(14px);
-        }
-
-        /* 텍스트용 스타일 */
-        .toggle-label {
-            display: inline-block;
-            min-width: 40px;
-            text-align: center;
-        }
-
-        /* 슬라이드 css */
-        /* 월 선택 부분 */
-        .month-wrap {
-            width: 10% !important;
-
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>주문 관리</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:replace="~{/top.html :: topstyle}"></style>
+
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: sans-serif;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.site-Wrapper {
+	width: 100%;
+	max-width: 1200px;
+	padding: 20px;
+	align-self: center;
+}
+
+.site-Dataset {
+	width: 100%;
+	border: 1px solid #777;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.site-Dataset .header {
+	background: #46a6ff;
+	color: white;
+	padding: 10px 20px;
+	font-size: 20px;
+}
+
+.site-Dataset .form-content {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 20px;
+	gap: 20px;
+}
+
+.form-item {
+	display: flex;
+	align-items: center;
+	width: calc(33.333% - 13.33px);
+}
+
+.form-item.addr {
+	width: calc(66.666% - 10px);
+}
+
+.form-item span {
+	padding-right: 10px;
+	white-space: nowrap;
+}
+
+.form-item input {
+	width: 100%;
+	height: 100%;
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+}
+
+.form-item input:focus {
+	border: 1px solid #46a6ff;
+	outline: none;
+}
+
+.table-wrapper {
+	width: 100%;
+	max-width: 1200px;
+}
+
+.table-wrapper>div:nth-child(1) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
+	position: relative;
+	white-space: nowrap;
+}
+
+.table-wrapper>div:nth-child(1)>input[type="text"] {
+	width: 30%;
+	padding: 5px;
+}
+
+.table-wrapper>div:nth-child(1)>div {
+	width: 30%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 {
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	position: absolute;
+	left: 20px;
+	display: flex;
+	justify-content: flex-start;
+	gap: 10px;
+}
+
+.table-wrapper>div:nth-child(1)>div button {
+	width: 30%;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
+	padding: 5px;
+	gap: 10px;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
+	background: #007bff;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
+	background: #28a745;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
+	background: #dc3545;
+	color: white;
+}
+
+.table-wrapper>div>div>.month-minus, .table-wrapper>div>div>.month-plus
+	{
+	width: 20px !important;
+	background: #a1a1a1 !important;
+	height: 20px;
+	align-self: center;
+}
+
+.table-wrapper>div:nth-child(2) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.table-wrapper>div:nth-child(2)>span {
+	width: 30%;
+	padding-right: 10px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.table-wrapper>div:nth-child(2)>span.active {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.table-wrapper>div:nth-child(3) {
+	position: relative;
+}
+
+.nodata {
+	text-align: center;
+}
+
+.print-wrap {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0 20px;
+	display: flex;
+	gap: 10px;
+	width: 200px;
+}
+
+.print-wrap>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+table.grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr;
+	overflow-x: auto;
+}
+
+thead, tbody, tr {
+	display: contents;
+	white-space: nowrap;
+}
+
+tbody>tr:nth-child(even) td {
+	background: #f9f9f9;
+}
+
+tbody>tr:hover td {
+	background: #46a6ff;
+	cursor: pointer;
+}
+
+tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
+	justify-content: center;
+}
+
+th, td {
+	padding: 10px;
+	border: 1px solid #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+thead th {
+	background: #f0f0f0;
+	font-weight: bold;
+	cursor: pointer;
+	font-size: 0.7rem;
+}
+
+table input[type="text"] {
+	width: 100%;
+	padding: 5px;
+}
+
+.pagination-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	padding-top: 20px;
+}
+
+.pagination-wrap>div {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pagination-wrap>div input[type="text"] {
+	width: 50px;
+	text-align: center;
+}
+
+.pagination-wrap>div button {
+	width: 20px;
+	background: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.table-wrapper button:hover {
+	filter: brightness(0.9);
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.4);
+	justify-content: center;
+	align-items: center;
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+	width: 80%;
+	position: relative;
+}
+
+.modal-content .modalForm {
+	margin-top: 20px;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px;
+}
+
+.modal-content .modalForm .three-items {
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 20px;
+}
+
+.modal-content .modalForm>div, .modal-content .modalForm>label {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.modal-content .modalForm>div>span, .modal-content .modalForm>label>span
+	{
+	white-space: nowrap;
+	padding-right: 10px;
+}
+
+.modal-content input[type="text"] {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+.modal-content select {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+.modal-content .modal-buttons {
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	width: 100%;
+}
+
+.modal-content .modal-buttons>button:hover {
+	filter: brightness(0.9);
+}
+
+.modal-content .modal-buttons>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+.modal-content .modal-buttons>:nth-child(3)button {
+	background: #777;
+}
+
+/* 슬라이드 css */
+.toggle-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-family: sans-serif;
+}
+
+.toggle-switch {
+	position: relative;
+	min-width: 30px;
+	max-width: 30px;
+	min-height: 16px;
+	max-height: 16px;
+}
+
+.toggle-switch input {
+	opacity: 0;
+	width: 0;
+	height: 0;
+}
+
+.slider {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: #db6969;
+	transition: 0.4s;
+	border-radius: 34px;
+}
+
+.slider::before {
+	position: absolute;
+	content: "";
+	height: 10px;
+	width: 10px;
+	left: 3px;
+	bottom: 3px;
+	background-color: white;
+	transition: 0.4s;
+	border-radius: 50%;
+}
+
+input:checked+.slider {
+	background-color: #2196F3;
+}
+
+input:checked+.slider::before {
+	transform: translateX(14px);
+}
+
+/* 텍스트용 스타일 */
+.toggle-label {
+	display: inline-block;
+	min-width: 40px;
+	text-align: center;
+}
+
+/* 슬라이드 css */
+/* 월 선택 부분 */
+.month-wrap {
+	width: 10% !important;
+}
+
+
+
+ .custom-select-wrapper {
+      position: relative;
+    }
+     .custom-select-wrapper .search-input {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+     .custom-select-wrapper select {
+width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    position: absolute;
+    z-index: 1;
+    top: 37px;
+    }
+    
+    
+</style>
 </head>
 
 <body>
-    <div th:replace="~{/top.html :: top}"></div>
+	<div th:replace="~{/top.html :: top}"></div>
 
-    <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">주문 관리</h1>
-        <form id="frm" method="get" action="#">
-            <div class="site-Dataset">
-                <div class="header">
-                    <h4 style="margin: 0;">주문 관리</h4>
-                </div>
-                <div class="table-wrapper">
-                    <div>
-                        <div class="toggle-wrapper">
-                            <span class="toggle-label" id="toggleState">착수일</span>
-                            <label class="toggle-switch">
-                                <input type="checkbox" onchange="toggleText(this)">
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <div>
-                            <!-- 시작일이 종료일보다 작도록 핸들링 필요-->
-                            <input type="date" /> -
-                            <input type="date" />
-                        </div>
-
-                        <input type="text" placeholder="검색" />
-                        <div>
-                            <button type="button">
-                                <span class="material-symbols-outlined">search</span> 검색
-                            </button>
-                            <button type="button" onclick="openModal()">
-                                <span class="material-symbols-outlined">add</span> 신규등록
-                            </button>
-                            <button type="button">
-                                <span class="material-symbols-outlined">delete</span> 검색
-                            </button>
-                        </div>
-                    </div>
-                    <div></div>
-                    <div id="table-customer" style="padding: 20px; position: relative; ">
-                        <div class="print-wrap">
-                            <button type="button">
-                                <span class="material-symbols-outlined">table_view</span> 엑셀
-                            </button>
-                            <button type="button">
-                                <span class="material-symbols-outlined">print</span> 인쇄
-                            </button>
-                        </div>
-                        <p class="nodata">등록된 품목이 없습니다.</p><!--데이터 없을 땐 이렇게 표기-->
-                        <table class="grid-table">
-
-                            <thead>
-
-                                <tr>
-                                    <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">주문번호<a>↓</a></th>
-                                    <th onclick="order(this)">품명<a>↓</a></th>
-                                    <th onclick="order(this)">품목<a>↓</a></th>
-                                    <th onclick="order(this)">수량<a>↓</a></th>
-                                    <th onclick="order(this)">고객사<a>↓</a></th>
-                                    <th onclick="order(this)">납기일<a>↓</a></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()">
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <div class="pagination-wrap">
-                            총 n건 1/n페이지
-                            <div class="paigination">
-                                <button type="button" id="btn-prev-page">
-                                    <span class="material-symbols-outlined">chevron_left</span>
-                                </button>
-                                <input type="text" value="1">
-                                <button type="button" id="btn-next-page">
-                                    <span class="material-symbols-outlined">chevron_right</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+	<div class="site-Wrapper flx-col">
+		<h1 style="font-size: 24px; margin-bottom: 16px;">주문 관리</h1>
+		<form id="frm" method="get" action="#">
+			<div class="site-Dataset">
+				<div class="header">
+					<h4 style="margin: 0;">주문 관리</h4>
+				</div>
+				<div class="table-wrapper">
+					<div>
+						<div class="toggle-wrapper">
+							<span class="toggle-label" id="toggleState">착수일</span> <label
+								class="toggle-switch"> <input type="checkbox"
+								onchange="toggleText(this)"> <span class="slider"></span>
+							</label>
+							<div>
+								<!-- 시작일이 종료일보다 작도록 핸들링 필요-->
+								<input type="date"> - <input type="date">
+							</div>
+						</div>
 
 
-                </div>
-            </div>
-        </form>
-    </div>
+						<input type="text" placeholder="검색" id="searchInput" />
+						<div>
+							<button type="button" id="searchBtn">
+								<span class="material-symbols-outlined">search</span> 검색
+							</button>
+							<button type="button"
+								onclick="openModal()">
+								<span class="material-symbols-outlined">add</span> 신규등록
+							</button>
+							<button type="button" id="deleteSelectedBtn">
+								<span class="material-symbols-outlined">delete</span> 삭제
+							</button>
+						</div>
+					</div>
+					<div></div>
+					<div id="table-customer" style="padding: 20px; position: relative;">
+						<div class="print-wrap">
+							<button type="button">
+								<span class="material-symbols-outlined">table_view</span> 엑셀
+							</button>
+							<button type="button">
+								<span class="material-symbols-outlined">print</span> 인쇄
+							</button>
+						</div>
+						<!--데이터 없을 땐 이렇게 표기-->
+						<table class="grid-table">
 
-    <!--신규 등록 Modal-->
-    <div class="modal" id="modal" onclick="outsideClick(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle">신규 등록</h3>
-            <form id="modalForm" class="modalForm">
-                <div>
-                    <span>착수일</span><input type="date" required />
-                </div>
-                <div>
-                    <span>납기일</span><input type="date" required />
-                </div>
-                <div>
-                    <span>발주번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
-                </div>
-                <div>
-                    <span>고객사</span><select required>
-                        <option value="">고객사를 선택해주세요</option>
-                        <option value="1">고객사1</option>
-                        <option value="2">고객사2</option>
-                        <option value="3">고객사3</option>
-                    </select>
+							<thead>
+								<tr>
+									<th><input type="checkbox" /></th>
+									<th onclick="order(this)">주문번호<a>↓</a></th>
+									<th onclick="order(this)">품명<a>↓</a></th>
+									<th onclick="order(this)">품목<a>↓</a></th>
+									<th onclick="order(this)">수량<a>↓</a></th>
+									<th onclick="order(this)">고객사<a>↓</a></th>
+									<th onclick="order(this)">납기일<a>↓</a></th>
+								</tr>
+							</thead>
+							<tbody id="salesTableBody">
 
-                </div>
-                <div>
-                    <span>담당자</span><input type="text" placeholder="세션으로 받아오기" required />
-                </div>
-                <div>
-                    <span>담당자 번호</span><input type="text" placeholder="세션으로 받아오기" required />
-                </div>
+              				</tbody>
+						</table>
+						<div class="pagination-wrap">
+							총 n건 1/n페이지
+							<div class="paigination">
+								<button type="button" id="btn-prev-page">
+									<span class="material-symbols-outlined">chevron_left</span>
+								</button>
+								<input type="text" value="1">
+								<button type="button" id="btn-next-page">
+									<span class="material-symbols-outlined">chevron_right</span>
+								</button>
+							</div>
+						</div>
+					</div>
 
-                <div class="three-items">
 
-                    <div>
-                        <span>품목</span>
-                        <select required>
-                            <option value="">품목을 선택해주세요</option>
-                            <option value="1">품목1</option>
-                            <option value="2">품목2</option>
-                            <option value="3">품목3</option>
-                        </select>
+				</div>
+			</div>
+		</form>
+	</div>
 
-                    </div>
+	<!--신규 등록 Modal-->
+	<div class="modal" id="modal" onclick="outsideClick(event)">
+		<div class="modal-content" onclick="event.stopPropagation()">
+			<h3 id="modalTitle">신규 등록</h3>
+			<form id="modalForm" class="modalForm">
+				<div>
+					<span>착수일</span><input type="date" required />
+				</div>
+				<div>
+					<span>납기일</span><input type="date" required />
+				</div>
+				<div>
+					<span>주문번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
+				</div>
+				
+<div class="custom-select-wrapper">
+<span>거래처</span>
+    <input type="text" list="companyList" placeholder="거래처를 검색하세요" required>
+<datalist id="companyList" >
+  <option value="삼성전자">
+  <option value="LG화학">
+  <option value="현대자동차">
+  <option value="기아">
+  <option value="SK하이닉스">
+</datalist>
+  </div>
+				<div>
+					<span>담당자</span><input type="text" placeholder="세션으로 받아오기" required />
+				</div>
+				<div>
+					<span>담당자 번호</span><input type="text" placeholder="세션으로 받아오기"
+						required />
+				</div>
 
-                    <div>
-                        <span>수량</span><input type="text" placeholder="수량을 입력해주세요" required />
-                    </div>
-                    <div>
-                        <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
+				<div class="three-items">
 
-                    </div>
-                </div>
+					<div>
+						<div class="custom-select-wrapper">
+<span>품목</span>
+    <input type="text" list="companyList" placeholder="거래처를 검색하세요" required>
+<datalist id="companyList">
+  <option value="삼성전자">
+  <option value="LG화학">
+  <option value="현대자동차">
+  <option value="기아">
+  <option value="SK하이닉스">
+</datalist>
+  </div>
+					</div>
+
+					<div>
+						<span>수량</span><input type="text" placeholder="수량을 입력해주세요"
+							required />
+					</div>
+					<div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요"
+							required />
+
+					</div>
+				</div>
 
 
 
-                <div class="modal-buttons" style="grid-column-start: 3;">
-                    <button type="button" name="save" style="display: none;">
-                        <span class="material-symbols-outlined">save</span> 등록
-                    </button>
-                    <button type="button" name="edit">
-                        <span class="material-symbols-outlined">edit</span> 수정
-                    </button>
-                    <button type="button" onclick="closeModal()">
-                        <span class="material-symbols-outlined">close</span> 취소
-                    </button>
-                </div>
-            </form>
-        </div>
+				<div class="modal-buttons" style="grid-column-start: 3;">
+					<button type="button" name="save" style="display: none;">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+					<button type="button" name="edit">
+						<span class="material-symbols-outlined">edit</span> 수정
+					</button>
+					<button type="button" onclick="closeModal()">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
+				</div>
+			</form>
+		</div>
 
-    </div>
+	</div>
 
 </body>
 <script src="/js/top.js"></script>
+<script src="/js/sales.js"></script>
 
+
+ <!-- 이부분 참고하세요~ -->
+ <script>
+    const searchInput = document.getElementById('selectSearch');
+    const select = document.getElementById('mySelect');
+    const originalOptions = Array.from(select.options); // 원본 저장
+
+    searchInput.addEventListener('input', function () {
+      const keyword = this.value.toLowerCase();
+
+      // 기존 옵션 초기화
+      select.innerHTML = '';
+
+      // 필터링된 옵션만 추가
+      originalOptions.forEach(option => {
+        if (option.text.toLowerCase().includes(keyword)) {
+          select.appendChild(option.cloneNode(true));
+        }
+      });
+    });
+  </script>
+ <!-- 이부분 참고하세요~ -->
+  
+
+<script>
+
+</script>
 <script>
 
     //Slide 버튼
@@ -663,8 +690,8 @@
         const title = document.getElementById('modalTitle');
         title.textContent = '접수 등록';
         document.getElementById('modal').style.display = 'flex';
-        document.querySelector('#modalForm input[name="save"]').style.display = 'block';
-        document.querySelector('#modalForm input[name="edit"]').style.display = 'none';
+        document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+        document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
     }
 
     function closeModal() {
