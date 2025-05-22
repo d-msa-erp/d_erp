@@ -600,9 +600,11 @@
                             itemNameCell.textContent = item.item_NM || "";
                             
                             const itemCodeCell = row.insertCell();
+                            
                             itemCodeCell.textContent = item.item_CD || "";
                             
                             const itemCat1Cell = row.insertCell();
+                            //itemCat1Cell.value = item.item_CAT1 || "";
                             itemCat1Cell.textContent = item.item_CATX1 || "";
                             
                             const itemCat2Cell = row.insertCell();
@@ -974,12 +976,8 @@
 		    const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
 		    const cat2Select = document.querySelector('#modalForm select[name="item_CATX2"]');
 		    const unitSelect = document.querySelector('#modalForm select[name="item_UNIT"]');
-		    selectCat1(null).then(() => {
-		    	cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
-		    	cat2Select.disabled = true;
-		    })
-		    selectUnit(item.item_Unit);
-		    console.log("-----:"+ item.item_CATX1+" "+item.item_CATX2);
+
+		  
 		    // 수정 모드일 때 (item 객체가 전달됨)
 		    if (item) {
 		        title.textContent = '품목 수정';
@@ -990,8 +988,8 @@
 		        document.querySelector('#modalForm input[name="item_CD"]').value = item.item_CD || "";
 		        document.querySelector('#modalForm input[name="item_NM"]').value = item.item_NM || "";
 		        
-		        document.querySelector('#modalForm select[name="item_CATX1"]').value = item.item_CATX1 || ""; // 대분류명
-		        document.querySelector('#modalForm select[name="item_CATX2"]').value = item.item_CATX2 || ""; // 소분류명
+		        document.querySelector('#modalForm select[name="item_CATX1"]').value = item.item_CAT1 || ""; // 대분류명
+		        document.querySelector('#modalForm select[name="item_CATX2"]').value = item.item_CAT2 || ""; // 소분류명
 		        document.querySelector('#modalForm input[name="item_SPEC"]').value = item.item_SPEC || "";
 		        document.querySelector('#modalForm input[name="item_COST"]').value = item.item_COST || "";
 		        document.querySelector('#modalForm input[name="remark"]').value = item.remark || "";
@@ -1000,7 +998,7 @@
 		        document.querySelector('#modalForm input[name="item_IDX"]').value = item.item_IDX || ""; // item_IDX 필드 추가 가정
 		
 		        // 품목코드는 수정 불가하도록 readonly 설정
-		        document.querySelector('#modalForm input[name="item_CD"]').readOnly = true;
+		       modalItemCode.readOnly = true;
 		
 		        // 거래처 드롭다운 로드 및 해당 품목의 거래처 선택
 		        selectCust().then(() => {
@@ -1029,12 +1027,10 @@
 		            console.error('대분류 목록 로드 또는 선택 중 오류 발생:', error);
 		            alert('대분류 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
 		        });    
- 		       if (unitSelect && item.item_UNIT) { // item.item_UNIT에 해당 단위 ID가 있다고 가정
-		                unitSelect.value = item.item_UNIT;
-			        	console.log("asdb "+item.item_UNIT);
-		            } else {
-		                unitSelect.value = "";
-		            } 
+		        selectUnit(item.item_UNIT).catch(error => { // item.item_UNIT으로 단위 로드 및 선택
+		            console.error('단위 목록 로드 또는 선택 중 오류 발생:', error);
+		            alert('단위 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
+		        });
 		        
 		        // 수정 버튼 이벤트 리스너 연결
 		        const editButton = document.querySelector('#modalForm button[name="edit"]');
@@ -1054,7 +1050,13 @@
 		
 		        // 거래처 드롭다운 로드 (선택된 값 없음)
 		        selectCust(null);
-		
+				
+		        selectCat1(null).then(() => {
+		            cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
+		            cat2Select.disabled = true;
+		        });
+		        selectUnit(null);
+		        
 		        // 등록 버튼 이벤트 리스너 연결
 		        const saveBtn = document.querySelector('#modalForm button[name="save"]');
 		        saveBtn.removeEventListener('click', submitModal); // 기존 리스너 제거 (중복 방지)
@@ -1106,12 +1108,23 @@
             newItem.item_CAT2 = selectedCat2Idx; // 백엔드 DTO 필드명: ITEM_CAT2 (예시)
             
             
-            let selectedUnitIdx = 0;
-            if (newItem.item_UNIT && String(newItem.item_UNIT).trim() !== '') { // name="item_UNIT"
+            let selectedUnitIdx = 0; // 이 라인이 추가 또는 수정되었습니다.
+            if (newItem.item_UNIT && String(newItem.item_UNIT).trim() !== '') {
                 selectedUnitIdx = parseInt(newItem.item_UNIT);
+                // 추가 유효성 검사: 숫자로 변환되지 않았다면 알림
+                if (isNaN(selectedUnitIdx)) {
+                    alert("단위는 유효한 숫자여야 합니다.");
+                    return;
+                }
+            } else {
+                // 단위가 선택되지 않았을 경우 필수 입력 알림
+                alert("단위를 선택해주세요.");
+                return;
             }
             newItem.item_UNIT = selectedUnitIdx;
             console.log("전송될 데이터 : ",newItem);
+            
+            //유효성 검사
             if (!newItem.item_NM || newItem.item_NM.trim() === '') {
                 alert("품목명은 필수 입력 사항입니다.");
                 return;
@@ -1177,28 +1190,28 @@
 		    updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
 		    if(updatedItem.cust_NM){
 		    	updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
-		        delete updatedItem.cust_NM;
+		        
 		    }
 		    if (updatedItem.item_CATX1) {
 		        updatedItem.item_CAT1 = parseInt(updatedItem.item_CATX1);
-		        delete updatedItem.item_CAT1;
+		        
 		    }
 		    if (updatedItem.item_CATX2) {
 		        updatedItem.item_CAT2 = parseInt(updatedItem.item_CATX2);
-		        delete updatedItem.item_CAT2;
+		       
 		    }
 		    if (updatedItem.item_UNIT) {
 		        updatedItem.item_UNIT = parseInt(updatedItem.item_UNIT);
-		        delete updatedItem.item_UNIT;
+		        
 		    }
 		    if (updatedItem.item_COST) {
 		        updatedItem.item_COST = parseInt(updatedItem.item_COST);
 		    }
 
-		     if (updatedItem.ITEM_CAT1 === 1) {
-		         updatedItem.ITEM_FLAG = '01';
+		     if (updatedItem.item_CAT1 === 1) {
+		         updatedItem.item_FLAG = '01';
 		     } else {
-		         updatedItem.ITEM_FLAG = '02';
+		         updatedItem.item_FLAG = '02';
 		     }
 		    
             console.log("전송될 updatedItem:", updatedItem); 

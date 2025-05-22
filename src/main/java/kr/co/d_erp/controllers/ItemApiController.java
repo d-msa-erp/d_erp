@@ -155,25 +155,25 @@ public class ItemApiController {
 	    @PutMapping("/{item_IDX}") // 또는 @PatchMapping("/{itemIdx}")
 	    public ResponseEntity<Item> updateItem(@PathVariable("item_IDX") int item_IDX, @RequestBody
 	    		Item updatedItem) {
-	    	
-	    	System.out.println("updatedItem.getITEM_NM(): " + updatedItem.getITEM_NM());
-	        System.out.println("updatedItem.getITEM_CD(): " + updatedItem.getITEM_CD());
-	        System.out.println("updatedItem.getCUST_NM(): " + updatedItem.getCUST_NM());
-	        System.out.println("updatedItem.getCUST_IDX(): " + updatedItem.getCUST_IDX());
 	        Item existingItem = itemService.getItemById(item_IDX); // 수정할 품목이 있는지 확인
 
 	        if (existingItem == null) {
 	            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // 해당 ID의 품목이 없으면 404 반환
 	        }
+	        //System.out.println("컨트롤러 진입 - item_IDX: " + item_IDX);
+	        
 	        	existingItem.setITEM_NM(updatedItem.getITEM_NM());
-	        	existingItem.setCUST_NM(updatedItem.getCUST_NM());
 	        	existingItem.setITEM_SPEC(updatedItem.getITEM_SPEC());
 	        	existingItem.setITEM_COST(updatedItem.getITEM_COST());
 	        	existingItem.setREMARK(updatedItem.getREMARK());
 	        	existingItem.setOPTIMAL_INV(updatedItem.getOPTIMAL_INV());
 	        	
+	        	existingItem.setITEM_CAT1(updatedItem.getITEM_CAT1()); 
+	        	existingItem.setITEM_CAT2(updatedItem.getITEM_CAT2()); 
+	        	existingItem.setITEM_UNIT(updatedItem.getITEM_UNIT());
+	        	existingItem.setITEM_FLAG(updatedItem.getITEM_FLAG());
 	            existingItem.setCUST_IDX(updatedItem.getCUST_IDX()); 
-	            existingItem.setCUST_NM(updatedItem.getCUST_NM()); 
+	           
 	        	
 	        try {
 	        	itemService.updateItem(existingItem);
