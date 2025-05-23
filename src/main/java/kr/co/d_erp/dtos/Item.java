@@ -8,5 +8,6 @@ public class Item {
 	private String ITEM_CD,ITEM_NM, ITEM_FLAG, ITEM_SPEC, REMARK, UNIT_NM;
 	private String CAT_NM,ITEM_CATX1,ITEM_CATX2,CUST_NM;
 	private Integer PARENT_IDX, CUST_IDX, CAT_IDX, UNIT_IDX;
+	private long USERIDX;
 	
 }
