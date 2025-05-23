@@ -134,7 +134,8 @@ public class WhmstService {
     @Transactional(readOnly = true)
     public List<WarehouseInventoryDetailDto> getWarehouseInventoryDetailsByWhIdx(Long whIdx) {
         return warehouseInventoryDetailViewRepository.findByWhIdx(whIdx).stream()
-                .map(this::convertToWarehouseInventoryDetailDto)
+        		.map(this::convertToWarehouseInventoryDetailDto)
+                .filter(dto -> dto != null) // 재고없을때 null반환 
                 .collect(Collectors.toList());
     }
 
@@ -163,7 +164,11 @@ public class WhmstService {
 
     // ⭐ WarehouseInventoryDetailView 엔티티를 WarehouseInventoryDetailDto로 변환하는 private 메서드 ⭐
     private WarehouseInventoryDetailDto convertToWarehouseInventoryDetailDto(WarehouseInventoryDetailView view) {
-        return WarehouseInventoryDetailDto.builder()
+    	if (view == null) {
+            return null; // null을 반환
+        }
+    	
+    	return WarehouseInventoryDetailDto.builder()
                 // Warehouse Info
                 .whIdx(view.getWhIdx())
                 .whCd(view.getWhCd())
