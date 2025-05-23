@@ -5,6 +5,7 @@ let currentSortBy = 'whIdx';
 let currentOrder = 'asc';
 let currentKeyword = '';
 let currentWhIdxForModal = null; // 현재 모달에서 열린 창고의 ID
+let managersData = []; // 담당자 데이터를 저장할 배열
 
 // 테이블 데이터 로드 함수
 async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = currentOrder, keyword = currentKeyword) {
@@ -59,45 +60,74 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
     }
 }
 
-// 담당자 목록을 `<select>` 태그에 채우는 함수
-async function loadManagersIntoSelect(selectElementId, selectedUserIdx = null) {
-    const selectBox = document.getElementById(selectElementId);
-    selectBox.innerHTML = '';
+// 담당자 목록을 <datalist>에 채우는 함수 (수정됨)
+async function loadManagersIntoDatalist(inputElementId, datalistElementId, hiddenUserIdxInputId, selectedUserIdx = null) {
+    const datalist = document.getElementById(datalistElementId);
+    const input = document.getElementById(inputElementId);
+    const hiddenUserIdxInput = document.getElementById(hiddenUserIdxInputId);
 
-    selectBox.appendChild(createOption('', '담당자를 선택해주세요', true, true));
+    datalist.innerHTML = ''; // 기존 옵션 초기화
+    input.value = ''; // input 값 초기화
+    hiddenUserIdxInput.value = ''; // 숨겨진 userIdx 값 초기화
 
     try {
-        const response = await fetch('/api/warehouses/users/active-for-selection'); // API 경로 수정
+        const response = await fetch('/api/warehouses/users/active-for-selection');
         if (!response.ok) {
             const errorText = await response.text();
             console.error(`Error fetching managers list: HTTP status ${response.status}`, errorText);
             throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
         }
-        const managers = await response.json();
+        managersData = await response.json(); // 전역 변수에 담당자 데이터 저장
 
-        managers.forEach(user => {
-            const option = createOption(user.userIdx, `${user.userNm} (${user.userId})`);
-            if (selectedUserIdx !== null && String(user.userIdx) === String(selectedUserIdx)) {
-                option.selected = true;
-            }
-            selectBox.appendChild(option);
+        // "담당자를 선택해주세요" 같은 기본 옵션은 datalist에 필요 없습니다.
+        // 대신 input에 placeholder를 사용하거나, 선택되지 않았을 때의 로직을 처리합니다.
+
+        managersData.forEach(user => {
+            const option = document.createElement('option');
+            option.value = `${user.userNm} (${user.userId})`; // 사용자에게 보여질 값
+            option.dataset.userIdx = user.userIdx; // 실제 userIdx를 data 속성에 저장
+            datalist.appendChild(option);
         });
+
+        // 수정/조회 모드에서 담당자 자동 선택
+        if (selectedUserIdx !== null) {
+            const selectedManager = managersData.find(m => String(m.userIdx) === String(selectedUserIdx));
+            if (selectedManager) {
+                input.value = `${selectedManager.userNm} (${selectedManager.userId})`;
+                hiddenUserIdxInput.value = selectedManager.userIdx;
+            } else {
+                // 선택된 담당자가 목록에 없으면 input과 hidden 필드 초기화
+                input.value = '';
+                hiddenUserIdxInput.value = '';
+            }
+        }
+
     } catch (error) {
         console.error("담당자 목록 로드 실패:", error);
-        // alert("담당자 목록을 불러오는 데 실패했습니다."); // 알림은 개발자 도구에서 확인하도록
+        // alert("담당자 목록을 불러오는 데 실패했습니다.");
     }
 }
 
-// option 엘리먼트 생성 헬퍼 함수
-function createOption(value, text, disabled = false, selected = false) {
-    const option = document.createElement('option');
-    option.value = value;
-    option.textContent = text;
-    option.disabled = disabled;
-    if (selected) {
-        option.selected = true;
+// datalist input의 변경을 감지하고 hidden userIdx를 설정하는 함수
+function setHiddenUserIdx(inputElementId, hiddenUserIdxInputId) {
+    const input = document.getElementById(inputElementId);
+    const hiddenUserIdxInput = document.getElementById(hiddenUserIdxInputId);
+
+    // 사용자가 입력한 값
+    const inputValue = input.value;
+
+    // managersData 배열에서 일치하는 담당자를 찾음
+    const matchedManager = managersData.find(user => `${user.userNm} (${user.userId})` === inputValue);
+
+    if (matchedManager) {
+        hiddenUserIdxInput.value = matchedManager.userIdx;
+        input.setCustomValidity(''); // 유효성 검사 초기화
+    } else {
+        // 일치하는 담당자가 없으면 hidden userIdx를 초기화 (필수 선택 항목일 경우 유효성 검사 필요)
+        hiddenUserIdxInput.value = '';
+        // 사용자가 목록에 없는 값을 입력했을 때 유효성 경고를 띄울 수 있음
+        // input.setCustomValidity('유효한 담당자를 목록에서 선택하거나 입력해주세요.');
     }
-    return option;
 }
 
 
@@ -211,7 +241,6 @@ async function openModal(mode, whIdx = null) {
     const moveStockButton = document.getElementById('moveStockButton');
     const deleteStockButton = document.getElementById('deleteStockButton');
 
-
     modalForm.reset();
     currentWhIdxForModal = whIdx; // 모달이 열리는 창고의 ID 저장
 
@@ -226,7 +255,13 @@ async function openModal(mode, whIdx = null) {
     const whType3Checkbox = modalForm.querySelector('input[name="whType3"]');
     const useFlagCheckbox = modalForm.querySelector('input[name="useFlag"]');
     const whLocationInput = modalForm.querySelector('input[name="whLocation"]');
-    const whUserIdxSelect = document.getElementById('modalWhUserIdx');
+    // const whUserIdxSelect = document.getElementById('modalWhUserIdx'); // 더 이상 select가 아님
+
+    // Datalist 관련 요소
+    const whUserNmInput = document.getElementById('modalWhUserNm');
+    const whUserDatalist = document.getElementById('managersDatalist');
+    const hiddenWhUserIdxInput = document.getElementById('hiddenWhUserIdx');
+
 
     // 탭 관련 UI 요소
     const tabsContainer = document.querySelector('.modal-tabs');
@@ -261,7 +296,8 @@ async function openModal(mode, whIdx = null) {
         }
         if (useFlagCheckbox) useFlagCheckbox.checked = true;
 
-        await loadManagersIntoSelect('modalWhUserIdx');
+        // Datalist에 담당자 로드 (신규 등록 모드)
+        await loadManagersIntoDatalist('modalWhUserNm', 'managersDatalist', 'hiddenWhUserIdx');
         displayNoStockMessage(); // 신규 등록 시 재고 테이블 초기화
 
     } else if (mode === 'view' && whIdx !== null) { // 상세 조회 및 수정 모드
@@ -296,8 +332,9 @@ async function openModal(mode, whIdx = null) {
             if (useFlagCheckbox) useFlagCheckbox.checked = (warehouse.useFlag === 'Y');
             if (whLocationInput) whLocationInput.value = warehouse.whLocation || '';
 
-            await loadManagersIntoSelect('modalWhUserIdx', warehouse.whUserIdx);
-
+            // Datalist에 담당자 로드 (수정/조회 모드, 기존 담당자 선택)
+            await loadManagersIntoDatalist('modalWhUserNm', 'managersDatalist', 'hiddenWhUserIdx', warehouse.whUserIdx);
+            
             // ⭐ 재고 데이터 로드 (수정된 API 경로 사용) ⭐
             await loadWarehouseStockDetails(whIdx); // 새로운 함수 호출
             
@@ -384,14 +421,14 @@ function displayNoStockMessage(isError = false) {
 
     const message = isError ? '재고 데이터 로드 실패' : '재고 데이터 없음';
     const color = isError ? 'red' : 'inherit';
-    const colspan = 8; // HTML 테이블 헤더 컬럼 수에 맞게 조정 (8개 컬럼)
+    const colspan = 8; // HTML 테이블 헤더 컬럼 수에 맞게 조정
 
+    // ⭐⭐⭐ 여기를 수정합니다. grid-column 스타일을 추가합니다. ⭐⭐⭐
     warehouseStockTableBody.innerHTML = `
         <tr>
             <td colspan="${colspan}" style="text-align: center; color: ${color}; grid-column: 1 / span ${colspan};">${message}</td>
         </tr>
     `;
-
     selectAllStockCheckboxes.disabled = true;
     selectAllStockCheckboxes.checked = false; // 체크 해제
     moveStockButton.disabled = true;
@@ -417,9 +454,28 @@ document.addEventListener('DOMContentLoaded', () => {
         openModal('new');
     });
 
+    // ⭐⭐ Datalist input 변경 이벤트 리스너 추가 ⭐⭐
+    document.getElementById('modalWhUserNm').addEventListener('input', () => {
+        setHiddenUserIdx('modalWhUserNm', 'hiddenWhUserIdx');
+    });
+    // 사용자가 직접 입력하지 않고 목록에서 선택했을 때 (change 이벤트)에도 hidden 필드 업데이트
+    document.getElementById('modalWhUserNm').addEventListener('change', () => {
+        setHiddenUserIdx('modalWhUserNm', 'hiddenWhUserIdx');
+    });
+
+
     // 폼 제출 처리 (등록/수정)
     document.getElementById('modalForm').addEventListener('submit', async (event) => {
         event.preventDefault();
+
+        // 담당자 userIdx 값을 hidden 필드에서 가져옴
+        const whUserIdx = document.getElementById('hiddenWhUserIdx').value;
+        if (!whUserIdx) {
+            alert("담당자를 목록에서 선택하거나 정확히 입력해주세요.");
+            // 선택된 담당자가 없으면 유효성 메시지를 띄우고 제출 방지
+            document.getElementById('modalWhUserNm').focus();
+            return;
+        }
 
         const formData = new FormData(event.target);
         const data = {};
@@ -431,12 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        data.whUserIdx = document.getElementById('modalWhUserIdx').value;
-
-        if (!data.whUserIdx) {
-            alert("담당자를 선택해 주세요.");
-            return;
-        }
+        // ⭐ whUserIdx는 이제 hidden 필드에서 가져옴
+        data.whUserIdx = whUserIdx;
 
         const isEditMode = data.whIdx && data.whIdx !== '';
         const url = isEditMode ? `/api/warehouses/${data.whIdx}` : '/api/warehouses';
