@@ -512,17 +512,12 @@ button:hover {
 }
 
 .modal-buttons button[onclick="closeModal()"] {
-    background-color: #f44336;
+    background-color: #777; 
     color: white;
 }
 /* 취소 버튼 스타일은 기존 777이 더 우선될 수 있으므로, !important 추가 */
 .modal-buttons button:nth-of-type(3) {
 	background: #777 !important; /* 기존 스타일 유지 */
-}
-
-
-.modal-buttons button[onclick="closeModal()"]:hover {
-    background-color: #da190b;
 }
 
 .material-symbols-outlined {

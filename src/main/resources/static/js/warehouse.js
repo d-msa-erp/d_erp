@@ -384,13 +384,14 @@ function displayNoStockMessage(isError = false) {
 
     const message = isError ? '재고 데이터 로드 실패' : '재고 데이터 없음';
     const color = isError ? 'red' : 'inherit';
-    const colspan = 8; // HTML 테이블 헤더 컬럼 수에 맞게 조정
+    const colspan = 8; // HTML 테이블 헤더 컬럼 수에 맞게 조정 (8개 컬럼)
 
     warehouseStockTableBody.innerHTML = `
         <tr>
-            <td colspan="${colspan}" style="text-align: center; color: ${color};">${message}</td>
+            <td colspan="${colspan}" style="text-align: center; color: ${color}; grid-column: 1 / span ${colspan};">${message}</td>
         </tr>
     `;
+
     selectAllStockCheckboxes.disabled = true;
     selectAllStockCheckboxes.checked = false; // 체크 해제
     moveStockButton.disabled = true;
