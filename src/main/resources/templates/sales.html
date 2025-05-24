@@ -514,8 +514,8 @@ width: 100%;
 								<tr>
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">주문번호<a>↓</a></th>
-									<th onclick="order(this)">품명<a>↓</a></th>
-									<th onclick="order(this)">품목<a>↓</a></th>
+									<th onclick="order(this)">품목코드<a>↓</a></th>
+									<th onclick="order(this)">품목명<a>↓</a></th>
 									<th onclick="order(this)">수량<a>↓</a></th>
 									<th onclick="order(this)">고객사<a>↓</a></th>
 									<th onclick="order(this)">납기일<a>↓</a></th>
@@ -557,7 +557,7 @@ width: 100%;
 					<span>납기일</span><input type="date" required />
 				</div>
 				<div>
-					<span>주문번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
+					<span>주문번호</span><input type="text" id="orderNo" th:value="${orderNo}" readonly required />
 				</div>
 				
 				<div class="custom-select-wrapper">
@@ -567,11 +567,11 @@ width: 100%;
 					<input type="hidden" id="selectedCustIdx" name="custIdx">
 				</div>
 				<div>
-					<span>담당자</span><input type="text" placeholder="세션으로 받아오기" required />
+					<span>담당자</span><input type="text" th:value="${UserNm}" readonly />
 				</div>
 				<div>
-					<span>담당자 번호</span><input type="text" placeholder="세션으로 받아오기"
-						required />
+					<span>담당자 번호</span><input type="text" th:value="${UserTel}"
+						readonly />
 				</div>
 
 				<div class="three-items">
@@ -581,11 +581,7 @@ width: 100%;
 							<span>품목</span>
 							<input type="text" list="itemList" placeholder="거래처를 검색하세요" id="itemSearchInput" required>
 							<datalist id="itemList">
-							  <option value="삼성전자">
-							  <option value="LG화학">
-							  <option value="현대자동차">
-							  <option value="기아">
-							  <option value="SK하이닉스">
+							
 							</datalist>
 						</div>
 					</div>
@@ -708,7 +704,8 @@ width: 100%;
         console.log(currentTab + ' 등록됨:', siteName);
         closeModal();
     }
-
+	
+    /*
     //테이블 클릭 시 출력되는 modal
     function opendatail() {
         openModal();
@@ -717,6 +714,7 @@ width: 100%;
         document.querySelector('#modalForm input[name="save"]').style.display = 'none';
         document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
     }
+    */
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('table').forEach(table => {
