@@ -34,39 +34,33 @@ public class InvTransactionController {
             @RequestParam(required = false) Long userIdx,
             @RequestParam(required = false) Long whIdx,
             @RequestParam(required = false) String transStatus,
-            @RequestParam(defaultValue = "R") String transType,
+            @RequestParam(defaultValue = "R") String transType, // 입고는 'R'
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "transDate") String sortBy,
             @RequestParam(defaultValue = "desc") String sortDirection) {
 
-        // JavaScript에서 1-based 페이지 번호를 보내므로, Spring Data Pageable을 위해 0-based로 변환
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.fromString(sortDirection.toUpperCase()), sortBy));
 
         InvTransactionSearchCriteria criteria = new InvTransactionSearchCriteria();
-        // String 날짜를 LocalDate로 변환 (DTO에서 @DateTimeFormat을 사용했다면 자동 변환 가능)
         if (transDateFrom != null && !transDateFrom.isEmpty()) {
             try {
                 criteria.setTransDateFrom(LocalDate.parse(transDateFrom));
-            } catch (Exception e) {
-                // 날짜 파싱 오류 처리 (예: 로그 남기기 또는 기본값 설정)
-                System.err.println("Error parsing transDateFrom: " + transDateFrom + e.getMessage());
-            }
+            } catch (Exception e) { /* 날짜 파싱 오류 처리 */ }
         }
         if (transDateTo != null && !transDateTo.isEmpty()) {
             try {
                 criteria.setTransDateTo(LocalDate.parse(transDateTo));
-            } catch (Exception e) {
-                System.err.println("Error parsing transDateTo: " + transDateTo + e.getMessage());
-            }
+            } catch (Exception e) { /* 날짜 파싱 오류 처리 */ }
         }
         criteria.setItemIdx(itemIdx);
         criteria.setCustIdx(custIdx);
         criteria.setUserIdx(userIdx);
         criteria.setWhIdx(whIdx);
         criteria.setTransStatus(transStatus);
-        criteria.setTransType(transType);
+        criteria.setTransType(transType); // 'R'이 전달됨
 
+        // 실제 서비스 호출
         PageDto<VInvTransactionDetailsDto> resultPageDto = invTransactionService.findTransactions(criteria, pageable);
         return ResponseEntity.ok(resultPageDto);
     }

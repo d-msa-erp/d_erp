@@ -60,40 +60,48 @@ public class InvTransactionService {
         Specification<VInvTransactionDetails> spec = (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
+            // transType 필터 (입고 페이지이므로 criteria.getTransType()은 'R'일 것임)
             if (criteria.getTransType() != null && !criteria.getTransType().isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("transType"), criteria.getTransType()));
             }
+            // 입고일자 시작일 필터
             if (criteria.getTransDateFrom() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("transDate"), criteria.getTransDateFrom()));
             }
+            // 입고일자 종료일 필터
             if (criteria.getTransDateTo() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("transDate"), criteria.getTransDateTo()));
             }
+            // 품목 ID 필터
             if (criteria.getItemIdx() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("itemIdx"), criteria.getItemIdx()));
             }
+            // 거래처 ID 필터
             if (criteria.getCustIdx() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("custIdx"), criteria.getCustIdx()));
             }
+            // 담당자 ID 필터
             if (criteria.getUserIdx() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("userIdx"), criteria.getUserIdx()));
             }
+            // 창고 ID 필터
             if (criteria.getWhIdx() != null) {
                 predicates.add(criteriaBuilder.equal(root.get("whIdx"), criteria.getWhIdx()));
             }
+            // 상태 필터
             if (criteria.getTransStatus() != null && !criteria.getTransStatus().isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("transStatus"), criteria.getTransStatus()));
             }
-            // 정렬 순서가 복잡할 경우 query.orderBy(...) 직접 설정
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
         Page<VInvTransactionDetails> pageResult = viewRepository.findAll(spec, pageable);
         List<VInvTransactionDetailsDto> dtoList = pageResult.getContent().stream()
-                .map(this::convertToDto)
+                .map(this::convertToDto) // convertToDto는 VInvTransactionDetails 엔티티를 DTO로 변환
                 .collect(Collectors.toList());
-        
-        return new PageDto<>(pageResult, dtoList); // Page 객체와 변환된 DTO 리스트를 함께 전달
+
+        return new PageDto<>(pageResult, dtoList);
     }
 
     public VInvTransactionDetailsDto findTransactionById(Long invTransIdx) {
