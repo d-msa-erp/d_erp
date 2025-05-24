@@ -6,8 +6,6 @@ let originalOptions = []; // 전역 선언
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadSales();
-	
-	// 자동완성
 });
 
 
