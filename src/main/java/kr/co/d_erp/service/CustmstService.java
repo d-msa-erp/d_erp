@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import kr.co.d_erp.domain.Custmst;
+import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.repository.oracle.CustmstRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -66,8 +67,11 @@ public class CustmstService {
     public void deleteCustomer(Long id) {
         custmstRepository.deleteById(id);
     }
-
-
+    
+    // 거래처 목록
+    public List<CustomerDTO> getCustomerNamesWithCode(String bizFlag) {
+        return custmstRepository.findCustIdxAndCustNmByBizFlag(bizFlag);
+    }
 
 
 }

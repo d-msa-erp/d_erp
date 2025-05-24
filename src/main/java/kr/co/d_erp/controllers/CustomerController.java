@@ -1,6 +1,7 @@
 package kr.co.d_erp.controllers;
 
 import kr.co.d_erp.domain.Custmst;
+import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.service.CustmstService;
 import lombok.RequiredArgsConstructor;
 
@@ -45,6 +46,7 @@ public class CustomerController {
                        .orElse(ResponseEntity.notFound().build());
     }
     
+    // 거래처 정보 수정
     @PutMapping("/api/customer/update/{custIdx}")
     public ResponseEntity<Custmst> updateCustomer(
             @PathVariable("custIdx") Long custIdx,
@@ -54,6 +56,8 @@ public class CustomerController {
         return ResponseEntity.ok(savedCust);
     }
     
+    
+    // 거래처 등록
     @PostMapping("/api/customer/save")
     public ResponseEntity<?> saveCustomer(@RequestBody Custmst customer) {
         try {
@@ -66,6 +70,7 @@ public class CustomerController {
         }
     }
     
+    // 거래처 삭제
     @DeleteMapping("/api/customer/delete")
     public ResponseEntity<?> deleteCustomers(@RequestBody List<Long> ids) {
         try {
@@ -82,4 +87,12 @@ public class CustomerController {
                                  .body("삭제 중 오류가 발생했습니다.");
         }
     }
+    
+    // 거래처 목록 받아오기
+    @GetMapping("/api/customers/names")
+    public List<CustomerDTO> getCustomerNames() {
+        return custmstService.getCustomerNamesWithCode("02"); // 거래처만 (bizFlag = 02)
+    }
+
+ 
 }

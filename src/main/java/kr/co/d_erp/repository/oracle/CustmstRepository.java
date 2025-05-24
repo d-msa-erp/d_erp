@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import kr.co.d_erp.domain.Custmst;
+import kr.co.d_erp.dtos.CustomerDTO;
 
 import java.util.List;
 
@@ -20,4 +21,10 @@ public interface CustmstRepository extends JpaRepository<Custmst, Long> {
 	List<Custmst> findByBizFlagAndKeyword(@Param("bizFlag") String bizFlag,
 	                                      @Param("keyword") String keyword,
 	                                      Sort sort);
+	
+	// 거래처 목록
+	@Query("SELECT new kr.co.d_erp.dtos.CustomerDTO(c.custIdx, c.custNm) FROM Custmst c WHERE c.bizFlag = :bizFlag")
+	List<CustomerDTO> findCustIdxAndCustNmByBizFlag(@Param("bizFlag") String bizFlag);
+
+
 }
