@@ -1,13 +1,19 @@
 const companySearchInput = document.getElementById('companySearchInput');
 const dataList = document.getElementById('companyList');
 const selectedCustIdx = document.getElementById('selectedCustIdx');
-let originalOptions = []; // 전역 선언
+const itemList = document.getElementById('itemList');
+let originalOptions = [];
 
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadSales();
 });
 
+// 주문번호 발행
+function generateRandomOrderNo() {
+  const randomNo = Math.floor(Math.random() * 90000000) + 10000000;
+  document.getElementById("orderNo").value = randomNo;
+}
 
 async function loadSales() {
     const salesTableBody = document.getElementById('salesTableBody');
@@ -46,7 +52,7 @@ function rendersales(sales) {
         sales.forEach(sale => {
             const row = document.createElement('tr');
             row.dataset.id = sale.orderCode;
-            row.onclick = () => opensalesDetail(sale.orderCode);
+            row.onclick = () => openSalesDetail(sale.orderCode);
 
             // 체크박스 셀
             const checkboxCell = document.createElement('td');
@@ -74,14 +80,14 @@ function rendersales(sales) {
             row.appendChild(nameCell);
 
             // 품목명
-            const itemNameCell = document.createElement('td');
-            itemNameCell.textContent = sale.itemName || '';
-            row.appendChild(itemNameCell);
+			const itemCodeCell = document.createElement('td');
+			itemCodeCell.textContent = sale.itemCode || '';
+			row.appendChild(itemCodeCell);
 
             // 품목 코드
-            const itemCodeCell = document.createElement('td');
-            itemCodeCell.textContent = sale.itemCode || '';
-            row.appendChild(itemCodeCell);
+			const itemNameCell = document.createElement('td');
+			itemNameCell.textContent = sale.itemName || '';
+			row.appendChild(itemNameCell);
 
             // 수량
             const quantityCell = document.createElement('td');
@@ -95,7 +101,7 @@ function rendersales(sales) {
 			
 			// 납기일
 			const deliveryDateCell = document.createElement('td');
-			deliveryDateCell.textContent = sale.customerName || '';
+			deliveryDateCell.textContent = sale.deliveryDate || '';
 			row.appendChild(deliveryDateCell);
 
             salesTableBody.appendChild(row);
@@ -146,11 +152,11 @@ async function openModal() {
     document.getElementById('modal').style.display = 'flex';
     document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-	
+	generateRandomOrderNo();
 	try {
 	        const response = await fetch('/api/customers/names');
 	        if (!response.ok) throw new Error('데이터 요청 실패');
-
+	
 	        const customer = await response.json();
 	        customer.forEach(customer => {
 	            const option = document.createElement('option');
@@ -183,8 +189,49 @@ companySearchInput.addEventListener('input', function () {
 	
 	const match = Array.from(dataList.options).find(opt => opt.value === this.value);
 	document.getElementById('selectedCustIdx').value = match ? match.dataset.idx : '';
-	console.log(document.getElementById('selectedCustIdx').value);
+	
+	const event = new Event('input');
+	document.getElementById('selectedCustIdx').dispatchEvent(event);
 });
+
+selectedCustIdx.addEventListener('input', async function () {
+    const custIdx = this.value;
+	console.log(custIdx);
+
+    // 이전 품목 리스트 초기화
+    itemList.innerHTML = '';
+	document.getElementById('itemSearchInput').value = '';
+	
+    if (!custIdx) return;
+
+    try {
+        const response = await fetch(`/api/items/active-for-selection?custIdx=${custIdx}`);
+        if (!response.ok) {
+            if (response.status === 204) {
+                console.log('해당 거래처의 품목이 없습니다.');
+                return;
+            }
+            throw new Error('품목 요청 실패');
+        }
+
+        const items = await response.json();
+        items.forEach(item => {
+            const option = document.createElement('option');
+            option.value = item.itemNm; // 품목명 표시
+            itemList.appendChild(option);
+        });
+    } catch (err) {
+        console.error('품목 불러오기 오류:', err);
+    }
+});
+
+function openSalesDetail(orderCode) {
+    openModal();
+    document.getElementById('modalTitle').textContent = '접수 정보';
+
+    document.querySelector('#modalForm input[name="save"]').style.display = 'none';
+    document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
+}
 
 function closeModal() {
 	document.getElementById('modal').style.display = 'none';
