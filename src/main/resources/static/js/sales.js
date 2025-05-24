@@ -9,12 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	loadSales();
 });
 
-// 주문번호 발행
-function generateRandomOrderNo() {
-  const randomNo = Math.floor(Math.random() * 90000000) + 10000000;
-  document.getElementById("orderNo").value = randomNo;
-}
-
 async function loadSales() {
     const salesTableBody = document.getElementById('salesTableBody');
     if (!salesTableBody) {
@@ -144,7 +138,16 @@ function renderErrorMessage(message) {
     salesTableBody.appendChild(errorRow);
 }
 
-
+function fetchOrderNo() {
+    fetch('/api/orders/getno')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("orderNo").value = data.orderNo;
+      })
+      .catch(error => {
+        console.error('주문번호 요청 실패:', error);
+      });
+}
 
 async function openModal() {
     const title = document.getElementById('modalTitle');
@@ -152,7 +155,7 @@ async function openModal() {
     document.getElementById('modal').style.display = 'flex';
     document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-	generateRandomOrderNo();
+	fetchOrderNo();
 	try {
 	        const response = await fetch('/api/customers/names');
 	        if (!response.ok) throw new Error('데이터 요청 실패');
