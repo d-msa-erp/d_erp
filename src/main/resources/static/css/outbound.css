@@ -1,0 +1,615 @@
+/* 전체 요소에 대한 초기화 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* body 기본 스타일 */
+body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+/* 메인 컨텐츠 래퍼 */
+.site-Wrapper {
+    width: 100%;
+    padding: 20px;
+    max-width: 1200px;
+    align-self: center;
+}
+
+/* 데이터셋 (폼 + 테이블) 컨테이너 */
+.site-Dataset {
+    width: 100%;
+    border: 1px solid #777;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 섹션 헤더 스타일 */
+.site-Dataset .header {
+    background: #46a6ff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+    display: flex; /* 아이콘과 텍스트 정렬을 위해 추가 */
+    align-items: center; /* 아이콘과 텍스트 정렬을 위해 추가 */
+    gap: 10px; /* 아이콘과 텍스트 간격 추가 */
+}
+
+/* .site-Dataset .header .material-symbols-outlined 주석 처리됨 (inbound.css와 동일) */
+/*
+.site-Dataset .header .material-symbols-outlined {
+    font-size: 28px;
+}
+*/
+
+/* 출고 정보 검색 폼 섹션 (inbound의 shipping-info-section과 유사) */
+.shipping-info-section {
+    padding: 20px 25px;
+    border-top: 1px solid #eee;
+    background-color: #fdfdfd;
+}
+
+/* 섹션 타이틀 공통 스타일 */
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 섹션 타이틀 아이콘 스타일 */
+.section-title .material-symbols-outlined {
+    font-size: 24px;
+    color: #46a6ff;
+}
+
+/* 출고 정보 폼 레이아웃 */
+.shipping-info-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* 폼 그룹 공통 스타일 */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 날짜 범위 폼 그룹 */
+.shipping-info-form .form-group.date-range {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+/* 날짜 범위 입력 필드 그룹 */
+.shipping-info-form .form-group.date-range>div {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+/* 날짜 범위 입력 필드 */
+.shipping-info-form .form-group.date-range>div input {
+	flex-grow: 1;
+}
+
+/* 폼 그룹 라벨 */
+.form-group label {
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+/* 폼 그룹 입력 및 선택 필드 */
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 폼 그룹 입력 및 선택 필드 포커스 시 스타일 */
+.form-group input:focus, .form-group select:focus {
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
+}
+
+/* 검색/액션 버튼 영역 (inbound.css의 search-action-buttons와 유사) */
+.search-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 15px 25px 20px 25px;
+    border-top: 1px solid #eee;
+}
+
+/* 검색/액션 버튼 공통 스타일 */
+.search-action-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+/* 검색 버튼 스타일 */
+.search-action-buttons button.btn-search {
+    background: #007bff;
+    color: white;
+}
+
+/* 검색 버튼 호버 시 스타일 */
+.search-action-buttons button.btn-search:hover {
+    background-color: #0056b3;
+}
+
+/* 초기화 버튼 스타일 */
+.search-action-buttons button.btn-reset {
+    background: #6c757d;
+    color: white;
+}
+
+/* 초기화 버튼 호버 시 스타일 */
+.search-action-buttons button.btn-reset:hover {
+    background-color: #5a6268;
+}
+
+/* 신규 버튼 스타일 */
+.search-action-buttons button.btn-new {
+    background: #28a745;
+    color: white;
+}
+
+/* 신규 버튼 호버 시 스타일 */
+.search-action-buttons button.btn-new:hover {
+    background-color: #218838;
+}
+
+/* 삭제 버튼 스타일 */
+.search-action-buttons button.btn-delete {
+    background: #dc3545;
+    color: white;
+}
+
+/* 삭제 버튼 호버 시 스타일 */
+.search-action-buttons button.btn-delete:hover {
+    background-color: #c82333;
+}
+
+/* 검색/액션 버튼 아이콘 */
+.search-action-buttons button .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* 테이블 래퍼 */
+.table-view-section {
+    padding: 20px 25px;
+    position: relative;
+}
+
+/* 테이블 액션 버튼 그룹 */
+.table-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* 테이블 액션 버튼 스타일 */
+.table-actions button {
+    padding: 8px 15px;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+}
+
+/* 테이블 액션 버튼 호버 시 스타일 */
+.table-actions button:hover {
+    background-color: #5a6268;
+}
+
+/* 테이블 액션 버튼 아이콘 */
+.table-actions button .material-symbols-outlined {
+    font-size: 18px;
+}
+
+/* 그리드 테이블 기본 스타일 */
+table.grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 고정 레이아웃 */
+}
+
+/* 그리드 테이블 헤더와 셀 공통 스타일 */
+table.grid-table thead th, table.grid-table tbody td {
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 그리드 테이블 헤더 스타일 */
+table.grid-table thead th {
+    background: #f0f4f7;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* 그리드 테이블 헤더 호버 시 스타일 */
+table.grid-table thead th:hover {
+    background-color: #e2e8f0;
+}
+
+/* 그리드 테이블 짝수 행 배경색 */
+table.grid-table tbody tr:nth-child(even) {
+    background: #f9fbfd;
+}
+
+/* 그리드 테이블 행 호버 시 스타일 */
+table.grid-table tbody tr:hover {
+    background: #e6f2ff;
+    cursor: pointer;
+}
+
+/* 그리드 테이블 행 호버 시 셀 글자색 */
+table.grid-table tbody tr:hover td {
+    color: #333;
+}
+
+/* 체크박스 컬럼 너비 */
+table.grid-table th:first-child, table.grid-table td:first-child {
+    width: 40px;
+    min-width: 40px;
+    max-width: 40px;
+    flex-shrink: 0;
+}
+
+/* 체크박스 입력 필드 여백 */
+table.grid-table th:first-child input[type="checkbox"], table.grid-table td:first-child input[type="checkbox"] {
+    margin: 0;
+}
+
+/* `nodata` 메시지 스타일 */
+.nodata {
+    text-align: center;
+    /* grid-column: span 6; 기존 outbound.html 테이블 컬럼 수에 맞게 조정 */
+    padding: 30px;
+    color: #666;
+    font-style: italic;
+    background-color: #fdfdfd;
+}
+
+/* 테이블 스크롤 래퍼 */
+.table-scroll-wrapper {
+    max-height: 400px; /* 고정 높이 */
+    overflow-y: auto; /* 세로 스크롤 활성화 */
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* 테이블 스크롤 래퍼 내 테이블 */
+.table-scroll-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* 테이블 스크롤 래퍼 내 헤더 고정 */
+.table-scroll-wrapper thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+/* 정렬 아이콘 스타일 */
+th a {
+    margin-left: 5px;
+    color: #777;
+    text-decoration: none;
+}
+
+/* 활성 정렬 아이콘 스타일 */
+th a.active {
+    color: #007bff;
+}
+
+/* 페이지네이션 */
+.pagination-wrap {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 20px;
+    gap: 15px;
+    font-size: 15px;
+    color: #555;
+}
+
+/* 페이지 정보 텍스트 */
+.pagination-wrap .page-info {
+    white-space: nowrap;
+}
+
+/* 페이지네이션 컨트롤 그룹 */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 페이지네이션 컨트롤 버튼 */
+.pagination-controls button {
+    width: 32px; /* 버튼 크기 조정 */
+    height: 32px; /* 버튼 크기 조정 */
+    background: #e0e0e0;
+    color: #555;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+/* 페이지네이션 컨트롤 버튼 호버 시 스타일 */
+.pagination-controls button:hover:not(:disabled) {
+    background-color: #c0c0c0;
+}
+
+/* 페이지네이션 컨트롤 비활성화 버튼 */
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 페이지네이션 컨트롤 버튼 아이콘 */
+.pagination-controls button .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* 페이지네이션 숫자 입력 필드 */
+.pagination-controls input[type="number"] {
+    width: 50px;
+    text-align: center;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
+
+/* 모달 공통 스타일 */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 1000;
+}
+
+/* 모달 콘텐츠 박스 */
+.modal-content {
+    background: white;
+    padding: 30px; /* inbound와 동일하게 30px로 조정 */
+    border-radius: 12px; /* inbound와 동일하게 12px로 조정 */
+    width: 90%; /* outbound 기존 80%에서 90%로 조정 */
+    max-width: 700px; /* inbound와 동일하게 max-width 추가 */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* inbound와 동일한 box-shadow */
+    position: relative;
+    animation: fadeIn 0.3s ease-out; /* inbound와 동일한 애니메이션 */
+    overflow-x: hidden; /* 기존 overflow-x: auto에서 hidden으로 변경 */
+    overflow-y: auto; /* 스크롤 필요한 경우 auto */
+    max-height: 90vh; /* 모달이 너무 커지는 것을 방지 */
+}
+
+/* 모달 등장 애니메이션 (inbound.css와 동일) */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 모달 제목 */
+.modal-content h3 {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #333;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* 모달 폼 그리드 레이아웃 (inbound의 modal-form-grid와 유사) */
+.modal-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 30px; /* outbound 기존 gap: 20px에서 20px 30px으로 변경 */
+    margin-bottom: 25px;
+}
+
+/* 모달 폼 그룹 (inbound의 modal-form-group과 유사) */
+.modal-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* 모달 폼 그룹 라벨 */
+.modal-form-group label {
+    font-weight: 600;
+    color: #555;
+    font-size: 14px;
+}
+
+/* 모달 폼 입력, 선택, 텍스트 영역 필드 */
+.modal-form-group input:not([type="checkbox"]), .modal-form-group select, .modal-form-group textarea {
+    width: 100%;
+    padding: 10px 12px; /* inbound와 동일하게 조정 */
+    border: 1px solid #ddd; /* inbound와 동일하게 조정 */
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 모달 폼 입력, 선택, 텍스트 영역 필드 포커스 시 스타일 */
+.modal-form-group input:focus:not([type="checkbox"]), .modal-form-group select:focus, .modal-form-group textarea:focus {
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
+}
+
+/* 모달 폼 텍스트 영역 */
+.modal-form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* 모달 하단 버튼 영역 (inbound의 modal-buttons와 유사) */
+.modal-buttons {
+    grid-column: span 2; /* 두 컬럼에 걸쳐 배치 */
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* 모달 버튼 공통 스타일 */
+.modal-buttons button {
+    padding: 10px 20px; /* inbound와 동일하게 조정 */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+/* 모달 저장 버튼 스타일 */
+.modal-buttons button.btn-save {
+    background: #007bff;
+    color: white;
+}
+
+/* 모달 저장 버튼 호버 시 스타일 */
+.modal-buttons button.btn-save:hover {
+    background-color: #0056b3;
+}
+
+/* 모달 수정 버튼 스타일 */
+.modal-buttons button.btn-edit {
+    background: #28a745;
+    color: white;
+}
+
+/* 모달 수정 버튼 호버 시 스타일 */
+.modal-buttons button.btn-edit:hover {
+    background-color: #218838;
+}
+
+/* 모달 취소 버튼 스타일 */
+.modal-buttons button.btn-cancel {
+    background: #6c757d; /* inbound와 동일한 회색 */
+    color: white;
+}
+
+/* 모달 취소 버튼 호버 시 스타일 */
+.modal-buttons button.btn-cancel:hover {
+    background-color: #5a6268;
+}
+
+/* 모달 버튼 아이콘 */
+.modal-buttons button .material-symbols-outlined {
+    font-size: 20px;
+}
+
+/* Datalist input styling */
+input[list] {
+    background-color: #fbfbfb;
+}
+
+/* --- 기존에 없던 outbound 관련 스타일 추가 및 조정 --- */
+/* (기존 <style> 태그 내의 불필요한 스타일 제거 및 통일화) */
+
+/* .table-wrapper 제거하고 .table-view-section으로 통일 */
+/* .table-wrapper > div:nth-child(1) 제거하고 .search-action-buttons로 통일 */
+/* .table-wrapper > div:nth-child(1) > .btn-wrap1 제거 */
+
+/* .shipping-info 제거하고 .shipping-info-section으로 통일 */
+/* .shipping-info > span 제거하고 .section-title로 통일 */
+/* .shipping-info > div 제거하고 .shipping-info-form으로 통일 */
+
+/* smallTitle 제거하고 .section-title로 통일 */
+
+/* .print-wrap 제거하고 .table-actions로 통일 */
+
+
+/* grid-table의 display:grid 제거, table-layout:fixed 사용 (inbound와 동일) */
+/* thead, tbody, tr { display: contents; white-space: nowrap;} 제거 */
+
+/* th, td의 display: flex 제거 */
+
+/* pagination-wrap의 flex-direction: column 제거 (inbound와 동일) */
+/* pagination-wrap > div (paigination) 제거하고 .pagination-controls로 통일 */
+/* pagination-wrap > div input[type="text"] 제거하고 input[type="number"]로 통일 */
+/* pagination-wrap > div button 제거하고 .pagination-controls button으로 통일 */
+
+/* modal-content .modalForm 제거하고 .modal-form-grid로 통일 */
+/* modal-content .modalForm .three-items 제거 */
+/* modal-content .modalForm > div, modal-content .modalForm > label 제거 */
+/* modal-content .modalForm > div > span, modal-content .modalForm > label > span 제거 */
+
+/* modal-content input[type="color"] 제거 (출고 관리에서 필요 없어 보임) */
+/* modal-content .modal-buttons에 grid-column-start: 3; 제거 (자동 정렬) */
+/* .modal-buttons button:nth-of-type(3) 제거 (btn-cancel 클래스로 대체) */
