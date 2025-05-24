@@ -206,22 +206,4 @@ public class ItemApiController {
 					.body("품목 삭제 중 오류가 발생했습니다: " + e.getMessage());
 		}
 	}
-
-	/*
-	 * @GetMapping("/Item") // 예시 URL public String getItemList(Model m) {
-	 * List<Item> itemList = itemService.getAllItem(); m.addAttribute("items",
-	 * itemList); // Model에 데이터를 담아서 View로 전달합니다. return "/inventory.html"; //
-	 * Thymeleaf 템플릿 이름 (예시) }
-	 */
-
-	// 품목 리스트 출력용
-	@GetMapping("/active-for-selection")
-	public ResponseEntity<List<ItemForSelectionDto>> getActiveItemsForSelection() {
-		List<ItemForSelectionDto> items = itemService.findActiveItemsForSelection();
-		if (items.isEmpty()) {
-			return ResponseEntity.noContent().build(); // 데이터가 없을 경우 204 No Content
-		}
-		return ResponseEntity.ok(items);
-	}
-
 }

@@ -1,23 +1,16 @@
 // === 전역 변수 ===
-let currentSortBy = 'invTransIdx'; // 기본 정렬 필드를 실제 존재하는 필드로 변경 (예: invTransIdx 또는 transDate)
+let currentSortBy = 'invTransIdx';
 let currentOrder = 'desc';
 let currentPage = 1;
 let totalPages = 1;
 const pageSize = 10;
-let currentInvTransIdxForModal = null; // 현재 모달에서 열린 입고 트랜잭션 ID
+let currentInvTransIdxForModal = null;
 
-// 검색 필터 값 저장
 let searchFilters = {
-	transDateFrom: '',
-	transDateTo: '',
-	itemIdx: '',
-	custIdx: '',
-	userIdx: '',
-	whIdx: '',
-	transStatus: ''
+    transDateFrom: '', transDateTo: '', itemIdx: '', custIdx: '',
+    userIdx: '', whIdx: '', transStatus: ''
 };
 
-// Datalist 데이터를 저장할 배열
 let searchItemsData = [];
 let searchCustsData = [];
 let searchWarehousesData = [];
@@ -28,22 +21,18 @@ let modalCustsData = [];
 let modalWarehousesData = [];
 let modalManagersData = [];
 
-
 // === UI 컨트롤 요소 가져오기 ===
 const receivingTableBody = document.querySelector('#receivingTable tbody');
 const selectAllCheckboxes = document.getElementById('selectAllCheckboxes');
-
 const searchButton = document.getElementById('searchButton');
 const resetSearchButton = document.getElementById('resetSearchButton');
 const newRegistrationButton = document.getElementById('newRegistrationButton');
 const deleteButton = document.getElementById('deleteButton');
-
 const modal = document.getElementById('receivingModal');
 const modalTitle = document.getElementById('modalTitle');
 const modalForm = document.getElementById('modalForm');
 const saveButton = modalForm.querySelector('button[name="save"]');
 const editButton = modalForm.querySelector('button[name="edit"]');
-
 const totalRecordsSpan = document.getElementById('totalRecords');
 const currentPageSpan = document.getElementById('currentPage');
 const totalPagesSpan = document.getElementById('totalPages');
@@ -53,7 +42,6 @@ const btnPrevPage = document.getElementById('btn-prev-page');
 const btnNextPage = document.getElementById('btn-next-page');
 const btnLastPage = document.getElementById('btn-last-page');
 
-// === 검색 필드 요소 가져오기 ===
 const searchTransDateFromInput = document.getElementById('searchTransDateFrom');
 const searchTransDateToInput = document.getElementById('searchTransDateTo');
 const searchItemNmInput = document.getElementById('searchItemNm');
@@ -66,8 +54,6 @@ const searchWhNmInput = document.getElementById('searchWhNm');
 const searchHiddenWhIdxInput = document.getElementById('searchHiddenWhIdx');
 const searchTransStatusSelect = document.getElementById('searchTransStatus');
 
-
-// === 모달 폼 필드 요소 가져오기 ===
 const modalTransCode = document.getElementById('modalTransCode');
 const modalTransDate = document.getElementById('modalTransDate');
 const modalTransQty = document.getElementById('modalTransQty');
@@ -86,659 +72,444 @@ const modalHiddenWhIdxInput = document.getElementById('modalHiddenWhIdx');
 const modalUserNmInput = document.getElementById('modalUserNm');
 const modalHiddenUserIdxInput = document.getElementById('modalHiddenUserIdx');
 
-
 // === 테이블 데이터 로드 함수 ===
 async function loadReceivingTable(page = currentPage, sortBy = currentSortBy, sortDirection = currentOrder, filters = searchFilters) {
-	currentPage = page;
-	currentSortBy = sortBy;
-	currentOrder = sortDirection;
-	searchFilters = filters;
+    currentPage = page; currentSortBy = sortBy; currentOrder = sortDirection; searchFilters = filters;
+    receivingTableBody.innerHTML = '';
+    const queryParams = new URLSearchParams({
+        page: currentPage, size: pageSize, sortBy, sortDirection,
+        ...(filters.transDateFrom && { transDateFrom: filters.transDateFrom }),
+        ...(filters.transDateTo && { transDateTo: filters.transDateTo }),
+        ...(filters.itemIdx && { itemIdx: filters.itemIdx }),
+        ...(filters.custIdx && { custIdx: filters.custIdx }),
+        ...(filters.userIdx && { userIdx: filters.userIdx }),
+        ...(filters.whIdx && { whIdx: filters.whIdx }),
+        ...(filters.transStatus && { transStatus: filters.transStatus }),
+    });
 
-	receivingTableBody.innerHTML = '';
-	// displayNoDataMessage(receivingTableBody, 11); // API 호출 전에 메시지 표시 가능
+    try {
+        const response = await fetch(`/api/inv-transactions?${queryParams.toString()}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`Error fetching receiving list: HTTP status ${response.status}`, errorText);
+            throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
+        }
+        const responseData = await response.json();
+        const invTransactions = responseData.content || [];
+        totalPages = responseData.totalPages || 1;
+        const totalElements = responseData.totalElements || 0;
 
-	const queryParams = new URLSearchParams();
-	queryParams.append('page', currentPage);
-	queryParams.append('size', pageSize);
-	queryParams.append('sortBy', sortBy);
-	queryParams.append('sortDirection', sortDirection);
+        totalRecordsSpan.textContent = totalElements;
+        currentPageSpan.textContent = currentPage;
+        totalPagesSpan.textContent = totalPages;
+        pageNumberInput.value = currentPage;
+        btnFirstPage.disabled = currentPage === 1;
+        btnPrevPage.disabled = currentPage === 1;
+        btnNextPage.disabled = currentPage === totalPages || totalPages === 0;
+        btnLastPage.disabled = currentPage === totalPages || totalPages === 0;
+        pageNumberInput.max = totalPages > 0 ? totalPages : 1;
 
-	if (filters.transDateFrom) queryParams.append('transDateFrom', filters.transDateFrom);
-	if (filters.transDateTo) queryParams.append('transDateTo', filters.transDateTo);
-	if (filters.itemIdx) queryParams.append('itemIdx', filters.itemIdx);
-	if (filters.custIdx) queryParams.append('custIdx', filters.custIdx);
-	if (filters.userIdx) queryParams.append('userIdx', filters.userIdx);
-	if (filters.whIdx) queryParams.append('whIdx', filters.whIdx);
-	if (filters.transStatus) queryParams.append('transStatus', filters.transStatus);
-
-	try {
-		// 백엔드 API 엔드포인트 확인 완료
-		const response = await fetch(`/api/inv-transactions?${queryParams.toString()}`);
-		if (!response.ok) {
-			const errorText = await response.text();
-			console.error(`Error fetching receiving list: HTTP status ${response.status}`, errorText);
-			throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
-		}
-		const responseData = await response.json();
-		const invTransactions = responseData.content || [];
-		totalPages = responseData.totalPages || 1;
-		const totalElements = responseData.totalElements || 0;
-
-		totalRecordsSpan.textContent = totalElements;
-		currentPageSpan.textContent = currentPage;
-		totalPagesSpan.textContent = totalPages;
-		pageNumberInput.value = currentPage;
-
-		btnFirstPage.disabled = currentPage === 1;
-		btnPrevPage.disabled = currentPage === 1;
-		btnNextPage.disabled = currentPage === totalPages || totalPages === 0;
-		btnLastPage.disabled = currentPage === totalPages || totalPages === 0;
-		pageNumberInput.max = totalPages > 0 ? totalPages : 1;
-
-		if (invTransactions.length === 0) {
-			displayNoDataMessage(receivingTableBody, 11);
-			return;
-		}
-
-		receivingTableBody.innerHTML = '';
-
-		invTransactions.forEach(trans => {
-			const row = document.createElement('tr');
-			row.dataset.invTransIdx = trans.invTransIdx;
-
-			const totalAmount = (trans.transQty && trans.unitPrice) ?
-				(parseFloat(trans.transQty) * parseFloat(trans.unitPrice)) : 0;
-
-			row.innerHTML = `
+        if (invTransactions.length === 0) {
+            displayNoDataMessage(receivingTableBody, 11); return;
+        }
+        receivingTableBody.innerHTML = '';
+        invTransactions.forEach(trans => {
+            const row = document.createElement('tr');
+            row.dataset.invTransIdx = trans.invTransIdx;
+            const totalAmount = (trans.transQty && trans.unitPrice) ? (parseFloat(trans.transQty) * parseFloat(trans.unitPrice)) : 0;
+            row.innerHTML = `
                 <td><input type="checkbox" class="trans-checkbox" data-inv-trans-idx="${trans.invTransIdx}" /></td>
-                <td>${trans.invTransCode || ''}</td>
-                <td>${formatDate(trans.transDate) || ''}</td>
+                <td>${trans.invTransCode || ''}</td><td>${formatDate(trans.transDate) || ''}</td>
                 <td>${trans.itemNm || ''} ${trans.itemCd ? '(' + trans.itemCd + ')' : ''}</td>
-                <td>${trans.custNm || ''}</td>
-                <td>${trans.transQty !== null ? Number(trans.transQty).toLocaleString() : '0'}</td>
+                <td>${trans.custNm || ''}</td><td>${trans.transQty !== null ? Number(trans.transQty).toLocaleString() : '0'}</td>
                 <td>${trans.unitPrice !== null ? Number(trans.unitPrice).toLocaleString() : '0'}</td>
-                <td>${totalAmount.toLocaleString()}</td>
-                <td>${trans.whNm || ''}</td>
-                <td>${trans.userNm || '미지정'}</td>
-                <td>${getTransStatusText(trans.transStatus) || ''}</td>
+                <td>${totalAmount.toLocaleString()}</td><td>${trans.whNm || ''}</td>
+                <td>${trans.userNm || '미지정'}</td><td>${getTransStatusText(trans.transStatus) || ''}</td>
             `;
-			row.addEventListener('click', (event) => {
-				if (event.target.type === 'checkbox') return;
-				openModal('view', trans.invTransIdx);
-			});
-			receivingTableBody.appendChild(row);
-		});
-
-	} catch (error) {
-		console.error('Error loading receiving data:', error);
-		displayNoDataMessage(receivingTableBody, 11, true);
-	}
+            row.addEventListener('click', (event) => {
+                if (event.target.type === 'checkbox') return;
+                openModal('view', trans.invTransIdx);
+            });
+            receivingTableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error loading receiving data:', error);
+        displayNoDataMessage(receivingTableBody, 11, true);
+    }
 }
 
-// === 데이터 없음 메시지 표시 함수 ===
 function displayNoDataMessage(tableBodyElement, colspanCount, isError = false) {
-	const message = isError ? '데이터를 불러오는 중 오류가 발생했습니다.' : '등록된 데이터가 없습니다.';
-	const color = isError ? 'red' : '#666';
-	tableBodyElement.innerHTML = `
-        <tr>
-            <td class="nodata" colspan="${colspanCount}" style="color: ${color}; padding: 20px;">${message}</td>
-        </tr>
-    `;
+    const message = isError ? '데이터를 불러오는 중 오류가 발생했습니다.' : '등록된 데이터가 없습니다.';
+    tableBodyElement.innerHTML = `<tr><td class="nodata" colspan="${colspanCount}" style="color: ${isError ? 'red' : '#666'}; padding: 20px;">${message}</td></tr>`;
 }
 
-// === 테이블 정렬 함수 ===
 document.querySelectorAll('#receivingTable thead th[data-sort-by]').forEach(th => {
-	th.addEventListener('click', function() { order(this); });
+    th.addEventListener('click', function() { order(this); });
 });
-
 function order(thElement) {
-	const newSortBy = thElement.dataset.sortBy;
-	if (!newSortBy) return;
-
-	document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
-		arrow.textContent = '↓';
-		arrow.classList.remove('active');
-	});
-
-	if (currentSortBy === newSortBy) {
-		currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
-	} else {
-		currentSortBy = newSortBy;
-		currentOrder = 'asc';
-	}
-
-	const currentThArrow = thElement.querySelector('.sort-arrow');
-	if (currentThArrow) {
-		currentThArrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-		currentThArrow.classList.add('active');
-	}
-	loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
+    const newSortBy = thElement.dataset.sortBy; if (!newSortBy) return;
+    document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => { arrow.textContent = '↓'; arrow.classList.remove('active'); });
+    if (currentSortBy === newSortBy) currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+    else { currentSortBy = newSortBy; currentOrder = 'asc'; }
+    const currentThArrow = thElement.querySelector('.sort-arrow');
+    if (currentThArrow) { currentThArrow.textContent = currentOrder === 'asc' ? '↑' : '↓'; currentThArrow.classList.add('active'); }
+    loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
 }
 
-// === 모달 열기 함수 ===
 async function openModal(mode, invTransIdx = null) {
-	modalForm.reset();
-	currentInvTransIdxForModal = invTransIdx;
-	[modalCustNmInput, modalHiddenCustIdxInput, modalItemNmInput, modalHiddenItemIdxInput,
-		modalWhNmInput, modalHiddenWhIdxInput, modalUserNmInput, modalHiddenUserIdxInput]
-		.forEach(input => {
-			input.value = '';
-			// 보이는 input 필드들의 유효성 상태만 초기화
-			if (input.id === 'modalCustNm' || input.id === 'modalItemNm' || input.id === 'modalWhNm' || input.id === 'modalUserNm') {
-				input.setCustomValidity('');
-			}
-		});
-
-	saveButton.style.display = 'none';
-	editButton.style.display = 'none';
-	modalTransCode.readOnly = true;
-	modalTransStatusGroup.style.display = 'none';
-
-	try {
-		await loadModalDatalistData();
-	} catch (error) {
-		console.error("모달용 Datalist 로드 중 에러:", error);
-	}
-
-	if (mode === 'new') {
-		modalTitle.textContent = '신규 입고 등록';
-		saveButton.style.display = 'block';
-		modalTransCode.value = '자동 생성';
-		modalTransDate.value = new Date().toISOString().substring(0, 10);
-		modalInvTransIdx.value = '';
-	} else if (mode === 'view' && invTransIdx !== null) {
-		modalTitle.textContent = '입고 상세 정보';
-		editButton.style.display = 'block';
-		modalTransStatusGroup.style.display = 'flex';
-
-		try {
-			const response = await fetch(`/api/inv-transactions/${invTransIdx}`);
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
-			}
-			const transaction = await response.json();
-
-			modalInvTransIdx.value = transaction.invTransIdx || '';
-			modalTransCode.value = transaction.invTransCode || '';
-			modalTransDate.value = formatDateToInput(transaction.transDate) || '';
-			modalTransQty.value = transaction.transQty || '';
-			modalUnitPrice.value = transaction.unitPrice || '';
-			modalRemark.value = transaction.remark || transaction.invTransRemark || '';
-			modalTransStatusSelect.value = transaction.transStatus || '';
-
-			setModalDatalistValue('modalCustNm', 'modalHiddenCustIdx', modalCustsData, transaction.custIdx);
-			setModalDatalistValue('modalItemNm', 'modalHiddenItemIdx', modalItemsData, transaction.itemIdx);
-			setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
-			setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
-		} catch (error) {
-			console.error('입고 상세 정보 로드 오류:', error);
-			alert('입고 정보를 불러오는데 실패했습니다: ' + error.message);
-			closeModal();
-			return;
-		}
-	} else {
-		alert('모달을 여는 중 오류가 발생했습니다.');
-		return;
-	}
-	modal.style.display = 'flex';
+    modalForm.reset(); currentInvTransIdxForModal = invTransIdx;
+    [modalCustNmInput, modalHiddenCustIdxInput, modalItemNmInput, modalHiddenItemIdxInput,
+     modalWhNmInput, modalHiddenWhIdxInput, modalUserNmInput, modalHiddenUserIdxInput]
+     .forEach(input => { input.value = ''; if(input.type !== 'hidden') input.setCustomValidity(''); });
+    saveButton.style.display = 'none'; editButton.style.display = 'none';
+    modalTransCode.readOnly = true; modalTransStatusGroup.style.display = 'none';
+    try { await loadModalDatalistData(); } catch (error) { console.error("모달용 Datalist 로드 중 에러:", error); }
+    if (mode === 'new') {
+        modalTitle.textContent = '신규 입고 등록'; saveButton.style.display = 'block';
+        modalTransCode.value = '자동 생성'; modalTransDate.value = new Date().toISOString().substring(0, 10);
+        modalInvTransIdx.value = '';
+    } else if (mode === 'view' && invTransIdx !== null) {
+        modalTitle.textContent = '입고 상세 정보'; editButton.style.display = 'block';
+        modalTransStatusGroup.style.display = 'flex';
+        try {
+            const response = await fetch(`/api/inv-transactions/${invTransIdx}`);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}, Message: ${await response.text()}`);
+            const transaction = await response.json();
+            modalInvTransIdx.value = transaction.invTransIdx || ''; modalTransCode.value = transaction.invTransCode || '';
+            modalTransDate.value = formatDateToInput(transaction.transDate) || '';
+            modalTransQty.value = transaction.transQty || ''; modalUnitPrice.value = transaction.unitPrice || '';
+            modalRemark.value = transaction.remark || transaction.invTransRemark || '';
+            modalTransStatusSelect.value = transaction.transStatus || '';
+            setModalDatalistValue('modalCustNm', 'modalHiddenCustIdx', modalCustsData, transaction.custIdx);
+            setModalDatalistValue('modalItemNm', 'modalHiddenItemIdx', modalItemsData, transaction.itemIdx);
+            setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
+            setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
+        } catch (error) {
+            console.error('입고 상세 정보 로드 오류:', error); alert('입고 정보를 불러오는데 실패했습니다: ' + error.message);
+            closeModal(); return;
+        }
+    } else { alert('모달을 여는 중 오류가 발생했습니다.'); return; }
+    modal.style.display = 'flex';
 }
 
-// === 모달 닫기 함수 ===
 function closeModal() {
-	modal.style.display = 'none';
-	modalForm.reset();
-	currentInvTransIdxForModal = null;
-	[modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput]
-		.forEach(input => input.setCustomValidity(''));
+    modal.style.display = 'none'; modalForm.reset(); currentInvTransIdxForModal = null;
+    [modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput].forEach(input => input.setCustomValidity(''));
+}
+function outsideClick(e) { if (e.target.id === 'receivingModal') closeModal(); }
+
+// === Datalist 데이터 로드 함수 (검색 필드 - 품목) ===
+async function loadSearchItemsDatalist(custIdx = null) {
+    let itemApiUrl = '/api/items/active-for-selection';
+    if (custIdx && custIdx.trim() !== '') {
+        itemApiUrl += `?custIdx=${encodeURIComponent(custIdx)}`;
+    }
+    try {
+        const itemResponse = await fetch(itemApiUrl);
+        if (itemResponse.ok) searchItemsData = await itemResponse.json();
+        else { console.error('Error fetching search items:', await itemResponse.text()); searchItemsData = []; }
+    } catch (error) { console.error("Search Items Datalist 로드 실패:", error); searchItemsData = []; }
+    populateDatalist('searchItemsDatalist', searchItemsData, 'itemNm', 'itemCd', 'itemIdx');
 }
 
-// === 모달 외부 클릭 시 닫기 ===
-function outsideClick(e) {
-	if (e.target.id === 'receivingModal') closeModal();
-}
-
-// === Datalist 데이터 로드 함수 (검색용) ===
+// === Datalist 데이터 로드 함수 (검색용 - 품목 외) ===
 async function loadSearchDatalistData() {
-	try {
-		const [itemRes, custRes, warehouseRes, managerRes] = await Promise.all([
-			fetch('/api/items/active-for-selection'),
-			fetch('/api/customers/active-for-selection?bizFlag=01'), // 입고 거래처는 매입처(01)
-			fetch('/api/warehouses/active-for-selection'),
-			fetch('/api/users/active-for-selection')
-		]);
-
-		if (itemRes.ok) searchItemsData = await itemRes.json(); else console.error('Error fetching search items:', await itemRes.text());
-		if (custRes.ok) searchCustsData = await custRes.json(); else console.error('Error fetching search customers:', await custRes.text());
-		if (warehouseRes.ok) searchWarehousesData = await warehouseRes.json(); else console.error('Error fetching search warehouses:', await warehouseRes.text());
-		if (managerRes.ok) searchManagersData = await managerRes.json(); else console.error('Error fetching search managers:', await managerRes.text());
-
-		populateDatalist('searchItemsDatalist', searchItemsData, 'itemNm', 'itemCd', 'itemIdx');
-		populateDatalist('searchCustsDatalist', searchCustsData, 'custNm', 'custCd', 'custIdx');
-		populateDatalist('searchWarehousesDatalist', searchWarehousesData, 'whNm', 'whCd', 'whIdx');
-		populateDatalist('searchManagersDatalist', searchManagersData, 'userNm', 'userId', 'userIdx');
-	} catch (error) {
-		console.error("검색용 Datalist 데이터 로드 실패:", error);
-	}
+    try {
+        await Promise.all([
+            loadSearchItemsDatalist(), // 초기 전체 품목 로드
+            (async () => {
+                const custResponse = await fetch('/api/customers/active-for-selection?bizFlag=01');
+                if (custResponse.ok) searchCustsData = await custResponse.json();
+                else console.error('Error fetching search customers:', await custResponse.text());
+                populateDatalist('searchCustsDatalist', searchCustsData, 'custNm', 'custCd', 'custIdx');
+            })(),
+            (async () => {
+                const warehouseResponse = await fetch('/api/warehouses/active-for-selection');
+                if (warehouseResponse.ok) searchWarehousesData = await warehouseResponse.json();
+                else console.error('Error fetching search warehouses:', await warehouseResponse.text());
+                populateDatalist('searchWarehousesDatalist', searchWarehousesData, 'whNm', 'whCd', 'whIdx');
+            })(),
+            (async () => {
+                const managerResponse = await fetch('/api/users/active-for-selection');
+                if (managerResponse.ok) searchManagersData = await managerResponse.json();
+                else console.error('Error fetching search managers:', await managerResponse.text());
+                populateDatalist('searchManagersDatalist', searchManagersData, 'userNm', 'userId', 'userIdx');
+            })()
+        ]);
+    } catch (error) { console.error("Datalist 초기 로드 중 전체 오류:", error); }
 }
 
 // === Datalist 데이터 로드 함수 (모달용) ===
 async function loadModalDatalistData() {
-	try {
-		// 검색용과 동일한 API 사용, 필요시 bizFlag 등 파라미터 조정
-		const [itemRes, custRes, warehouseRes, managerRes] = await Promise.all([
-			fetch('/api/items/active-for-selection'),
-			fetch('/api/customers/active-for-selection?bizFlag=01'), // 입고 거래처는 매입처(01)
-			fetch('/api/warehouses/active-for-selection'),
-			fetch('/api/users/active-for-selection')
-		]);
-
-		if (itemRes.ok) modalItemsData = await itemRes.json(); else console.error('Error fetching modal items:', await itemRes.text());
-		if (custRes.ok) modalCustsData = await custRes.json(); else console.error('Error fetching modal customers:', await custRes.text());
-		if (warehouseRes.ok) modalWarehousesData = await warehouseRes.json(); else console.error('Error fetching modal warehouses:', await warehouseRes.text());
-		if (managerRes.ok) modalManagersData = await managerRes.json(); else console.error('Error fetching modal managers:', await managerRes.text());
-
-		populateDatalist('modalItemsDatalist', modalItemsData, 'itemNm', 'itemCd', 'itemIdx');
-		populateDatalist('modalCustsDatalist', modalCustsData, 'custNm', 'custCd', 'custIdx');
-		populateDatalist('modalWarehousesDatalist', modalWarehousesData, 'whNm', 'whCd', 'whIdx');
-		populateDatalist('modalManagersDatalist', modalManagersData, 'userNm', 'userId', 'userIdx');
-	} catch (error) {
-		console.error("모달용 Datalist 데이터 로드 실패:", error);
-	}
+    try {
+        const [itemRes, custRes, warehouseRes, managerRes] = await Promise.all([
+            fetch('/api/items/active-for-selection'), // 모달에서는 항상 전체 품목 또는 상황에 맞는 품목 로드
+            fetch('/api/customers/active-for-selection?bizFlag=01'),
+            fetch('/api/warehouses/active-for-selection'),
+            fetch('/api/users/active-for-selection')
+        ]);
+        if (itemRes.ok) modalItemsData = await itemRes.json(); else console.error('Error fetching modal items:', await itemRes.text());
+        if (custRes.ok) modalCustsData = await custRes.json(); else console.error('Error fetching modal customers:', await custRes.text());
+        if (warehouseRes.ok) modalWarehousesData = await warehouseRes.json(); else console.error('Error fetching modal warehouses:', await warehouseRes.text());
+        if (managerRes.ok) modalManagersData = await managerRes.json(); else console.error('Error fetching modal managers:', await managerRes.text());
+        populateDatalist('modalItemsDatalist', modalItemsData, 'itemNm', 'itemCd', 'itemIdx');
+        populateDatalist('modalCustsDatalist', modalCustsData, 'custNm', 'custCd', 'custIdx');
+        populateDatalist('modalWarehousesDatalist', modalWarehousesData, 'whNm', 'whCd', 'whIdx');
+        populateDatalist('modalManagersDatalist', modalManagersData, 'userNm', 'userId', 'userIdx');
+    } catch (error) { console.error("모달용 Datalist 로드 실패:", error); }
 }
 
-// === Datalist 옵션 채우는 범용 함수 ===
 function populateDatalist(datalistId, dataArray, displayField, codeField, idxField) {
-	const datalist = document.getElementById(datalistId);
-	if (!datalist) { console.warn(`Datalist ID '${datalistId}' not found.`); return; }
-	datalist.innerHTML = '';
-	if (!Array.isArray(dataArray)) { console.warn(`Data for '${datalistId}' not an array.`); return; }
-	dataArray.forEach(item => {
-		const option = document.createElement('option');
-		const displayValue = item[displayField] || 'N/A';
-		const codeValue = item[codeField] || 'N/A';
-		option.value = `${displayValue} (${codeValue})`;
-		option.dataset.idx = item[idxField];
-		datalist.appendChild(option);
-	});
+    const datalist = document.getElementById(datalistId);
+    if (!datalist) { console.warn(`Datalist ID '${datalistId}' not found.`); return; }
+    datalist.innerHTML = '';
+    if (!Array.isArray(dataArray)) { console.warn(`Data for '${datalistId}' not an array.`); return; }
+    dataArray.forEach(item => {
+        const option = document.createElement('option');
+        const displayValue = item[displayField] || 'N/A';
+        const codeValue = item[codeField] || 'N/A';
+        option.value = `${displayValue} (${codeValue})`;
+        option.dataset.idx = item[idxField];
+        datalist.appendChild(option);
+    });
 }
 
-// === Datalist input 값 변경 시 hidden 필드 설정 및 유효성 검증 함수 (공용) ===
 function setupDatalistInputListener(inputId, hiddenInputId, displayField, codeField, idxField, required = false) {
-	const inputElement = document.getElementById(inputId);
-	const hiddenInputElement = document.getElementById(hiddenInputId);
-
-	if (!inputElement || !hiddenInputElement) {
-		console.warn(`Datalist setup: Input or HiddenInput not found for ${inputId}`);
-		return;
-	}
-
-	if (required) {
-		inputElement.required = true; // HTML5 'required' 속성 설정
-	}
-
-	const handler = () => {
-		const inputValue = inputElement.value;
-		let currentDatalistArray; // 현재 input에 맞는 Datalist 데이터 배열 참조
-
-		if (inputId.startsWith('search')) {
-			if (inputId.includes('Item')) currentDatalistArray = searchItemsData;
-			else if (inputId.includes('Cust')) currentDatalistArray = searchCustsData;
-			else if (inputId.includes('Wh')) currentDatalistArray = searchWarehousesData;
-			else if (inputId.includes('Manager') || inputId.includes('User')) currentDatalistArray = searchManagersData;
-		} else { // modal
-			if (inputId.includes('Item')) currentDatalistArray = modalItemsData;
-			else if (inputId.includes('Cust')) currentDatalistArray = modalCustsData;
-			else if (inputId.includes('Wh')) currentDatalistArray = modalWarehousesData;
-			else if (inputId.includes('Manager') || inputId.includes('User')) currentDatalistArray = modalManagersData;
-		}
-		currentDatalistArray = currentDatalistArray || []; // Null 방지
-
-		if (!Array.isArray(currentDatalistArray) || currentDatalistArray.length === 0 && inputValue.trim() !== '') {
-			hiddenInputElement.value = '';
-			if (required) { // 데이터 목록 없이 필수 필드를 채우려 할 때
-				inputElement.setCustomValidity('선택할 목록이 없거나 로딩 중입니다. 값을 직접 입력할 수 없습니다.');
-			} else {
-				inputElement.setCustomValidity(''); // 선택 사항이면 문제 없음
-			}
-			return;
-		}
-
-		const matchedItem = currentDatalistArray.find(data =>
-			`${data[displayField] || ''} (${data[codeField] || ''})` === inputValue
-		);
-
-		if (matchedItem) {
-			hiddenInputElement.value = matchedItem[idxField];
-			inputElement.setCustomValidity('');
-		} else {
-			hiddenInputElement.value = '';
-			if (inputValue.trim() !== '') {
-				inputElement.setCustomValidity('목록에 있는 유효한 항목을 선택하거나, 입력 값을 확인해주세요.');
-			} else if (required) {
-				inputElement.setCustomValidity('필수 항목입니다. 목록에서 항목을 선택해주세요.');
-			} else {
-				inputElement.setCustomValidity('');
-			}
-		}
-	};
-	inputElement.addEventListener('input', handler);
-	inputElement.addEventListener('change', handler);
+    const inputElement = document.getElementById(inputId);
+    const hiddenInputElement = document.getElementById(hiddenInputId);
+    if (!inputElement || !hiddenInputElement) { console.warn(`Datalist setup: Input or HiddenInput for ${inputId}`); return; }
+    if (required) inputElement.required = true;
+    const handler = () => {
+        const inputValue = inputElement.value;
+        let currentDatalistArray;
+        if (inputId.startsWith('search')) {
+            if (inputId.includes('Item')) currentDatalistArray = searchItemsData;
+            else if (inputId.includes('Cust')) currentDatalistArray = searchCustsData;
+            else if (inputId.includes('Wh')) currentDatalistArray = searchWarehousesData;
+            else if (inputId.includes('Manager') || inputId.includes('User')) currentDatalistArray = searchManagersData;
+        } else {
+            if (inputId.includes('Item')) currentDatalistArray = modalItemsData;
+            else if (inputId.includes('Cust')) currentDatalistArray = modalCustsData;
+            else if (inputId.includes('Wh')) currentDatalistArray = modalWarehousesData;
+            else if (inputId.includes('Manager') || inputId.includes('User')) currentDatalistArray = modalManagersData;
+        }
+        currentDatalistArray = currentDatalistArray || [];
+        if (!Array.isArray(currentDatalistArray) || currentDatalistArray.length === 0 && inputValue.trim() !== '') {
+            hiddenInputElement.value = '';
+            if (required) inputElement.setCustomValidity('선택할 목록이 없거나 로딩 중입니다.');
+            else inputElement.setCustomValidity('');
+            return;
+        }
+        const matchedItem = currentDatalistArray.find(data => `${data[displayField] || ''} (${data[codeField] || ''})` === inputValue);
+        if (matchedItem) {
+            hiddenInputElement.value = matchedItem[idxField]; inputElement.setCustomValidity('');
+        } else {
+            hiddenInputElement.value = '';
+            if (inputValue.trim() !== '') inputElement.setCustomValidity('목록에 있는 유효한 항목을 선택하거나, 입력 값을 확인해주세요.');
+            else if (required) inputElement.setCustomValidity('필수 항목입니다. 목록에서 항목을 선택해주세요.');
+            else inputElement.setCustomValidity('');
+        }
+    };
+    inputElement.addEventListener('input', handler); inputElement.addEventListener('change', handler);
 }
 
-
-// === Datalist input에 기존 값 설정 함수 (모달용) ===
 function setModalDatalistValue(inputElementId, hiddenInputId, datalistData, selectedIdx) {
-	const input = document.getElementById(inputElementId);
-	const hiddenInput = document.getElementById(hiddenInputId);
-
-	if (!input || !hiddenInput) return;
-
-	input.setCustomValidity(''); // 값 설정 전 유효성 상태 초기화
-
-	if (selectedIdx === null || selectedIdx === undefined || String(selectedIdx).trim() === '') {
-		input.value = '';
-		hiddenInput.value = '';
-		if (input.required) {
-			// 이 함수는 보통 데이터 로드 후 호출되므로, 여기서 바로 에러를 표시하기보다
-			// 사용자가 상호작용할 때 setupDatalistInputListener의 handler가 처리하도록 유도
-			// input.setCustomValidity('필수 항목입니다. 값이 없습니다.'); 
-		}
-		return;
-	}
-
-	if (!Array.isArray(datalistData) || datalistData.length === 0) {
-		console.warn(`Datalist data for ${inputElementId} is empty or not loaded. Cannot set value for ID: ${selectedIdx}`);
-		input.value = ''; // Datalist가 비어있으면 값 설정 불가
-		hiddenInput.value = '';
-		if (input.required) {
-			input.setCustomValidity('선택할 목록이 없습니다. 관리자에게 문의하세요.');
-		}
-		return;
-	}
-
-	const idxFieldName = (() => {
-		const firstItem = datalistData[0];
-		if (firstItem.hasOwnProperty('itemIdx')) return 'itemIdx';
-		if (firstItem.hasOwnProperty('custIdx')) return 'custIdx';
-		if (firstItem.hasOwnProperty('whIdx')) return 'whIdx';
-		if (firstItem.hasOwnProperty('userIdx')) return 'userIdx';
-
-		if (inputElementId.toLowerCase().includes('item')) return 'itemIdx';
-		if (inputElementId.toLowerCase().includes('cust')) return 'custIdx';
-		if (inputElementId.toLowerCase().includes('wh')) return 'whIdx';
-		if (inputElementId.toLowerCase().includes('user')) return 'userIdx';
-		return 'id';
-	})();
-
-	const selectedItem = datalistData.find(item => String(item[idxFieldName]) === String(selectedIdx));
-
-	if (selectedItem) {
-		const displayField = selectedItem.hasOwnProperty('itemNm') ? 'itemNm' : selectedItem.hasOwnProperty('custNm') ? 'custNm' : selectedItem.hasOwnProperty('whNm') ? 'whNm' : selectedItem.hasOwnProperty('userNm') ? 'userNm' : 'name';
-		const codeField = selectedItem.hasOwnProperty('itemCd') ? 'itemCd' : selectedItem.hasOwnProperty('custCd') ? 'custCd' : selectedItem.hasOwnProperty('whCd') ? 'whCd' : selectedItem.hasOwnProperty('userId') ? 'userId' : 'code';
-		input.value = `${selectedItem[displayField] || ''} (${selectedItem[codeField] || ''})`;
-		hiddenInput.value = selectedItem[idxFieldName];
-		input.setCustomValidity('');
-	} else {
-		input.value = '';
-		hiddenInput.value = '';
-		console.warn(`No item in ${inputElementId}'s datalist for ID: ${selectedIdx}. Input cleared.`);
-		if (input.required) {
-			input.setCustomValidity('선택된 값이 목록에 없습니다. 다시 선택해주세요.');
-		}
-	}
+    const input = document.getElementById(inputElementId); const hiddenInput = document.getElementById(hiddenInputId);
+    if (!input || !hiddenInput) return;
+    input.setCustomValidity('');
+    if (selectedIdx === null || selectedIdx === undefined || String(selectedIdx).trim() === '') {
+        input.value = ''; hiddenInput.value = '';
+        if (input.required) { /* input.setCustomValidity('필수 항목입니다.'); */ } // 필요시 활성화
+        return;
+    }
+    if (!Array.isArray(datalistData) || datalistData.length === 0) {
+        console.warn(`Datalist for ${inputElementId} empty. Cannot set ID: ${selectedIdx}`);
+        input.value = ''; hiddenInput.value = '';
+        if (input.required) input.setCustomValidity('선택할 목록이 없습니다.');
+        return;
+    }
+    const idxFieldName = (() => {
+        const firstItem = datalistData[0];
+        if (firstItem.hasOwnProperty('itemIdx')) return 'itemIdx'; if (firstItem.hasOwnProperty('custIdx')) return 'custIdx';
+        if (firstItem.hasOwnProperty('whIdx')) return 'whIdx'; if (firstItem.hasOwnProperty('userIdx')) return 'userIdx';
+        if (inputElementId.toLowerCase().includes('item')) return 'itemIdx'; if (inputElementId.toLowerCase().includes('cust')) return 'custIdx';
+        if (inputElementId.toLowerCase().includes('wh')) return 'whIdx'; if (inputElementId.toLowerCase().includes('user')) return 'userIdx';
+        return 'id';
+    })();
+    const selectedItem = datalistData.find(item => String(item[idxFieldName]) === String(selectedIdx));
+    if (selectedItem) {
+        const displayField = selectedItem.hasOwnProperty('itemNm') ? 'itemNm' : selectedItem.hasOwnProperty('custNm') ? 'custNm' : selectedItem.hasOwnProperty('whNm') ? 'whNm' : selectedItem.hasOwnProperty('userNm') ? 'userNm' : 'name';
+        const codeField = selectedItem.hasOwnProperty('itemCd') ? 'itemCd' : selectedItem.hasOwnProperty('custCd') ? 'custCd' : selectedItem.hasOwnProperty('whCd') ? 'whCd' : selectedItem.hasOwnProperty('userId') ? 'userId' : 'code';
+        input.value = `${selectedItem[displayField] || ''} (${selectedItem[codeField] || ''})`;
+        hiddenInput.value = selectedItem[idxFieldName]; input.setCustomValidity('');
+    } else {
+        input.value = ''; hiddenInput.value = '';
+        console.warn(`No item in ${inputElementId} for ID: ${selectedIdx}. Cleared.`);
+        if (input.required) input.setCustomValidity('선택된 값이 목록에 없습니다.');
+    }
 }
 
-// === 날짜 포맷 함수 (YYYY-MM-DD 입력용) ===
 function formatDateToInput(dateString) {
-	if (!dateString) return '';
-	try {
-		const date = new Date(dateString);
-		if (isNaN(date.getTime())) return '';
-		return date.toISOString().substring(0, 10);
-	} catch (e) { return ''; }
+    if (!dateString) return ''; try { const date = new Date(dateString); if (isNaN(date.getTime())) return ''; return date.toISOString().substring(0, 10); } catch (e) { return ''; }
 }
-
-// === 날짜 포맷 함수 (YYYY.MM.DD 테이블 표시용) ===
 function formatDate(dateString) {
-	if (!dateString) return '';
-	try {
-		const date = new Date(dateString);
-		if (isNaN(date.getTime())) return '';
-		const year = date.getFullYear();
-		const month = (date.getMonth() + 1).toString().padStart(2, '0');
-		const day = date.getDate().toString().padStart(2, '0');
-		return `${year}.${month}.${day}`;
-	} catch (e) { return ''; }
+    if (!dateString) return ''; try { const date = new Date(dateString); if (isNaN(date.getTime())) return ''; const year = date.getFullYear(); const month = (date.getMonth() + 1).toString().padStart(2, '0'); const day = date.getDate().toString().padStart(2, '0'); return `${year}.${month}.${day}`; } catch (e) { return ''; }
 }
-
-// === 거래 상태 코드 변환 함수 ===
 function getTransStatusText(statusCode) {
-	const statusMap = { 'R1': '입고전', 'R2': '가입고', 'R3': '입고완료', 'S1': '출고전', 'S2': '출고완료' };
-	return statusMap[statusCode] || statusCode || '';
+    const statusMap = { 'R1': '입고전', 'R2': '가입고', 'R3': '입고완료', 'S1': '출고전', 'S2': '출고완료' };
+    return statusMap[statusCode] || statusCode || '';
 }
 
-// === 이벤트 리스너 등록 ===
 document.addEventListener('DOMContentLoaded', () => {
-	// Datalist 데이터 로드 후 리스너 설정
-	loadSearchDatalistData().then(() => {
-		setupDatalistInputListener('searchItemNm', 'searchHiddenItemIdx', 'itemNm', 'itemCd', 'itemIdx');
-		setupDatalistInputListener('searchCustNm', 'searchHiddenCustIdx', 'custNm', 'custCd', 'custIdx');
-		setupDatalistInputListener('searchWhNm', 'searchHiddenWhIdx', 'whNm', 'whCd', 'whIdx');
-		setupDatalistInputListener('searchUserNm', 'searchHiddenUserIdx', 'userNm', 'userId', 'userIdx');
-	});
-	// 모달용 Datalist 리스너는 DOMContentLoaded에서 미리 설정합니다.
-	// loadModalDatalistData는 openModal 시 호출되어 modalItemsData 등의 배열을 채웁니다.
-	// setupDatalistInputListener 내부의 handler는 실행 시점에 해당 전역 배열을 참조합니다.
-	setupDatalistInputListener('modalItemNm', 'modalHiddenItemIdx', 'itemNm', 'itemCd', 'itemIdx', true);
-	setupDatalistInputListener('modalCustNm', 'modalHiddenCustIdx', 'custNm', 'custCd', 'custIdx', true);
-	setupDatalistInputListener('modalWhNm', 'modalHiddenWhIdx', 'whNm', 'whCd', 'whIdx', true);
-	setupDatalistInputListener('modalUserNm', 'modalHiddenUserIdx', 'userNm', 'userId', 'userIdx', false); // 담당자는 선택사항
+    loadSearchDatalistData().then(() => {
+        setupDatalistInputListener('searchItemNm', 'searchHiddenItemIdx', 'itemNm', 'itemCd', 'itemIdx');
+        setupDatalistInputListener('searchCustNm', 'searchHiddenCustIdx', 'custNm', 'custCd', 'custIdx');
+        setupDatalistInputListener('searchWhNm', 'searchHiddenWhIdx', 'whNm', 'whCd', 'whIdx');
+        setupDatalistInputListener('searchUserNm', 'searchHiddenUserIdx', 'userNm', 'userId', 'userIdx');
 
-	loadReceivingTable();
+        // 거래처(searchCustNmInput) 선택 변경 시 품목 Datalist 업데이트
+        searchCustNmInput.addEventListener('change', () => {
+            const selectedCustIdx = searchHiddenCustIdxInput.value;
+            searchItemNmInput.value = ''; // 품목 입력 필드 초기화
+            searchHiddenItemIdxInput.value = ''; // 품목 hidden ID 필드 초기화
+            searchItemNmInput.setCustomValidity(''); // 품목 입력 필드의 유효성 상태 초기화
+            loadSearchItemsDatalist(selectedCustIdx); // 선택된 거래처에 따라 품목 Datalist 새로고침
+        });
+    });
+    setupDatalistInputListener('modalItemNm', 'modalHiddenItemIdx', 'itemNm', 'itemCd', 'itemIdx', true);
+    setupDatalistInputListener('modalCustNm', 'modalHiddenCustIdx', 'custNm', 'custCd', 'custIdx', true);
+    setupDatalistInputListener('modalWhNm', 'modalHiddenWhIdx', 'whNm', 'whCd', 'whIdx', true);
+    setupDatalistInputListener('modalUserNm', 'modalHiddenUserIdx', 'userNm', 'userId', 'userIdx', false);
 
-	searchButton.addEventListener('click', (event) => {
-		event.preventDefault();
-		searchFilters = {
-			transDateFrom: searchTransDateFromInput.value, transDateTo: searchTransDateToInput.value,
-			itemIdx: searchHiddenItemIdxInput.value, custIdx: searchHiddenCustIdxInput.value,
-			userIdx: searchHiddenUserIdxInput.value, whIdx: searchHiddenWhIdxInput.value,
-			transStatus: searchTransStatusSelect.value
-		};
-		loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
-	});
+    loadReceivingTable();
 
-	document.querySelectorAll('#receivingForm input[type="text"], #receivingForm input[type="date"], #receivingForm select').forEach(input => {
-		input.addEventListener('keypress', (event) => {
-			if (event.key === 'Enter') { event.preventDefault(); searchButton.click(); }
-		});
-		if (input.tagName === 'SELECT') {
-			input.addEventListener('change', () => searchButton.click());
-		}
-	});
+    searchButton.addEventListener('click', (event) => {
+        event.preventDefault();
+        searchFilters = {
+            transDateFrom: searchTransDateFromInput.value, transDateTo: searchTransDateToInput.value,
+            itemIdx: searchHiddenItemIdxInput.value, custIdx: searchHiddenCustIdxInput.value,
+            userIdx: searchHiddenUserIdxInput.value, whIdx: searchHiddenWhIdxInput.value,
+            transStatus: searchTransStatusSelect.value
+        };
+        loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
+    });
 
-	resetSearchButton.addEventListener('click', () => {
-		document.getElementById('receivingForm').reset();
-		[searchHiddenItemIdxInput, searchHiddenCustIdxInput, searchHiddenUserIdxInput, searchHiddenWhIdxInput]
-			.forEach(input => {
-				input.value = '';
-				// 관련된 보이는 input 필드의 유효성도 초기화
-				const visibleInputId = input.id.replace('Hidden', '').replace('Idx', 'Nm');
-				const visibleInput = document.getElementById(visibleInputId);
-				if (visibleInput) visibleInput.setCustomValidity('');
-			});
-		searchFilters = {
-			transDateFrom: '', transDateTo: '', itemIdx: '', custIdx: '',
-			userIdx: '', whIdx: '', transStatus: ''
-		};
-		currentSortBy = 'invTransIdx'; currentOrder = 'desc';
-		document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
-			arrow.textContent = '↓'; arrow.classList.remove('active');
-			const th = arrow.closest('th');
-			if (th && th.dataset.sortBy === currentSortBy) { // th가 null이 아닐 경우에만 dataset 접근
-				arrow.classList.add('active'); arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-			}
-		});
-		loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
-	});
+    document.querySelectorAll('#receivingForm input[type="text"],#receivingForm input[type="date"],#receivingForm select').forEach(input => {
+        input.addEventListener('keypress', (event) => { if (event.key === 'Enter') { event.preventDefault(); searchButton.click(); } });
+        if (input.tagName === 'SELECT') input.addEventListener('change', () => searchButton.click());
+    });
 
-	newRegistrationButton.addEventListener('click', () => openModal('new'));
+    resetSearchButton.addEventListener('click', () => {
+        document.getElementById('receivingForm').reset();
+        [searchHiddenItemIdxInput, searchHiddenCustIdxInput, searchHiddenUserIdxInput, searchHiddenWhIdxInput]
+            .forEach(input => { input.value = ''; const visibleInputId = input.id.replace('Hidden','').replace('Idx','Nm');
+                                const visibleInput = document.getElementById(visibleInputId); if(visibleInput) visibleInput.setCustomValidity(''); });
+        searchFilters = { transDateFrom:'', transDateTo:'', itemIdx:'', custIdx:'', userIdx:'', whIdx:'', transStatus:'' };
+        currentSortBy = 'invTransIdx'; currentOrder = 'desc';
+        document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
+            arrow.textContent = '↓'; arrow.classList.remove('active');
+            const th = arrow.closest('th'); if (th && th.dataset.sortBy === currentSortBy) {
+                arrow.classList.add('active'); arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+            }
+        });
+        loadSearchItemsDatalist(); // 거래처 필터 없이 전체 품목으로 Datalist 리셋
+        loadReceivingTable(1, currentSortBy, currentOrder, searchFilters);
+    });
 
-	selectAllCheckboxes.addEventListener('change', function() {
-		document.querySelectorAll('.trans-checkbox').forEach(checkbox => checkbox.checked = this.checked);
-	});
+    newRegistrationButton.addEventListener('click', () => openModal('new'));
+    selectAllCheckboxes.addEventListener('change', function() { document.querySelectorAll('.trans-checkbox').forEach(cb => cb.checked = this.checked); });
+    receivingTableBody.addEventListener('change', function(event) {
+        if (event.target.classList.contains('trans-checkbox')) {
+            const allCB = document.querySelectorAll('.trans-checkbox');
+            const checkedCB = document.querySelectorAll('.trans-checkbox:checked');
+            selectAllCheckboxes.checked = allCB.length > 0 && allCB.length === checkedCB.length;
+        }
+    });
 
-	receivingTableBody.addEventListener('change', function(event) {
-		if (event.target.classList.contains('trans-checkbox')) {
-			const allCB = document.querySelectorAll('.trans-checkbox');
-			const checkedCB = document.querySelectorAll('.trans-checkbox:checked');
-			selectAllCheckboxes.checked = allCB.length > 0 && allCB.length === checkedCB.length;
-		}
-	});
+    modalForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!modalForm.checkValidity()) { modalForm.reportValidity(); return; }
+        const requiredModalDatalistInputs = [
+            { visible: modalItemNmInput, hidden: modalHiddenItemIdxInput, name: "품목" },
+            { visible: modalCustNmInput, hidden: modalHiddenCustIdxInput, name: "거래처" },
+            { visible: modalWhNmInput, hidden: modalHiddenWhIdxInput, name: "입고 창고" }
+        ];
+        for (const field of requiredModalDatalistInputs) {
+            if (field.visible.required && !field.hidden.value) {
+                if (field.visible.value.trim() === '') field.visible.setCustomValidity('필수 항목입니다. 목록에서 선택해주세요.');
+                else field.visible.setCustomValidity('목록에 있는 유효한 항목을 선택해주세요.');
+                modalForm.reportValidity(); return;
+            }
+        }
+        const formData = new FormData(event.target);
+        const isEditMode = formData.get('invTransIdx') && formData.get('invTransIdx') !== '';
+        const data = {
+            invTransIdx: formData.get('invTransIdx') || null,
+            invTransCode: formData.get('invTransCode') === '자동 생성' ? null : formData.get('invTransCode'),
+            transType: 'R', whIdx: parseInt(formData.get('whIdx')), transDate: formData.get('transDate'),
+            transQty: parseInt(formData.get('transQty')), unitPrice: parseFloat(formData.get('unitPrice')),
+            transStatus: formData.get('transStatus') || 'R1',
+            userIdx: formData.get('userIdx') ? parseInt(formData.get('userIdx')) : null,
+            itemIdx: parseInt(formData.get('itemIdx')), custIdx: parseInt(formData.get('custIdx')),
+            remark: formData.get('remark')
+        };
+        const url = isEditMode ? `/api/inv-transactions/${data.invTransIdx}` : '/api/inv-transactions';
+        const method = isEditMode ? 'PUT' : 'POST';
+        try {
+            const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+            if (!response.ok) {
+                const errorText = await response.text(); let errorMessage = `HTTP error! ${response.status}: ${errorText}`;
+                try { const errorJson = JSON.parse(errorText); errorMessage = errorJson.message || errorMessage; } catch (e) {}
+                throw new Error(errorMessage);
+            }
+            alert(isEditMode ? '입고 정보가 성공적으로 수정되었습니다.' : '새 입고가 성공적으로 등록되었습니다.');
+            closeModal();
+            loadReceivingTable(isEditMode ? currentPage : 1, currentSortBy, currentOrder, searchFilters);
+        } catch (error) {
+            console.error('Error saving receiving data:', error);
+            alert(`입고 ${isEditMode ? '수정' : '등록'}에 실패했습니다: ${error.message}`);
+        }
+    });
 
-	modalForm.addEventListener('submit', async (event) => {
-		event.preventDefault();
+    deleteButton.addEventListener('click', async () => {
+        const checkedCBs = document.querySelectorAll('.trans-checkbox:checked');
+        const idsToDelete = Array.from(checkedCBs).map(cb => cb.dataset.invTransIdx);
+        if (idsToDelete.length === 0) { alert('삭제할 입고 항목을 선택해주세요.'); return; }
+        if (!confirm(`${idsToDelete.length}개 입고 항목을 삭제하시겠습니까?\n삭제된 데이터는 복구 불가합니다.`)) return;
+        try {
+            const response = await fetch('/api/inv-transactions', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(idsToDelete) });
+            if (!response.ok && response.status !== 204) {
+                const errorText = await response.text(); let errorMessage = `HTTP error! ${response.status}: ${errorText}`;
+                try { const errorJson = JSON.parse(errorText); errorMessage = errorJson.message || errorMessage; } catch (e) {}
+                throw new Error(errorMessage);
+            }
+            alert('선택된 입고 항목이 삭제되었습니다.');
+            const newTotal = parseInt(totalRecordsSpan.textContent) - idsToDelete.length;
+            if (newTotal <= (currentPage - 1) * pageSize && currentPage > 1) currentPage--;
+            loadReceivingTable(currentPage, currentSortBy, currentOrder, searchFilters);
+            selectAllCheckboxes.checked = false;
+        } catch (error) {
+            console.error('Error deleting receiving data:', error);
+            alert(`입고 항목 삭제 실패: ${error.message}`);
+        }
+    });
 
-		if (!modalForm.checkValidity()) {
-			modalForm.reportValidity();
-			return;
-		}
-
-		// Datalist로 선택된 값의 hidden ID가 실제 채워졌는지 추가 확인
-		// (checkValidity가 required만 체크하고, setCustomValidity로 설정된 것을 여기서 다시 체크)
-		// 모달의 필수 Datalist 입력 필드 배열
-		const requiredModalDatalistInputs = [
-			{ visible: modalItemNmInput, hidden: modalHiddenItemIdxInput, name: "품목" },
-			{ visible: modalCustNmInput, hidden: modalHiddenCustIdxInput, name: "거래처" },
-			{ visible: modalWhNmInput, hidden: modalHiddenWhIdxInput, name: "입고 창고" }
-		];
-
-		for (const field of requiredModalDatalistInputs) {
-			if (field.visible.required && !field.hidden.value) {
-				// 사용자가 값을 입력했으나 목록에 없는 경우, setupDatalistInputListener에서 이미 setCustomValidity 실행됨
-				// 여기서는 값이 비어있는데 hidden ID도 없는 경우를 한번 더 강조하거나,
-				// 혹은 setupDatalistInputListener에서 required + 빈값 조합으로 메시지 설정했으므로 reportValidity로 충분할 수 있음
-				if (field.visible.value.trim() === '') { // 보이는 필드도 비어있는 경우
-					field.visible.setCustomValidity('필수 항목입니다. 목록에서 선택해주세요.');
-				} else { // 보이는 필드에 값이 있으나, hidden ID가 없는 경우 (목록에 없는 값)
-					field.visible.setCustomValidity('목록에 있는 유효한 항목을 선택해주세요.');
-				}
-				modalForm.reportValidity(); // 해당 필드의 메시지를 보여줌
-				return;
-			}
-		}
-
-		const formData = new FormData(event.target);
-		const isEditMode = formData.get('invTransIdx') && formData.get('invTransIdx') !== '';
-
-		const data = {
-			invTransIdx: formData.get('invTransIdx') || null,
-			invTransCode: formData.get('invTransCode') === '자동 생성' ? null : formData.get('invTransCode'),
-			transType: 'R',
-			whIdx: parseInt(formData.get('whIdx')),
-			transDate: formData.get('transDate'),
-			transQty: parseInt(formData.get('transQty')),
-			unitPrice: parseFloat(formData.get('unitPrice')),
-			transStatus: formData.get('transStatus') || 'R1',
-			userIdx: formData.get('userIdx') ? parseInt(formData.get('userIdx')) : null,
-			itemIdx: parseInt(formData.get('itemIdx')),
-			custIdx: parseInt(formData.get('custIdx')),
-			remark: formData.get('remark')
-		};
-
-		const url = isEditMode ? `/api/inv-transactions/${data.invTransIdx}` : '/api/inv-transactions';
-		const method = isEditMode ? 'PUT' : 'POST';
-
-		try {
-			const response = await fetch(url, {
-				method: method,
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(data)
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorMessage = `HTTP error! Status: ${response.status}, Message: ${errorText}`;
-				try {
-					const errorJson = JSON.parse(errorText);
-					errorMessage = errorJson.message || errorMessage;
-				} catch (e) { /* JSON 파싱 실패 시 기존 errorMessage 사용 */ }
-				throw new Error(errorMessage);
-			}
-
-			alert(isEditMode ? '입고 정보가 성공적으로 수정되었습니다.' : '새 입고가 성공적으로 등록되었습니다.');
-			closeModal();
-			loadReceivingTable(isEditMode ? currentPage : 1, currentSortBy, currentOrder, searchFilters);
-		} catch (error) {
-			console.error('Error saving receiving data:', error);
-			alert(`입고 ${isEditMode ? '수정' : '등록'}에 실패했습니다: ${error.message}`);
-		}
-	});
-
-	deleteButton.addEventListener('click', async () => {
-		const checkedCheckboxes = document.querySelectorAll('.trans-checkbox:checked');
-		const invTransIdxesToDelete = Array.from(checkedCheckboxes).map(cb => cb.dataset.invTransIdx);
-
-		if (invTransIdxesToDelete.length === 0) {
-			alert('삭제할 입고 항목을 선택해주세요.'); return;
-		}
-		if (!confirm(`${invTransIdxesToDelete.length}개의 입고 항목을 정말로 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.`)) {
-			return;
-		}
-
-		try {
-			const response = await fetch('/api/inv-transactions', {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(invTransIdxesToDelete)
-			});
-
-			if (!response.ok && response.status !== 204) {
-				const errorText = await response.text();
-				let errorMessage = `HTTP error! Status: ${response.status}, Message: ${errorText}`;
-				try {
-					const errorJson = JSON.parse(errorText);
-					errorMessage = errorJson.message || errorMessage;
-				} catch (e) { /* JSON 파싱 실패 */ }
-				throw new Error(errorMessage);
-			}
-
-			alert('선택된 입고 항목이 성공적으로 삭제되었습니다.');
-			const newTotalElements = parseInt(totalRecordsSpan.textContent) - invTransIdxesToDelete.length;
-			if (newTotalElements <= (currentPage - 1) * pageSize && currentPage > 1) {
-				currentPage--;
-			}
-			loadReceivingTable(currentPage, currentSortBy, currentOrder, searchFilters);
-			selectAllCheckboxes.checked = false;
-		} catch (error) {
-			console.error('Error deleting receiving data:', error);
-			alert(`입고 항목 삭제에 실패했습니다: ${error.message}`);
-		}
-	});
-
-	btnFirstPage.addEventListener('click', () => loadReceivingTable(1, currentSortBy, currentOrder, searchFilters));
-	btnPrevPage.addEventListener('click', () => {
-		if (currentPage > 1) loadReceivingTable(currentPage - 1, currentSortBy, currentOrder, searchFilters);
-	});
-	btnNextPage.addEventListener('click', () => {
-		if (currentPage < totalPages) loadReceivingTable(currentPage + 1, currentSortBy, currentOrder, searchFilters);
-	});
-	btnLastPage.addEventListener('click', () => loadReceivingTable(totalPages, currentSortBy, currentOrder, searchFilters));
-
-	pageNumberInput.addEventListener('keypress', (event) => {
-		if (event.key === 'Enter') {
-			let page = parseInt(pageNumberInput.value);
-			if (isNaN(page) || page < 1) page = 1;
-			if (page > totalPages && totalPages > 0) page = totalPages;
-			else if (totalPages === 0) page = 1;
-			loadReceivingTable(page, currentSortBy, currentOrder, searchFilters);
-		}
-	});
-	pageNumberInput.addEventListener('blur', () => {
-		let page = parseInt(pageNumberInput.value);
-		if (isNaN(page) || page < 1) page = 1;
-		if (page > totalPages && totalPages > 0) page = totalPages;
-		else if (totalPages === 0) page = 1;
-		pageNumberInput.value = page;
-	});
+    btnFirstPage.addEventListener('click', () => loadReceivingTable(1, currentSortBy, currentOrder, searchFilters));
+    btnPrevPage.addEventListener('click', () => { if (currentPage > 1) loadReceivingTable(currentPage - 1, currentSortBy, currentOrder, searchFilters); });
+    btnNextPage.addEventListener('click', () => { if (currentPage < totalPages) loadReceivingTable(currentPage + 1, currentSortBy, currentOrder, searchFilters); });
+    btnLastPage.addEventListener('click', () => loadReceivingTable(totalPages, currentSortBy, currentOrder, searchFilters));
+    pageNumberInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            let page = parseInt(pageNumberInput.value);
+            if (isNaN(page) || page < 1) page = 1;
+            if (page > totalPages && totalPages > 0) page = totalPages; else if (totalPages === 0) page = 1;
+            loadReceivingTable(page, currentSortBy, currentOrder, searchFilters);
+        }
+    });
+    pageNumberInput.addEventListener('blur', () => {
+        let page = parseInt(pageNumberInput.value);
+        if (isNaN(page) || page < 1) page = 1;
+        if (page > totalPages && totalPages > 0) page = totalPages; else if (totalPages === 0) page = 1;
+        pageNumberInput.value = page;
+    });
 });
