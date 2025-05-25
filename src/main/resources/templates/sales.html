@@ -368,6 +368,15 @@ table input[type="text"] {
 	background: #777;
 }
 
+.modal-content input:not([type="checkbox"]), .modal-content select, .modal-content textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 /* 슬라이드 css */
 .toggle-wrapper {
 	display: flex;
@@ -551,10 +560,10 @@ width: 100%;
 			<h3 id="modalTitle">신규 등록</h3>
 			<form id="modalForm" class="modalForm">
 				<div>
-					<span>착수일</span><input type="date" required />
+					<span>착수일</span><input type="date" id="startDate" required />
 				</div>
 				<div>
-					<span>납기일</span><input type="date" required />
+					<span>납기일</span><input type="date" id="dueDate" required />
 				</div>
 				<div>
 					<span>주문번호</span><input type="text" id="orderNo" th:value="${orderNo}" readonly required />
@@ -583,11 +592,14 @@ width: 100%;
 							<datalist id="itemList">
 							
 							</datalist>
+							<input type="hidden" id="itemCycleTime">
+							<input type="hidden" id="itemPrice">
+							<input type="hidden" id="itemIdx">
 						</div>
 					</div>
 
 					<div>
-						<span>수량</span><input type="text" placeholder="수량을 입력해주세요"
+						<span>수량</span><input type="text" placeholder="수량을 입력해주세요" id="quantity"
 							required />
 					</div>
 					<div>
