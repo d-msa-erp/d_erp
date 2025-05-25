@@ -19,7 +19,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      * @param sort 정렬 정보
      * @return ItemForSelectionDto 리스트
      */
-    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd) " +
+    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
            "FROM Itemmst i " +
            "WHERE i.itemFlag IS NOT NULL") // 예시: 기본적인 활성 조건 (실제 '활성' 조건으로 변경 필요)
     List<ItemForSelectionDto> findAllForSelection(Sort sort);
@@ -31,7 +31,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      * @param sort 정렬 정보
      * @return ItemForSelectionDto 리스트
      */
-    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd) " +
+    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
            "FROM Itemmst i " +
            "WHERE i.custmst.custIdx = :custIdx " +
            "AND i.itemFlag IS NOT NULL") // 예시: 기본적인 활성 조건 (실제 '활성' 조건으로 변경 필요)
