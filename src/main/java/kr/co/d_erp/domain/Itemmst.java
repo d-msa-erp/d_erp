@@ -1,5 +1,7 @@
 package kr.co.d_erp.domain;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.*;
 import lombok.*;
 // import java.time.LocalDateTime; // 기존 필드 유지 시 필요
@@ -93,4 +95,10 @@ public class Itemmst {
 
     // @Column(name = "MOD_USER_IDX")
     // private Long modUserIdx;
+    
+    //추가 선익
+    @Column(name = "CYCLE_TIME", precision = 10, scale = 4)
+    private BigDecimal cycleTime; 
+
+    
 }

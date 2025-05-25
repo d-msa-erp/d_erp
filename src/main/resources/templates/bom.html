@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 <meta charset="UTF-8" />
@@ -210,11 +210,7 @@ tbody>tr:nth-child(even) td {
 	background: #f9f9f9;
 }
 
-/* tbody>tr:hover td { */
-/* 	background: #46a6ff; */
-/* 	cursor: pointer; */
-/* } */
-tbody>tr:hover>td:not(.subcategory-column) {
+tbody>tr:hover>td:not(.subcategory-column):not(.drag-handle) { /* 드래그 핸들은 호버 효과 제외 */
 	background: #46a6ff;
 	cursor: pointer;
 }
@@ -244,9 +240,11 @@ thead th {
 	cursor: pointer;
 }
 
-table input[type="text"] {
+table input[type="text"], table input[type="number"] {
 	width: 100%;
 	padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
 }
 
 .pagination-wrap {
@@ -292,6 +290,7 @@ table input[type="text"] {
 	align-items: center;
 	backdrop-filter: blur(4px);
 	-webkit-backdrop-filter: blur(4px);
+    z-index: 1000;
 }
 
 .modal-content {
@@ -300,6 +299,9 @@ table input[type="text"] {
 	border-radius: 10px;
 	width: 80%;
 	position: relative;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
 }
 
 .modal-content .modalForm {
@@ -309,6 +311,8 @@ table input[type="text"] {
 	gap: 20px;
 	justify-items: center;
 	align-items: center;
+    flex-grow: 1;
+    overflow: hidden;
 }
 
 .modal-content .modalForm>div, .modal-content .modalForm>label {
@@ -324,10 +328,11 @@ table input[type="text"] {
 	padding-right: 10px;
 }
 
-.modal-content input[type="text"] {
+.modal-content input[type="text"], .modal-content input[type="number"] {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid #ccc;
+    border-radius: 3px;
 }
 
 .modal-content input[type="color"] {
@@ -343,6 +348,7 @@ table input[type="text"] {
 	justify-content: flex-end;
 	gap: 10px;
 	width: 100%;
+    flex-shrink: 0;
 }
 
 .modal-content .modal-buttons>button:hover {
@@ -350,13 +356,16 @@ table input[type="text"] {
 }
 
 .modal-content .modal-buttons>button {
-	width: 100%;
+	width: auto;
+    padding: 8px 15px;
 	background: #007bff;
 	color: #fff;
 	border: none;
 	border-radius: 5px;
 	cursor: pointer;
-	padding: 5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .modal-buttons button:nth-of-type(3) {
@@ -365,9 +374,10 @@ table input[type="text"] {
 
 .modal-content .modalForm th, .modal-content .modalForm td {
 	margin: 0 !important;
-	padding: 0 !important;
+	padding: 5px !important;
 	width: 100% !important;
 	height: 100% !important;
+    font-size: 14px;
 }
 
 .modal-content .bomTab1 select {
@@ -377,7 +387,6 @@ table input[type="text"] {
 
 .modal-content .grid-table {
 	width: 100%;
-	height: 100%;
 	border-collapse: collapse;
 	display: grid;
 	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
@@ -392,22 +401,27 @@ table input[type="text"] {
 .bomTab1 {
 	display: grid !important;
 	grid-template-columns: 1fr 1fr;
-	gap: 10px;
+	gap: 20px;
+    flex-grow: 1;
+    overflow: hidden;
 }
 
 .bomTab1 input {
 	width: 100%;
-	padding: 5px;
+	padding: 8px;
 }
 
 .bomTab1>div {
 	height: 100%;
 	align-self: stretch;
+    display: flex;
+    flex-direction: column;
 }
 
 .bomTab2 {
 	display: grid;
 	gap: 10px;
+    height: 100%;
 }
 
 .bomTab2>div {
@@ -415,12 +429,29 @@ table input[type="text"] {
 	flex-direction: column;
 	gap: 10px !important;
 	justify-content: space-between;
+    height: 100%;
 }
 
 .bomTab2>div>div {
-	height: 100%;
+    flex-grow: 1;
 	overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 5px;
 }
+
+.bomTab2 .grid-table {
+    display: grid;
+}
+.bomTab2 .grid-table thead, .bomTab2 .grid-table tbody {
+    display: contents;
+}
+.bomTab2 .grid-table th {
+    position: sticky;
+    top: 0;
+    background: #f0f0f0;
+    z-index: 10;
+}
+
 
 .bomTab2>div>ul {
 	display: flex;
@@ -436,7 +467,8 @@ table input[type="text"] {
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	justify-content: space-between;
+	justify-content: flex-start;
+    height: 100%;
 }
 
 .bomTab3>div {
@@ -465,16 +497,54 @@ table input[type="text"] {
 
 .bomTab3 .flex-row>div input {
 	width: 100%;
+    padding: 8px;
 }
+.bomTab3>div>input {
+    padding: 8px;
+}
+
 
 .bomTab5 {
 	max-height: 300px;
 	overflow-y: auto;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    flex-shrink: 0;
 }
 
+/* *** bomTab5 그리드 컬럼 수정 (8개) *** */
 .bomTab5 .grid-table {
-	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr;
+	grid-template-columns: 0.3fr 0.5fr 2fr 2fr 1fr 1fr 1fr 1.5fr; 
 }
+.bomTab5 .grid-table th, .bomTab5 .grid-table td {
+    border-bottom: 1px solid #ccc;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+    padding: 8px;
+}
+.bomTab5 .grid-table thead th {
+    position: sticky;
+    top: 0;
+    background: #f0f0f0;
+    z-index: 10;
+    border-bottom: 1px solid #ccc;
+}
+/* 첫번째/마지막 열 테두리 */
+.bomTab5 .grid-table tbody td:first-child, .bomTab5 .grid-table thead th:first-child,
+.bomTab5 .grid-table tbody td:last-child, .bomTab5 .grid-table thead th:last-child {
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+.bomTab5 .grid-table tbody tr:last-child td {
+     border-bottom: 1px solid #ccc;
+}
+/* No data 행 스타일 수정 */
+.bomTab5 .grid-table .nodata {
+    grid-column: span 8 !important; /* *** 7을 8로 변경 *** */
+    justify-content: center !important;
+}
+
 
 .catetable {
 	grid-template-columns: 1fr 1fr 1fr 1fr !important;
@@ -484,8 +554,9 @@ table input[type="text"] {
 	grid-template-columns: 1fr 1fr 1fr !important;
 }
 
-.modal-content h3 {
+.modal-content h3, .modal-content h4 {
 	margin-bottom: 10px;
+    flex-shrink: 0;
 }
 
 .modalForm {
@@ -553,6 +624,46 @@ table input[type="text"] {
 .modal-buttons button {
 	margin-right: 10px;
 }
+
+
+/* 드래그 앤 드롭 스타일 */
+.bomTab5 .grid-table tbody tr.dragging {
+    opacity: 0.6;
+    background: #e0e0e0; 
+    border: 1px dashed #333;
+}
+
+.bomTab5 .grid-table tbody tr.over {
+    border-top: 2px solid #46a6ff !important; 
+}
+
+/* *** 드래그 손잡이 스타일 추가 *** */
+.bomTab5 .grid-table .drag-handle {
+    cursor: move; /* 손잡이 위에서만 이동 커서 표시 */
+    text-align: center;
+    vertical-align: middle;
+    user-select: none; /* 아이콘 드래그 시 텍스트 선택 방지 */
+}
+
+/* *** 드래그 손잡이 아이콘 스타일 추가 *** */
+.bomTab5 .grid-table .drag-handle .material-symbols-outlined {
+    font-size: 18px; /* 아이콘 크기 조절 */
+    vertical-align: middle; /* 수직 중앙 정렬 */
+    color: #888; /* 아이콘 색상 */
+}
+
+
+/* 입력 필드 위에서는 텍스트 커서 유지 */
+.bomTab5 .grid-table tbody tr input {
+    cursor: text;
+}
+.bomTab5 input.bom5-input {
+    padding: 5px; 
+    font-size: 13px;
+}
+
+
+
 </style>
 
 </head>
@@ -599,7 +710,6 @@ table input[type="text"] {
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
-						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
 
 							<thead>
@@ -608,13 +718,13 @@ table input[type="text"] {
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
 									<th onclick="order(this)">품목명<a>↓</a></th>
-									<!-- 									<th onclick="order(this)">고객사<a>↓</a></th> -->
 									<th onclick="order(this)">대분류<a>↓</a></th>
 									<th onclick="order(this)">단위<a>↓</a></th>
 									<th onclick="order(this)">단가<a>↓</a></th>
 								</tr>
 							</thead>
 							<tbody id="bomTbody">
+                                <tr><td colspan="6" class="nodata">로딩 중...</td></tr>
 							</tbody>
 						</table>
 						<div class="pagination-wrap">
@@ -637,7 +747,6 @@ table input[type="text"] {
 		</form>
 	</div>
 
-	<!--신규 등록 Modal-->
 	<div class="modal" id="modal" onclick="outsideClick(event,'modal')">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 id="modalTitle">신규 BOM 등록</h3>
@@ -645,6 +754,7 @@ table input[type="text"] {
 				<div class="bomTab1">
 					<div class="bomTab2">
 						<div>
+                            <h4>품목 (상위)</h4>
 							<div>
 								<input placeholder="검색" />
 								<table class="grid-table">
@@ -658,43 +768,12 @@ table input[type="text"] {
 											<th>선택</th>
 										</tr>
 									</thead>
-									<tbody>
-										<!--등록된 품목 리스트가 쭉 나오게 ~ -->
-										<tr>
-
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-											</select></td>
-											<td><input type="radio" name="item-select" /></td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-											</select></td>
-											<td><input type="radio" name="item-select" /></td>
-										</tr>
+									<tbody id="productSelectionTbody">
+                                        <tr><td colspan="6" class="nodata">로딩 중...</td></tr>
 									</tbody>
 								</table>
-
 							</div>
+                            <h4>원자재 (하위)</h4>
 							<div>
 								<input placeholder="검색" />
 								<table class="grid-table">
@@ -708,142 +787,93 @@ table input[type="text"] {
 											<th>선택</th>
 										</tr>
 									</thead>
-									<tbody>
-										<!--등록된 자재 리스트가 쭉 나오게 ~ -->
-										<tr>
-
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-											</select></td>
-											<td><input type="checkbox" /></td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-											</select></td>
-											<td><input type="checkbox" /></td>
-										</tr>
+									<tbody id="rawMaterialSelectionTbody">
+                                        <tr><td colspan="6" class="nodata">로딩 중...</td></tr>
 									</tbody>
 								</table>
-
 							</div>
 						</div>
-
 					</div>
 
 					<div class="bomTab3">
+                        <h4>상위 품목 정보</h4>
 						<div class="flex-row">
 							<div>
-								<span>품목코드</span><input type="text" />
+								<span>품목코드</span><input type="text" id="modalParentItemCd"
+									readonly />
 							</div>
 							<div>
-								<span>품목명</span><input type="text" />
+								<span>품목명</span><input type="text" id="modalParentItemNm"
+									readonly />
 							</div>
 						</div>
 						<div>
-							<span>생산성</span><input type="text" />
+							<span>생산성</span><input type="text" id="modalParentCycleTime" />
 						</div>
-						<div class="flex-row">
-							<div>
-								<span>원자재코드</span><input type="text" />
-							</div>
-							<div>
-								<span>원자재명</span><input type="text" />
-							</div>
-						</div>
-						<div class="flex-row">
-							<div>
-								<span>소요량</span><input type="text" /><span>kg</span>
-							</div>
-							<div>
-								<span>단가</span><input type="text" /><span>원</span>
-							</div>
-							<div>
-								<span>로스율</span><input type="text" /><span>%</span>
-							</div>
+						<div>
+							<span>비고(상위)</span><input type="text" id="modalParentRemark" />
 						</div>
 
-						<div>
-							<span>비고</span><input type="text" />
+						<hr style="width: 100%; margin: 15px 0;">
+						<h4>하위 품목 상세/편집</h4>
+						<div class="flex-row">
+							<div>
+								<span>하위품목코드</span><input type="text" id="componentItemCd"
+									readonly />
+							</div>
+							<div>
+								<span>하위품목명</span><input type="text" id="componentItemNm"
+									readonly />
+							</div>
 						</div>
+						<div class="flex-row">
+							<div>
+								<span>소요량</span><input type="number" id="componentUseQty"
+									step="any" />
+							</div>
+							<div>
+								<span>단위</span><input type="text" id="componentUnitNm" readonly />
+							</div>
+						</div>
+						<div class="flex-row">
+							<div>
+								<span>단가</span><input type="number" id="componentItemPrice" readonly
+									step="any" />
+							</div>
+							<div>
+								<span>로스율(%)</span><input type="number" id="componentLossRt"
+									step="any" value="0" />
+							</div>
+						</div>
+						<div>
+							<span>비고(하위)</span><input type="text" id="componentRemark" />
+						</div>
+						<input type="hidden" id="editingComponentBomIdx" /> <input
+							type="hidden" id="editingComponentSubItemIdx" />
 					</div>
 
 				</div>
+                <h4>하위 품목 구성</h4>
 				<div class="bomTab5">
-					<div>
-						<div>
-							<table class="grid-table">
-								<thead>
-									<tr>
-										<th>No</th>
-										<th>품목명</th>
-										<th>원자재명</th>
-										<th>소요량</th>
-										<th>로스율</th>
-										<th>단가</th>
-										<th>비고</th>
-									</tr>
-								</thead>
-								<tbody>
-									<!--등록된 품목 리스트가 쭉 나오게 ~ -->
-									<tr>
-										<td class="nodata"
-											style="grid-column: span 7; justify-content: center;">등록된
-											데이터가 없습니다.</td>
-									</tr>
-									<tr>
-										<td>1</td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-									</tr>
-
-									<tr>
-										<td>2</td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-									</tr>
-
-									<tr>
-										<td>3</td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-										<td><input type="text" value="test" /></td>
-									</tr>
-
-
-								</tbody>
-							</table>
-						</div>
-					</div>
+					<table class="grid-table">
+						<thead>
+							<tr>
+                                <th></th> <th>No</th>
+								<th>품목명</th>
+								<th>원자재명</th>
+								<th>소요량</th>
+								<th>로스율</th>
+								<th>단가</th>
+								<th>비고</th>
+							</tr>
+						</thead>
+						<tbody id="bomDetailTbody">
+							<tr>
+								<td class="nodata"
+									style="grid-column: span 8; justify-content: center;"> 데이터를 선택하세요.</td>
+							</tr>
+						</tbody>
+					</table>
 				</div>
 
 				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
@@ -870,61 +900,63 @@ table input[type="text"] {
 	</div>
 
 
-	<!-- 대분류/소분류 관리 Modal -->
-	<div class="modal" id="modal-category" onclick="outsideClick(event, 'modal-category')">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3>분류 관리</h3>
-            <form class="modalForm">
-                <div>
-                    <table class="grid-table" id="category-table">
-                        <thead>
-                            <tr>
-                                <th>선택</th>
-                                <th>대분류명</th>
-                                <th>분류코드</th>
-                                <th>비고</th>
-                                <th>소분류</th>
-                                <th>삭제</th>
-                            </tr>
-                        </thead>
-                        <tbody id="MainCatBody">
-                            <tr>
-                                <td colspan="6" class="no-data">카테고리 정보를 불러오는 중...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="category-add-row">
-                    <input type="text" id="new-category-name" placeholder="대분류명" required />
-                    <input type="text" id="new-category-code" placeholder="대분류코드" required />
-                    <input type="text" id="new-category-memo" placeholder="비고" />
-                    <button type="button" onclick="addCategoryRow()">
-                        <span class="material-symbols-outlined">add</span> 대분류 추가
-                    </button>
-                </div>
-                <div class="category-add-row">
-                    <input type="text" id="new-subcategory-name" placeholder="소분류명" />
-                    <input type="text" id="new-subcategory-code" placeholder="소분류코드" />
-                    <input type="text" id="new-subcategory-memo" placeholder="비고" />
-                    <button type="button" onclick="addSubCategoryToChecked()">
-                        <span class="material-symbols-outlined">add</span> 소분류 추가
-                    </button>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+	<div class="modal" id="modal-category"
+		onclick="outsideClick(event, 'modal-category')">
+		<div class="modal-content" onclick="event.stopPropagation()">
+			<h3>분류 관리</h3>
+			<form class="modalForm">
+				<div>
+					<table class="grid-table" id="category-table">
+						<thead>
+							<tr>
+								<th>선택</th>
+								<th>대분류명</th>
+								<th>분류코드</th>
+								<th>비고</th>
+								<th>소분류</th>
+								<th>삭제</th>
+							</tr>
+						</thead>
+						<tbody id="MainCatBody">
+							<tr>
+								<td colspan="6" class="no-data">카테고리 정보를 불러오는 중...</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="category-add-row">
+					<input type="text" id="new-category-name" placeholder="대분류명"
+						required /> <input type="text" id="new-category-code"
+						placeholder="대분류코드" required /> <input type="text"
+						id="new-category-memo" placeholder="비고" />
+					<button type="button" onclick="addCategoryRow()">
+						<span class="material-symbols-outlined">add</span> 대분류 추가
+					</button>
+				</div>
+				<div class="category-add-row">
+					<input type="text" id="new-subcategory-name" placeholder="소분류명" />
+					<input type="text" id="new-subcategory-code" placeholder="소분류코드" />
+					<input type="text" id="new-subcategory-memo" placeholder="비고" />
+					<button type="button" onclick="addSubCategoryToChecked()">
+						<span class="material-symbols-outlined">add</span> 소분류 추가
+					</button>
+				</div>
+				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
-                    <div class="modal-buttons" style="grid-column-start: 3;">
-                        <button type="button" name="save">
-                            <span class="material-symbols-outlined">save</span> 등록
-                        </button>
+					<div class="modal-buttons" style="grid-column-start: 3;">
+						<button type="button" name="save">
+							<span class="material-symbols-outlined">save</span> 등록
+						</button>
 
-                        <button type="button" onclick="closeModal('modal-category')" style="background: #777;">
-                            <span class="material-symbols-outlined">close</span> 취소
-                        </button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
+						<button type="button" onclick="closeModal('modal-category')"
+							style="background: #777;">
+							<span class="material-symbols-outlined">close</span> 취소
+						</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
 	<script>
 		// 체크박스 선택된 대분류에 소분류 추가
 		function addSubCategoryToChecked() {
@@ -960,21 +992,24 @@ table input[type="text"] {
 	<script>
 		// 대분류 추가
 		function addCategoryRow() {
-			const input = document.getElementById('new-category');
+			const input = document.getElementById('new-category-name'); // ID 수정
 			const codeInput = document.getElementById('new-category-code');
 			const memoInput = document.getElementById('new-category-memo');
 			const value = input.value.trim();
 			const code = codeInput.value.trim();
 			const memo = memoInput.value.trim();
 			if (!value) return;
-			const table = document.getElementById('category-table').getElementsByTagName('tbody')[0];
+			const table = document.getElementById('MainCatBody'); // ID 수정
+            const noDataRow = table.querySelector('.no-data');
+            if(noDataRow) noDataRow.closest('tr').remove();
+
 			const row = table.insertRow();
 			row.innerHTML = `
 				<td><input type="checkbox" class="category-checkbox"/></td>
 				<td><input type="text" value="${value}" style="width:98%;" /></td>
 				<td><input type="text" value="${code}" style="width:98%;" /></td>
 				<td><input type="text" value="${memo}" style="width:98%;" /></td>
-				<td style="padding:0 !important; display:flex; flex-direction:column;">
+				<td style="padding:0 !important; display:flex; flex-direction:column; max-height: 113px; overflow-y: auto;">
 					<table class="grid-table" style="background:#f9f9f9; grid-template-columns: 1.2fr 1fr 1fr 0.7fr !important; margin:0 !important;">
 						<thead>
 							<tr>
@@ -990,39 +1025,13 @@ table input[type="text"] {
 				<td><button type="button" onclick="removeCategoryRow(this)">삭제</button></td>
 			`;
 			input.value = '';
+            codeInput.value = ''; 
 			memoInput.value = '';
-			updateCategoryRowNumbers();
 		}
 		// 대분류 삭제
 		function removeCategoryRow(btn) {
 			const row = btn.closest('tr');
 			row.parentNode.removeChild(row);
-			updateCategoryRowNumbers();
-		}
-		function updateCategoryRowNumbers() {
-			const table = document.getElementById('category-table').getElementsByTagName('tbody')[0];
-			Array.from(table.rows).forEach((row, idx) => {
-				// 번호 대신 체크박스이므로 아무것도 하지 않음
-			});
-		}
-		// 소분류 추가 (개별 대분류 행 내에서)
-		function addSubCategoryRow(btn) {
-			const container = btn.closest('td');
-			const nameInput = container.querySelector('.new-subcategory-input');
-			const memoInput = container.querySelector('.new-subcategory-memo');
-			const name = nameInput.value.trim();
-			const memo = memoInput.value.trim();
-			if (!name) return;
-			const tbody = container.parentElement.querySelector('.subcategory-tbody');
-			const tr = document.createElement('tr');
-			tr.innerHTML = `
-				<td><input type="text" value="${name}" style="width:95%;" /></td>
-				<td><input type="text" value="${memo}" style="width:95%;" /></td>
-				<td><button type="button" onclick="removeSubCategoryRow(this)">삭제</button></td>
-			`;
-			tbody.appendChild(tr);
-			nameInput.value = '';
-			memoInput.value = '';
 		}
 		// 소분류 삭제
 		function removeSubCategoryRow(btn) {
@@ -1031,12 +1040,11 @@ table input[type="text"] {
 		}
 	</script>
 
-	<!-- 단위관리 Modal -->
 	<div class="modal" id="modal-spec"
 		onclick="outsideClick(event, 'modal-spec')">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3>단위 관리</h3>
-			<form class="modalForm">
+			<form class="modalForm" id="unitForm"> 
 				<div>
 					<table class="grid-table stretable" id="spec-table">
 						<thead>
@@ -1047,23 +1055,23 @@ table input[type="text"] {
 							</tr>
 						</thead>
 						<tbody id="UnitBody">
-
+                            <tr><td colspan="3" class="nodata">로딩 중...</td></tr>
 						</tbody>
 					</table>
 				</div>
-				<div style="display: flex; gap: 10px; margin-top: 10px;"></div>
-				<input type="text" id="new-spec-unit" placeholder="단위명을 입력하세요"
-					style="flex: 1;" required />
-
-
+				<div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <input type="text" id="new-spec-unit" placeholder="단위명을 입력하세요"
+                        style="flex: 1;" required />
+                     <button type="button" id="addUnitButton"> 
+                        <span class="material-symbols-outlined">add</span> 단위 추가
+                    </button>
+                </div>
 
 				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-
 					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="submit" name="save">
-							<span class="material-symbols-outlined">save</span> 등록
+						<button type="button" name="save" id="saveUnitButton"> 
+							<span class="material-symbols-outlined">save</span> 저장
 						</button>
-
 						<button type="button" style="background: #777;"
 							onclick="closeModal('modal-spec')">
 							<span class="material-symbols-outlined">close</span> 취소
@@ -1076,575 +1084,814 @@ table input[type="text"] {
 
 
 	<script src="/js/top.js"></script>
-
+	<script src="js/bomUnit.js"></script>
+	<script src="js/bomCategory.js"></script>
 	<script>
-		let currentTh = null;
-		let currentOrder = 'desc';
+    // =====================================================================================
+    // 전역 변수 선언
+    // =====================================================================================
+    let allProductsForSelection = [];
+    let allRawMaterialsForSelection = [];
+    let currentlyEditingComponentState = {
+        bomIdx: null, subItemIdx: null, itemCd: '', itemNm: '',
+        useQty: 1, unitNm: '', itemPrice: 0, lossRt: 0,
+        remark: '', itemFlag: '01', subItemMasterCost: 0
+    };
+    let originalParentItemIdForUpdate = null;
+    let draggedRow = null; // 드래그 중인 행을 저장할 변수
 
-		function order(thValue) {//정렬
-			const allArrows = document.querySelectorAll("th a");
-			allArrows.forEach(a => a.textContent = '↓');
+    // =====================================================================================
+    // 초기화 및 메인 이벤트 리스너
+    // =====================================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM 로드 완료, 초기 데이터 로딩 시작");
+        loadAllItemsForSelection();
+        loadMainBomSummaryList();
 
-			if (currentTh === thValue) {
-				currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-			} else {
-				currentOrder = 'asc';
-				currentTh = thValue;
-			}
+        const useQtyInput = document.getElementById('componentUseQty');
+        const lossRtInput = document.getElementById('componentLossRt');
+        const componentRemarkInput = document.getElementById('componentRemark');
 
-			const arrow = thValue.querySelector('a');
-			arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-		}
+        if(useQtyInput) useQtyInput.addEventListener('input', handleComponentEditInputChange);
+        if(lossRtInput) lossRtInput.addEventListener('input', handleComponentEditInputChange);
+        if(componentRemarkInput) componentRemarkInput.addEventListener('input', handleComponentEditInputChange);
 
+        const editButton = document.querySelector('#modalForm button[name="edit"]');
+        if (editButton) editButton.addEventListener('click', handleBomUpdate);
+        
+        const saveButton = document.querySelector('#modalForm button[name="save"]');
+        if (saveButton) saveButton.addEventListener('click', handleBomSave);
 
+        
+        
+        const productTbody = document.getElementById('productSelectionTbody');
+        if (productTbody) {
+            productTbody.addEventListener('change', function(event) {
+                // 이벤트가 라디오 버튼이고, 이름이 'parent-item-select'인 경우에만 처리
+                if (event.target.type === 'radio' && event.target.name === 'parent-item-select') {
+                    handleParentItemSelection(event.target);
+                }
+            });
+            console.log('productSelectionTbody에 change 이벤트 리스너 부착 완료');
+        } else {
+            console.error('productSelectionTbody 요소를 찾을 수 없습니다!');
+        }
+        
+        
+        
+        document.querySelectorAll("#bomTbody th[onclick^='order']").forEach(th => {
+        });
+    });
 
-
-
-		//Modal ~ 
-		function openModal() {
-			const title = document.getElementById('modalTitle');
-			title.textContent = '신규 BOM 등록';
-			document.getElementById('modal').style.display = 'flex';
-			document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-			document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-		}
-
-		function closeModal() {
-			document.getElementById('modal').style.display = 'none';
-		}
-
-		function outsideClick(e) {
-			if (e.target.id === 'modal') {
-				closeModal();
-			}
-		}
-
-
-
-		function submitModal(event) {
-			event.preventDefault();
-			const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-			console.log(currentTab + ' 등록됨:', siteName);
-			closeModal();
-		}
-
-		//테이블 클릭 시 출력되는 modal
-		function opendatail() {
-			openModal();
-			document.getElementById('modalTitle').textContent = 'BOM 수정';
-
-			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-			document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-		}
-
-
-
-		function openCategoryModal() {
-			document.getElementById('modal-category').style.display = 'flex';
-		}
-		function openSpecModal() {
-			document.getElementById('modal-spec').style.display = 'flex';
-		}
-		function closeModal(modalId) {
-			document.getElementById(modalId).style.display = 'none';
-		}
-		function outsideClick(e, modalId) {
-			if (e.target.id === modalId) {
-				closeModal(modalId);
-			}
-		}
-
-		document.addEventListener('DOMContentLoaded', () => {
-			document.querySelectorAll('table').forEach(table => {
-				const firstCells = table.querySelectorAll('tbody tr td:first-child');
-				firstCells.forEach(td => {
-					td.setAttribute('onclick', 'event.stopPropagation()');
-				});
-			});
-
-			// 페이지네이션 버튼 이벤트
-			document.getElementById('btn-prev-page').addEventListener('click', function () {
-				// 이전 페이지 이동 로직
-			});
-			document.getElementById('btn-next-page').addEventListener('click', function () {
-				// 다음 페이지 이동 로직
-			});
-		});
-	</script>
-	<script>
-//CATEGORY(품목 모달용)
-        function openCategoryModal() {
-            document.getElementById('modal-category').style.display = 'flex'; // Changed to flex for centering
-            loadCategories(); // Load categories when modal opens
+    /**
+     * bomTab5 테이블의 특정 행에 있는 입력 필드 값을 업데이트합니다.
+     */
+    function updateTargetBom5RowField(subItemIdx, fieldName, value) {
+        const targetRow = findComponentInBomTab5(subItemIdx);
+        if (!targetRow) {
+            console.warn(`updateTargetBom5RowField: Row not found for subItemIdx ${subItemIdx}`);
+            return;
         }
 
-        // The user provided `outsideClick` and `closeModal` in their HTML
-        // function outsideClick(event, modalId) {
-        //     if (event.target == document.getElementById(modalId)) {
-        //         document.getElementById(modalId).style.display = 'none';
-        //     }
-        // }
-        // function closeModal(modalId) {
-        //     document.getElementById(modalId).style.display = 'none';
-        // }
+        let inputSelector = '';
+        switch (fieldName.toLowerCase()) {
+            case 'useqty': inputSelector = '.bom5-use-qty'; break;
+            case 'lossrt': inputSelector = '.bom5-loss-rt'; break;
+            case 'remark': inputSelector = '.bom5-remark'; break;
+            case 'itemprice': inputSelector = '.bom5-item-price'; break;
+            default: console.warn(`updateTargetBom5RowField: Unknown fieldName ${fieldName}`); return;
+        }
+
+        const inputField = targetRow.querySelector(inputSelector);
+        if (inputField) {
+            inputField.value = value;
+        } else {
+            console.warn(`updateTargetBom5RowField: Input field not found with selector ${inputSelector} for subItemIdx ${subItemIdx}`);
+        }
+    }
+
+    /**
+     * bomTab3의 하위 품목 편집 필드 값이 변경될 때 호출됩니다.
+     */
+    function handleComponentEditInputChange(event) {
+        const fieldName = event.target.id.replace('component', '').toLowerCase(); 
+        let value = event.target.type === 'number' ? parseFloat(event.target.value) : event.target.value;
+        if (event.target.type === 'number' && isNaN(value)) value = 0;
+
+        const subItemIdxValue = document.getElementById('editingComponentSubItemIdx').value;
+
+        if (subItemIdxValue) { 
+            const subItemIdx = Number(subItemIdxValue);
+            
+            if (fieldName === 'useqty') currentlyEditingComponentState.useQty = value;
+            if (fieldName === 'lossrt') currentlyEditingComponentState.lossRt = value;
+            if (fieldName === 'remark') currentlyEditingComponentState.remark = value;
+            
+            if (fieldName === 'useqty' || fieldName === 'lossrt') {
+                updateTargetBom5RowField(subItemIdx, fieldName, value); 
+                calculateAndDisplayComponentLineCost(); 
+            } else if (fieldName === 'remark') {
+                 updateTargetBom5RowField(subItemIdx, 'remark', value); 
+            }
+        }
+    }
 
 
-        // --- 품목 카테고리 관리 모달 관련 스크립트 시작 ---
-
-        // 카테고리 로드 함수
-        async function loadCategories() {
-            const categoryTbody = document.getElementById('MainCatBody');
-            categoryTbody.innerHTML = '<tr><td colspan="6" class="no-data">카테고리 정보를 불러오는 중...</td></tr>'; // 로딩 메시지
-
-            try {
-                const response = await fetch('/api/category/details');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const categories = await response.json();
-
-                categoryTbody.innerHTML = ''; // 기존 내용 지우기
-
-                if (categories.length === 0) {
-                    categoryTbody.innerHTML = '<tr><td colspan="6" class="no-data">등록된 카테고리가 없습니다.</td></tr>';
+    function loadMainBomSummaryList() {
+        fetch('/api/bom/summary')
+            .then(res => {
+                if (!res.ok) return res.text().then(text => { throw new Error(`Summary API Error: ${res.status} ${text}`); });
+                return res.json();
+            })
+            .then(data => {
+                const tbody = document.getElementById('bomTbody');
+                tbody.innerHTML = '';
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="nodata" style="text-align:center;">등록된 BOM이 없습니다.</td></tr>';
                     return;
                 }
-
-                // 부모-자식 관계를 위한 맵 생성
-                const categoryMap = new Map();
-                categories.forEach(cat => {
-                    categoryMap.set(cat.catIdx, { ...cat, subCategories: [] });
-                });
-
-                categories.forEach(cat => {
-                    if (cat.parentIdx !== null && categoryMap.has(cat.parentIdx)) {
-                        categoryMap.get(cat.parentIdx).subCategories.push(cat);
-                    }
-                });
-
-                // 대분류 먼저 추가
-                const mainCategories = Array.from(categoryMap.values()).filter(cat => cat.parentIdx === null);
-                
-                mainCategories.forEach(mainCat => {
-                    const mainRow = document.createElement('tr');
-                    mainRow.dataset.catIdx = mainCat.catIdx; // 대분류의 catIdx 저장
-
-                    mainRow.innerHTML = `
-                        <td><input type="checkbox" class="category-checkbox" data-cat-idx="${mainCat.catIdx}" /></td>
-                        <td><input type="text" value="${mainCat.catNm}" readonly /></td>
-                        <td><input type="text" value="${mainCat.catCd}" readonly /></td>
-                        <td><input type="text" value="${mainCat.reMark || ''}" readonly /></td>
-                        <td class="subcategory-column">
-                            <table class="grid-table">
-                                <thead>
-                                    <tr>
-                                        <th>소분류명</th>
-                                        <th>소분류코드</th>
-                                        <th>비고</th>
-                                        <th>삭제</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="subcategory-tbody" data-parent-idx="${mainCat.catIdx}">
-                                    </tbody>
-                            </table>
-                        </td>
-                        <td><button type="button" onclick="removeCategoryRow(this)" class="delete-btn-in-table">삭제</button></td>
+                data.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.style.cursor = 'pointer';
+                    tr.setAttribute('data-id', item.itemIdx);
+                    tr.innerHTML = `
+                        <td><input type="checkbox"></td>
+                        <td>${item.pitemCd || ''}</td>
+                        <td>${item.pitemNm || ''}</td>
+                        <td>${item.catNm || ''}</td>
+                        <td>${item.punitNm || ''}</td>
+                        <td>${(item.ptotalRawMaterialCost != null ? Math.round(item.ptotalRawMaterialCost).toLocaleString() : '0')}원</td>
                     `;
-                    categoryTbody.appendChild(mainRow);
-
-                    // 소분류 추가
-                    const subcategoryTbody = mainRow.querySelector('.subcategory-tbody');
-                    mainCat.subCategories.forEach(subCat => {
-                        const subRow = document.createElement('tr');
-                        subRow.dataset.catIdx = subCat.catIdx; // 소분류의 catIdx 저장
-                        subRow.innerHTML = `
-                            <td><input type="text" value="${subCat.catNm}" readonly /></td>
-                            <td><input type="text" value="${subCat.catCd}" readonly /></td>
-                            <td><input type="text" value="${subCat.reMark || ''}" readonly /></td>
-                            <td><button type="button" onclick="removeSubCategoryRow(this)" class="delete-btn-in-table">삭제</button></td>
-                        `;
-                        subcategoryTbody.appendChild(subRow);
+                    tr.addEventListener('click', function() {
+                        const bomId = this.getAttribute('data-id');
+                        fetchBomDetails(bomId);
                     });
+                    tbody.appendChild(tr);
                 });
+            })
+            .catch(err => {
+                console.error("BOM 목록 로딩 실패:", err);
+                const tbody = document.getElementById('bomTbody');
+                tbody.innerHTML = '<tr><td colspan="6" class="nodata" style="text-align:center;">데이터를 불러오는 데 실패했습니다.</td></tr>';
+            });
+    }
 
-            } catch (error) {
-                console.error('카테고리 정보를 가져오는 중 오류 발생:', error);
-                categoryTbody.innerHTML = '<tr><td colspan="6" class="no-data">카테고리 데이터를 불러오는 데 실패했습니다.</td></tr>';
-            }
+    // =====================================================================================
+    // 모달 열기/닫기 함수
+    // =====================================================================================
+    async function openModal() { // 신규 등록용
+        console.log("openModal (신규) 호출됨");
+        originalParentItemIdForUpdate = null;
+        const modalForm = document.getElementById('modalForm');
+        if (modalForm) modalForm.reset();
+
+        document.getElementById('modalTitle').textContent = '신규 BOM 등록';
+        document.getElementById('modalParentItemCd').value = '';
+        document.getElementById('modalParentItemNm').value = '';
+        document.getElementById('modalParentCycleTime').value = '';
+        document.getElementById('modalParentRemark').value = '';
+        
+        clearComponentEditFields();
+
+        const detailTbody = document.getElementById('bomDetailTbody');
+        if (detailTbody) {
+            detailTbody.innerHTML = `<tr><td class="nodata" colspan="8" style="text-align:center;">새 BOM에 원자재를 추가하세요.</td></tr>`;
         }
 
-        // 대분류 추가 함수
-        async function addCategoryRow() {
-            const categoryNameInput = document.getElementById('new-category-name');
-            const categoryCodeInput = document.getElementById('new-category-code');
-            const categoryMemoInput = document.getElementById('new-category-memo');
+        if (allProductsForSelection.length === 0 || allRawMaterialsForSelection.length === 0) {
+            await loadAllItemsForSelection();
+        }
+        
+        populateProductSelectionTable(null);
+        populateRawMaterialSelectionTable([]);
 
-            const catNm = categoryNameInput.value.trim();
-            const catCd = categoryCodeInput.value.trim();
-            const reMark = categoryMemoInput.value.trim();
+        document.querySelector('#modalForm button[name="save"]').style.display = 'inline-flex';
+        document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+        document.getElementById('modal').style.display = 'flex';
+    }
 
-            if (!catNm || !catCd) {
-                alert('대분류명과 분류코드는 필수 입력 항목입니다.');
-                return;
-            }
+    function openDetailModal() { // 상세/수정용
+        document.getElementById('modalTitle').textContent = 'BOM 상세 정보';
+        document.querySelector('#modalForm button[name="save"]').style.display = 'none';
+        document.querySelector('#modalForm button[name="edit"]').style.display = 'inline-flex';
+        document.getElementById('modal').style.display = 'flex';
+    }
 
-            const newCategory = {
-                catNm: catNm,
-                catCd: catCd,
-                parentIdx: null, // 대분류는 parentIdx가 null
-                reMark: reMark
-            };
+    function closeModal(modalId = 'modal') {
+        const modalElement = document.getElementById(modalId);
+        if (modalElement) modalElement.style.display = 'none';
+    }
 
-            try {
-                const response = await fetch('/api/category/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newCategory),
-                });
+    function outsideClick(e, modalId = 'modal') {
+        if (e.target.id === modalId) {
+            closeModal(modalId);
+        }
+    }
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `서버 오류 발생: ${response.status}`);
-                }
+    // =====================================================================================
+    // 데이터 로딩 및 모달 내용 채우는 핵심 함수들
+    // =====================================================================================
+    async function loadAllItemsForSelection() {
+        console.log("loadAllItemsForSelection 시작");
+        try {
+            const productsResponse = await fetch('/api/bom/flag/02');
+            if (productsResponse.ok) allProductsForSelection = await productsResponse.json();
+            else { console.error("제품 목록 로딩 실패:", productsResponse.statusText); allProductsForSelection = []; }
 
-                alert('대분류가 성공적으로 추가되었습니다!');
-                categoryNameInput.value = '';
-                categoryCodeInput.value = '';
-                categoryMemoInput.value = '';
-                loadCategories(); // 목록 새로고침
-            } catch (error) {
-                console.error('대분류 추가 중 오류 발생:', error);
-                alert('대분류 추가 실패: ' + error.message);
-            }
+            const rawMaterialsResponse = await fetch('/api/bom/flag/01');
+            if (rawMaterialsResponse.ok) allRawMaterialsForSelection = await rawMaterialsResponse.json();
+            else { console.error("원자재 목록 로딩 실패:", rawMaterialsResponse.statusText); allRawMaterialsForSelection = []; }
+        } catch (error) {
+            console.error("선택용 품목/원자재 로딩 중 오류:", error);
+        }
+    }
+
+    async function fetchBomDetails(bomId) {
+        console.log("fetchBomDetails 시작, BOM ID:", bomId);
+        originalParentItemIdForUpdate = bomId;
+        if (!bomId) return;
+
+        if (allProductsForSelection.length === 0 || allRawMaterialsForSelection.length === 0) {
+            await loadAllItemsForSelection();
         }
 
-        // 소분류 추가 함수
-        async function addSubCategoryToChecked() {
-            const subCategoryNameInput = document.getElementById('new-subcategory-name');
-            const subCategoryCodeInput = document.getElementById('new-subcategory-code');
-            const subCategoryMemoInput = document.getElementById('new-subcategory-memo');
-
-            const catNm = subCategoryNameInput.value.trim();
-            const catCd = subCategoryCodeInput.value.trim();
-            const reMark = subCategoryMemoInput.value.trim();
-
-            if (!catNm || !catCd) {
-                alert('소분류명과 소분류코드는 필수 입력 항목입니다.');
-                return;
-            }
-
-            const checkedCheckboxes = document.querySelectorAll('.category-checkbox:checked');
-
-            if (checkedCheckboxes.length === 0) {
-                alert('소분류를 추가할 대분류를 하나 선택해주세요.');
-                return;
-            }
-            if (checkedCheckboxes.length > 1) {
-                alert('소분류는 하나의 대분류에만 추가할 수 있습니다. 하나의 대분류만 선택해주세요.');
-                return;
-            }
-
-            const parentIdx = checkedCheckboxes[0].dataset.catIdx; // 대분류의 catIdx
-
-            const newSubCategory = {
-                catNm: catNm,
-                catCd: catCd,
-                parentIdx: parseInt(parentIdx), // 소분류는 parentIdx를 가짐
-                reMark: reMark
-            };
-
-            try {
-                const response = await fetch('/api/category/add', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(newSubCategory),
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `서버 오류 발생: ${response.status}`);
-                }
-
-                alert('소분류가 성공적으로 추가되었습니다!');
-                subCategoryNameInput.value = '';
-                subCategoryCodeInput.value = '';
-                subCategoryMemoInput.value = '';
-                loadCategories(); // 목록 새로고침
-            } catch (error) {
-                console.error('소분류 추가 중 오류 발생:', error);
-                alert('소분류 추가 실패: ' + error.message);
-            }
-        }
-
-        // 대분류 삭제 함수
-        async function removeCategoryRow(buttonElement) {
-            const row = buttonElement.closest('tr');
-            const catIdx = row.dataset.catIdx;
-
-            if (!confirm('정말로 이 대분류와 모든 소분류를 삭제하시겠습니까?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/category/delete/${catIdx}`, {
-                    method: 'DELETE',
-                });
-
-                if (response.status === 204) { // No Content
-                    alert('카테고리가 성공적으로 삭제되었습니다.');
-                    loadCategories();
+        fetch(`/api/bom/${bomId}`)
+            .then(response => {
+                if (response.ok) return response.json();
+                if (response.status === 404) { alert('BOM 상세 정보를 찾을 수 없습니다.'); return null; }
+                throw new Error(`Server error: ${response.statusText} - ${response.url}`);
+            })
+            .then(data => {
+                if (data) {
+                    populateBomDetailsModal(data);
+                    populateProductSelectionTable(data.itemIdx);
+                    populateRawMaterialSelectionTable(data.components || []);
+                    openDetailModal();
                 } else {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `서버 오류 발생: ${response.status}`);
+                    document.getElementById('modalParentItemCd').value = '';
+                    document.getElementById('modalParentItemNm').value = '';
+                    document.getElementById('modalParentCycleTime').value = '';
+                    document.getElementById('modalParentRemark').value = '';
+                    clearComponentEditFields();
+                    const detailTbody = document.getElementById('bomDetailTbody');
+                    if(detailTbody) detailTbody.innerHTML = `<tr><td class="nodata" colspan="8" style="text-align:center;">BOM 정보를 찾을 수 없습니다.</td></tr>`;
+                    populateProductSelectionTable(null);
+                    populateRawMaterialSelectionTable([]);
+                    openDetailModal();
                 }
-            } catch (error) {
-                console.error('카테고리 삭제 중 오류 발생:', error);
-                alert('카테고리 삭제 실패: ' + error.message);
-            }
+            })
+            .catch(error => {
+                console.error('BOM 상세 정보 조회 실패:', error);
+                alert('BOM 상세 정보를 불러오는 중 오류가 발생했습니다.');
+            });
+    }
+
+    function populateBomDetailsModal(data) {
+        if (!data) { console.error("populateBomDetailsModal: 유효하지 않은 데이터"); return; }
+        document.getElementById('modalParentItemCd').value = data.itemCd || '';
+        document.getElementById('modalParentItemNm').value = data.itemNm || '';
+        document.getElementById('modalParentCycleTime').value = data.cycleTime != null ? data.cycleTime : '';
+        document.getElementById('modalParentRemark').value = data.remark || '';
+
+        const detailTbody = document.getElementById('bomDetailTbody');
+        detailTbody.innerHTML = '';
+        clearComponentEditFields();
+
+        if (!data.components || data.components.length === 0) {
+            detailTbody.innerHTML = `<tr><td class="nodata" colspan="8" style="text-align:center;">등록된 하위 품목이 없습니다.</td></tr>`;
+        } else {
+            data.components.forEach(component => {
+                addComponentToBomTab5(component, data.itemNm);
+            });
         }
+        updateBomTab5RowNumbers();
+    }
 
-        // 소분류 삭제 함수
-        async function removeSubCategoryRow(buttonElement) {
-            const row = buttonElement.closest('tr');
-            const catIdx = row.dataset.catIdx;
-
-            if (!confirm('정말로 이 소분류를 삭제하시겠습니까?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/category/delete/${catIdx}`, {
-                    method: 'DELETE',
-                });
-
-                if (response.status === 204) { // No Content
-                    alert('소분류가 성공적으로 삭제되었습니다.');
-                    loadCategories();
-                } else {
-                    const errorText = await response.text();
-                    throw new Error(errorText || `서버 오류 발생: ${response.status}`);
-                }
-            } catch (error) {
-                console.error('소분류 삭제 중 오류 발생:', error);
-                alert('소분류 삭제 실패: ' + error.message);
-            }
+    function populateProductSelectionTable(selectedParentItemId) {
+        const productTbody = document.getElementById('productSelectionTbody');
+        productTbody.innerHTML = '';
+        if (!allProductsForSelection || allProductsForSelection.length === 0) {
+             productTbody.innerHTML = '<tr><td colspan="6" class="nodata" style="text-align:center;">로드된 품목 정보 없음</td></tr>'; return;
         }
-</script>
-	<script>
-	//UNIT(단위 모달용)
-	document.addEventListener('DOMContentLoaded', () => {
-  const modal    = document.getElementById('modal-spec');
-  const tbody    = document.getElementById('UnitBody');
-  const openBtn  = document.querySelector('button[onclick="openSpecModal()"]');
-  const closeAll = () => { modal.style.display = 'none'; };
-
-  // 1) 모달 열기 함수 재정의: 렌더링 후 보이기
-  window.openSpecModal = () => {
-    loadAndRenderUnits();
-    modal.style.display = 'flex';
-  };
-
-  // 2) 모달 외부 클릭 시 닫기
-  modal.addEventListener('click', e => {
-    if (e.target === modal) closeAll();
-  });
-
-  // 3) 단위 목록 로드 & 렌더링
-  function loadAndRenderUnits() {
-    tbody.innerHTML = '<tr><td colspan="3">단위 정보를 불러오는 중...</td></tr>';
-    fetch('/api/unit/details')
-      .then(res => {
-        if (!res.ok) throw new Error(res.statusText);
-        return res.json();
-      })
-      .then(units => {
-        units.sort((a, b) => a.unitNm.localeCompare(b.unitNm));
-        if (units.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="3">등록된 단위가 없습니다.</td></tr>';
-          return;
-        }
-        tbody.innerHTML = '';
-        units.forEach((unit, i) => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${i + 1}</td>
-            <td>${unit.unitNm}</td>
-            <td>
-              <button type="button"
-                      class="delete-unit-btn"
-                      data-idx="${unit.unitIdx}">
-                삭제
-              </button>
-            </td>`;
-          tbody.appendChild(tr);
+        allProductsForSelection.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            const isChecked = selectedParentItemId !== null && Number(item.itemIdx) === Number(selectedParentItemId) ? 'checked' : '';
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.itemCd || ''}</td>
+                <td>${item.itemNm || ''}</td>
+                <td>${item.itemSpec || ''}</td>
+                <td>${item.unitNm || ''}</td>
+                <td><input type="radio" name="parent-item-select" value="${item.itemIdx}" ${isChecked}></td>
+            `;
+            productTbody.appendChild(tr);
         });
-      })
-      .catch(err => {
-        tbody.innerHTML = `<tr>
-          <td colspan="3">오류 발생: ${err.message}</td>
-        </tr>`;
-      });
-  }
+    }
 
-  // 4) 삭제 버튼 클릭 처리 (이벤트 위임)
- tbody.addEventListener('click', e => {
-    if (!e.target.classList.contains('delete-unit-btn')) return;
-    const unitIdx = e.target.dataset.idx;
-    if (!confirm('정말 이 단위를 삭제하시겠습니까?')) return;
-    fetch(`/api/unit/${unitIdx}`, { method: 'DELETE' })
-      .then(res => {
-        if (!res.ok) throw new Error(res.statusText);
-        alert('삭제되었습니다.');
-        loadAndRenderUnits();
-      })
-      .catch(err => {
-        alert('삭제 실패: ' + err.message);
-      });
-  });
+    function populateRawMaterialSelectionTable(currentComponents = []) {
+        const rawMaterialTbody = document.getElementById('rawMaterialSelectionTbody');
+        rawMaterialTbody.innerHTML = '';
+        const currentComponentIds = (currentComponents || []).filter(c => c.itemFlag === '01').map(c => Number(c.subItemIdx));
+        if (!allRawMaterialsForSelection || allRawMaterialsForSelection.length === 0) {
+             rawMaterialTbody.innerHTML = '<tr><td colspan="6" class="nodata" style="text-align:center;">로드된 원자재 정보 없음</td></tr>'; return;
+        }
+        allRawMaterialsForSelection.forEach((item, index) => {
+            const tr = document.createElement('tr');
+            const isChecked = currentComponentIds.includes(Number(item.itemIdx)) ? 'checked' : '';
+            const itemMasterCost = item.itemCost != null ? item.itemCost : 0;
+            tr.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${item.itemCd || ''}</td>
+                <td>${item.itemNm || ''}</td>
+                <td>${item.itemSpec || ''}</td>
+                <td>${item.unitNm || ''}</td>
+                <td>
+                    <input type="checkbox" class="raw-material-checkbox" value="${item.itemIdx}"
+                           data-item-cd="${item.itemCd || ''}" data-item-nm="${item.itemNm || ''}"
+                           data-unit-nm="${item.unitNm || ''}" data-item-spec="${item.itemSpec || ''}"
+                           data-item-cost="${itemMasterCost}" ${isChecked}>
+                </td>
+            `;
+            rawMaterialTbody.appendChild(tr);
+        });
+        addRawMaterialCheckboxListeners();
+    }
 
-  // 5) 신규 단위 등록 폼 처리
-  const form = modal.querySelector('form');
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const input = document.getElementById('new-spec-unit');
-    const nm = input.value.trim();
-    if (!nm) {
-    	     alert('단위명을 입력하세요');
-    	     return;
-    	   }
-    fetch('/api/unit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ unitNm: nm })
-    })
-    .then(res => {
-      if (!res.ok) return res.json().then(j=>{ throw new Error(j.message||res.statusText) });
-      return res.json();
-    })
-    .then(() => {
-      alert(`'${nm}' 단위가 등록되었습니다.`);
-      input.value = '';
-      loadAndRenderUnits();
-    })
-    .catch(err => {
-      alert('등록 실패: ' + err.message);
-    });
-  });
-});
+    // =====================================================================================
+    // bomTab2 체크박스 및 bomTab3/bomTab5 상호작용 함수
+    // =====================================================================================
+    function addRawMaterialCheckboxListeners() {
+        const checkboxes = document.querySelectorAll('#rawMaterialSelectionTbody .raw-material-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.removeEventListener('change', handleRawMaterialCheckboxChange);
+            checkbox.addEventListener('change', handleRawMaterialCheckboxChange);
+        });
+    }
+
+    function handleRawMaterialCheckboxChange(event) {
+        const checkbox = event.target;
+        const subItemIdx = Number(checkbox.value);
+        const itemCd = checkbox.dataset.itemCd;
+        const itemNm = checkbox.dataset.itemNm;
+        const unitNm = checkbox.dataset.unitNm;
+        const itemMasterCost = parseFloat(checkbox.dataset.itemCost) || 0;
+
+        clearComponentEditFields();
+
+        if (checkbox.checked) {
+            currentlyEditingComponentState = {
+                bomIdx: null, subItemIdx: subItemIdx, itemCd: itemCd, itemNm: itemNm,
+                useQty: 1, unitNm: unitNm, subItemMasterCost: itemMasterCost,
+                lossRt: 0, remark: '', itemFlag: '01', itemPrice: 0
+            };
+            populateComponentEditFields(currentlyEditingComponentState, null);
+
+            if (!findComponentInBomTab5(subItemIdx)) {
+                const parentItemNm = document.getElementById('modalParentItemNm').value;
+                const newRowData = {
+                    subItemIdx: subItemIdx, subItemCd: itemCd, subItemNm: itemNm, itemFlag: '01',
+                    useQty: currentlyEditingComponentState.useQty,
+                    unitNm: unitNm,
+                    lossRt: currentlyEditingComponentState.lossRt,
+                    itemPrice: currentlyEditingComponentState.itemPrice,
+                    remark: currentlyEditingComponentState.remark,
+                    subItemMasterCost: itemMasterCost
+                };
+                addComponentToBomTab5(newRowData, parentItemNm);
+            }
+        } else {
+            removeComponentFromBomTab5(subItemIdx);
+            if (Number(document.getElementById('editingComponentSubItemIdx').value) === subItemIdx) {
+                clearComponentEditFields();
+            }
+        }
+        updateBomTab5RowNumbers();
+    }
+
+    function findComponentInBomTab5(subItemIdxToFind) {
+        const detailTbody = document.getElementById('bomDetailTbody');
+        return detailTbody ? detailTbody.querySelector(`tr[data-sub-item-idx="${subItemIdxToFind}"]`) : null;
+    }
+
+
+
+    function addComponentToBomTab5(componentData, parentItemName) {
+        console.log('--- addComponentToBomTab5 함수 호출됨. 추가할 데이터:', componentData);
+        const detailTbody = document.getElementById('bomDetailTbody');
+        if (!detailTbody) {
+            console.error('bomDetailTbody 요소를 찾을 수 없습니다!');
+            return;
+        }
+        const noDataRow = detailTbody.querySelector('td.nodata');
+        if (noDataRow) detailTbody.innerHTML = '';
+
+        const tr = document.createElement('tr');
+        console.log('tr 요소 생성됨:', tr);
+
+        tr.setAttribute('data-sub-item-idx', String(componentData.subItemIdx));
+        if (componentData.bomIdx != null) tr.setAttribute('data-bom-idx', componentData.bomIdx);
+        
+        // tr.setAttribute('draggable', 'true'); // <--- 이 줄을 삭제하거나 주석 처리합니다.
+
+        const itemType = componentData.itemFlag === '01' ? '원자재' : '제품/반제품';
+        const useQuantity = componentData.useQty != null ? parseFloat(componentData.useQty) : 1;
+        const lossRate = componentData.lossRt != null ? parseFloat(componentData.lossRt) : 0;
+        const masterCost = componentData.subItemMasterCost != null ? parseFloat(componentData.subItemMasterCost) : 0;
+        const remarkText = componentData.remark || '';
+        const unitName = componentData.unitNm || '';
+        const subItemNameText = componentData.subItemNm || '';
+        let lineItemPrice = 0;
+        if (componentData.itemPrice != null) { lineItemPrice = parseFloat(componentData.itemPrice); } 
+        else if (masterCost > 0) {
+             const effectiveLossRate = lossRate / 100;
+             if (effectiveLossRate < 1 && (1 - effectiveLossRate) !== 0) { lineItemPrice = (useQuantity / (1 - effectiveLossRate)) * masterCost; }
+        }
+        const roundedLinePrice = Math.round(lineItemPrice);
+
+        tr.innerHTML = `
+            <td class="drag-handle"><span class="material-symbols-outlined">drag_indicator</span></td>
+            <td></td> <td>${parentItemName || document.getElementById('modalParentItemNm').value || ''}</td>
+            <td>${subItemNameText} (${itemType})</td>
+            <td><input type="number" class="bom5-input bom5-use-qty" value="${useQuantity}" step="any" oninput="updateLineDataFromBom5Input(this, ${componentData.subItemIdx}, 'useQty')"></td>
+            <td><input type="number" class="bom5-input bom5-loss-rt" value="${lossRate}" step="any" oninput="updateLineDataFromBom5Input(this, ${componentData.subItemIdx}, 'lossRt')">%</td>
+            <td><input type="number" class="bom5-input bom5-item-price" value="${roundedLinePrice}" step="any" oninput="updateLineDataFromBom5Input(this, ${componentData.subItemIdx}, 'itemPrice', true)">원</td>
+            <td><input type="text" class="bom5-input bom5-remark" value="${remarkText}" oninput="updateLineDataFromBom5Input(this, ${componentData.subItemIdx}, 'remark')"></td>
+        `;
+        console.log('tr 요소에 innerHTML 설정 완료');
+        
+        // --- 드래그 핸들 처리 수정 ---
+        const dragHandle = tr.querySelector('.drag-handle');
+        if (dragHandle) {
+            dragHandle.setAttribute('draggable', 'true'); // *** 손잡이(td)에 draggable 속성 설정 ***
+            console.log('drag-handle 요소에 draggable="true" 설정됨:', dragHandle);
+            dragHandle.addEventListener('dragstart', handleDragStart); // *** 손잡이(td)에 dragstart 리스너 연결 ***
+            console.log('dragstart 이벤트 리스너 부착됨 (to dragHandle):', dragHandle);
+        } else {
+            console.error('.drag-handle 요소를 찾을 수 없습니다!');
+        }
+
+        // --- tr 요소에는 dragover, drop 등 나머지 D&D 이벤트 리스너 연결 ---
+        // (dragstart 리스너는 tr에서 제거하고 위에서 handle에만 연결했으므로 여기서는 추가하지 않음)
+        tr.addEventListener('dragover', handleDragOver);
+        tr.addEventListener('drop', handleDrop);
+        tr.addEventListener('dragenter', handleDragEnter);
+        tr.addEventListener('dragleave', handleDragLeave);
+        tr.addEventListener('dragend', handleDragEnd); // dragend는 dragstart가 발생한 요소에서 발생하므로, handle에 연결하는 것이 더 정확할 수 있으나, tr에 두어도 draggedRow 변수를 통해 제어 가능. 일단 tr에 유지.
+        console.log('나머지 D&D(dragover, drop 등) 이벤트 리스너 부착 완료 for tr:', tr);
+
+        tr.addEventListener('click', (event) => {
+            if (event.target.closest('.drag-handle') || event.target.tagName.toLowerCase() === 'input' || draggedRow) {
+                event.stopPropagation(); 
+                return;
+            }
+            const currentSubItemIdx = Number(tr.dataset.subItemIdx);
+            let originalItemMasterData = allRawMaterialsForSelection.find(i => i.itemIdx === currentSubItemIdx) || 
+                                       allProductsForSelection.find(i => i.itemIdx === currentSubItemIdx);
+            const masterCostForEdit = componentData.subItemMasterCost != null ? componentData.subItemMasterCost : (originalItemMasterData ? originalItemMasterData.itemCost : 0);
+            const currentRowData = {
+                bomIdx: tr.dataset.bomIdx ? Number(tr.dataset.bomIdx) : null, subItemIdx: currentSubItemIdx,
+                subItemCd: originalItemMasterData ? originalItemMasterData.itemCd : (componentData.subItemCd || ''),
+                subItemNm: originalItemMasterData ? originalItemMasterData.itemNm : (componentData.subItemNm || subItemNameText),
+                useQty: parseFloat(tr.querySelector('.bom5-use-qty').value), unitNm: originalItemMasterData ? originalItemMasterData.unitNm : (componentData.unitNm || unitName),
+                itemFlag: componentData.itemFlag || (originalItemMasterData ? originalItemMasterData.itemFlag : '01'),
+                lossRt: parseFloat(tr.querySelector('.bom5-loss-rt').value), itemPrice: parseFloat(tr.querySelector('.bom5-item-price').value), 
+                remark: tr.querySelector('.bom5-remark').value, subItemMasterCost: masterCostForEdit
+            };
+            populateComponentEditFields(currentRowData, tr);
+        });
+        console.log('클릭 이벤트 리스너 부착 완료');
+        
+        detailTbody.appendChild(tr);
+        console.log('tr 요소를 detailTbody에 추가 완료');
+        console.log('--- addComponentToBomTab5 함수 종료 ---');
+    }
+
+    function removeComponentFromBomTab5(subItemIdxToRemove) {
+        const rowToRemove = findComponentInBomTab5(subItemIdxToRemove);
+        if (rowToRemove) rowToRemove.remove();
+        const detailTbody = document.getElementById('bomDetailTbody');
+        if (detailTbody && detailTbody.children.length === 0 && !detailTbody.querySelector('td.nodata')) {
+            detailTbody.innerHTML = `<tr><td class="nodata" colspan="8" style="text-align:center;">등록된 하위 품목이 없습니다.</td></tr>`;
+        }
+    }
+
+    function clearComponentEditFields() {
+        document.getElementById('componentItemCd').value = ''; document.getElementById('componentItemNm').value = '';
+        document.getElementById('componentUnitNm').value = ''; document.getElementById('componentUseQty').value = '1';
+        document.getElementById('componentItemPrice').value = '0'; document.getElementById('componentLossRt').value = '0';
+        document.getElementById('componentRemark').value = ''; document.getElementById('editingComponentBomIdx').value = '';
+        document.getElementById('editingComponentSubItemIdx').value = '';
+        currentlyEditingComponentState = { bomIdx: null, subItemIdx: null, itemCd: '', itemNm: '', useQty: 1, unitNm: '', itemPrice: 0, lossRt: 0, remark: '', itemFlag: '01', subItemMasterCost: 0 };
+        document.querySelectorAll('#bomDetailTbody tr.selected-row-for-edit').forEach(row => row.classList.remove('selected-row-for-edit'));
+    }
+
+    function updateBomTab5RowNumbers() {
+        const detailTbody = document.getElementById('bomDetailTbody');
+        if (!detailTbody) return;
+        const rows = detailTbody.querySelectorAll('tr:not(:has(td.nodata))'); 
+        rows.forEach((row, index) => {
+            const secondCell = row.querySelector('td:nth-child(2)'); // *** No 열은 두 번째 열 ***
+            if (secondCell) secondCell.textContent = index + 1; 
+        });
+    }
+
+    function populateComponentEditFields(componentData, clickedRow) {
+        document.querySelectorAll('#bomDetailTbody tr.selected-row-for-edit').forEach(row => row.classList.remove('selected-row-for-edit'));
+        if (clickedRow) clickedRow.classList.add('selected-row-for-edit'); 
+
+        currentlyEditingComponentState = { ...componentData }; // 간단하게 복사
+        currentlyEditingComponentState.subItemIdx = Number(componentData.subItemIdx || (componentData.itemIdx || null));
+        currentlyEditingComponentState.useQty = componentData.useQty != null ? parseFloat(componentData.useQty) : 1;
+        currentlyEditingComponentState.lossRt = componentData.lossRt != null ? parseFloat(componentData.lossRt) : 0;
+        currentlyEditingComponentState.itemPrice = componentData.itemPrice != null ? Math.round(parseFloat(componentData.itemPrice)) : 0;
+
+        document.getElementById('componentItemCd').value = currentlyEditingComponentState.subItemCd || (componentData.itemCd || '');
+        document.getElementById('componentItemNm').value = currentlyEditingComponentState.subItemNm || (componentData.itemNm || '');
+        document.getElementById('componentUnitNm').value = currentlyEditingComponentState.unitNm || '';
+        document.getElementById('componentUseQty').value = currentlyEditingComponentState.useQty;
+        document.getElementById('componentLossRt').value = currentlyEditingComponentState.lossRt;
+        document.getElementById('componentRemark').value = currentlyEditingComponentState.remark || '';
+        document.getElementById('editingComponentBomIdx').value = currentlyEditingComponentState.bomIdx || '';
+        document.getElementById('editingComponentSubItemIdx').value = currentlyEditingComponentState.subItemIdx || '';
+        
+        calculateAndDisplayComponentLineCost(); 
+    }
+
+    function calculateAndDisplayComponentLineCost() {
+        const useQtyInput = document.getElementById('componentUseQty');
+        const lossRtInput = document.getElementById('componentLossRt');
+        const lineAmountDisplayField = document.getElementById('componentItemPrice');
+
+        let useQty = parseFloat(useQtyInput.value) || 0;
+        let lossRt = parseFloat(lossRtInput.value) || 0;
+        const masterCost = currentlyEditingComponentState.subItemMasterCost || 0;
+
+        if (useQty < 0) { useQtyInput.value = 0; useQty = 0; }
+        if (lossRt < 0) { lossRtInput.value = 0; lossRt = 0; }
+        if (lossRt >= 100) { lossRtInput.value = 99.99; lossRt = 99.99; }
+
+        let calculatedAmount = 0;
+        if (masterCost > 0) {
+            const effectiveLossRate = lossRt / 100;
+            if (effectiveLossRate < 1 && (1-effectiveLossRate) !== 0) {
+                calculatedAmount = (useQty / (1 - effectiveLossRate)) * masterCost;
+            }
+        }
+        const roundedAmount = Math.round(calculatedAmount);
+        if(lineAmountDisplayField) lineAmountDisplayField.value = roundedAmount;
+        currentlyEditingComponentState.itemPrice = roundedAmount;
+
+        if(currentlyEditingComponentState.subItemIdx) {
+             const rowInBomTab5 = findComponentInBomTab5(currentlyEditingComponentState.subItemIdx);
+             if(rowInBomTab5){
+                 const itemPriceCellInput = rowInBomTab5.querySelector('.bom5-item-price');
+                 if(itemPriceCellInput) itemPriceCellInput.value = roundedAmount;
+             }
+        }
+    }
+
+    function updateLineDataFromBom5Input(inputElement, subItemIdx, fieldName, isPriceField = false) {
+        let value = inputElement.type === 'number' ? parseFloat(inputElement.value) : inputElement.value;
+        if(inputElement.type === 'number' && isNaN(value)) value = 0;
+        
+        const targetRow = findComponentInBomTab5(subItemIdx);
+        if (!targetRow) return;
+
+        if (Number(document.getElementById('editingComponentSubItemIdx').value) === subItemIdx) {
+            if (fieldName === 'useQty') { document.getElementById('componentUseQty').value = value; currentlyEditingComponentState.useQty = value; }
+            if (fieldName === 'lossRt') { document.getElementById('componentLossRt').value = value; currentlyEditingComponentState.lossRt = value; }
+            if (fieldName === 'remark') { document.getElementById('componentRemark').value = value; currentlyEditingComponentState.remark = value; }
+            if (fieldName === 'itemPrice' && isPriceField) { document.getElementById('componentItemPrice').value = value; currentlyEditingComponentState.itemPrice = Math.round(value); }
+            if (fieldName === 'useQty' || fieldName === 'lossRt') { calculateAndDisplayComponentLineCost(); }
+        } else { 
+            if (fieldName === 'useQty' || fieldName === 'lossRt') {
+                const currentUseQty = (fieldName === 'useQty') ? value : parseFloat(targetRow.querySelector('.bom5-use-qty').value) || 0;
+                const currentLossRt = (fieldName === 'lossRt') ? value : parseFloat(targetRow.querySelector('.bom5-loss-rt').value) || 0;
+                let masterCostForThisRow = 0;
+                const originalItemData = allRawMaterialsForSelection.find(i => i.itemIdx === subItemIdx) || {};
+                masterCostForThisRow = originalItemData.itemCost || 0; 
+                let newPrice = 0;
+                if(masterCostForThisRow > 0 && (1 - currentLossRt / 100) > 0) { newPrice = (currentUseQty / (1 - currentLossRt/100)) * masterCostForThisRow; }
+                const priceInputInRow = targetRow.querySelector('.bom5-item-price');
+                if(priceInputInRow) priceInputInRow.value = Math.round(newPrice);
+            }
+        }
+    }
+
+    // =====================================================================================
+    // BOM 저장/수정 관련 함수
+    // =====================================================================================
+    async function handleBomSave() { 
+        const selectedParentRadio = document.querySelector('input[name="parent-item-select"]:checked');
+        if (!selectedParentRadio) { alert("상위 품목을 선택하세요."); return; }
+        const parentItemId = Number(selectedParentRadio.value);
+        if (!parentItemId || isNaN(parentItemId)) { alert("선택된 상위 품목의 ID가 유효하지 않습니다."); return; }
+
+        const bomSaveRequest = {
+            parentItemIdx: parentItemId, 
+            parentCycleTime: parseFloat(document.getElementById('modalParentCycleTime').value) || null,
+            parentRemark: document.getElementById('modalParentRemark').value,
+            components: []
+        };
+
+        const rows = document.querySelectorAll('#bomDetailTbody tr:not(:has(td.nodata))');
+        let isValidForSave = true;
+
+        rows.forEach((row, index) => {
+            const subItemIdx = Number(row.dataset.subItemIdx);
+            if (!subItemIdx || isNaN(subItemIdx)) { isValidForSave = false; return; }
+
+            const useQtyInput = row.querySelector('.bom5-use-qty');
+            const lossRateInput = row.querySelector('.bom5-loss-rt');
+            const itemPriceInput = row.querySelector('.bom5-item-price');
+            const remarkInput = row.querySelector('.bom5-remark');
+
+            if (useQtyInput && lossRateInput && itemPriceInput && remarkInput) {
+                bomSaveRequest.components.push({
+                    subItemIdx: subItemIdx, useQty: parseFloat(useQtyInput.value) || 0,
+                    lossRate: parseFloat(lossRateInput.value) || 0, itemPrice: parseFloat(itemPriceInput.value) || 0,
+                    remark: remarkInput.value || '', seqNo: index + 1 
+                });
+            } else { isValidForSave = false; }
+        });
+        
+        if (!isValidForSave || bomSaveRequest.components.length === 0) { alert("BOM 데이터에 오류가 있거나 하위 품목이 없습니다."); return; }
+        
+        try {
+            const response = await fetch(`/api/bom/save`, { 
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bomSaveRequest)
+            });
+            if (response.ok) {
+                alert('BOM이 성공적으로 등록되었습니다.'); closeModal('modal'); loadMainBomSummaryList();
+            } else {
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                alert(`BOM 등록 실패: ${errorData.message || '서버 오류'}`);
+            }
+        } catch (error) { alert('BOM 등록 중 오류가 발생했습니다.'); }
+    }
+
+    async function handleBomUpdate() { 
+        if (!originalParentItemIdForUpdate) { alert("수정할 대상 BOM이 선택되지 않았습니다."); return; }
+
+        const bomUpdateRequest = {
+            parentCycleTime: parseFloat(document.getElementById('modalParentCycleTime').value) || null,
+            parentRemark: document.getElementById('modalParentRemark').value,
+            components: []
+        };
+
+        const rows = document.querySelectorAll('#bomDetailTbody tr:not(:has(td.nodata))');
+        let isValidForUpdate = true;
+
+        rows.forEach((row, index) => {
+             const subItemIdx = Number(row.dataset.subItemIdx);
+            if (!subItemIdx || isNaN(subItemIdx)) { isValidForUpdate = false; return; }
+
+            const useQtyInput = row.querySelector('.bom5-use-qty');
+            const lossRateInput = row.querySelector('.bom5-loss-rt');
+            const itemPriceInput = row.querySelector('.bom5-item-price');
+            const remarkInput = row.querySelector('.bom5-remark');
+
+            if (useQtyInput && lossRateInput && itemPriceInput && remarkInput) {
+                bomUpdateRequest.components.push({
+                    subItemIdx: subItemIdx, useQty: parseFloat(useQtyInput.value) || 0,
+                    lossRate: parseFloat(lossRateInput.value) || 0, itemPrice: parseFloat(itemPriceInput.value) || 0,
+                    remark: remarkInput.value || '', seqNo: index + 1 
+                });
+            } else { isValidForUpdate = false; }
+        });
+        
+        if (!isValidForUpdate) { alert("BOM 데이터에 오류가 있어 수정을 진행할 수 없습니다."); return; }
+        
+        try {
+            const response = await fetch(`/api/bom/${originalParentItemIdForUpdate}`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bomUpdateRequest)
+            });
+            if (response.ok) {
+                alert('BOM이 성공적으로 수정되었습니다.'); closeModal('modal'); loadMainBomSummaryList();
+            } else {
+                const errorData = await response.json().catch(() => ({ message: response.statusText }));
+                alert(`BOM 수정 실패: ${errorData.message || '서버 오류'}`);
+            }
+        } catch (error) { alert('BOM 수정 중 오류가 발생했습니다.'); }
+    }
+    // =====================================================================================
+	//     드래그 앤 드롭 관련 함수
+    // =====================================================================================
+    
+    	
+    	function handleDragStart(e) { // 이제 'this'는 td.drag-handle 입니다.
+        console.log('--- handleDragStart 함수 시작 (이벤트 대상: 손잡이 TD) ---');
+        console.log('클릭된 실제 요소 (e.target):', e.target); // 아이콘(span) 또는 손잡이(td)
+        console.log('이벤트 핸들러의 this (td.drag-handle):', this);
+
+        // 드래그되는 행(tr)을 찾습니다.
+        draggedRow = this.closest('tr'); 
+        if (!draggedRow) {
+            console.error('드래그 핸들에서 부모 tr을 찾지 못했습니다! 드래그를 중단합니다.');
+            e.preventDefault();
+            return;
+        }
+        console.log('draggedRow (실제 드래그 대상 행 tr) 설정됨:', draggedRow);
+
+        // 이벤트 전파 중단 (선택 사항, 필요에 따라)
+        // e.stopPropagation(); 
+
+        e.dataTransfer.effectAllowed = 'move';
+        // setData의 두 번째 인자는 드래그되는 행의 식별자여야 합니다.
+        e.dataTransfer.setData('text/plain', draggedRow.dataset.subItemIdx); 
+        console.log('데이터 전송 설정 완료 (effectAllowed, data):', e.dataTransfer.effectAllowed, draggedRow.dataset.subItemIdx);
+        
+        setTimeout(() => { 
+            draggedRow.classList.add('dragging'); // 실제 행에 dragging 클래스 추가
+            console.log('dragging 클래스 추가 후, 행의 classList:', draggedRow.classList);
+        }, 0);
+        console.log('--- handleDragStart 함수 종료 ---');
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault(); 
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        if (this !== draggedRow && !this.querySelector('td.nodata')) {
+            this.classList.add('over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        this.classList.remove('over');
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation(); 
+        e.preventDefault();
+
+        if (draggedRow === this || this.querySelector('td.nodata') || !draggedRow) {
+            this.classList.remove('over');
+            return false;
+        }
+
+        const rect = this.getBoundingClientRect();
+        const dropY = e.clientY - rect.top; 
+
+        if (dropY < this.offsetHeight / 2) {
+            this.parentNode.insertBefore(draggedRow, this);
+        } else {
+            this.parentNode.insertBefore(draggedRow, this.nextSibling);
+        }
+        
+        this.classList.remove('over');
+        return false;
+    }
+
+    function handleDragEnd(e) {
+        const rows = document.querySelectorAll('#bomDetailTbody tr');
+        rows.forEach(row => {
+            row.classList.remove('over');
+            row.classList.remove('dragging');
+        });
+        updateBomTab5RowNumbers(); 
+        draggedRow = null; 
+    }
+
+    // =====================================================================================
+    // 기타 유틸리티 함수 (정렬 등)
+    // =====================================================================================
+    let currentTh = null;
+    let currentOrder = 'desc';
+    function order(thValue) { 
+        console.log("order 함수 호출됨:", thValue);
+    }
+    
+    // =====================================================================================
+    // 신규 등록
+    // =====================================================================================
+    function handleParentItemSelection(selectedRadio) {
+        const selectedItemIdx = Number(selectedRadio.value);
+        console.log('상위 품목 라디오 버튼 변경됨. 선택된 Item Index:', selectedItemIdx);
+
+        // allProductsForSelection 배열에서 선택된 품목 찾기
+        const selectedProduct = allProductsForSelection.find(item => item.itemIdx === selectedItemIdx);
+
+        if (selectedProduct) {
+            console.log('선택된 상위 품목 상세 정보:', selectedProduct);
+            document.getElementById('modalParentItemCd').value = selectedProduct.itemCd || '';
+            document.getElementById('modalParentItemNm').value = selectedProduct.itemNm || '';
+            
+            // 필요하다면 다른 상위 품목 관련 필드도 여기서 업데이트하거나 초기화할 수 있습니다.
+            // 예: document.getElementById('modalParentCycleTime').value = selectedProduct.cycleTime || ''; 
+        } else {
+            console.warn('선택된 상위 품목을 allProductsForSelection 배열에서 찾을 수 없습니다. ID:', selectedItemIdx);
+            // 품목을 찾지 못한 경우 필드를 비워줍니다.
+            document.getElementById('modalParentItemCd').value = '';
+            document.getElementById('modalParentItemNm').value = '';
+        }
+    }
 </script>
-
-
-
-
-	<script>
-	//BOM 리스트 출력용 스크립트!!
-	document.addEventListener('DOMContentLoaded', function() {
-	    fetch('/api/bom/details')
-	        .then(response => {
-	            if (!response.ok) {
-	                // HTTP 응답 코드가 200-299 범위가 아닐 경우 에러 처리
-	                throw new Error('Network response was not ok ' + response.statusText);
-	            }
-	            return response.json(); // 응답을 JSON 형태로 파싱
-	        })
-	        .then(data => {
-	            console.log("API에서 받은 모든 데이터:", data); // API에서 받은 원본 데이터 확인 (디버깅 용도)
-
-	            const tbody = document.getElementById('bomTbody');
-	            if (!tbody) {
-	                 console.error("ID가 'bomTbody'인 요소를 찾을 수 없습니다.");
-	                 return; // 요소를 찾지 못하면 함수 종료
-	            }
-	            tbody.innerHTML = ''; // 기존 테이블 내용 비우기
-
-	            // --- 'pitemFlag'가 '02'인 완제품 상위 품목만 필터링 ---
-	            // 즉, 상위 품목의 유형이 '완제품'인 데이터만 남깁니다.
-	            const finishedProductsData = data.filter(item => {
-	                return item.pitemFlag === '02'; 
-	            });
-
-	            console.log("필터링된 완제품 데이터 (pitemFlag = '02'):", finishedProductsData); // 필터링 결과 확인
-
-	            // --- 각 상위 품목 코드를 딱 한 번만 출력하기 위한 Set ---
-	            // Set을 사용하여 이미 테이블에 추가된 'pitemCd'를 추적합니다.
-	            const displayedPItemCds = new Set(); 
-
-	            // 필터링된 데이터(finishedProductsData)를 순회하며 테이블 행 생성
-	            finishedProductsData.forEach(item => { 
-
-	                // 만약 이 상위 품목 코드(pitemCd)가 이미 테이블에 추가되었다면,
-	                // 이 행은 건너뛰고 다음 데이터로 넘어갑니다. (중복 방지)
-	                if (displayedPItemCds.has(item.pitemCd)) {
-	                    return; 
-	                }
-
-	                // 아직 테이블에 추가되지 않은 pitemCd라면, Set에 추가하고 행을 생성합니다.
-	                displayedPItemCds.add(item.pitemCd);
-
-	                // --- HTML 테이블 행(<tr>)과 셀(<td>) 생성 ---
-	                const tr = document.createElement('tr');
-
-	                // 1. 체크박스 컬럼
-	                const tdCheckbox = document.createElement('td');
-	                tdCheckbox.innerHTML = '<input type="checkbox" />'; // 체크박스 input 태그 추가
-	                tr.appendChild(tdCheckbox);
-
-	                // 2. 품목코드 (P_ITEM_CD)
-	                const tdPItemCd = document.createElement('td');
-	                tdPItemCd.textContent = item.pitemCd; 
-	                tr.appendChild(tdPItemCd);
-
-	                // 3. 품목명 (P_ITEM_NM)
-	                const tdPItemNm = document.createElement('td');
-	                tdPItemNm.textContent = item.pitemNm; 
-	                tr.appendChild(tdPItemNm);
-
-	                // 4. 대분류 (CAT_NM)
-	                // 주의: 현재 CAT_NM은 하위 품목(원자재)의 대분류입니다. 
-	                // 만약 완제품 자체의 대분류가 필요하다면 SQL 뷰 수정이 필요합니다.
-	                const tdCatNm = document.createElement('td');
-	                tdCatNm.textContent = item.catNm || ''; // null 또는 undefined인 경우 빈 문자열 표시
-	                tr.appendChild(tdCatNm);
-
-	                // 5. 단위 (P_UNIT_NM) - 상위 품목의 단위
-	                const tdPUnitNm = document.createElement('td');
-	                tdPUnitNm.textContent = item.punitNm || ''; // null 또는 undefined인 경우 빈 문자열 표시
-	                tr.appendChild(tdPUnitNm);
-
-	                // 6. 단가 (P_TOTAL_RAW_MATERIAL_COST) - 계산된 총 원자재 원가
-	                const tdTotalCost = document.createElement('td');
-	                // P_TOTAL_RAW_MATERIAL_COST가 null이 아니면 통화 형식으로 포맷하고 '원' 추가, 아니면 '0원' 표시
-	                tdTotalCost.textContent = item.ptotalRawMaterialCost != null ? 
-	                                          item.ptotalRawMaterialCost.toLocaleString() + '원' : '0원';
-	                tr.appendChild(tdTotalCost);
-
-	                // 완성된 행을 테이블의 <tbody>에 추가
-	                tbody.appendChild(tr);
-	            });
-	        })
-	        .catch(error => {
-	            console.error('BOM 상세 정보를 가져오는 중 오류 발생:', error);
-	            // 사용자에게 오류 메시지를 표시하여 문제 상황을 알림
-	            const tbody = document.getElementById('bomTbody');
-	            if (tbody) {
-	                tbody.innerHTML = '<tr><td colspan="6">데이터를 불러오는 데 실패했습니다. 다시 시도해주세요.</td></tr>';
-	            }
-	        });
-	});
-
-	// 정렬 기능 함수 (현재는 콘솔 로그만 출력하며, 실제 정렬 로직은 별도로 구현해야 합니다.)
-	// 이 함수는 클릭된 헤더에 따라 테이블 데이터를 정렬하는 로직을 포함할 수 있습니다.
-	function order(header) {
-	    console.log("Sorting requested for:", header.textContent);
-	    // 여기에 실제 정렬 로직 (클라이언트 사이드 또는 서버 요청)을 추가할 수 있습니다.
-	}
-	</script>
-
-
+	
 
 
 </body>
