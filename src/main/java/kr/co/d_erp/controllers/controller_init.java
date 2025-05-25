@@ -81,7 +81,15 @@ public class controller_init {
 	}
 
 	@GetMapping("/sales")
-	public String sale() {
+	public String sale(HttpSession session, Model model) {
+		Login loggedInUser = (Login) session.getAttribute("loggedInUser");
+		
+		if (loggedInUser == null) {
+			return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로 리다이렉트
+		}
+		
+		model.addAttribute("UserNm",loggedInUser.getUserNm());
+		model.addAttribute("UserTel",loggedInUser.getUserTel());
 		return "/sales.html";
 	}
 
