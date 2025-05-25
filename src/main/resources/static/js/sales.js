@@ -1,8 +1,16 @@
 const companySearchInput = document.getElementById('companySearchInput');
 const dataList = document.getElementById('companyList');
 const selectedCustIdx = document.getElementById('selectedCustIdx');
+const itemCycleTime = document.getElementById('itemCycleTime');
 const itemList = document.getElementById('itemList');
-let originalOptions = [];
+
+const startDateInput = document.getElementById('startDate');
+const quantityInput = document.getElementById('quantity');
+const dueDateInput = document.getElementById('dueDate');
+const cycleTimeInput = document.getElementById('itemCycleTime');
+
+let itemDataMap = {};
+let originalCustomerOptions = [];
 
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
@@ -149,62 +157,76 @@ function fetchOrderNo() {
       });
 }
 
+
+// 모달 열기
 async function openModal() {
     const title = document.getElementById('modalTitle');
     title.textContent = '접수 등록';
     document.getElementById('modal').style.display = 'flex';
-    document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
-    document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-	fetchOrderNo();
-	try {
-	        const response = await fetch('/api/customers/names');
-	        if (!response.ok) throw new Error('데이터 요청 실패');
-	
-	        const customer = await response.json();
-	        customer.forEach(customer => {
-	            const option = document.createElement('option');
-				option.value = customer.custNm;
-				option.dataset.idx = customer.custIdx;
-	            dataList.appendChild(option);
-	        });
-	    } catch (err) {
-	        console.error('거래처 목록 불러오기 오류:', err);
-	    }
-		originalOptions = Array.from(dataList.options);
+    document.querySelector('#modalForm button[name="save"]').style.display = 'block';
+    document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
 
+    fetchOrderNo(); // 주문번호 초기화 (있다면)
+
+    // 거래처 목록 로딩
+    try {
+        const response = await fetch('/api/customers/names');
+        if (!response.ok) throw new Error('데이터 요청 실패');
+
+        const customers = await response.json();
+        const dataList = document.getElementById('companyList');
+        dataList.innerHTML = '';
+        originalCustomerOptions = [];
+
+        customers.forEach(customer => {
+            const option = document.createElement('option');
+            option.value = customer.custNm;
+            option.dataset.idx = customer.custIdx;
+            dataList.appendChild(option);
+            originalCustomerOptions.push(option); // 필터링용
+        });
+    } catch (err) {
+        console.error('거래처 목록 불러오기 오류:', err);
+    }
 }
 
-companySearchInput.addEventListener('input', function () {
+// 거래처 입력되면 custIdx 저장 + 품목 불러오기
+document.getElementById('companySearchInput').addEventListener('input', function () {
     const keyword = this.value.toLowerCase();
-
-    // datalist 초기화
+    const dataList = document.getElementById('companyList');
     dataList.innerHTML = '';
-	
-    // 필터링된 옵션만 다시 추가
-	originalOptions.forEach(option => {
-	    if (option.value.toLowerCase().includes(keyword)) {
-	        const clone = document.createElement('option');
-	        clone.value = option.value;
-	        clone.dataset.idx = option.dataset.idx;
-	        dataList.appendChild(clone);
-	    }
-	});
-	
-	const match = Array.from(dataList.options).find(opt => opt.value === this.value);
-	document.getElementById('selectedCustIdx').value = match ? match.dataset.idx : '';
-	
-	const event = new Event('input');
-	document.getElementById('selectedCustIdx').dispatchEvent(event);
+
+    originalCustomerOptions.forEach(option => {
+        if (option.value.toLowerCase().includes(keyword)) {
+            const clone = document.createElement('option');
+            clone.value = option.value;
+            clone.dataset.idx = option.dataset.idx;
+            dataList.appendChild(clone);
+        }
+    });
+
+    const match = Array.from(dataList.options).find(opt => opt.value === this.value);
+    const custIdx = match ? match.dataset.idx : '';
+    const selectedCustIdxEl = document.getElementById('selectedCustIdx');
+    selectedCustIdxEl.value = custIdx;
+
+    // custIdx가 있을 경우에만 품목 데이터 로딩
+    const event = new Event('input');
+    selectedCustIdxEl.dispatchEvent(event);
 });
 
-selectedCustIdx.addEventListener('input', async function () {
+// custIdx에 따른 해당 품목 목록 가져오기
+document.getElementById('selectedCustIdx').addEventListener('input', async function () {
     const custIdx = this.value;
-	console.log(custIdx);
+    const itemList = document.getElementById('itemList');
+    const itemSearchInput = document.getElementById('itemSearchInput');
+    const itemCycleTime = document.getElementById('itemCycleTime');
 
-    // 이전 품목 리스트 초기화
     itemList.innerHTML = '';
-	document.getElementById('itemSearchInput').value = '';
-	
+    itemSearchInput.value = '';
+    itemCycleTime.value = '';
+    itemDataMap = {}; // reset
+
     if (!custIdx) return;
 
     try {
@@ -218,13 +240,117 @@ selectedCustIdx.addEventListener('input', async function () {
         }
 
         const items = await response.json();
+
         items.forEach(item => {
             const option = document.createElement('option');
-            option.value = item.itemNm; // 품목명 표시
+            option.value = item.itemNm;
             itemList.appendChild(option);
+
+            // map 저장: 품목명 → cycleTime
+			itemDataMap[item.itemNm] = {
+			  cycleTime: item.cycleTime,
+			  itemCost: item.itemCost,
+			  itemIdx: item.itemIdx
+			};
         });
     } catch (err) {
         console.error('품목 불러오기 오류:', err);
+    }
+});
+
+// 품목 입력되면 해당 cycleTime, itemCost hidden에 저장
+document.getElementById('itemSearchInput').addEventListener('input', function () {
+    const selectedItemName = this.value;
+    const itemInfo = itemDataMap[selectedItemName]; // 객체로 접근
+
+    if (itemInfo) {
+        document.getElementById('itemCycleTime').value = itemInfo.cycleTime || '';
+        document.getElementById('itemPrice').value = itemInfo.itemCost || '';
+        document.getElementById('itemIdx').value = itemInfo.itemIdx || '';
+    } else {
+        document.getElementById('itemCycleTime').value = '';
+		document.getElementById('itemPrice').value  = '';
+		document.getElementById('itemIdx').value = '';
+    }
+});
+
+// 납기일 계산
+function calculateDueDate() {
+    const startDateStr = startDateInput.value;
+    const quantity = Number(quantityInput.value);
+    const cycleTime = Number(cycleTimeInput.value); // 분 단위
+
+    if (!startDateStr || !quantity || quantity <= 0 || !cycleTime || cycleTime <= 0) {
+        dueDateInput.value = '';
+        return;
+    }
+
+    // 착수일을 Date 객체로 생성 (자정 0시 기준)
+    const startDate = new Date(startDateStr + 'T00:00:00');
+
+    // 총 소요시간(분) 계산
+    const totalMinutes = quantity * cycleTime;
+
+    // 총 소요시간을 밀리초로 변환 후 착수일에 더함
+    const dueDate = new Date(startDate.getTime() + totalMinutes * 60 * 1000);
+
+    // 납기일을 yyyy-MM-dd 형식으로 포맷팅
+    const yyyy = dueDate.getFullYear();
+    const mm = String(dueDate.getMonth() + 1).padStart(2, '0');
+    const dd = String(dueDate.getDate()).padStart(2, '0');
+
+    dueDateInput.value = `${yyyy}-${mm}-${dd}`;
+}
+
+// 착수일, 수량, cycleTime 변경 시 납기일 계산
+startDateInput.addEventListener('change', calculateDueDate);
+quantityInput.addEventListener('input', calculateDueDate);
+
+// 신규등록 DB저장
+document.querySelector('button[name="save"]').addEventListener('click', async () => {
+
+    if (!document.getElementById("startDate")) {
+        alert('착수일을 입력해주세요.');
+        return;
+    } else if(!document.getElementById("quantity")){
+		alert('수량을 입력해주세요.');
+		return;
+	} else if(!document.getElementById("companySearchInput")){
+		alert("거래처를 입력해주세요.");
+		return;
+	} else if(!document.getElementById("itemIdx")){
+		alert("품목을 선택해주세요.");
+		return;
+	}
+
+    const orderData = {
+		orderCode: document.getElementById("orderNo").value,
+        orderType: 'S',
+        orderDate: document.getElementById("startDate").value,
+        custIdx: document.getElementById("selectedCustIdx").value,
+		itemIdx: document.getElementById("itemIdx").value,
+        orderQty: Number(document.getElementById("quantity").value),
+        unitPrice: Number(document.getElementById("itemPrice").value),
+		deliveryDate: document.getElementById("dueDate").value,
+		orderStatus: 'S1'
+    };
+	
+	console.log(orderData);
+    try {
+        const response = await fetch('/api/orders/save', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(orderData),
+        });
+
+        if (!response.ok) throw new Error('저장 실패');
+
+        alert('주문이 등록되었습니다.');
+        closeModal();
+		loadSales();
+    } catch (err) {
+        alert('저장 중 오류가 발생했습니다.');
+        console.error(err);
     }
 });
 
