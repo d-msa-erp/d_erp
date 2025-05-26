@@ -200,7 +200,7 @@
 			width: 100%;
 			border-collapse: collapse;
 			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 2fr 2fr 1fr 1fr 1fr;
+			grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
 		}
         .grid-table2{
             width: 100%;
@@ -509,17 +509,19 @@
 								<tr>
 									<th><input type="checkbox" /></th>
 									<th onclick="order(this)">주문번호<a>↓</a></th>
+									<th onclick="order(this)">생산코드<a>↓</a></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
 									<th onclick="order(this)">품목명<a>↓</a></th>
 									<th onclick="order(this)">고객사<a>↓</a></th>
 									<th onclick="order(this)">규격<a>↓</a></th>
 									<th onclick="order(this)">단위<a>↓</a></th>
 									<th onclick="order(this)">수량<a>↓</a></th>
+									<th onclick="order(this)">생산성<a>↓</a></th>
 								</tr>
 							</thead>
 							<tbody>
 									<tr>
-									<td class="nodata" style="grid-column: span 8;justify-content: center;">등록된 데이터가 없습니다.</td>
+									<td class="nodata" style="grid-column: span 10;justify-content: center;">등록된 데이터가 없습니다.</td>
 								</tr>
 								<!--몇개씩 자를지는 상의해봐요 ~ -->
 								<tr onclick="opendatail()">
@@ -530,10 +532,14 @@
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
+									<td>test</td>
+									<td>test</td>
 									<td>10000000</td>
 								</tr>
 								<tr>
 									<td><input type="checkbox" /></td>
+									<td>test</td>
+									<td>test</td>
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
