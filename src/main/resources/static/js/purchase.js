@@ -37,7 +37,7 @@ function renderPurchases(purchases) {
     purchases.forEach(purchase => {
         const row = document.createElement('tr');
         row.dataset.id = purchase.orderCode;
-        row.onclick = () => openPurchaseDetail(purchase.orderIdx);
+        row.onclick = () => openPurchasedetail(purchase.orderIdx);
 
         // 체크박스 셀
         const checkboxCell = document.createElement('td');
@@ -185,4 +185,60 @@ function order(sortBy) {//정렬
 	// 화살표 방향 갱신
 	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
 	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+}
+
+
+function openModal(data = null) {
+    const title = document.getElementById('modalTitle');
+    title.textContent = '발주 정보';
+    document.getElementById('modal').style.display = 'flex';
+    document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+    document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
+	
+	if(data){
+		saveBtn.style.display = 'none';
+		editBtn.style.display = 'block';
+		document.getElementById('itemCode').value = data.itemCode;
+		document.getElementById('itemName').value = data.itemName;
+		document.getElementById('unitPrice').value = data.unitPrice;
+		document.getElementById('quantity').value = data.orderQty;
+	}
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+function outsideClick(e) {
+    if (e.target.id === 'modal') {
+        closeModal();
+    }
+}
+
+function submitModal(event) {
+    event.preventDefault();
+    const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+    console.log(currentTab + ' 등록됨:', siteName);
+    closeModal();
+}
+
+
+//테이블 클릭 시 출력되는 modal
+async function openPurchasedetail(orderIdx) {
+    document.getElementById('modalTitle').textContent = '자재 정보';
+    console.log(orderIdx);
+    document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
+    document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
+	try {
+		  const response = await fetch(`/api/orders/detail/${orderIdx}`);
+		  if (!response.ok) throw new Error('데이터 로딩 실패');
+
+		  const data = await response.json();
+		  openModal(data); // 받은 데이터로 모달 열기
+		} catch (error) {
+		  console.error(error);
+		  alert('상세 데이터를 불러오는 데 실패했습니다.');
+		}
+
+
 }

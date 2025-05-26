@@ -36,7 +36,13 @@ public class OrderDetailView {
 
     @Column(name = "remark")
     private String remark;
-
+    
+    @Column(name = "item_cd")
+    private String itemCode;
+    
+    @Column(name = "unit_price")
+    private Long unitPrice;
+    
     @Column(name = "customer_name")
     private String customerName;
 
