@@ -12,20 +12,42 @@ const cycleTimeInput = document.getElementById('itemCycleTime');
 let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
-
+let currentTh = null;
+let currentOrder = 'asc';
+	
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
-	loadSales();
+	loadSales('deliveryDate', 'asc');
 });
 
-async function loadSales() {
+function order(sortBy) {//정렬
+	const allArrows = document.querySelectorAll("th a");
+	allArrows.forEach(a => a.textContent = '↓');
+
+
+	if (currentTh === sortBy) {
+	    currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+	} else {
+	    currentOrder = 'asc';
+	    currentTh = sortBy;
+	}
+
+
+	loadSales(sortBy, currentOrder);
+
+
+	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
+	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+}
+
+async function loadSales(sortBy, sortDirection) {
     const salesTableBody = document.getElementById('salesTableBody');
     if (!salesTableBody) {
         console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
 
-    const apiUrl = `/api/orders/sales`;
+    const apiUrl = `/api/orders/sales?sortBy=${sortBy}&sortDirection=${sortDirection}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
@@ -112,6 +134,14 @@ function rendersales(sales) {
 			const deliveryDateCell = document.createElement('td');
 			deliveryDateCell.textContent = sale.deliveryDate || '';
 			row.appendChild(deliveryDateCell);
+			
+			const orderStatusCell = document.createElement('td');
+			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
+					           sale.orderStatus === 'S2' ? '부분출고' :
+					           sale.orderStatus === 'S3' ? '출고완료' : '';
+					
+			orderStatusCell.textContent = statusText;
+			row.appendChild(orderStatusCell);
 
             salesTableBody.appendChild(row);
         });
@@ -130,7 +160,7 @@ function renderNoDataMessage() {
     noDataCell.className = 'nodata';
     noDataCell.colSpan = 5;
     noDataCell.textContent = '등록된 데이터가 없습니다.';
-    noDataCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    noDataCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
     noDataRow.appendChild(noDataCell);
     salesTableBody.appendChild(noDataRow);
@@ -147,7 +177,7 @@ function renderErrorMessage(message) {
     errorCell.colSpan = 5;
     errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
     errorCell.style.color = 'red';
-    errorCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    errorCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
     errorRow.appendChild(errorCell);
     salesTableBody.appendChild(errorRow);
