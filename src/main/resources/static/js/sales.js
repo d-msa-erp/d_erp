@@ -12,20 +12,42 @@ const cycleTimeInput = document.getElementById('itemCycleTime');
 let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
-
+let currentTh = null;
+let currentOrder = 'asc';
+	
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
-	loadSales();
+	loadSales('deliveryDate', 'asc');
 });
 
-async function loadSales() {
+function order(sortBy) {//정렬
+	const allArrows = document.querySelectorAll("th a");
+	allArrows.forEach(a => a.textContent = '↓');
+
+
+	if (currentTh === sortBy) {
+	    currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+	} else {
+	    currentOrder = 'asc';
+	    currentTh = sortBy;
+	}
+
+
+	loadSales(sortBy, currentOrder);
+
+
+	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
+	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+}
+
+async function loadSales(sortBy, sortDirection) {
     const salesTableBody = document.getElementById('salesTableBody');
     if (!salesTableBody) {
         console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
 
-    const apiUrl = `/api/orders/sales`;
+    const apiUrl = `/api/orders/sales?sortBy=${sortBy}&sortDirection=${sortDirection}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {

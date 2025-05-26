@@ -424,13 +424,13 @@
                             <thead>
                                 <tr>
                                     <th><input type="checkbox" /></th>
-                                    <th onclick="order(this)">자재번호<a>↓</a></th>
-                                    <th onclick="order(this)">자재명<a>↓</a></th>
-                                    <th onclick="order(this)">발주처<a>↓</a></th>
-                                    <th onclick="order(this)">수량<a>↓</a></th>
-                                    <th onclick="order(this)">발주일<a>↓</a></th>
-                                    <th onclick="order(this)">총액<a>↓</a></th>
-                                    <th onclick="order(this)">발주처 담당자<a>↓</a></th>
+                                    <th onclick="order('itemCode')">자재번호<a>↓</a></th>
+                                    <th onclick="order('itemName')">자재명<a>↓</a></th>
+						            <th onclick="order('customerName')">발주처<a>↓</a></th>
+						            <th onclick="order('quantity')">수량<a>↓</a></th>
+						            <th onclick="order('orderDate')">발주일<a>↓</a></th>
+						            <th onclick="order('totalPrice')">총액<a>↓</a></th>
+						            <th onclick="order('userName')">발주처 담당자<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody id="purchasesTableBody">
@@ -522,7 +522,9 @@
 
 
     <script src="/js/top.js"></script>
+    <script src="/js/purchase.js"></script>
     <script>
+    /*
         let currentTh = null;
         let currentOrder = 'desc';
 
@@ -540,7 +542,7 @@
             const arrow = thValue.querySelector('a');
             arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
         }
-
+	*/
 //발주일 핸들링용
             document.addEventListener('DOMContentLoaded', function () {
                         const today = new Date();

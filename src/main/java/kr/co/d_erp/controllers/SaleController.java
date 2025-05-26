@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.domain.SalesView;
@@ -21,14 +22,22 @@ public class SaleController {
 
     // 구매 발주(P)만 조회
     @GetMapping("/sales")
-    public List<SalesView> getSalesOrders() {
-        return salesService.getSalesOrders();
+    public List<SalesView> getSalesOrders( 
+    		@RequestParam(defaultValue = "S") String orderType, // 기본값 'P'로 설정
+            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
+            @RequestParam(defaultValue = "asc") String sortDirection){ // 기본 정렬 방향 'asc') {
+        
+            return salesService.getSalesOrders(orderType, sortBy, sortDirection);
     }
    
     // 구매 발주(P)만 조회
-    @GetMapping("/purchase")
-    public List<SalesView> getPurchaseOrders() {
-    	return salesService.getPurchaseOrders();
+    @GetMapping("/purchases")
+    public List<SalesView> getPurchaseOrders(
+            @RequestParam(defaultValue = "P") String orderType, // 기본값 'P'로 설정
+            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
+            @RequestParam(defaultValue = "asc") String sortDirection // 기본 정렬 방향 'asc'
+    ) {
+        return salesService.getPurchaseOrders(orderType, sortBy, sortDirection); // 서비스 메서드 호출
     }
     
     

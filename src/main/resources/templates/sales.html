@@ -522,12 +522,12 @@ width: 100%;
 							<thead>
 								<tr>
 									<th><input type="checkbox" /></th>
-									<th onclick="order(this)">주문번호<a>↓</a></th>
-									<th onclick="order(this)">품목코드<a>↓</a></th>
-									<th onclick="order(this)">품목명<a>↓</a></th>
-									<th onclick="order(this)">수량<a>↓</a></th>
-									<th onclick="order(this)">고객사<a>↓</a></th>
-									<th onclick="order(this)">납기일<a>↓</a></th>
+									<th onclick="order('orderCode')">주문번호<a>↓</a></th>
+									<th onclick="order('itemCode')">품목코드<a>↓</a></th>
+									<th onclick="order('itemName')">품목명<a>↓</a></th>
+									<th onclick="order('quantity')">수량<a>↓</a></th>
+									<th onclick="order('customerName')">고객사<a>↓</a></th>
+									<th onclick="order('deliveryDate')">납기일<a>↓</a></th>
 								</tr>
 							</thead>
 							<tbody id="salesTableBody">
@@ -676,7 +676,7 @@ width: 100%;
         const label = document.getElementById('toggleState');
         label.textContent = el.checked ? '납기일' : '착수일';
     }
-
+	/*
     let currentTh = null;
     let currentOrder = 'desc';
 
@@ -694,7 +694,7 @@ width: 100%;
         const arrow = thValue.querySelector('a');
         arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
     }
-
+	*/
 
 
 
