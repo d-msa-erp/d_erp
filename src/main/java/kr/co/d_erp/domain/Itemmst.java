@@ -69,8 +69,8 @@ public class Itemmst {
     @Column(name = "REMARK", length = 100) // DDL 기준 length 100
     private String remark;
     
-    @Column(name = "CYCLE_TIME") // cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
-    private Long cycleTime;
+//    @Column(name = "CYCLE_TIME") // cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
+//    private Long cycleTime;
     
     // DDL에는 OPTIMAL_INV, CYCLE_TIME, USE_FLAG, REG_DT, REG_USER_IDX, MOD_DT, MOD_USER_IDX 컬럼들이 있습니다.
     // 현재 엔티티 코드에는 OPTIMAL_INV, CYCLE_TIME이 빠져있고, USE_FLAG, REG_DT 등은 DDL과 이름/타입이 다를 수 있습니다.
