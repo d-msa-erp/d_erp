@@ -19,6 +19,10 @@ import lombok.ToString;
 public class SalesView {
 	
     @Id
+    @Column(name = "ORDER_IDX")
+    private String orderIdx;
+    
+    
     @Column(name = "주문번호")
     private String orderCode;
 
