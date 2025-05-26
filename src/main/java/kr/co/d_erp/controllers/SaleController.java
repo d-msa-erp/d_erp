@@ -24,6 +24,12 @@ public class SaleController {
     public List<SalesView> getSalesOrders() {
         return salesService.getSalesOrders();
     }
+   
+    // 구매 발주(P)만 조회
+    @GetMapping("/purchase")
+    public List<SalesView> getPurchaseOrders() {
+    	return salesService.getPurchaseOrders();
+    }
     
     
     @GetMapping("/getno")

@@ -33,6 +33,7 @@ public class OrderService {
         order.setUnitPrice(dto.getUnitPrice());
         order.setDeliveryDate(dto.getDeliveryDate());
         order.setOrderStatus(dto.getOrderStatus());
+        order.setExpectedWhIdx(dto.getExpectedWhIdx());
         order.setUserIdx(dto.getUserIdx());
         order.setRemark(dto.getRemark());
         

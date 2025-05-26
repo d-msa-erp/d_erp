@@ -413,6 +413,7 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 		deliveryDate: document.getElementById("dueDate").value,
 		userIdx : document.getElementById("userIdx").value,
 		remark : document.getElementById("remark").value,
+		expectedWhIdx : document.getElementById("selectedwhIdx").value,
 		orderStatus: 'S1'
     };
 	
@@ -456,12 +457,14 @@ function closeModal() {
 	document.getElementById('modal').style.display = 'none';
 	
 	document.getElementById('itemSearchInput').value = '';
+	document.getElementById('whSearchInput').value = '';
 	document.getElementById('itemIdx').value = '';
 	document.getElementById('itemPrice').value = '';
 	document.getElementById('itemCycleTime').value = '';
 	document.getElementById('quantity').value = '';
 	document.getElementById('startDate').value = '';
 	document.getElementById('dueDate').value = '';
+	document.getElementById('remark').value = '';
 	companySearchInput.value = '';
 	
 	dataList.innerHTML = '';
