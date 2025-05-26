@@ -4,9 +4,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
 public class InvTransactionRequestDto {
     // 수정 시에만 사용 (invTransIdx는 URL 경로에서 받으므로 DTO에서는 없어도 무방)
     // private Long invTransIdx;
@@ -35,17 +38,13 @@ public class InvTransactionRequestDto {
     @NotBlank(message = "거래 상태는 필수입니다.")
     private String transStatus; // 예: R1, R2, R3
 
-    private Long userIdx;       // 담당자 IDX (선택 사항)
+    private Long userIdx;       // 담당자 IDX 
 
     @NotNull(message = "품목은 필수입니다.")
-    private Long itemIdx;       // JavaScript에서 이 값을 보내줍니다.
-                                // TB_INV_TRANS 테이블에는 이 컬럼이 없으므로 서비스 로직에서 처리 방안 필요.
+    private Long itemIdx;       
 
-    private Long custIdx;       // 거래처 IDX (JavaScript에서 이 값을 보내줍니다.)
-                                // TB_INV_TRANS 테이블에는 이 컬럼이 없으므로 서비스 로직에서 처리 방안 필요.
-                                // 입고의 경우 공급업체(매입처)가 될 수 있습니다.
+    private Long custIdx;       // 거래처 IDX 
 
     private String remark;
 
-    // Getters and Setters
 }
