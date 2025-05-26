@@ -1,7 +1,11 @@
 package kr.co.d_erp.repository.oracle;
 
+
+
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,14 +14,18 @@ import org.springframework.stereotype.Repository;
 
 import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.dtos.BomSummaryProjection;
+import kr.co.d_erp.dtos.CatDto;
+import kr.co.d_erp.dtos.CustomerForItemDto;
+import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
+import kr.co.d_erp.dtos.UnitForItemDto;
 
 @Repository
-public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
+public interface ItemmstRepository extends JpaRepository<ItemDto, Integer> {
 
-    /**
+	/**
      * Datalist에 사용할 모든 (또는 활성) 품목 정보를 DTO로 조회합니다.
      * 품목명으로 정렬합니다.
      * @param sort 정렬 정보
@@ -95,5 +103,70 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
             """, nativeQuery = true)
     List<ItemSelectionProjection> findItemsByFlagForSelection(@Param("itemFlag") String itemFlag);
     //여기까지 추가함 선익
+    
+    
+    //----------------희원 추가 항목
+    
+    boolean existsByItemCd(String itemCd);
+    
+    // ITEM_CATX1, ITEM_CATX2 등은 실제 엔티티의 연관 필드명(예: catDto1.catNm)으로 변경 필요
+    @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+           "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
+           "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
+           "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
+           "(:CsearchCat = 'ItemName' AND i.itemNm LIKE %:CsearchItem%) OR " +
+           "(COALESCE(:CsearchCat, '') = '' AND i.itemNm LIKE %:CsearchItem%))")
+    Page<ItemDto> findWithJoinsAndSearch(
+            @Param("CsearchCat") String CsearchCat,
+            @Param("CsearchItem") String CsearchItem,
+            Pageable pageable
+    );
+
+    @Query("SELECT count(i) FROM ItemDto i LEFT JOIN i.CatDto1 c1 LEFT JOIN i.CatDto2 c2 " +
+       "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
+       "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
+       "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
+       "(:CsearchCat = 'ItemName' AND i.itemNm LIKE %:CsearchItem%) OR " +
+       "(COALESCE(:CsearchCat, '') = '' AND i.itemNm LIKE %:CsearchItem%))")
+    long countWithSearch(
+            @Param("CsearchCat") String CsearchCat,
+            @Param("CsearchItem") String CsearchItem
+    );
+
+    // Excel 다운로드를 위한 검색 (페이징 없음)
+     @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+           "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
+           "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
+           "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
+           "(:CsearchCat = 'ItemName' AND i.itemNm LIKE %:CsearchItem%) OR " +
+           "(COALESCE(:CsearchCat, '') = '' AND i.itemNm LIKE %:CsearchItem%))")
+    List<ItemDto> findForExcel(
+            @Param("CsearchCat") String CsearchCat,
+            @Param("CsearchItem") String CsearchItem
+    );
+
+
+    // 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함)
+    @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+    Page<ItemDto> findAllWithJoins(Pageable pageable);
+
+
+
+    
+     // TB_CUSTMST에서 모든 거래처 조회 (MyBatis의 selectALLCust)
+     // CustomerRepository가 따로 있다면 거기서 처리하는 것이 더 적절합니다.
+     @Query("SELECT c FROM CustomerForItemDto c ORDER BY c.custNm")
+     List<CustomerForItemDto> findAllCustomers();
+
+     // TB_ITEM_CAT에서 대분류 조회 (MyBatis의 selectALLcat1)
+     @Query("SELECT ic FROM CatDto ic WHERE ic.parentIdx IS NULL OR ic.parentIdx = 0 ORDER BY ic.catIdx")
+     List<CatDto> findAllParentCategories();
+
+
+     // TB_UNIT_MST에서 모든 단위 조회 (MyBatis의 selectUnits)
+     @Query("SELECT u FROM UnitForItemDto u ORDER BY u.unitIdx")
+     List<UnitForItemDto> findAllUnits();
+    
+    // 희원 여기까지 --------------------------
     
 }

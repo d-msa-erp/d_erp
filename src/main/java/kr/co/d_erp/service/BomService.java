@@ -39,5 +39,5 @@ public interface BomService {
     
     //저장용
     boolean saveNewBom(BomSaveRequestDto bomSaveRequestDto);
-
+    
 }
