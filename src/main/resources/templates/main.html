@@ -1,267 +1,405 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>메인페이지</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:replace="~{/top.html :: topstyle}"></style>
 <style>
 body {
-	font-family: sans-serif;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
 
 .site-Wrapper {
-	width: 100%;
-	max-width: 1200px;
-	padding: 20px;
-	align-self: center;
-	display: grid;
-	height: 80vh;
-	display: grid;
-	grid-template-rows: 1fr 1fr 1fr;
+    width: 100%;
+    max-width: 1200px;
+    padding: 20px;
+    align-self: center;
+     height: 80vh;
+    display: grid;
+    grid-template-rows: auto 1fr 1fr;
+    gap: 20px;
 }
 
-.site-Wrapper>div {
-	padding: 20px;
-	align-items: flex-start;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	width: 100%;
+.site-Wrapper > div {
+    padding: 0;
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
 }
 
-.site-Wrapper>div>div {
-	padding: 10px;
+.site-Wrapper > div > .header {
+    background: #46a6ff;
+    color: white;
+    padding: 10px 20px;
+    font-size: 20px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+    flex-shrink: 0;
 }
 
-.site-Wrapper div div:nth-child(2) {
-	padding: 10px;
-	overflow-y: auto;
-	height: 200px;
-	width: 100%;
+.site-Wrapper .notice ul {
+    padding: 15px 20px;
+    list-style: none;
+    overflow-y: auto;
+    width: 100%;
+    margin: 0;
+    flex-grow: 1;
+}
+.site-Wrapper .notice ul li strong:hover {
+    text-decoration: underline;
 }
 
-.inv-table-wrapper {
-	overflow-y: auto;
-	height: 100%;
+.site-Wrapper #inv-table-wrapper,
+.site-Wrapper #outbound-table-wrapper {
+    padding: 15px;
+    overflow-y: auto;
+    width: 100%;
+    flex-grow: 1;
+    min-height: 150px;
 }
 
-table {
-	width: 100%;
+#inv-table-wrapper table, /* ID 참조로 변경 */
+#outbound-table-wrapper table { /* ID 참조로 변경 */
+    width: 100%;
+    border-collapse: collapse;
+}
+#inv-table-wrapper th, #inv-table-wrapper td,
+#outbound-table-wrapper th, #outbound-table-wrapper td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+#inv-table-wrapper th,
+#outbound-table-wrapper th {
+    background-color: #f2f2f2;
 }
 
-.site-Wrapper>div>ul {
-	padding-left: 20px;
-	list-style: none;
-	height: 100%;
-	overflow-y: auto;
-	width: 100%
+#inv-table-wrapper tr:hover td,
+#outbound-table-wrapper tr:hover td {
+    background: #e6f7ff;
 }
 
-tr:hover td {
-	background: #46a6ff;
+/* ======================================= */
+/* 공지사항 모달을 위한 스타일 추가 */
+/* ======================================= */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    padding-top: 50px;
 }
 
-.header {
-	background: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
-	width: 100%;
-	display: flex;
-	align-items: center;
-	border-radius: 5px;
-	margin-bottom: 10px;
+.modal-content-notice {
+    background-color: #fefefe;
+    margin: 5% auto;
+    padding: 25px;
+    border: 1px solid #bbb;
+    width: 60%;
+    max-width: 700px;
+    border-radius: 8px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
+
+.close-button-notice {
+    color: #aaa;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.close-button-notice:hover,
+.close-button-notice:focus {
+    color: #333;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#noticeModalContent {
+    line-height: 1.7;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    max-height: 60vh;
+    overflow-y: auto;
+    white-space: pre-wrap;
+}
+#noticeModalTitle {
+    margin-top: 0;
+    margin-bottom: 5px;
+    color: #333;
+}
+#noticeModalDate {
+    font-size: 0.85em;
+    color: #777;
+    margin-bottom: 15px;
+}
+
 </style>
-
-<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-<title>메인페이지</title>
-
-<style th:replace="~{/top.html :: topstyle}"></style>
 </head>
 <body>
-	<div th:replace="~{/top.html :: top}"></div>
-	<div class="site-Wrapper">
-		<div class="notice">
-			<div class="header">
-				<span class="material-symbols-outlined" style="font-size: 20px;"> campaign </span> <span>공지
-					:&nbsp</span> <span>공지 출력될 위치</span>
-			</div>
+    <div th:replace="~{/top.html :: top}"></div>
 
-			<ul>
-				<li>최근꺼 한개만 출력..</li>
-			</ul>
-		</div>
-		<div id="inv-container">
-			<div class="header">
-				<span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span> <span>입고
-					:</span> <span>입고 목록 출력될 위치</span>
-			</div>
-			<div id="inv-table-wrapper"></div>
-		</div>
-		<div id="outbound-container">
-			<div class="header">
-				<span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span> <span>출고
-					:</span> <span>출고 목록 출력될 위치</span>
-			</div>
-			<div id="outbound-table-wrapper"></div>
-		</div>
+    <div class="site-Wrapper">
+        <div class="notice">
+            <div class="header">
+                <span class="material-symbols-outlined" style="font-size: 20px;">campaign</span>
+                <span>&nbsp;공지사항</span>
+            </div>
+            <ul>
+                <li>공지사항을 불러오는 중...</li>
+            </ul>
+        </div>
 
-	</div>
+        <div id="inv-container">
+            <div class="header">
+                <span class="material-symbols-outlined" style="font-size: 20px;">input</span>
+                <span>&nbsp;최근 입고 현황</span>
+            </div>
+            <div id="inv-table-wrapper"> <p style="text-align:center; padding-top:20px;">입고 현황을 불러오는 중...</p>
+            </div>
+        </div>
+
+        <div id="outbound-container">
+            <div class="header">
+                <span class="material-symbols-outlined" style="font-size: 20px;">output</span>
+                <span>&nbsp;최근 출고 현황</span>
+            </div>
+            <div id="outbound-table-wrapper"> <p style="text-align:center; padding-top:20px;">출고 현황을 불러오는 중...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="noticeDetailModal" class="modal">
+        <div class="modal-content-notice">
+            <span class="close-button-notice" onclick="closeNoticeDetailModal()">&times;</span>
+            <h3 id="noticeModalTitle"></h3>
+            <p id="noticeModalDate"></p>
+            <div id="noticeModalContent"></div>
+        </div>
+    </div>
+
+    <script src="/js/top.js"></script>
+    <script>
+    // ========================================================
+    // ★ 공지사항 모달 관련 함수 (수정됨: 직접 객체 사용) ★
+    // ========================================================
+    /**
+     * 공지사항 상세 모달을 열고 내용을 채웁니다.
+     * @param {object} noticeObject - 상세 내용을 표시할 공지사항 객체 (title, createdAt, content 등 포함 가정)
+     */
+    function openNoticeDetailModal(noticeObject) {
+        if (!noticeObject) {
+            alert('공지사항 정보가 없습니다.');
+            return;
+        }
+        // noticeObject에 title, createdAt, content 필드가 있다고 가정합니다.
+        // 만약 필드명이 다르거나, content가 없다면 이 부분을 수정해야 합니다.
+        document.getElementById('noticeModalTitle').textContent = noticeObject.title || "제목 없음";
+        document.getElementById('noticeModalDate').textContent = `게시일: ${noticeObject.createdAt?.substring(0, 10) || "날짜 정보 없음"}`;
+        document.getElementById('noticeModalContent').textContent = noticeObject.content || "상세 내용이 없습니다."; // ★ content 필드 사용
+
+        document.getElementById('noticeDetailModal').style.display = 'block';
+    }
+
+    /**
+     * 공지사항 상세 모달을 닫습니다.
+     */
+    function closeNoticeDetailModal() {
+        document.getElementById('noticeDetailModal').style.display = 'none';
+    }
+
+    // 모달 바깥 영역 클릭 시 모달 닫기
+    window.addEventListener('click', function(event) {
+        const noticeModal = document.getElementById('noticeDetailModal');
+        if (event.target == noticeModal) {
+            closeNoticeDetailModal();
+        }
+    });
+
+    // ========================================================
+    // 기존 JavaScript 코드 (공지사항 목록 로딩 로직 수정)
+    // ========================================================
+
+    //최신 공지사항 1개 가져오기! (모달 열도록 수정)
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("/api/notices")
+        .then((res) => res.json())
+        .then((notices) => {
+          const noticeUl = document.querySelector(".notice ul");
+          noticeUl.innerHTML = '';
+
+          if (!Array.isArray(notices) || notices.length === 0) {
+            noticeUl.innerHTML = `<li>표시할 공지사항이 없습니다.</li>`;
+            return;
+          }
+
+          const latest = notices.sort((a, b) => b.nidx - a.nidx)[0];
+          const createdDate = latest.createdAt?.substring(0, 10) || "";
+
+          const li = document.createElement('li');
+          li.innerHTML = `
+              <strong style="cursor: pointer; color: #007bff;">${latest.title}</strong>
+              <span style="margin-left: 10px; color: #666;">(${createdDate})</span>
+          `;
+          // ★ 수정: 클릭 시 openNoticeDetailModal 함수에 'latest' 객체 전체를 전달
+          li.querySelector('strong').addEventListener('click', function() {
+              openNoticeDetailModal(latest); // ★ 'latest' 객체 전달
+          });
+
+          noticeUl.appendChild(li);
+        })
+        .catch((err) => {
+          console.error("공지사항 가져오기 실패:", err);
+          const noticeUl = document.querySelector(".notice ul");
+          noticeUl.innerHTML = `<li>공지사항을 불러오는 데 실패했습니다.</li>`;
+        });
+    });
+
+
+    //입고 10개 가져오기...
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("/api/inv-transactions")
+        .then((res) => {
+            if (!res.ok) throw new Error('Network response was not ok for inbound data');
+            return res.json();
+        })
+        .then((data) => {
+          const content = data.content || [];
+          const tableWrapper = document.getElementById("inv-table-wrapper");
+          tableWrapper.innerHTML = "";
+
+          if (content.length === 0) {
+            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">입고 내역이 없습니다.</p>`;
+            return;
+          }
+
+          const table = document.createElement("table");
+          const thead = document.createElement("thead");
+          thead.innerHTML = `
+            <tr>
+              <th>입고코드</th>
+              <th>입고일자</th>
+              <th>품목명</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>금액</th>
+              <th>창고</th>
+              <th>비고</th>
+            </tr>
+          `;
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+          content.slice(0, 10).forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.invTransCode || "-"}</td>
+              <td>${row.transDate || "-"}</td>
+              <td>${row.itemNm || "-"}</td>
+              <td>${row.transQty ?? "-"}</td>
+              <td>${row.unitPrice?.toLocaleString() || "-"}</td>
+              <td>${row.totalAmount?.toLocaleString() || "-"}</td>
+              <td>${row.whNm || "-"}</td>
+              <td>${row.invTransRemark || "-"}</td>
+            `;
+            tr.style.cursor = "pointer";
+            tr.addEventListener("click", () => {
+              location.href = "/inbound";
+            });
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          tableWrapper.appendChild(table);
+        })
+        .catch((err) => {
+          console.error("입고 데이터 가져오기 실패:", err);
+          const tableWrapper = document.getElementById("inv-table-wrapper");
+          tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">입고 데이터를 불러오는 데 실패했습니다.</p>`;
+        });
+    });
+
+    //출고 10개 가져오기
+    document.addEventListener("DOMContentLoaded", function () {
+      fetch("/api/inv-transactions?transType=S")
+        .then((res) => {
+            if (!res.ok) throw new Error('Network response was not ok for outbound data');
+            return res.json();
+        })
+        .then((data) => {
+          const content = data.content || [];
+          const tableWrapper = document.getElementById("outbound-table-wrapper");
+          tableWrapper.innerHTML = "";
+
+          if (content.length === 0) {
+            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">출고 내역이 없습니다.</p>`;
+            return;
+          }
+
+          const table = document.createElement("table");
+          const thead = document.createElement("thead");
+          thead.innerHTML = `
+            <tr>
+              <th>출고코드</th>
+              <th>출고일자</th>
+              <th>품목명</th>
+              <th>수량</th>
+              <th>단가</th>
+              <th>금액</th>
+              <th>창고</th>
+              <th>비고</th>
+            </tr>
+          `;
+          table.appendChild(thead);
+
+          const tbody = document.createElement("tbody");
+          content.slice(0, 10).forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.invTransCode || "-"}</td>
+              <td>${row.transDate || "-"}</td>
+              <td>${row.itemNm || "-"}</td>
+              <td>${row.transQty ?? "-"}</td>
+              <td>${row.unitPrice?.toLocaleString() || "-"}</td>
+              <td>${row.totalAmount?.toLocaleString() || "-"}</td>
+              <td>${row.whNm || "-"}</td>
+              <td>${row.invTransRemark || "-"}</td>
+            `;
+            tr.style.cursor = "pointer";
+            tr.addEventListener("click", () => {
+              location.href = "/outbound";
+            });
+            tbody.appendChild(tr);
+          });
+          table.appendChild(tbody);
+          tableWrapper.appendChild(table);
+        })
+        .catch((err) => {
+          console.error("출고 데이터 가져오기 실패:", err);
+          const tableWrapper = document.getElementById("outbound-table-wrapper");
+          tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">출고 데이터를 불러오는 데 실패했습니다.</p>`;
+        });
+    });
+    </script>
 </body>
-
-<script src="/js/top.js"></script>
-<script>
-//최신 공지사항 1개 가져오기!
-document.addEventListener("DOMContentLoaded", function () {
-  fetch("/api/notices")
-    .then((res) => res.json())
-    .then((notices) => {
-      if (!Array.isArray(notices) || notices.length === 0) return;
-
-      // nidx 기준 정렬 후 가장 최근 1개 가져오기
-      const latest = notices.sort((a, b) => b.nidx - a.nidx)[0];
-
-      // 날짜 형식 YYYY-MM-DD 로 잘라내기
-      const createdDate = latest.createdAt?.substring(0, 10) || "";
-
-      const ul = document.querySelector(".notice ul");
-      ul.innerHTML = `
-        <li>
-          <strong>${latest.title}</strong>
-          <span style="margin-left: 10px; color: #666;">(${createdDate})</span>
-        </li>
-      `;
-    })
-    .catch((err) => {
-      console.error("공지사항 가져오기 실패:", err);
-    });
-});
-
-
-//입고 10개 가져오기...
-document.addEventListener("DOMContentLoaded", function () {
-  fetch("/api/inv-transactions")
-    .then((res) => res.json())
-    .then((data) => {
-      const content = data.content || [];
-      const table = document.createElement("table");
-      table.classList.add("table");
-
-      // 테이블 헤더
-      const thead = document.createElement("thead");
-      thead.innerHTML = `
-        <tr>
-          <th>입고코드</th>
-          <th>입고일자</th>
-          <th>품목명</th>
-          <th>수량</th>
-          <th>단가</th>
-          <th>금액</th>
-          <th>창고</th>
-          <th>비고</th>
-        </tr>
-      `;
-      table.appendChild(thead);
-
-      // 테이블 바디
-      const tbody = document.createElement("tbody");
-      content.slice(0, 10).forEach((row) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.invTransCode || "-"}</td>
-          <td>${row.transDate || "-"}</td>
-          <td>${row.itemNm || "-"}</td>
-          <td>${row.transQty ?? "-"}</td>
-          <td>${row.unitPrice?.toLocaleString() || "-"}</td>
-          <td>${row.totalAmount?.toLocaleString() || "-"}</td>
-          <td>${row.whNm || "-"}</td>
-          <td>${row.invTransRemark || "-"}</td>
-        `;
-        
-        tr.style.cursor = "pointer"; 
-  tr.addEventListener("click", () => {
-    location.href = "/inbound"; 
-  });
-        
-        tbody.appendChild(tr);
-      });
-      table.appendChild(tbody);
-
-      // 출력 위치에 삽입
-      document.getElementById("inv-table-wrapper").innerHTML = "";
-      document.getElementById("inv-table-wrapper").appendChild(table);
-    })
-    .catch((err) => {
-      console.error("입고 데이터 가져오기 실패:", err);
-    });
-});
-
-
-
-
-
-//출고 10개 가져오기
-document.addEventListener("DOMContentLoaded", function () {
-  fetch("/api/inv-transactions?transType=S")
-    .then((res) => res.json())
-    .then((data) => {
-      const content = data.content || [];
-      const table = document.createElement("table");
-      table.classList.add("table");
-
-      // 테이블 헤더
-      const thead = document.createElement("thead");
-      thead.innerHTML = `
-        <tr>
-          <th>입고코드</th>
-          <th>입고일자</th>
-          <th>품목명</th>
-          <th>수량</th>
-          <th>단가</th>
-          <th>금액</th>
-          <th>창고</th>
-          <th>비고</th>
-        </tr>
-      `;
-      table.appendChild(thead);
-
-      // 테이블 바디
-      const tbody = document.createElement("tbody");
-      content.slice(0, 10).forEach((row) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.invTransCode || "-"}</td>
-          <td>${row.transDate || "-"}</td>
-          <td>${row.itemNm || "-"}</td>
-          <td>${row.transQty ?? "-"}</td>
-          <td>${row.unitPrice?.toLocaleString() || "-"}</td>
-          <td>${row.totalAmount?.toLocaleString() || "-"}</td>
-          <td>${row.whNm || "-"}</td>
-          <td>${row.invTransRemark || "-"}</td>
-        `;
-        
-             tr.style.cursor = "pointer"; 
-      tr.addEventListener("click", () => {
-        location.href = "/outbound";
-      });
-      
-        tbody.appendChild(tr);
-      });
- 
-      
-      table.appendChild(tbody);
-
-      // 출력 위치에 삽입
-      document.getElementById("outbound-table-wrapper").innerHTML = "";
-      document.getElementById("outbound-table-wrapper").appendChild(table);
-    })
-    .catch((err) => {
-      console.error("입고 데이터 가져오기 실패:", err);
-    });
-});
-
-</script>
 </html>
