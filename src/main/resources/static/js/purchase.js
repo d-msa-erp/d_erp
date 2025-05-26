@@ -1,11 +1,16 @@
-async function loadPurchases() {
+document.addEventListener('DOMContentLoaded', () => {
+	// 탭 로딩
+	loadPurchases('deliveryDate', 'asc');
+});
+
+async function loadPurchases(sortBy, sortDirection) {
     const purchasesTableBody = document.getElementById('purchasesTableBody');
     if (!purchasesTableBody) {
-        console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
+        console.warn("ID가 'purchasesTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
 
-    const apiUrl = `/api/orders/purchases`;
+    const apiUrl = `/api/orders/purchases?sortBy=${sortBy}&sortDirection=${sortDirection}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
@@ -30,7 +35,7 @@ async function loadPurchases() {
 function renderPurchases(purchases) {
     purchases.forEach(purchase => {
         const row = document.createElement('tr');
-        row.dataset.id = sale.orderCode;
+        row.dataset.id = purchase.orderCode;
         row.onclick = () => openPurchaseDetail(purchase.orderIdx);
 
         // 체크박스 셀
@@ -83,14 +88,24 @@ function renderPurchases(purchases) {
 		const deliveryDateCell = document.createElement('td');
 		deliveryDateCell.textContent = purchase.orderDate || '';
 		row.appendChild(deliveryDateCell);
-
-        salesTableBody.appendChild(row);
+		
+		// 총액
+		const totalPriceCell = document.createElement('td');
+		totalPriceCell.textContent = purchase.totalPrice || '';
+		row.appendChild(totalPriceCell);
+		
+		// 담당자명
+		const userNameCell = document.createElement('td');
+		userNameCell.textContent = purchase.userName || '';
+		row.appendChild(userNameCell);		
+		
+        purchasesTableBody.appendChild(row);
     });
 }
 
 function renderNoDataMessage() {
-    const salesTableBody = document.getElementById('salesTableBody');
-    salesTableBody.innerHTML = '';
+    const purchasesTableBody = document.getElementById('purchasesTableBody');
+    purchasesTableBody.innerHTML = '';
 
     const noDataRow = document.createElement('tr');
     const noDataCell = document.createElement('td');
@@ -98,16 +113,16 @@ function renderNoDataMessage() {
     noDataCell.className = 'nodata';
     noDataCell.colSpan = 5;
     noDataCell.textContent = '등록된 데이터가 없습니다.';
-    noDataCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    noDataCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
 
     noDataRow.appendChild(noDataCell);
-    salesTableBody.appendChild(noDataRow);
+    purchasesTableBody.appendChild(noDataRow);
 }
 
 
 function renderErrorMessage(message) {
-    const salesTableBody = document.getElementById('salesTableBody');
-    salesTableBody.innerHTML = '';
+    const purchasesTableBody = document.getElementById('purchasesTableBody');
+    purchasesTableBody.innerHTML = '';
 
     const errorRow = document.createElement('tr');
     const errorCell = document.createElement('td');
@@ -115,8 +130,32 @@ function renderErrorMessage(message) {
     errorCell.colSpan = 5;
     errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
     errorCell.style.color = 'red';
-    errorCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    errorCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
 
     errorRow.appendChild(errorCell);
-    salesTableBody.appendChild(errorRow);
+    purchasesTableBody.appendChild(errorRow);
+}
+
+
+let currentTh = null;
+let currentOrder = 'desc';
+
+function order(sortBy) {//정렬
+	const allArrows = document.querySelectorAll("th a");
+	allArrows.forEach(a => a.textContent = '↓');  // 화살표 초기화
+
+	// 기존에 클릭된 컬럼이면 정렬 방향을 변경, 아니면 기본 'asc'
+	if (currentTh === sortBy) {
+	    currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+	} else {
+	    currentOrder = 'asc';  // 다른 컬럼 클릭 시 기본 'asc'로 설정
+	    currentTh = sortBy;
+	}
+
+	// 서버로 정렬된 데이터를 요청
+	loadPurchases(sortBy, currentOrder);
+
+	// 화살표 방향 갱신
+	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
+	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
 }
