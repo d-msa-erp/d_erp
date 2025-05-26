@@ -207,7 +207,7 @@ table.grid-table {
 	width: 100%;
 	border-collapse: collapse;
 	display: grid;
-	grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr;
+	grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr 1fr;
 	overflow-x: auto;
 }
 
@@ -494,8 +494,8 @@ width: 100%;
 
 						<input type="text" placeholder="검색" id="searchInput" />
 						<div>
-							<button type="button" id="searchBtn">
-								<span class="material-symbols-outlined">search</span> 검색
+							<button type="button" id="searchBtn" onclick="searchItems()">
+								<span class="material-symbols-outlined"">search</span> 검색
 							</button>
 							<button type="button"
 								onclick="openModal()">
@@ -527,7 +527,8 @@ width: 100%;
 									<th onclick="order('itemName')">품목명<a>↓</a></th>
 									<th onclick="order('quantity')">수량<a>↓</a></th>
 									<th onclick="order('customerName')">고객사<a>↓</a></th>
-									<th onclick="order('deliveryDate')">납기일<a>↓</a></th>
+									<th onclick="order('deliveryDate')">납기일<a>↓</a></th>							
+									<th onclick="order('orderStatus')">상태<a>↓</a></th>							
 								</tr>
 							</thead>
 							<tbody id="salesTableBody">

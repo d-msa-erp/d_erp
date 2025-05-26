@@ -197,7 +197,7 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 1fr 2fr 1fr 2fr;
+            grid-template-columns: 1fr 1.4fr 3fr 3fr 1fr 2fr 1fr 2fr 1.2fr;
         }
 
         thead,
@@ -397,9 +397,9 @@
                 <div class="table-wrapper">
                     <div>
                         <div style="color: red;">적정재고 n개 미만은 이곳에 출력</div>
-                        <input type="text" placeholder="검색" />
+                        <input type="text" placeholder="검색" id="searchInput"/>
                         <div>
-                            <button type="button">
+                            <button type="button" onclick="searchItems()">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 							<button type="button" onclick="openModal()">
@@ -431,6 +431,7 @@
 						            <th onclick="order('orderDate')">발주일<a>↓</a></th>
 						            <th onclick="order('totalPrice')">총액<a>↓</a></th>
 						            <th onclick="order('userName')">발주처 담당자<a>↓</a></th>
+						            <th onclick="order('orderStatus')">상태<a>↓</a></th>
                                 </tr>
                             </thead>
                             <tbody id="purchasesTableBody">

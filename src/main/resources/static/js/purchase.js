@@ -33,6 +33,7 @@ async function loadPurchases(sortBy, sortDirection) {
 
 // 테이블 랜더링
 function renderPurchases(purchases) {
+	purchasesTableBody.innerHTML = '';
     purchases.forEach(purchase => {
         const row = document.createElement('tr');
         row.dataset.id = purchase.orderCode;
@@ -99,6 +100,15 @@ function renderPurchases(purchases) {
 		userNameCell.textContent = purchase.userName || '';
 		row.appendChild(userNameCell);		
 		
+		// 상태
+		const orderStatusCell = document.createElement('td');
+		const statusText = purchase.orderStatus === 'P1' ? '입고대기' :
+		                   purchase.orderStatus === 'P2' ? '부분입고' :
+		                   purchase.orderStatus === 'P3' ? '입고완료' : '';
+		
+		orderStatusCell.textContent = statusText;
+		row.appendChild(orderStatusCell);		
+		
         purchasesTableBody.appendChild(row);
     });
 }
@@ -113,7 +123,7 @@ function renderNoDataMessage() {
     noDataCell.className = 'nodata';
     noDataCell.colSpan = 5;
     noDataCell.textContent = '등록된 데이터가 없습니다.';
-    noDataCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
+    noDataCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
 
     noDataRow.appendChild(noDataCell);
     purchasesTableBody.appendChild(noDataRow);
@@ -130,10 +140,28 @@ function renderErrorMessage(message) {
     errorCell.colSpan = 5;
     errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
     errorCell.style.color = 'red';
-    errorCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
+    errorCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
 
     errorRow.appendChild(errorCell);
     purchasesTableBody.appendChild(errorRow);
+}
+
+function searchItems() {
+    const searchQuery = document.getElementById('searchInput').value;
+
+    const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
+
+    // Ajax 요청 보내기
+	fetch(apiUrl)
+		.then(response => response.json())
+		.then(data => {
+			renderPurchases(data);
+			console.log(data);
+		})
+		.catch(error => {
+			console.error('검색 오류:', error);
+			renderErrorMessage('검색중 오류가 발생하였습니다.');
+		});
 }
 
 

@@ -134,6 +134,14 @@ function rendersales(sales) {
 			const deliveryDateCell = document.createElement('td');
 			deliveryDateCell.textContent = sale.deliveryDate || '';
 			row.appendChild(deliveryDateCell);
+			
+			const orderStatusCell = document.createElement('td');
+			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
+					           sale.orderStatus === 'S2' ? '부분출고' :
+					           sale.orderStatus === 'S3' ? '출고완료' : '';
+					
+			orderStatusCell.textContent = statusText;
+			row.appendChild(orderStatusCell);
 
             salesTableBody.appendChild(row);
         });
@@ -152,7 +160,7 @@ function renderNoDataMessage() {
     noDataCell.className = 'nodata';
     noDataCell.colSpan = 5;
     noDataCell.textContent = '등록된 데이터가 없습니다.';
-    noDataCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    noDataCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
     noDataRow.appendChild(noDataCell);
     salesTableBody.appendChild(noDataRow);
@@ -169,7 +177,7 @@ function renderErrorMessage(message) {
     errorCell.colSpan = 5;
     errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
     errorCell.style.color = 'red';
-    errorCell.setAttribute('style', 'grid-column: span 7; justify-content: center; text-align: center;');
+    errorCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
     errorRow.appendChild(errorCell);
     salesTableBody.appendChild(errorRow);
