@@ -52,4 +52,6 @@ public interface BomDtlRepository extends JpaRepository<BomDtl, Long> {
 
 	    List<BomDtl> findByParentItemIdxOrderBySeqNoAsc(Long parentItemIdx); //
 	    Optional<BomDtl> findByParentItemIdxAndSubItemIdx(Long parentItemIdx, Long subItemIdx);
+	   
+	    
 	}
