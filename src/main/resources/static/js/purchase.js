@@ -156,7 +156,6 @@ function searchItems() {
 		.then(response => response.json())
 		.then(data => {
 			renderPurchases(data);
-			console.log(data);
 		})
 		.catch(error => {
 			console.error('검색 오류:', error);
