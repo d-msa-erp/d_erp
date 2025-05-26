@@ -36,7 +36,20 @@ public class SalesView {
 
     @Column(name = "납기일")
     private LocalDate deliveryDate;
+<<<<<<< Updated upstream
 
+=======
+    
+    @Column(name = "발주일")
+    private LocalDate orderDate;
+    
+    @Column(name = "총액")
+    private Long totalPrice;
+    
+    @Column(name = "담당자명")
+    private String userName;
+    
+>>>>>>> Stashed changes
     @Column(name = "주문구분")
     private String orderType;
 }

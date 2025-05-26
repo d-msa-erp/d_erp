@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.domain.SalesView;
@@ -19,7 +20,34 @@ public class SaleController {
 
     // 구매 발주(P)만 조회
     @GetMapping("/sales")
-    public List<SalesView> getSalesOrders() {
-        return salesService.getSalesOrders();
+    public List<SalesView> getSalesOrders( 
+    		@RequestParam(defaultValue = "S") String orderType, // 기본값 'P'로 설정
+            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
+            @RequestParam(defaultValue = "asc") String sortDirection){ // 기본 정렬 방향 'asc') {
+        
+            return salesService.getSalesOrders(orderType, sortBy, sortDirection);
     }
+<<<<<<< Updated upstream
+=======
+   
+    // 구매 발주(P)만 조회
+    @GetMapping("/purchases")
+    public List<SalesView> getPurchaseOrders(
+            @RequestParam(defaultValue = "P") String orderType, // 기본값 'P'로 설정
+            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
+            @RequestParam(defaultValue = "asc") String sortDirection // 기본 정렬 방향 'asc'
+    ) {
+        return salesService.getPurchaseOrders(orderType, sortBy, sortDirection); // 서비스 메서드 호출
+    }
+    
+    
+    @GetMapping("/getno")
+    public Map<String, Object> getOrderNo() {
+        int randomOrderNo = (int)(Math.random() * 90000000) + 10000000;
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderNo", randomOrderNo);
+        return result;
+    }
+>>>>>>> Stashed changes
 }
