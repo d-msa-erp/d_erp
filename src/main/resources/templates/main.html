@@ -1,17 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메인페이지</title>
-    
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+	font-family: sans-serif;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
+
+.site-Wrapper {
+	width: 100%;
+	max-width: 1200px;
+	padding: 20px;
+	align-self: center;
+	display: grid;
+	height: 80vh;
+	display: grid;
+	grid-template-rows: 1fr 1fr 1fr;
+}
+
+.site-Wrapper>div {
+	padding: 20px;
+	align-items: flex-start;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	width: 100%;
+}
+
+.site-Wrapper>div>div {
+	padding: 10px;
+}
+
+.site-Wrapper div div:nth-child(2) {
+	padding: 10px;
+	overflow-y: auto;
+	height: 200px;
+	width: 100%;
+}
+
+.inv-table-wrapper {
+	overflow-y: auto;
+	height: 100%;
+}
+
+table {
+	width: 100%;
+}
+
+.site-Wrapper>div>ul {
+	padding-left: 20px;
+	list-style: none;
+	height: 100%;
+	overflow-y: auto;
+	width: 100%
+}
+
+tr:hover td {
+	background: #46a6ff;
+}
+
+.header {
+	background: #46a6ff;
+	color: white;
+	padding: 10px 20px;
+	font-size: 20px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	border-radius: 5px;
+	margin-bottom: 10px;
+}
+</style>
+
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<title>메인페이지</title>
+
 <style th:replace="~{/top.html :: topstyle}"></style>
 </head>
 <body>
 	<div th:replace="~{/top.html :: top}"></div>
-    메인페이지 임시
+	<div class="site-Wrapper">
+		<div class="notice">
+			<div class="header">
+				<span class="material-symbols-outlined" style="font-size: 20px;"> campaign </span> <span>공지
+					:&nbsp</span> <span>공지 출력될 위치</span>
+			</div>
+
+			<ul>
+				<li>최근꺼 한개만 출력..</li>
+			</ul>
+		</div>
+		<div id="inv-container">
+			<div class="header">
+				<span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span> <span>입고
+					:</span> <span>입고 목록 출력될 위치</span>
+			</div>
+			<div id="inv-table-wrapper"></div>
+		</div>
+		<div id="outbound-container">
+			<div class="header">
+				<span class="material-symbols-outlined" style="font-size: 20px;">arrow_downward</span> <span>출고
+					:</span> <span>출고 목록 출력될 위치</span>
+			</div>
+			<div id="outbound-table-wrapper"></div>
+		</div>
+
+	</div>
 </body>
 
-	<script src="/js/top.js"></script>
+<script src="/js/top.js"></script>
+<script>
+//최신 공지사항 1개 가져오기!
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/api/notices")
+    .then((res) => res.json())
+    .then((notices) => {
+      if (!Array.isArray(notices) || notices.length === 0) return;
+
+      // nidx 기준 정렬 후 가장 최근 1개 가져오기
+      const latest = notices.sort((a, b) => b.nidx - a.nidx)[0];
+
+      // 날짜 형식 YYYY-MM-DD 로 잘라내기
+      const createdDate = latest.createdAt?.substring(0, 10) || "";
+
+      const ul = document.querySelector(".notice ul");
+      ul.innerHTML = `
+        <li>
+          <strong>${latest.title}</strong>
+          <span style="margin-left: 10px; color: #666;">(${createdDate})</span>
+        </li>
+      `;
+    })
+    .catch((err) => {
+      console.error("공지사항 가져오기 실패:", err);
+    });
+});
+
+
+//입고 10개 가져오기...
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/api/inv-transactions")
+    .then((res) => res.json())
+    .then((data) => {
+      const content = data.content || [];
+      const table = document.createElement("table");
+      table.classList.add("table");
+
+      // 테이블 헤더
+      const thead = document.createElement("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>입고코드</th>
+          <th>입고일자</th>
+          <th>품목명</th>
+          <th>수량</th>
+          <th>단가</th>
+          <th>금액</th>
+          <th>창고</th>
+          <th>비고</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+
+      // 테이블 바디
+      const tbody = document.createElement("tbody");
+      content.slice(0, 10).forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.invTransCode || "-"}</td>
+          <td>${row.transDate || "-"}</td>
+          <td>${row.itemNm || "-"}</td>
+          <td>${row.transQty ?? "-"}</td>
+          <td>${row.unitPrice?.toLocaleString() || "-"}</td>
+          <td>${row.totalAmount?.toLocaleString() || "-"}</td>
+          <td>${row.whNm || "-"}</td>
+          <td>${row.invTransRemark || "-"}</td>
+        `;
+        
+        tr.style.cursor = "pointer"; 
+  tr.addEventListener("click", () => {
+    location.href = "/inbound"; 
+  });
+        
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+
+      // 출력 위치에 삽입
+      document.getElementById("inv-table-wrapper").innerHTML = "";
+      document.getElementById("inv-table-wrapper").appendChild(table);
+    })
+    .catch((err) => {
+      console.error("입고 데이터 가져오기 실패:", err);
+    });
+});
+
+
+
+
+
+//출고 10개 가져오기
+document.addEventListener("DOMContentLoaded", function () {
+  fetch("/api/inv-transactions?transType=S")
+    .then((res) => res.json())
+    .then((data) => {
+      const content = data.content || [];
+      const table = document.createElement("table");
+      table.classList.add("table");
+
+      // 테이블 헤더
+      const thead = document.createElement("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>입고코드</th>
+          <th>입고일자</th>
+          <th>품목명</th>
+          <th>수량</th>
+          <th>단가</th>
+          <th>금액</th>
+          <th>창고</th>
+          <th>비고</th>
+        </tr>
+      `;
+      table.appendChild(thead);
+
+      // 테이블 바디
+      const tbody = document.createElement("tbody");
+      content.slice(0, 10).forEach((row) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.invTransCode || "-"}</td>
+          <td>${row.transDate || "-"}</td>
+          <td>${row.itemNm || "-"}</td>
+          <td>${row.transQty ?? "-"}</td>
+          <td>${row.unitPrice?.toLocaleString() || "-"}</td>
+          <td>${row.totalAmount?.toLocaleString() || "-"}</td>
+          <td>${row.whNm || "-"}</td>
+          <td>${row.invTransRemark || "-"}</td>
+        `;
+        
+             tr.style.cursor = "pointer"; 
+      tr.addEventListener("click", () => {
+        location.href = "/outbound";
+      });
+      
+        tbody.appendChild(tr);
+      });
+ 
+      
+      table.appendChild(tbody);
+
+      // 출력 위치에 삽입
+      document.getElementById("outbound-table-wrapper").innerHTML = "";
+      document.getElementById("outbound-table-wrapper").appendChild(table);
+    })
+    .catch((err) => {
+      console.error("입고 데이터 가져오기 실패:", err);
+    });
+});
+
+</script>
 </html>

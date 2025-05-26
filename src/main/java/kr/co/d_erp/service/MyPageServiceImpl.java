@@ -6,8 +6,10 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
 import kr.co.d_erp.domain.Login; // Login 엔티티
 import kr.co.d_erp.dtos.MyPageDto; // MyPage DTO
+import kr.co.d_erp.models.PasswordHandler;
 import kr.co.d_erp.repository.oracle.LoginRepository; // Login 엔티티를 다루는 JpaRepository
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j; // 로그를 위해 추가
@@ -18,7 +20,7 @@ import lombok.extern.slf4j.Slf4j; // 로그를 위해 추가
 public class MyPageServiceImpl implements MyPageService {
 
     private final LoginRepository loginRepository;
-    
+    private final PasswordHandler passwordHandler;
     // DTO의 userHireDt, userRetireDt가 LocalDateTime이므로,
     // 서비스 단에서 String으로 포매팅할 필요가 없어졌습니다.
     // 하지만 HTML에서 특정 String 포맷으로 보여주기 위해서는
@@ -92,16 +94,19 @@ public class MyPageServiceImpl implements MyPageService {
     }
     
     @Override
+    @Transactional
     public void updatePW(String userId, String newPW) {
         log.info("Attempting to update password for userId: {}", userId);
         Optional<Login> userOptional = loginRepository.findByUserId(userId);
         if (userOptional.isPresent()) {
             Login user = userOptional.get();
-            // TODO: 비밀번호는 반드시 암호화해야 합니다!
-            // 예: user.setUserPswd(passwordEncoder.encode(newPW));
-            user.setUserPswd(newPW); // 현재는 평문으로 저장 (개발 단계에서만 사용)
+
+            // 비밀번호 암호화!!
+            String encodedPassword = passwordHandler.encode(newPW);
+            user.setUserPswd(encodedPassword);
+
             loginRepository.save(user);
-            log.info("Password updated successfully for userId: {}", userId);
+            log.info("Password updated (encrypted) for userId: {}", userId);
         } else {
             log.warn("User not found for password update: {}", userId);
             throw new IllegalArgumentException("사용자를 찾을 수 없습니다: " + userId);
