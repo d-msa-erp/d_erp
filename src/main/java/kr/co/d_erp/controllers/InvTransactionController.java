@@ -18,136 +18,102 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
-import kr.co.d_erp.domain.Order; 
-import kr.co.d_erp.domain.TbInvTrans;
-import kr.co.d_erp.domain.Usermst; 
-import kr.co.d_erp.domain.Whmst; 
 import kr.co.d_erp.dtos.InvTransactionRequestDto;
 import kr.co.d_erp.dtos.InvTransactionResponseDto;
 import kr.co.d_erp.dtos.InvTransactionSearchCriteria;
 import kr.co.d_erp.dtos.PageDto;
 import kr.co.d_erp.dtos.VInvTransactionDetailsDto;
-import kr.co.d_erp.repository.oracle.OrderRepository; 
-import kr.co.d_erp.repository.oracle.UsermstRepository; 
-import kr.co.d_erp.repository.oracle.WhmstRepository; 
 import kr.co.d_erp.service.InvTransactionService;
 
+/**
+ * 입/출고 거래 관련 HTTP 요청을 처리하는 REST 컨트롤러
+ * 대부분의 로직은 InvTransactionService로 위임하며,
+ * 요청 DTO를 받아 서비스로 전달하는 역할
+ */
 @RestController
 @RequestMapping("/api/inv-transactions")
-// @RequiredArgsConstructor // 여러 Repository 주입을 위해 아래 수동 생성자 사용 중
 public class InvTransactionController {
 
 	private final InvTransactionService invTransactionService;
-	private final WhmstRepository whmstRepository;
-	private final OrderRepository orderRepository;
-	private final UsermstRepository usermstRepository;
+	private final kr.co.d_erp.repository.oracle.WhmstRepository whmstRepository;
+	private final kr.co.d_erp.repository.oracle.OrderRepository orderRepository;
+	private final kr.co.d_erp.repository.oracle.UsermstRepository usermstRepository;
 
-	// 서비스 및 각 Repository 의존성 주입을 위한 생성자
-	public InvTransactionController(InvTransactionService invTransactionService, WhmstRepository whmstRepository,
-			OrderRepository orderRepository, UsermstRepository usermstRepository) {
+	/**
+	 * InvTransactionService 및 연관 Repository(현재는 mapDtoToEntity 용도)를 주입받는 생성자
+	 * 
+	 * @param invTransactionService 입/출고 거래 서비스
+	 * @param whmstRepository       창고 Repository (주로 mapDtoToEntity에서 사용되었음)
+	 * @param orderRepository       주문 Repository (주로 mapDtoToEntity에서 사용되었음)
+	 * @param usermstRepository     사용자 Repository (주로 mapDtoToEntity에서 사용되었음)
+	 */
+	public InvTransactionController(InvTransactionService invTransactionService,
+			kr.co.d_erp.repository.oracle.WhmstRepository whmstRepository,
+			kr.co.d_erp.repository.oracle.OrderRepository orderRepository,
+			kr.co.d_erp.repository.oracle.UsermstRepository usermstRepository) {
 		this.invTransactionService = invTransactionService;
 		this.whmstRepository = whmstRepository;
 		this.orderRepository = orderRepository;
 		this.usermstRepository = usermstRepository;
 	}
 
-	// InvTransactionRequestDto를 TbInvTrans 엔티티로 변환하는 내부 헬퍼 메소드
-	private TbInvTrans mapDtoToEntity(InvTransactionRequestDto requestDto) {
-		TbInvTrans transaction = new TbInvTrans();
-
-		if (requestDto.getTransDate() != null) {
-			transaction.setTransDate(requestDto.getTransDate());
-		} else {
-			transaction.setTransDate(LocalDate.now()); // DTO에 거래일자 없으면 현재 날짜로 설정 (정책에 따라 변경 가능)
-		}
-
-		// 거래 수량 (필수 값)
-		if (requestDto.getTransQty() == null) {
-			throw new IllegalArgumentException("거래 수량(transQty)은 필수입니다.");
-		}
-		transaction.setTransQty(requestDto.getTransQty());
-
-		// 창고 (필수 값)
-		if (requestDto.getWhIdx() == null) {
-			throw new IllegalArgumentException("창고 ID(whIdx)는 필수입니다.");
-		}
-		Whmst whmst = whmstRepository.findById(requestDto.getWhIdx())
-				.orElseThrow(() -> new EntityNotFoundException("창고 정보를 찾을 수 없습니다. ID: " + requestDto.getWhIdx()));
-		transaction.setWhmst(whmst);
-
-		// 거래 유형(transType), 거래 상태(transStatus) (서비스에서 기본값 처리도 가능함)
-		transaction.setTransType(requestDto.getTransType());
-		transaction.setTransStatus(requestDto.getTransStatus());
-
-		// 주문 정보 (선택 사항)
-		if (requestDto.getOrderIdx() != null) {
-			Order order = orderRepository.findById(requestDto.getOrderIdx()).orElseThrow(
-					() -> new EntityNotFoundException("주문 정보를 찾을 수 없습니다. ID: " + requestDto.getOrderIdx()));
-			transaction.setTbOrder(order);
-		}
-
-		// 사용자 정보 (선택 사항)
-		if (requestDto.getUserIdx() != null) {
-			Usermst usermst = usermstRepository.findById(requestDto.getUserIdx()).orElseThrow(
-					() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다. ID: " + requestDto.getUserIdx()));
-			transaction.setUsermst(usermst);
-		}
-
-		// 단가, 비고 (선택 사항)
-		transaction.setUnitPrice(requestDto.getUnitPrice());
-		transaction.setRemark(requestDto.getRemark());
-
-		return transaction;
-	}
-
 	/**
-	 * 신규 입/출고 거래 생성
+	 * 신규 입/출고 거래를 생성합니다. 요청된 DTO는 유효성 검사 후 서비스 계층으로 전달되어 처리
+	 * @param requestDto
+	 * 신규 입/출고 거래 생성을 위한 데이터 ({@link InvTransactionRequestDto})
+	 * 
+	 * @return 생성된 거래 정보(ID, 코드) 및 성공 메시지를 담은 {@link InvTransactionResponseDto}
 	 */
 	@PostMapping
 	public ResponseEntity<InvTransactionResponseDto> createInvTransaction(
 			@Valid @RequestBody InvTransactionRequestDto requestDto) {
-		TbInvTrans newTransaction = mapDtoToEntity(requestDto);
-		InvTransactionResponseDto responseDto = invTransactionService.insertTransaction(newTransaction);
+		InvTransactionResponseDto responseDto = invTransactionService.insertTransaction(requestDto);
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
 
 	/**
-	 * 기존 입/출고 거래 정보 수정
-	 * 
-	 * @param invTransIdx 수정할 거래의 ID
-	 * @param requestDto  수정할 거래 내용
+	 * 기존 입/출고 거래 정보를 수정합니다. 요청된 DTO는 유효성 검사 후 서비스 계층으로 전달되어 처리됩니다. 
+	 * @param invTransIdx 수정할 입/출고 거래의 고유 ID (경로 변수)
+	 * @param requestDto 수정할 거래 내용을 담은 데이터 ({@link InvTransactionRequestDto})
+	 * @return 수정된 거래 정보(ID, 코드) 및 성공 메시지를 담은 {@link InvTransactionResponseDto}
 	 */
 	@PutMapping("/{invTransIdx}")
 	public ResponseEntity<InvTransactionResponseDto> updateInvTransaction(@PathVariable Long invTransIdx,
 			@Valid @RequestBody InvTransactionRequestDto requestDto) {
-		// DTO를 기반으로 업데이트될 내용을 가진 TbInvTrans 객체 생성 (ID는 PathVariable로 받음)
-		TbInvTrans transactionUpdateRequest = mapDtoToEntity(requestDto);
-		InvTransactionResponseDto responseDto = invTransactionService.updateTransaction(invTransIdx,
-				transactionUpdateRequest);
+		// 서비스의 updateTransaction 메소드가 InvTransactionRequestDto를 직접 받도록 수정되었습니다.
+		InvTransactionResponseDto responseDto = invTransactionService.updateTransaction(invTransIdx, requestDto);
 		return ResponseEntity.ok(responseDto);
 	}
 
 	/**
-	 * 입/출고 거래 목록 조회 (검색 조건 및 페이징 처리 포함)
+	 * 입/출고 거래 목록을 검색 조건 및 페이징 정보를 사용하여 조회
+	 * 이 API는 {@link VInvTransactionDetailsDto} 기반의 뷰를 통해 데이터를 반환
+	 * @param transDateFrom 검색 시작일 (YYYY-MM-DD 형식의 문자열)
+	 * @param transDateTo   검색 종료일 (YYYY-MM-DD 형식의 문자열)
+	 * @param itemIdx       검색할 품목의 ID
+	 * @param custIdx       검색할 거래처의 ID
+	 * @param userIdx       검색할 담당자의 ID
+	 * @param whIdx         검색할 창고의 ID
+	 * @param transStatus   검색할 거래 상태 코드
+	 * @param transType     검색할 거래 유형 ('R' 또는 'S', 기본값 'R')
+	 * @param page          요청 페이지 번호 (1부터 시작, 기본값 1)
+	 * @param size          페이지 당 항목 수 (기본값 10)
+	 * @param sortBy        정렬 기준 필드명 (VInvTransactionDetails 뷰의 필드 기준, 기본값 'invTransIdx')
+	 * @param sortDirection 정렬 방향 ('asc' 또는 'desc', 기본값 'desc')
+	 * @return 페이징 처리된 입/출고 거래 목록 ({@link PageDto}<{@link VInvTransactionDetailsDto}>)
 	 */
 	@GetMapping
 	public ResponseEntity<PageDto<VInvTransactionDetailsDto>> getInvTransactions(
-			// 검색 조건 파라미터
 			@RequestParam(required = false) String transDateFrom, @RequestParam(required = false) String transDateTo,
 			@RequestParam(required = false) Long itemIdx, @RequestParam(required = false) Long custIdx,
 			@RequestParam(required = false) Long userIdx, @RequestParam(required = false) Long whIdx,
-			@RequestParam(required = false) String transStatus, @RequestParam(defaultValue = "R") String transType, // 기본
-																													// 거래
-																													// 유형
-																													// 'R'(입고)
-			// 페이징 및 정렬 파라미터
+			@RequestParam(required = false) String transStatus, @RequestParam(defaultValue = "R") String transType,
 			@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size,
-			@RequestParam(defaultValue = "invTransIdx") String sortBy, // 기본 정렬 필드 (VInvTransactionDetails 뷰의 필드명 기준)
-			@RequestParam(defaultValue = "desc") String sortDirection) { // 기본 정렬 방향
+			@RequestParam(defaultValue = "invTransIdx") String sortBy,
+			@RequestParam(defaultValue = "desc") String sortDirection) {
 
-		Pageable pageable = PageRequest.of(page - 1, size,
+		Pageable pageable = PageRequest.of(page - 1, size, // Spring Data JPA의 페이지는 0부터 시작
 				Sort.by(Sort.Direction.fromString(sortDirection.toUpperCase()), sortBy));
 
 		InvTransactionSearchCriteria criteria = new InvTransactionSearchCriteria();
@@ -155,14 +121,14 @@ public class InvTransactionController {
 			try {
 				criteria.setTransDateFrom(LocalDate.parse(transDateFrom));
 			} catch (Exception e) {
-				// TODO: 날짜 파싱 오류 시 로그 기록 또는 적절한 예외 응답 처리 필요
+				// TODO: 날짜 형식 변환 오류 발생 시 적절한 오류 처리 (예: 로깅, 사용자 알림) 필요
 			}
 		}
 		if (transDateTo != null && !transDateTo.isEmpty()) {
 			try {
 				criteria.setTransDateTo(LocalDate.parse(transDateTo));
 			} catch (Exception e) {
-				// TODO: 날짜 파싱 오류 시 로그 기록 또는 적절한 예외 응답 처리 필요
+				// TODO: 날짜 형식 변환 오류 발생 시 적절한 오류 처리 필요
 			}
 		}
 		criteria.setItemIdx(itemIdx);
@@ -177,22 +143,23 @@ public class InvTransactionController {
 	}
 
 	/**
-	 * 특정 ID의 입/출고 거래 상세 정보 조회
+	 * 특정 ID의 입/출고 거래 상세 정보를 조회
+	 * 이 API는 {@link VInvTransactionDetailsDto} 기반의 뷰를 통해 데이터를 반환
+	 * @param invTransIdx 조회할 입/출고 거래의 고유 ID (경로 변수)
 	 * 
-	 * @param invTransIdx 조회할 거래의 ID
+	 * @return 거래 상세 정보 DTO ({@link VInvTransactionDetailsDto})
 	 */
 	@GetMapping("/{invTransIdx}")
 	public ResponseEntity<VInvTransactionDetailsDto> getInvTransactionById(@PathVariable Long invTransIdx) {
-		// 이 메소드는 VInvTransactionDetailsDto(뷰 기반 DTO)를 반환하므로, 서비스의 findTransactionById를
-		// 사용합니다.
 		VInvTransactionDetailsDto dto = invTransactionService.findTransactionById(invTransIdx);
 		return ResponseEntity.ok(dto);
 	}
 
 	/**
-	 * 특정 ID의 입/출고 거래 삭제 (단건)
+	 * 특정 ID의 입/출고 거래를 삭제 (단건 삭제) 
+	 * @param invTransIdx 삭제할 입/출고 거래의 고유 ID (경로 변수)
 	 * 
-	 * @param invTransIdx 삭제할 거래의 ID
+	 * @return 성공 시 HTTP 204 No Content 응답
 	 */
 	@DeleteMapping("/{invTransIdx}")
 	public ResponseEntity<Void> deleteInvTransaction(@PathVariable Long invTransIdx) {
@@ -201,14 +168,16 @@ public class InvTransactionController {
 	}
 
 	/**
-	 * 여러 건의 입/출고 거래 삭제 (요청 본문에 ID 리스트 포함)
+	 * 여러 건의 입/출고 거래를 삭제 (요청 본문에 ID 리스트 포함) 
+	 * * @param invTransIdxes 삭제할 입/출고 거래 ID들의 리스트 (요청 본문)
 	 * 
-	 * @param invTransIdxes 삭제할 거래 ID 리스트
+	 * @return 성공 시 HTTP 204 No Content, 
+	 * 			ID 리스트가 비어있거나 null인 경우 HTTP 400 Bad Request 응답
 	 */
 	@DeleteMapping
 	public ResponseEntity<Void> deleteInvTransactions(@RequestBody List<Long> invTransIdxes) {
 		if (invTransIdxes == null || invTransIdxes.isEmpty()) {
-			return ResponseEntity.badRequest().build(); // ID 리스트가 비어있거나 null인 경우 bad request 응답
+			return ResponseEntity.badRequest().build(); // ID 리스트 유효성 검사
 		}
 		invTransactionService.deleteTransactions(invTransIdxes);
 		return ResponseEntity.noContent().build();
