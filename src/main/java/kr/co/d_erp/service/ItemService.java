@@ -1,6 +1,7 @@
 package kr.co.d_erp.service;
 
 import java.io.ByteArrayOutputStream;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -12,10 +13,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 import kr.co.d_erp.dtos.Item;
 import kr.co.d_erp.mappers.ItemMapper;
@@ -29,22 +32,58 @@ import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.UnitForItemDto;
 import kr.co.d_erp.mappers.ItemMapper;
+=======
+import jakarta.persistence.EntityNotFoundException;
+import kr.co.d_erp.domain.Itemmst;
+import kr.co.d_erp.dtos.CatDto;
+import kr.co.d_erp.dtos.CustomerForItemDto;
+import kr.co.d_erp.dtos.Item;
+import kr.co.d_erp.dtos.ItemDto;
+import kr.co.d_erp.dtos.ItemForSelectionDto;
+import kr.co.d_erp.dtos.UnitForItemDto;
+import kr.co.d_erp.mappers.ItemMapper;
+>>>>>>> Stashed changes
 import kr.co.d_erp.repository.oracle.ItemCatRepository;
 import kr.co.d_erp.repository.oracle.ItemCustomerRepository;
 import kr.co.d_erp.repository.oracle.ItemInvenRepository;
 import kr.co.d_erp.repository.oracle.ItemUnitRepository;
 import kr.co.d_erp.repository.oracle.ItemmstRepository;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 @Service
 public class ItemService {
 
+<<<<<<< Updated upstream
     
 	
+=======
+	private final ItemmstRepository ItemmstRepository;
+	private final ItemCatRepository ItemCatRepository;
+	private final ItemCustomerRepository ItemCustomerRepository;
+	private final ItemInvenRepository ItemInvenRepository;
+	private final ItemUnitRepository ItemUnitRepository;
+
+	@Autowired
+	public ItemService(ItemmstRepository ItemmstRepository, ItemCatRepository ItemCatRepository,
+			ItemInvenRepository ItemInvenRepository, ItemUnitRepository ItemUnitRepository,ItemCustomerRepository ItemCustomerRepository,
+			ItemMapper ItemMapper)  {
+		this.ItemmstRepository = ItemmstRepository;
+		this.ItemCatRepository = ItemCatRepository;
+		this.ItemInvenRepository = ItemInvenRepository;
+		this.ItemUnitRepository = ItemUnitRepository;
+		this.ItemCustomerRepository = ItemCustomerRepository;
+		this.itemMapper = ItemMapper;
+	}
+
+>>>>>>> Stashed changes
 	@Autowired
 	private final ItemMapper itemMapper;
 	
 
+<<<<<<< Updated upstream
 	@Autowired
 <<<<<<< Updated upstream
 	public ItemService(ItemMapper itemMapper) {
@@ -238,6 +277,12 @@ public class ItemService {
     public void deleteItems(List<Integer> itemIdxs) {
         // ItemmstRepository.deleteAllById(itemIdxs); // 개별 삭제 (더 안전할 수 있음, 콜백 등)
         ItemmstRepository.deleteAllByIdInBatch(itemIdxs); // 배치 삭제 (효율적)
+=======
+	@Transactional
+    public void deleteItems(List<Integer> itemIdxs) {
+        ItemmstRepository.deleteAllById(itemIdxs);
+        
+>>>>>>> Stashed changes
     }
 
     @Transactional(readOnly = true)
@@ -474,5 +519,8 @@ public class ItemService {
 			return new ItemForSelectionDto(itemIdxAsLong, item.getITEM_NM(), item.getITEM_CD(), item.getCYCLE_TIME(), item.getITEM_COST()); // cycleTime, itemCost 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
 		}).collect(Collectors.toList());
 	}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }

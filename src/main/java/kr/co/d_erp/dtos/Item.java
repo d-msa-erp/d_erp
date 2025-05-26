@@ -1,12 +1,26 @@
 package kr.co.d_erp.dtos;
 
+<<<<<<< Updated upstream
+=======
+
+import lombok.AllArgsConstructor;
+
+
+import java.math.BigDecimal;
+
+
+>>>>>>> Stashed changes
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 public class Item {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	private Integer ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, ITEM_COST, OPTIMAL_INV, CYCLE_TIME, QTY;
 =======
+=======
+>>>>>>> Stashed changes
     // 생성 요청 DTO
     @Data
     @NoArgsConstructor

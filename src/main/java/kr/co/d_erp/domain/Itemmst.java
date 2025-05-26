@@ -4,11 +4,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.*;
+<<<<<<< Updated upstream
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+=======
+
+import lombok.*;
+// import java.time.LocalDateTime; // 기존 필드 유지 시 필요
+// import java.math.BigDecimal; // 기존 숫자 필드 유지 시 필요
+>>>>>>> Stashed changes
 
 @Entity
 @Table(name = "TB_ITEMMST")
