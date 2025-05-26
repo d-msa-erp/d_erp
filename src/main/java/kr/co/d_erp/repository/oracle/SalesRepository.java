@@ -15,6 +15,7 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 	List<SalesView> findByOrderType(String orderType, Sort sort);
 	
 	@Query("SELECT s FROM SalesView s WHERE " +
+			   "LOWER(s.orderCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
 		       "LOWER(s.itemCode) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
 		       "LOWER(s.itemName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
 		       "LOWER(s.customerName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

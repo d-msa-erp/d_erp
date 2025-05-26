@@ -183,6 +183,23 @@ function renderErrorMessage(message) {
     salesTableBody.appendChild(errorRow);
 }
 
+function searchItems() {
+    const searchQuery = document.getElementById('searchInput').value;
+
+    const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
+
+    // Ajax 요청 보내기
+	fetch(apiUrl)
+		.then(response => response.json())
+		.then(data => {
+			rendersales(data);
+		})
+		.catch(error => {
+			console.error('검색 오류:', error);
+			renderErrorMessage('검색중 오류가 발생하였습니다.');
+		});
+}
+
 function fetchOrderNo() {
     fetch('/api/orders/getno')
       .then(response => response.json())
