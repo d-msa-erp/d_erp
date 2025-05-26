@@ -1,7 +1,7 @@
 package kr.co.d_erp.dtos;
 
 import lombok.AllArgsConstructor;
-import lombok.Data; // @Getter, @Setter, @ToString, @EqualsAndHashCode, @RequiredArgsConstructor
+import lombok.Data; 
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;

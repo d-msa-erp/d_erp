@@ -40,7 +40,7 @@ public class SalesView {
     @Column(name = "납기일")
     private LocalDate deliveryDate;
     
-    @Column(name = "착수일")
+    @Column(name = "발주일")
     private LocalDate orderDate;
 
     @Column(name = "주문구분")
