@@ -217,7 +217,7 @@ async function openModal(mode, invTransIdx = null) {
     saveButton.style.display = 'none'; // 저장 버튼 숨김
     editButton.style.display = 'none'; // 수정 버튼 숨김
     modalTransCode.readOnly = true; // 입고 코드 필드 읽기 전용
-    modalTransStatusGroup.style.display = 'none'; // 상태 선택 그룹 숨김
+    // modalTransStatusGroup.style.display = 'none'; // 상태 선택 그룹 숨김 (아래에서 모드별로 제어)
 
     try {
         // 모달용 데이터리스트 데이터 로드 (품목은 거래처에 따라 동적 로드될 수 있음)
@@ -232,6 +232,9 @@ async function openModal(mode, invTransIdx = null) {
         modalTransCode.value = '자동 생성'; // 입고 코드 기본값
         modalTransDate.value = new Date().toISOString().substring(0, 10); // 입고일 기본값 (오늘)
         modalInvTransIdx.value = ''; // ID 필드 초기화
+        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
+        modalTransStatusSelect.value = 'R1'; // 상태 기본값 'R1' (입고전) 설정 [수정됨]
+
         // `loadModalDatalistData`에서 모든 품목을 초기에 로드함.
         // `modalCustNmInput`의 change 이벤트 리스너가 거래처 선택 시 품목 필터링을 처리함.
     } else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
@@ -288,7 +291,10 @@ function closeModal() {
     modalForm.reset(); // 폼 초기화
     currentInvTransIdxForModal = null; // 현재 모달 ID 초기화
     // 유효성 메시지 초기화
-    [modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput].forEach(input => input.setCustomValidity(''));
+    [modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput, modalTransStatusSelect].forEach(input => {
+        input.setCustomValidity('');
+        if (input.tagName === 'SELECT') input.selectedIndex = 0; // Selectbox는 첫번째 옵션으로 (예: "상태를 선택해주세요")
+    });
 
     // 모달이 닫힐 때, 다음 사용을 위해 모달 품목 리스트를 전체 품목으로 리셋 (선택 사항)
     loadModalItemsDatalist().catch(err => console.error("모달 닫을 때 품목 리스트 리셋 오류:", err));
@@ -503,7 +509,6 @@ function setModalDatalistValue(inputElementId, hiddenInputId, datalistData, sele
     if (selectedIdx === null || selectedIdx === undefined || String(selectedIdx).trim() === '') {
         input.value = '';
         hiddenInput.value = '';
-        // if (input.required) { /* input.setCustomValidity('필수 항목입니다.'); */ } // 필요시 활성화
         return;
     }
 
@@ -729,17 +734,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = { // API로 전송할 데이터 구성
             invTransIdx: formData.get('invTransIdx') || null,
             invTransCode: formData.get('invTransCode') === '자동 생성' ? null : formData.get('invTransCode'),
-            transType: 'R', // 입고 유형
+            transType: 'R', // 입고 유형 (현재 페이지는 입고 관리이므로 'R' 고정)
             whIdx: parseInt(formData.get('whIdx')),
             transDate: formData.get('transDate'),
             transQty: parseInt(formData.get('transQty')),
             unitPrice: parseFloat(formData.get('unitPrice')),
-            transStatus: formData.get('transStatus') || 'R1', // 상태 기본값 'R1' (입고전)
+            transStatus: formData.get('transStatus'), // 모달에서 선택된 상태 값 사용
             userIdx: formData.get('userIdx') ? parseInt(formData.get('userIdx')) : null, // 담당자 (선택)
             itemIdx: parseInt(formData.get('itemIdx')),
             custIdx: parseInt(formData.get('custIdx')),
             remark: formData.get('remark')
         };
+
+        // 상태 값이 비어있는 경우 (예: 사용자가 "상태를 선택해주세요"를 그대로 둔 경우) 기본값 'R1' 사용
+        if (!data.transStatus) {
+            data.transStatus = 'R1';
+        }
+
 
         const url = isEditMode ? `/api/inv-transactions/${data.invTransIdx}` : '/api/inv-transactions';
         const method = isEditMode ? 'PUT' : 'POST';
