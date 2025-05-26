@@ -253,7 +253,7 @@
     }
 
     .modal {
-      display: none;
+      display: none; /* Hidden by default */
       position: fixed;
       top: 0;
       left: 0;
@@ -262,17 +262,99 @@
       background: rgba(0, 0, 0, 0.4);
       justify-content: center;
       align-items: center;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 1000; 
     }
 
-    .modal-content {
+     .modal-content {
       background: white;
-      padding: 20px;
+      padding: 30px; 
       border-radius: 10px;
-      width: 80%;
+      width: 90%; 
+      max-width: 700px; 
       position: relative;
-    }
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 
-    .modalForm {
+      min-height: 550px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+	/* === 신규 등록 모달(#modal-new) 크기 확장 (컨테이너) === */
+	#modal-new .modal-content {
+	  max-width: 900px;  /* 기존보다 넓게 (예: 700px -> 900px) */
+	  min-height: 650px; /* 기존보다 높게 (예: 500px -> 650px) */
+	  width: 90%;         /* 화면 너비의 90% 사용 */
+	  max-height: 90vh;   /* 화면 높이를 너무 많이 차지하지 않도록 최대 높이 제한 */
+	  overflow-y: auto;   /* 내용이 모달 높이를 초과할 경우 스크롤 생성 */
+	}
+	
+	/* === 신규 등록 모달(#modal-new) 내부 폼 레이아웃 및 필드 크기 조정 === */
+	#modal-new .modalForm {
+	  display: grid;
+	  /* 컬럼 수를 2개로 줄여 각 필드가 차지하는 너비를 늘립니다. */
+	  grid-template-columns: repeat(2, 1fr); 
+	  gap: 20px 25px; /* 필드 간 간격 (세로 간격, 가로 간격) */
+	  margin-top: 25px; /* 모달 제목과의 간격 */
+	  width: 100%; /* 폼이 modal-content 내부 너비를 채우도록 */
+	}
+	
+	/* #modal-new 내부의 각 필드 그룹 (라벨 + 입력창 div) 스타일 */
+	#modal-new .modalForm > div {
+	  /* 기존 customer.html의 display:flex; align-items:center; width:100% 가 있다면 유지됩니다. */
+	  /* 이 div는 grid의 한 셀을 차지합니다. */
+	}
+	
+	/* #modal-new 내부 라벨 스타일 조정 */
+	#modal-new .modalForm > div > span {
+	  font-size: 15px;      /* 라벨 폰트 크기를 약간 키웁니다. */
+	  padding-right: 12px;  /* 라벨과 입력창 사이 간격을 조정합니다. */
+	  white-space: nowrap;  /* 라벨이 여러 줄로 바뀌는 것을 방지 */
+	  color: #333;         /* 가독성을 위해 약간 더 어두운 색상 */
+	  flex-shrink: 0;       /* 라벨 너비가 줄어들지 않도록 (div가 flex일 경우) */
+	}
+	
+	/* #modal-new 내부 입력 필드(input[type="text"]) 스타일 조정 */
+	#modal-new .modalForm input[type="text"] {
+	  font-size: 15px;         /* 입력 필드 내 텍스트 폰트 크기 증가 */
+	  padding: 12px 10px;      /* 입력 필드 내부 패딩 증가 (상하, 좌우) */
+	  border-radius: 4px;      /* 모서리를 살짝 둥글게 */
+	  border: 1px solid #ababab; /* 테두리 색상을 약간 더 명확하게 */
+	  /* width: 100%; /* 부모 div가 flex일 경우, flex-grow:1 또는 width:100%로 공간 채움 */
+	  flex-grow: 1;          /* 부모 div가 flex일 경우, 남은 공간을 모두 차지 */
+	  height: auto;            /* padding에 따라 높이가 자연스럽게 조절되도록 */
+	}
+	
+	/* 주소 입력 필드처럼 2칸을 차지하는 경우 (HTML에서 style="grid-column: span 2;" 등으로 설정된 경우) */
+	/* #modal-new .modalForm > div[style*="grid-column: span 2"] { */
+	  /* 기본적으로 grid-column 설정은 HTML의 style 속성에서 유지됩니다. */
+	  /* 이 항목에 대한 특별한 스타일 변경은 필요하지 않다면 비워둡니다. */
+	/* } */
+	
+	/* #modal-new 내부 버튼 영역 스타일 (선택 사항) */
+	#modal-new .modal-buttons {
+	    margin-top: auto; /* 폼 내용과 버튼 사이 간격을 최대한 밀어 버튼을 하단에 가깝게 배치 */
+	    padding-top: 25px; /* 버튼 그룹 상단 여백 */
+	    border-top: 1px solid #e0e0e0; /* 구분선 */
+	    /* grid-column: 1 / -1; /* modalForm이 grid일 때 버튼 그룹이 전체 너비 차지하도록 */
+	                           /* #modal-new .modalForm의 자식이 아니므로, #modal-new .modal-content의 자식으로 처리 */
+	}
+	/* modalForm이 grid이고 modal-buttons가 그 자식이라면 아래 주석 해제 */
+	/*
+	#modal-new .modalForm .modal-buttons {
+	    grid-column: 1 / -1; 
+	}
+	*/
+
+#modal-new .modal-buttons button {
+    padding: 12px 22px; /* 버튼 패딩 증가 */
+    font-size: 15px;    /* 버튼 텍스트 크기 증가 */
+}
+    /* Styles for modal-new */
+    #modal-new .modalForm {
       margin-top: 20px;
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -281,65 +363,213 @@
       align-items: center;
     }
 
-    .modalForm>div,
-    .modalForm>label {
+    #modal-new .modalForm>div,
+    #modal-new .modalForm>label {
       width: 100%;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .modalForm>div>span,
-    .modalForm>label>span {
+    #modal-new .modalForm>div>span,
+    #modal-new .modalForm>label>span {
       white-space: nowrap;
       padding-right: 10px;
     }
-
-    input[type="text"] {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
+    
+    #modal-new .modalForm input[type="text"] { /* Specific to modal-new's text inputs */
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
     }
 
-    input[type="color"] {
-      width: 100%;
-      height: 40px;
-      border: none;
-      margin-top: 10px;
-    }
 
-    .modal-buttons {
+    #modal-new .modal-buttons { /* Specific to modal-new */
       display: flex;
       justify-content: flex-end;
       gap: 10px;
       width: 100%;
-      height: 100%;
-      grid-column-start: 3;
+      grid-column-start: 3; /* Aligns with the 3-column grid of modal-new */
+      margin-top: 10px; /* Added margin for spacing */
     }
 
-    .modal-buttons>input:hover {
-      filter: brightness(0.9);
-    }
-
-    .modal-buttons>input {
-      width: 100%;
+    #modal-new .modal-buttons>button, /* Target buttons directly inside modal-new's buttons div */
+    #modal-new .modal-buttons>input { /* If using input type button/submit */
+      width: 100%; /* Make buttons take available width within their flex item */
       background: #007bff;
       color: #fff;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      padding: 5px;
+      padding: 10px 15px; /* Adjusted padding */
+    }
+     #modal-new .modal-buttons button:hover,
+     #modal-new .modal-buttons input:hover {
+        filter: brightness(0.9);
+     }
+
+
+    /* Tab and modal-detail specific styles */
+    .modal-tabs {
+        display: flex;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+        width: 100%; 
     }
 
-    .modal-buttons>button {
-      width: 100%;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      padding: 5px;
+    .tab-button {
+        background-color: #f1f1f1;
+        border: none;
+        outline: none;
+        cursor: pointer;
+        padding: 10px 20px;
+        transition: 0.3s;
+        font-size: 16px;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        margin-right: 5px;
     }
+
+    .tab-button:hover {
+        background-color: #ddd;
+    }
+
+    .tab-button.active {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-bottom: none;
+        font-weight: bold;
+        color: #4CAF50;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 10px 0;
+        width: 100%; 
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+    
+    /* modal-detail form layout */
+    #modal-detail .modalForm { /* Styles for the form within modal-detail */
+        margin-top: 0; 
+        width: 100%;
+        display: flex;
+        flex-direction: column; 
+        gap: 15px; 
+    }
+
+    .warehouse-info-grid { /* Reused from your provided CSS, good for grid layout */
+        display: grid;
+        grid-template-columns: auto 1fr; 
+        gap: 15px 20px; 
+        align-items: center; 
+        width: 100%; 
+    }
+
+    .warehouse-info-grid .input-group {
+        display: contents; /* Allow label and input to align with grid columns directly */
+    }
+
+    .warehouse-info-grid .input-group span { /* Label style */
+        min-width: 90px; 
+        text-align: right;
+        font-weight: bold;
+        color: #555;
+        padding-right: 10px; /* Ensure spacing from input */
+    }
+
+    .warehouse-info-grid .input-group input[type="text"],
+    .warehouse-info-grid .input-group select {
+        width: 100%; /* Make input take full width of its grid cell */
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    
+    /* Buttons for modal-detail */
+    #modal-detail .modal-buttons {
+        margin-top: 20px; 
+        display: flex;
+        justify-content: flex-end; 
+        gap: 10px; 
+        width: 100%; 
+    }
+
+    #modal-detail .modal-buttons button {
+        width: auto; 
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        justify-content: center;
+    }
+
+    #modal-detail .modal-buttons button[name="save"],
+    #modal-detail .modal-buttons button[name="edit"] {
+        background-color: #4CAF50;
+        color: white;
+    }
+    #modal-detail .modal-buttons button[name="save"]:hover,
+    #modal-detail .modal-buttons button[name="edit"]:hover {
+        background-color: #45a049;
+    }
+    
+    /* Generic Cancel Button Style for both modals if desired, or keep specific */
+    .modal-buttons button.cancel-button { /* Add class="cancel-button" to cancel buttons */
+        background-color: #777 !important; 
+        color: white;
+    }
+    .modal-buttons button.cancel-button:hover {
+         filter: brightness(0.9);
+    }
+
+
+    .material-symbols-outlined {
+        font-size: 1.2rem;
+        vertical-align: middle; /* Adjusted for better alignment with text */
+    }
+    
+    input[type="text"].error { /* Style for validation errors */
+        border-color: red !important;
+    }
+    input[type="text"]:focus {
+      border-color: #46a6ff;
+      outline: none;
+    }
+    
+	.grid-table.item-table-in-modal {
+	  display: grid; /* grid-table의 기본 속성 유지 */
+	  width: 100%;   /* grid-table의 기본 속성 유지 */
+	  border-collapse: collapse; /* grid-table의 기본 속성 유지 */
+	  /* 체크박스 열이 사라졌으므로, 품목명과 품목코드 2개의 컬럼만 정의합니다. */
+	  grid-template-columns: 2fr 1.5fr; /* 예시 비율: 품목명, 품목코드 (조정 가능) */
+	}
+	
+	/* 품목 테이블의 헤더(th)와 데이터 셀(td)에 대한 일반적인 스타일은 */
+	/* 기존의 thead th, td 규칙을 따르거나, 필요시 아래처럼 구체적으로 지정할 수 있습니다. */
+	.item-table-in-modal th,
+	.item-table-in-modal td {
+	  padding: 10px;
+	  border: 1px solid #ccc;
+	  display: flex;
+	  align-items: center;
+	  /* justify-content는 ahmad th, td 기본값에 따르거나 여기서 재정의 */
+	}
+	
+	.item-table-in-modal thead th {
+	  background: #f0f0f0;
+	  font-weight: bold;
+	  cursor: pointer; /* 정렬 기능이 있다면 유지 */
+	  justify-content: center; /* 헤더 텍스트 중앙 정렬 */
+	}
+	
   </style>
 </head>
 
@@ -391,12 +621,10 @@
                 </tr>
               </thead>
               <tbody id="customerTableBody">
-
-              </tbody>
+                </tbody>
             </table>
             <div class="pagination-wrap">
-              총 n건 1/n페이지
-              <div class="paigination">
+              총 n건 1/n페이지 <div class="paigination">
                 <button type="button" id="btn-prev-page">
                   <span class="material-symbols-outlined">chevron_left</span>
                 </button>
@@ -412,158 +640,160 @@
     </form>
   </div>
 
-  <!--신규 등록 Modal-->
-  <div class="modal" id="modal" onclick="outsideClick(event)">
+  <div class="modal" id="modal-new" onclick="outsideClick(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
-      <h3 id="modalTitle">신규 등록</h3>
-      <form id="modalForm" class="modalForm">
-        <div>
-          <span>회사명</span><input type="text" placeholder="회사명을 입력해주세요" required />
+      <h3 id="modalTitle">신규 등록</h3> <form id="modalForm" class="modalForm"> <div>
+          <span>회사명</span><input type="text" name="custNm" placeholder="회사명을 입력해주세요" required />
         </div>
         <div>
-
-          <span>대표자명</span><input type="text" placeholder="대표자명 입력해주세요" required />
+          <span>대표자명</span><input type="text" name="presidentNm" placeholder="대표자명 입력해주세요" required />
         </div>
         <div>
-
-          <span>사업자번호</span><input type="text" id="bizNumber" placeholder="사업자번호 입력해주세요" required />
+          <span>사업자번호</span><input type="text" name="bizNo" id="bizNumber" placeholder="사업자번호 입력해주세요" required />
         </div>
         <div>
-
-          <span>연락처</span><input type="text" id="phoneNumber" placeholder="연락처를 입력해주세요" required />
+          <span>연락처</span><input type="text" name="bizTel" id="phoneNumber" placeholder="연락처를 입력해주세요" required />
         </div>
         <div>
-
-          <span>이메일</span><input type="text" id="eMail" placeholder="이메일 입력해주세요" required />
+          <span>이메일</span><input type="text" name="custEmail" id="eMail" placeholder="이메일 입력해주세요" /> </div>
+        <div>
+          <span>Fax</span><input type="text" name="bizFax" placeholder="Fax를 입력해주세요" />
         </div>
         <div>
-
-          <span>Fax</span><input type="text" placeholder="Fax를 입력해주세요" required />
+          <span>업태</span><input type="text" name="bizCond" placeholder="업태를 입력해주세요" />
         </div>
         <div>
-
-          <span>업태</span><input type="text" placeholder="업태를 입력해주세요" required />
+          <span>종목</span><input type="text" name="bizItem" placeholder="종목을 입력해주세요" />
         </div>
         <div>
-
-          <span>종목</span><input type="text" placeholder="종목을 입력해주세요" required />
+          <span>담당자명</span><input type="text" name="compEmpNm" placeholder="담당자명을 입력해주세요" />
         </div>
         <div>
-          <span>담당자명</span><input type="text" placeholder="담당자명을 입력해주세요" required />
-        </div>
-        <div>
-          <span>사업자번호</span><input type="text" id="compNumber" placeholder="사업장번호를 입력해주세요" required />
-        </div>
+          <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요" /> </div>
         <div style="grid-column: span 2;">
-
-          <span>주소</span><input type="text" placeholder="주소를 입력해주세요" required />
-          </div>
-           <div class="modal-buttons">
-            <button type="button" name="save" style="display: none;">
-              <span class="material-symbols-outlined">save</span> 등록
-            </button>
-            <button type="button" name="edit" style="display: block;">
-              <span class="material-symbols-outlined">edit</span> 수정
-            </button>
-            <button type="button" onclick="closeModal('modal')">
-              <span class="material-symbols-outlined">close</span> 취소
-            </button>
-          </div>
+          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" />
+        </div>
+        <div class="modal-buttons" style="grid-column: 1 / -1; justify-content: flex-end;"> <button type="button" name="save" style="display: none;">
+            <span class="material-symbols-outlined">save</span> 등록
+          </button>
+          <button type="button" name="edit" style="display: block;"> <span class="material-symbols-outlined">edit</span> 수정
+          </button>
+          <button type="button" class="cancel-button" onclick="closeModal('modal-new')"> <span class="material-symbols-outlined">close</span> 취소
+          </button>
+        </div>
       </form>
-     
+    </div>
+  </div>
+  
+  <div class="modal" id="modal-detail" onclick="outsideClick(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3>상세 정보</h3> <form id="modalForm" class="modalForm"> <div class="modal-tabs">
+          <button type="button" class="tab-button active" onclick="switchModalTab('infoTab')">기본 정보</button>
+          <button type="button" class="tab-button" onclick="switchModalTab('extraTab')">추가 정보</button>
+        </div>
+
+        <div id="infoTab" class="tab-content active">
+          <div class="warehouse-info-grid">
+            <div class="input-group">
+              <span>거래처명</span>
+              <input type="text" name="custNm" required/>
+            </div>
+            <div class="input-group">
+              <span>담당자명</span> <input type="text" name="presidentNm" />
+            </div>
+            <div class="input-group">
+              <span>사업자번호</span>
+              <input type="text" name="bizNo" id="detailBizNumber" required/>
+            </div>
+            <div class="input-group">
+              <span>연락처</span>
+              <input type="text" name="bizTel" id="detailPhoneNumber" required/>
+            </div>
+            <div class="input-group">
+              <span>이메일</span>
+              <input type="text" name="custEmail" id="detailEmail" />
+            </div>
+            <div class="input-group">
+              <span>팩스번호</span>
+              <input type="text" name="bizFax" />
+            </div>
+            <div class="input-group">
+              <span>업태</span>
+              <input type="text" name="bizCond" />
+            </div>
+            <div class="input-group">
+              <span>업종</span>
+              <input type="text" name="bizItem" />
+            </div>
+            <div class="input-group"> <span>대표자명</span> 
+              <input type="text" name="compEmpNm" /> </div>
+            <div class="input-group">
+              <span>법인번호</span> <input type="text" name="compNo" id="detailCompNumber" />
+            </div>
+            <div class="input-group" style="grid-column: span 2;"> <span>주소</span>
+                 <input type="text" name="bizAddr" />
+            </div>
+          </div>
+        </div>
+
+        <div id="extraTab" class="tab-content">
+		  <div class="item-table-container"> 
+		    <table class="grid-table item-table-in-modal"> 
+		      <thead>
+		        <tr>
+		          <th id="modalItemNameHeader">품목명<a>↓</a></th> <th data-item-sort-by="itemCd">품목코드<a>↓</a></th> </tr>
+		      </thead>
+		      <tbody id="itemTableBody">
+		        </tbody>
+		    </table>
+		  </div>
+		</div>
+        <div class="modal-buttons">
+          <button type="submit" name="save" style="display: none;"> <span class="material-symbols-outlined">save</span> 등록
+          </button>
+          <button type="submit" name="edit" style="display: block;"> <span class="material-symbols-outlined">edit</span> 수정
+          </button>
+          <button type="button" class="cancel-button" onclick="closeModal('modal-detail')"> <span class="material-symbols-outlined">close</span> 취소
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
-
   <script src="/js/top.js"></script>
   <script>
-  /*
-    let currentTh = null;
-    let currentOrder = 'desc';
+    // This script block can be moved to customer.js if preferred,
+    // but it's fine here if it only contains these simple UI functions.
 
-    function order(thValue) {//정렬
-      const allArrows = document.querySelectorAll("th a");
-      allArrows.forEach(a => a.textContent = '↓');
+    function switchModalTab(tabId) {
+      const modalDetailContent = document.querySelector('#modal-detail .modal-content');
+      if (!modalDetailContent) return;
 
-      if (currentTh === thValue) {
-        currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-      } else {
-        currentOrder = 'asc';
-        currentTh = thValue;
-      }
+      const tabButtons = modalDetailContent.querySelectorAll('.modal-tabs .tab-button');
+      const tabContents = modalDetailContent.querySelectorAll('.tab-content');
 
-      const arrow = thValue.querySelector('a');
-      arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-    }
-    */
-/*
-    function switchTab(el, type) {//탭 변경
-      document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
-        span.classList.remove('active');
-      });
-      el.classList.add('active');
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
 
-      document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
-      document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
-    }
-*/
+      const buttonToActivate = modalDetailContent.querySelector(`.modal-tabs .tab-button[onclick="switchModalTab('${tabId}')"]`);
+      const contentToActivate = modalDetailContent.querySelector(`.tab-content#${tabId}`);
 
-
-    //Modal 인데 currentTab으로 통신 다르게 구현 해야합니다 ~ 
-    /*
-    let currentTab = '';
-    function openModal() {
-      const title = document.getElementById('modalTitle');
-      title.textContent = bizFlag === 'customer' ? '신규 거래처 등록' : '신규 발주처 등록';
-      document.getElementById('modal').style.display = 'flex';
-      document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-      document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-
-    }
-	*/
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
+      if (buttonToActivate) buttonToActivate.classList.add('active');
+      if (contentToActivate) contentToActivate.classList.add('active');
     }
 
-    function outsideClick(e) {
-      if (e.target.id === 'modal') {
-        closeModal();
+    function outsideClick(event) {
+      // event.currentTarget is the modal div itself (since onclick is on it)
+      if (event.target === event.currentTarget) {
+        // Calls the closeModal function from customer.js
+        if (typeof closeModal === 'function') {
+            closeModal(event.currentTarget.id);
+        } else { // Fallback if closeModal from customer.js is not found
+            event.currentTarget.style.display = 'none';
+        }
       }
     }
-
-/*
-    function switchTab(el, type) {
-      currentTab = type;
-      document.querySelectorAll('.table-wrapper > div:nth-child(2) > span').forEach(span => {
-        span.classList.remove('active');
-      });
-      el.classList.add('active');
-
-      document.getElementById('table-customer').style.display = type === 'customer' ? 'block' : 'none';
-      document.getElementById('table-vendor').style.display = type === 'vendor' ? 'block' : 'none';
-    }
-*/
-/*
-    function submitModal(event) {
-      event.preventDefault();
-      const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-      console.log(currentTab + ' 등록됨:', siteName);
-      closeModal();
-    }
-*/
-
-
-/*
-    //테이블 클릭 시 출력되는 modal
-    function opendatail(e) {
-      openModal();
-
-      document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-      document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-    }
-    */
   </script>
   <script src="/js/customer.js"></script>
 </body>
-
 </html>
