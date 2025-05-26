@@ -1,6 +1,7 @@
 package kr.co.d_erp.domain;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -67,7 +68,7 @@ public class Order {
     private String remark;
 
     @Column(name = "CREATED_DATE", nullable = false)
-    private LocalDate createdDate = LocalDate.now();
+    private LocalDateTime createdDate = LocalDateTime.now();
 
     @Column(name = "UPDATED_DATE")
     private LocalDate updatedDate;

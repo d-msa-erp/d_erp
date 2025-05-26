@@ -2,6 +2,7 @@ package kr.co.d_erp.service;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 	
@@ -32,10 +33,11 @@ public class OrderService {
         order.setUnitPrice(dto.getUnitPrice());
         order.setDeliveryDate(dto.getDeliveryDate());
         order.setOrderStatus(dto.getOrderStatus());
+        order.setExpectedWhIdx(dto.getExpectedWhIdx());
+        order.setUserIdx(dto.getUserIdx());
         order.setRemark(dto.getRemark());
         
-        System.out.println("unitPrice: " + dto.getUnitPrice());
-        System.out.println("orderQty: " + dto.getOrderQty());
+        Object result = orderRepository.oracleTodayRaw(); 
         
         
         // Null 체크
@@ -46,8 +48,10 @@ public class OrderService {
         }
         
         Timestamp dbNow = orderRepository.oracleTodayRaw();
-        order.setCreatedDate(dbNow.toLocalDateTime().toLocalDate());
+        order.setCreatedDate(dbNow.toLocalDateTime());
 
         return orderRepository.save(order);
     }
+    
+    
 }

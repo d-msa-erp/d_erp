@@ -90,6 +90,7 @@ public class controller_init {
 		
 		model.addAttribute("UserNm",loggedInUser.getUserNm());
 		model.addAttribute("UserTel",loggedInUser.getUserTel());
+		model.addAttribute("UserIdx",loggedInUser.getUserIdx());
 		return "/sales.html";
 	}
 

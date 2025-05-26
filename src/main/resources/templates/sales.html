@@ -313,7 +313,7 @@ table input[type="text"] {
 .modal-content .modalForm .three-items {
 	grid-column: span 2;
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
 	gap: 20px;
 }
 
@@ -576,10 +576,11 @@ width: 100%;
 					<input type="hidden" id="selectedCustIdx" name="custIdx">
 				</div>
 				<div>
-					<span>담당자</span><input type="text" th:value="${UserNm}" readonly />
+					<span>담당자</span><input type="text" th:value="${UserNm}" id="userName" readonly />
+					<input type="hidden" th:value="${UserIdx}" id="userIdx"/>
 				</div>
 				<div>
-					<span>담당자 번호</span><input type="text" th:value="${UserTel}"
+					<span>담당자 번호</span><input type="text" th:value="${UserTel}" id="userTel"
 						readonly />
 				</div>
 
@@ -588,7 +589,7 @@ width: 100%;
 					<div>
 						<div class="custom-select-wrapper">
 							<span>품목</span>
-							<input type="text" list="itemList" placeholder="거래처를 검색하세요" id="itemSearchInput" required>
+							<input type="text" list="itemList" placeholder="품목을 검색하세요" id="itemSearchInput" required>
 							<datalist id="itemList">
 							
 							</datalist>
@@ -597,13 +598,21 @@ width: 100%;
 							<input type="hidden" id="itemIdx">
 						</div>
 					</div>
-
+						
 					<div>
 						<span>수량</span><input type="text" placeholder="수량을 입력해주세요" id="quantity"
 							required />
 					</div>
 					<div>
-						<span>비고</span><input type="text" placeholder="비고를 입력해주세요"
+						<span>입고 예정 창고</span>
+						<input type="text" list="whList" placeholder="창고를 입력해주세요" id="whSearchInput" required />
+						<datalist id="whList">
+							
+						</datalist>
+						<input type="hidden" id="selectedwhIdx" name="whIdx">
+					</div>
+					<div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" id="remark"
 							required />
 
 					</div>
@@ -612,10 +621,10 @@ width: 100%;
 
 
 				<div class="modal-buttons" style="grid-column-start: 3;">
-					<button type="button" name="save" style="display: none;">
+					<button type="button" name="save" style="display: none;" id="saveBtn">
 						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit">
+					<button type="button" name="edit" id="editBtn">
 						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal()">

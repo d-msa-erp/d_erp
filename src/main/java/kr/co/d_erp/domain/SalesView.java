@@ -19,6 +19,9 @@ import lombok.ToString;
 public class SalesView {
 	
     @Id
+    @Column(name = "ORDER_IDX")
+    private String orderIdx;
+    
     @Column(name = "주문번호")
     private String orderCode;
 
@@ -36,6 +39,9 @@ public class SalesView {
 
     @Column(name = "납기일")
     private LocalDate deliveryDate;
+    
+    @Column(name = "착수일")
+    private LocalDate orderDate;
 
     @Column(name = "주문구분")
     private String orderType;

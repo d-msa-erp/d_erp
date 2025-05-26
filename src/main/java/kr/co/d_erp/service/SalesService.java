@@ -17,4 +17,8 @@ public class SalesService {
 	public List<SalesView> getSalesOrders() {
 	    return salesRepository.findByOrderTypeOrderByDeliveryDateAsc("S");
 	}
+	
+	public List<SalesView> getPurchaseOrders() {
+		return salesRepository.findByOrderTypeOrderByDeliveryDateAsc("P");
+	}
 }

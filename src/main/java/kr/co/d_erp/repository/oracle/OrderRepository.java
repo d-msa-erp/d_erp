@@ -1,7 +1,6 @@
 package kr.co.d_erp.repository.oracle;
 
 import java.sql.Timestamp;
-import java.time.LocalDate;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
