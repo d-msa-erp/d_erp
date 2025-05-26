@@ -28,4 +28,8 @@ public class SalesService {
 
         return salesRepository.findByOrderType(orderType, sort);  // Repository에서 데이터를 정렬하여 반환
     }
+    
+    public List<SalesView> searchItems(String searchTerm) {
+        return salesRepository.searchItems(searchTerm);
+    }
 }

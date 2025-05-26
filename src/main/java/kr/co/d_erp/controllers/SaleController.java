@@ -40,6 +40,11 @@ public class SaleController {
         return salesService.getPurchaseOrders(orderType, sortBy, sortDirection); // 서비스 메서드 호출
     }
     
+    @GetMapping("/search")
+    public List<SalesView> searchItems(@RequestParam String searchTerm) {
+        return salesService.searchItems(searchTerm);
+    }
+    
     
     @GetMapping("/getno")
     public Map<String, Object> getOrderNo() {

@@ -49,6 +49,9 @@ public class SalesView {
     @Column(name = "담당자명")
     private String userName;
     
+    @Column(name = "상태")
+    private String orderStatus;
+    
     @Column(name = "주문구분")
     private String orderType;
 }
