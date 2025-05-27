@@ -2,6 +2,8 @@ package kr.co.d_erp.service;
 
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Workbook;
+
 import kr.co.d_erp.dtos.BomItemDetailDto;
 import kr.co.d_erp.dtos.BomSaveRequestDto;
 import kr.co.d_erp.dtos.BomSequenceUpdateDto;
@@ -40,4 +42,6 @@ public interface BomService {
     //저장용
     boolean saveNewBom(BomSaveRequestDto bomSaveRequestDto);
     
+    //Excel POI용
+    Workbook generateBomDetailsExcel(List<Long> bomIds);
 }

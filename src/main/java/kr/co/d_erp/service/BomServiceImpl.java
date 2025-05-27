@@ -4,13 +4,30 @@ package kr.co.d_erp.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.BomDtl;
 import kr.co.d_erp.dtos.BomDtlRequestDto;
+import kr.co.d_erp.dtos.BomExcelViewProjection;
 import kr.co.d_erp.dtos.BomItemDetailDto;
 import kr.co.d_erp.dtos.BomListItemDto;
 import kr.co.d_erp.dtos.BomListItemProjection;
@@ -333,6 +350,205 @@ public class BomServiceImpl implements BomService {
             return false;
         }
     }
+    
+    // =============== 엑셀 생성 메소드 구현 ===============
+    @Override
+    public Workbook generateBomDetailsExcel(List<Long> bomIds) {
+        Workbook workbook = new XSSFWorkbook();
+
+        // --- 스타일 정의 ---
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setFontHeightInPoints((short) 10);
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        DataFormat fmt = workbook.createDataFormat();
+        headerStyle.setDataFormat(fmt.getFormat("@")); // 텍스트 형식으로 강제
+        setAllBorders(headerStyle, BorderStyle.THIN);
+
+
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontHeightInPoints((short) 14);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        CellStyle parentLabelStyle = workbook.createCellStyle();
+        Font parentLabelFont = workbook.createFont();
+        parentLabelFont.setBold(true);
+        parentLabelFont.setFontHeightInPoints((short)10);
+        parentLabelStyle.setFont(parentLabelFont);
+        parentLabelStyle.setAlignment(HorizontalAlignment.LEFT);
+        parentLabelStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        parentLabelStyle.setDataFormat(fmt.getFormat("@"));
+        // parentLabelStyle.setBorderBottom(BorderStyle.DOTTED);
+
+
+        CellStyle dataStyle = workbook.createCellStyle();
+        Font dataFont = workbook.createFont();
+        dataFont.setFontHeightInPoints((short)10);
+        dataStyle.setFont(dataFont);
+        setAllBorders(dataStyle, BorderStyle.THIN);
+        dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        dataStyle.setWrapText(true);
+        dataStyle.setDataFormat(fmt.getFormat("@"));
+
+
+        CellStyle numericDataStyle = workbook.createCellStyle();
+        numericDataStyle.cloneStyleFrom(dataStyle);
+        numericDataStyle.setAlignment(HorizontalAlignment.RIGHT);
+        numericDataStyle.setDataFormat(fmt.getFormat("#,##0.###")); // 소수점 3자리까지 표시
+
+        CellStyle defaultNumericDataStyle = workbook.createCellStyle(); // 기본 숫자 형식 (정수)
+        defaultNumericDataStyle.cloneStyleFrom(dataStyle);
+        defaultNumericDataStyle.setAlignment(HorizontalAlignment.RIGHT);
+        defaultNumericDataStyle.setDataFormat(fmt.getFormat("#,##0"));
+
+        // --- 스타일 정의 끝 ---
+
+        if (bomIds == null || bomIds.isEmpty()) {
+            Sheet sheet = workbook.createSheet("정보 없음");
+            Row row = sheet.createRow(0);
+            row.createCell(0).setCellValue("선택된 BOM ID가 없습니다.");
+            return workbook;
+        }
+
+        List<BomExcelViewProjection> allExcelData = bomDtlRepository.findExcelDataByParentItemIdxIn(bomIds);
+
+        if (allExcelData.isEmpty()) {
+            Sheet sheet = workbook.createSheet("데이터 없음");
+            Row row = sheet.createRow(0);
+            row.createCell(0).setCellValue("선택된 BOM ID에 대한 데이터가 없습니다.");
+            return workbook;
+        }
+
+        Map<Long, List<BomExcelViewProjection>> groupedByParent = allExcelData.stream()
+                .collect(Collectors.groupingBy(BomExcelViewProjection::getParentItemIdx));
+
+        for (Map.Entry<Long, List<BomExcelViewProjection>> entry : groupedByParent.entrySet()) {
+            List<BomExcelViewProjection> componentsForThisParent = entry.getValue();
+            BomExcelViewProjection parentInfoProjection = componentsForThisParent.get(0);
+
+            String safeSheetName = (parentInfoProjection.getParentItemCd() != null ? parentInfoProjection.getParentItemCd() : "BOM_ID_" + parentInfoProjection.getParentItemIdx()).replaceAll("[\\\\/?*\\[\\]]", "_");
+            if (safeSheetName.length() > 30) safeSheetName = safeSheetName.substring(0, 30);
+            Sheet sheet = workbook.createSheet(safeSheetName);
+            AtomicInteger rowNum = new AtomicInteger(0);
+
+            Row titleRowExcel = sheet.createRow(rowNum.getAndIncrement());
+            titleRowExcel.setHeightInPoints((short) (14 * 1.5));
+            Cell titleCellExcel = titleRowExcel.createCell(0);
+            titleCellExcel.setCellValue(parentInfoProjection.getParentItemNm() + " (품목코드: " + parentInfoProjection.getParentItemCd() + ") - BOM 상세 정보");
+            titleCellExcel.setCellStyle(titleStyle);
+            sheet.addMergedRegion(new CellRangeAddress(titleRowExcel.getRowNum(), titleRowExcel.getRowNum(), 0, 7));
+            rowNum.getAndIncrement();
+
+            createParentInfoSectionForExcel(sheet, rowNum, parentInfoProjection, parentLabelStyle, dataStyle);
+            rowNum.getAndIncrement();
+
+            Row componentsTitleRowExcel = sheet.createRow(rowNum.getAndIncrement());
+            Cell componentsTitleCellExcel = componentsTitleRowExcel.createCell(0);
+            componentsTitleCellExcel.setCellValue("하위 품목 구성");
+            Font componentsTitleFontExcel = workbook.createFont();
+            componentsTitleFontExcel.setBold(true);
+            componentsTitleFontExcel.setFontHeightInPoints((short)11);
+            CellStyle compTitleStyleExcel = workbook.createCellStyle();
+            compTitleStyleExcel.setFont(componentsTitleFontExcel);
+            componentsTitleCellExcel.setCellStyle(compTitleStyleExcel);
+
+            String[] headers = {"No", "하위품목명", "하위품목코드", "소요량", "단위", "로스율(%)", "단가(원)", "비고"};
+            Row headerExcelRow = sheet.createRow(rowNum.getAndIncrement());
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerExcelRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+
+            if (componentsForThisParent != null && !componentsForThisParent.isEmpty()) {
+                int componentNo = 1;
+                for (BomExcelViewProjection component : componentsForThisParent) {
+                    Row dataRow = sheet.createRow(rowNum.getAndIncrement());
+                    createCell(dataRow, 0, componentNo++, defaultNumericDataStyle); // No는 정수
+                    createCell(dataRow, 1, component.getSubItemNm(), dataStyle);
+                    createCell(dataRow, 2, component.getSubItemCd(), dataStyle);
+                    createCell(dataRow, 3, component.getUseQty(), numericDataStyle); // 소요량 (소수점 가능)
+                    createCell(dataRow, 4, component.getSubItemUnitNm(), dataStyle);
+                    createCell(dataRow, 5, component.getLossRt(), numericDataStyle); // 로스율 (소수점 가능)
+                    createCell(dataRow, 6, component.getItemPrice() != null ? Math.round(component.getItemPrice().doubleValue()) : null, defaultNumericDataStyle); // 단가는 정수
+                    createCell(dataRow, 7, component.getSubItemRemark(), dataStyle);
+                }
+            } else {
+                Row noDataRow = sheet.createRow(rowNum.getAndIncrement());
+                Cell noDataCell = noDataRow.createCell(0);
+                noDataCell.setCellValue("등록된 하위 품목이 없습니다.");
+                sheet.addMergedRegion(new CellRangeAddress(noDataRow.getRowNum(), noDataRow.getRowNum(), 0, headers.length - 1));
+                noDataCell.setCellStyle(dataStyle);
+            }
+
+            sheet.setColumnWidth(0, 1200); sheet.setColumnWidth(1, 7000); sheet.setColumnWidth(2, 4000);
+            sheet.setColumnWidth(3, 2500); sheet.setColumnWidth(4, 2000); sheet.setColumnWidth(5, 2500);
+            sheet.setColumnWidth(6, 3000); sheet.setColumnWidth(7, 7000);
+        }
+        return workbook;
+    }
+
+    // 모든 테두리 설정 헬퍼 메소드
+    private void setAllBorders(CellStyle style, BorderStyle borderStyle) {
+        style.setBorderTop(borderStyle);
+        style.setBorderBottom(borderStyle);
+        style.setBorderLeft(borderStyle);
+        style.setBorderRight(borderStyle);
+    }
+
+    private void createCell(Row row, int columnIdx, Object value, CellStyle style) {
+        Cell cell = row.createCell(columnIdx);
+        if (value == null) {
+            cell.setCellValue("N/A"); // null 값 처리
+        } else if (value instanceof String) {
+            cell.setCellValue((String) value);
+        } else if (value instanceof BigDecimal) {
+            cell.setCellValue(((BigDecimal) value).doubleValue());
+        } else if (value instanceof Number) { // Integer, Long, Double 등
+            cell.setCellValue(((Number) value).doubleValue());
+        } else if (value instanceof Boolean) {
+            cell.setCellValue((Boolean) value);
+        } else {
+            cell.setCellValue(value.toString()); // 기타 타입은 문자열로
+        }
+        cell.setCellStyle(style);
+    }
+
+    private void createParentInfoSectionForExcel(Sheet sheet, AtomicInteger rowNum, BomExcelViewProjection parentData, CellStyle labelStyle, CellStyle dataStyle) {
+        String[][] parentInfoData = {
+            {"상위 품목명:", parentData.getParentItemNm() != null ? parentData.getParentItemNm() : "N/A"},
+            {"품목 코드:", parentData.getParentItemCd() != null ? parentData.getParentItemCd() : "N/A"},
+            {"대분류:", parentData.getParentCategoryNm() != null ? parentData.getParentCategoryNm() : "N/A"},
+            {"단위:", parentData.getParentUnitNm() != null ? parentData.getParentUnitNm() : "N/A"},
+            {"생산성:", parentData.getParentCycleTime() != null ? String.valueOf(parentData.getParentCycleTime()) : "N/A"},
+            {"비고 (상위):", parentData.getParentRemark() != null ? parentData.getParentRemark() : ""}
+        };
+
+        for (String[] info : parentInfoData) {
+            Row infoRow = sheet.createRow(rowNum.getAndIncrement());
+            Cell labelCell = infoRow.createCell(0);
+            labelCell.setCellValue(info[0]);
+            labelCell.setCellStyle(labelStyle);
+            sheet.setColumnWidth(0, 4000);
+
+            Cell valueCell = infoRow.createCell(1);
+            valueCell.setCellValue(info[1]);
+            valueCell.setCellStyle(dataStyle);
+            sheet.setColumnWidth(1, 8000);
+            // 필요시 2개 이상의 셀 병합
+            // sheet.addMergedRegion(new CellRangeAddress(infoRow.getRowNum(), infoRow.getRowNum(), 1, 2)); // 예: 값 셀을 2,3번째 컬럼에 걸쳐 표시
+        }
+    }
+    
     
     
     
