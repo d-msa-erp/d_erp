@@ -448,16 +448,16 @@ quantityInput.addEventListener('input', calculateDueDate);
 // 신규등록 DB저장
 document.querySelector('button[name="save"]').addEventListener('click', async () => {
 
-    if (!document.getElementById("startDate")) {
+    if (!document.getElementById("startDate").value) {
         alert('착수일을 입력해주세요.');
         return;
-    } else if(!document.getElementById("quantity")){
+    } else if(!document.getElementById("quantity").value){
 		alert('수량을 입력해주세요.');
 		return;
-	} else if(!document.getElementById("companySearchInput")){
+	} else if(!document.getElementById("companySearchInput").value){
 		alert("거래처를 입력해주세요.");
 		return;
-	} else if(!document.getElementById("itemIdx")){
+	} else if(!document.getElementById("itemIdx").value){
 		alert("품목을 선택해주세요.");
 		return;
 	}
@@ -477,23 +477,32 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 		orderStatus: 'S1'
     };
 	
-	console.log(orderData);
-    try {
-        const response = await fetch('/api/orders/save', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(orderData),
-        });
+	try {
+	    const response = await fetch('/api/orders/save', {
+	        method: 'POST',
+	        headers: { 'Content-Type': 'application/json' },
+	        body: JSON.stringify(orderData),
+	    });
 
-        if (!response.ok) throw new Error('저장 실패');
+	    if (!response.ok) throw new Error('저장 실패');
 
-        alert('주문이 등록되었습니다.');
-        closeModal();
-		loadSales();
-    } catch (err) {
-        alert('저장 중 오류가 발생했습니다.');
-        console.error(err);
-    }
+	    const result = await response.json();
+
+	    let message = '✅ 주문이 등록되었습니다.';
+
+	    // 자재 부족 경고가 있으면 메시지에 추가
+	    if (result.warnings && result.warnings.length > 0) {
+	        message += '\n⚠ 자재 부족:\n' + result.warnings.join('\n');
+	    }
+
+	    alert(message); // 최종 메시지 출력
+
+	    closeModal();
+	    loadSales('deliveryDate', 'asc');
+	} catch (err) {
+	    alert('저장 중 오류가 발생했습니다.');
+	    console.error(err);
+	}
 });
 
 async function openSalesDetail(orderIdx) {

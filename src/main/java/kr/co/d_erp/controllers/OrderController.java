@@ -4,10 +4,15 @@ import org.springframework.web.bind.annotation.*;
 
 import kr.co.d_erp.domain.Order;
 import kr.co.d_erp.domain.OrderDetailView;
+import kr.co.d_erp.dtos.InvTransactionRequestDto;
+import kr.co.d_erp.dtos.InvTransactionResponseDto;
 import kr.co.d_erp.dtos.OrderDto;
+import kr.co.d_erp.dtos.OrderResponseDto;
+import kr.co.d_erp.service.InvTransactionService;
 import kr.co.d_erp.service.OrderDetailService;
 import kr.co.d_erp.service.OrderService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
 @RestController
@@ -23,9 +28,9 @@ public class OrderController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderDto dto) {
-        Order savedOrder = orderService.saveOrder(dto);
-        return ResponseEntity.ok(savedOrder);
+    public  ResponseEntity<?> saveOrder(@RequestBody OrderDto dto) {
+    	OrderResponseDto result = orderService.saveOrder(dto); 
+    	return ResponseEntity.ok(result);
     }
     
     @GetMapping("/detail/{orderIdx}")

@@ -1,6 +1,7 @@
 package kr.co.d_erp.repository.oracle;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -169,5 +170,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      List<UnitForItemDto> findAllUnits();
     
     // 희원 여기까지 --------------------------
+     
+    Optional<Itemmst> findByItemIdx(Long itemIdx); // -민섭
     
 }

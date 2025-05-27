@@ -469,6 +469,8 @@
 					<input type="text" id="itemName" list="itemList" placeholder="자재명을 입력해주세요" required />
 					<datalist id="itemList"></datalist>
 					<input type="hidden" id="itemIdx">
+					<input type="hidden" id="orderNo" th:value="${orderNo}" />
+					<input type="hidden" th:value="${UserIdx}" id="userIdx"/>
                 </div>
                 <div>
                     <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
@@ -493,6 +495,14 @@
 					<input type="hidden" id="selectedCustIdx" name="custIdx">
                 </div>
                 <div>
+					<span>입고 예정 창고</span>
+					<input type="text" list="whList" placeholder="창고를 입력해주세요" id="whSearchInput" required />
+					<datalist id="whList">
+						
+					</datalist>
+					<input type="hidden" id="selectedwhIdx" name="whIdx">
+				</div>
+                <div>
                     <div>
                         <span>발주일</span>
                         <input type="date" id="orderDate" readonly/>
@@ -501,6 +511,10 @@
                         <span>납기예정일</span>
                         <input type="date" id="deliveryDate"/>
                     </div>
+                    <div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" id="remark"
+							required />
+					</div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
@@ -545,13 +559,15 @@
         }
 	*/
 //발주일 핸들링용
-            document.addEventListener('DOMContentLoaded', function () {
+/*
+					function setdate() {
                         const today = new Date();
                         const yyyy = today.getFullYear();
                         const mm = String(today.getMonth() + 1).padStart(2, '0');
                         const dd = String(today.getDate()).padStart(2, '0');
                         document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
-                    });
+                    };
+                    */
 
 		/*
         //Modal ~ 
