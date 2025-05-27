@@ -369,6 +369,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 successMessage = '신규 사원이 등록되었습니다.';
                 errorMessagePrefix = '신규 사원 등록';
                 delete userData.userIdx; // 신규 등록 시 userIdx는 서버에서 생성
+				
+				//에러확인용 로그 				
+				console.log("신규 등록 시 서버로 전송 직전 userData:", JSON.stringify(userData, null, 2));
+
             }
 
             console.log(`${errorMessagePrefix} 데이터:`, userData);

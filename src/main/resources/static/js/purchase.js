@@ -33,10 +33,11 @@ async function loadPurchases(sortBy, sortDirection) {
 
 // 테이블 랜더링
 function renderPurchases(purchases) {
+	purchasesTableBody.innerHTML = '';
     purchases.forEach(purchase => {
         const row = document.createElement('tr');
         row.dataset.id = purchase.orderCode;
-        row.onclick = () => openPurchaseDetail(purchase.orderIdx);
+        row.onclick = () => openPurchasedetail(purchase.orderIdx);
 
         // 체크박스 셀
         const checkboxCell = document.createElement('td');
@@ -99,6 +100,15 @@ function renderPurchases(purchases) {
 		userNameCell.textContent = purchase.userName || '';
 		row.appendChild(userNameCell);		
 		
+		// 상태
+		const orderStatusCell = document.createElement('td');
+		const statusText = purchase.orderStatus === 'P1' ? '입고대기' :
+		                   purchase.orderStatus === 'P2' ? '부분입고' :
+		                   purchase.orderStatus === 'P3' ? '입고완료' : '';
+		
+		orderStatusCell.textContent = statusText;
+		row.appendChild(orderStatusCell);		
+		
         purchasesTableBody.appendChild(row);
     });
 }
@@ -113,7 +123,7 @@ function renderNoDataMessage() {
     noDataCell.className = 'nodata';
     noDataCell.colSpan = 5;
     noDataCell.textContent = '등록된 데이터가 없습니다.';
-    noDataCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
+    noDataCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
 
     noDataRow.appendChild(noDataCell);
     purchasesTableBody.appendChild(noDataRow);
@@ -130,10 +140,30 @@ function renderErrorMessage(message) {
     errorCell.colSpan = 5;
     errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
     errorCell.style.color = 'red';
-    errorCell.setAttribute('style', 'grid-column: span 9; justify-content: center; text-align: center;');
+    errorCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
 
     errorRow.appendChild(errorCell);
     purchasesTableBody.appendChild(errorRow);
+}
+
+function searchItems() {
+    const searchQuery = document.getElementById('searchInput').value;
+	if(!searchQuery){
+			alert("검색어를 입력해주세요.");
+			return;
+	}
+    const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
+
+    // Ajax 요청 보내기
+	fetch(apiUrl)
+		.then(response => response.json())
+		.then(data => {
+			renderPurchases(data);
+		})
+		.catch(error => {
+			console.error('검색 오류:', error);
+			renderErrorMessage('검색중 오류가 발생하였습니다.');
+		});
 }
 
 
@@ -158,4 +188,60 @@ function order(sortBy) {//정렬
 	// 화살표 방향 갱신
 	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
 	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+}
+
+
+function openModal(data = null) {
+    const title = document.getElementById('modalTitle');
+    title.textContent = '발주 정보';
+    document.getElementById('modal').style.display = 'flex';
+    document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+    document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
+	
+	if(data){
+		saveBtn.style.display = 'none';
+		editBtn.style.display = 'block';
+		document.getElementById('itemCode').value = data.itemCode;
+		document.getElementById('itemName').value = data.itemName;
+		document.getElementById('unitPrice').value = data.unitPrice;
+		document.getElementById('quantity').value = data.orderQty;
+	}
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+	document.getElementById('modalForm').reset();
+}
+
+function outsideClick(e) {
+    if (e.target.id === 'modal') {
+        closeModal();
+    }
+}
+
+function submitModal(event) {
+    event.preventDefault();
+    const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+    closeModal();
+}
+
+
+//테이블 클릭 시 출력되는 modal
+async function openPurchasedetail(orderIdx) {
+    document.getElementById('modalTitle').textContent = '자재 정보';
+
+    document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
+    document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
+	try {
+		  const response = await fetch(`/api/orders/detail/${orderIdx}`);
+		  if (!response.ok) throw new Error('데이터 로딩 실패');
+
+		  const data = await response.json();
+		  openModal(data); // 받은 데이터로 모달 열기
+		} catch (error) {
+		  console.error(error);
+		  alert('상세 데이터를 불러오는 데 실패했습니다.');
+		}
+
+
 }
