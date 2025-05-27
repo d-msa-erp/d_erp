@@ -1,10 +1,17 @@
 package kr.co.d_erp.dtos;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class MrpFirstDto {
     private Long orderIdx;      // TB_ORDER.ORDER_IDX (PK)
     private String orderCode;   // TB_ORDER.ORDER_CODE (주문번호)
@@ -20,4 +27,5 @@ public class MrpFirstDto {
     private Integer orderQty;   // TB_ORDER.ORDER_QTY
     private LocalDate deliveryDate; // TB_ORDER.DELIVERY_DATE (납기일)
     private String orderStatus; // TB_ORDER.ORDER_STATUS
+    private BigDecimal productive;
 }

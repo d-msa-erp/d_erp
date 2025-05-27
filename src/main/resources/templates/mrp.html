@@ -390,8 +390,6 @@
 		}
 
 		.bomTab1 {
-			display: grid !important;
-			grid-template-columns: 1fr 1fr;
 			gap: 10px;
 		}
 		.bomTab1 input{height: 100%; width: 100%; padding: 5px;}
@@ -401,7 +399,7 @@
 }
 		.bomTab2 {
 			display: grid;
-			grid-template-columns: 2.7fr 1fr;
+			grid-template-columns: 7fr 1fr;
 			gap: 10px;
 		}
 
@@ -427,6 +425,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 10px;
+			width: 100%;
 		}
 		.bomTab3>div {
 			display: flex;
@@ -475,9 +474,9 @@
 				<div class="table-wrapper">
 					<div>
 						
-						<input type="text" placeholder="검색" />
+						<input type="text" id="mrpSearchText" placeholder="품목명을 입력하세요" />
 						<div>
-							<button type="button">
+							<button type="submit" id="mrpSearchBtn">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 <!-- 							<button type="button" onclick="openModal()"> -->
@@ -507,46 +506,21 @@
 							<thead>
 
 								<tr>
-									<th><input type="checkbox" /></th>
+									<th><input id="checkAllOrders" type="radio" /></th>
 									<th onclick="order(this)">주문번호<a>↓</a></th>
 									<th onclick="order(this)">생산코드<a>↓</a></th>
 									<th onclick="order(this)">품목코드<a>↓</a></th>
 									<th onclick="order(this)">품목명<a>↓</a></th>
 									<th onclick="order(this)">고객사<a>↓</a></th>
-									<th onclick="order(this)">규격<a>↓</a></th>
+									<th onclick="order(this)">재고<a>↓</a></th>
 									<th onclick="order(this)">단위<a>↓</a></th>
 									<th onclick="order(this)">수량<a>↓</a></th>
 									<th onclick="order(this)">생산성<a>↓</a></th>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="itembody">
 									<tr>
 									<td class="nodata" style="grid-column: span 10;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-								<!--몇개씩 자를지는 상의해봐요 ~ -->
-								<tr onclick="opendatail()">
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>10000000</td>
-								</tr>
-								<tr>
-									<td><input type="checkbox" /></td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>100000000</td>
 								</tr>
 							</tbody>
 						</table>
@@ -559,35 +533,15 @@
 									<th onclick="order(this)">NO<a>↓</a></th>
 									<th onclick="order(this)">자재코드<a>↓</a></th>
 									<th onclick="order(this)">자재명<a>↓</a></th>
-									<th onclick="order(this)">규격<a>↓</a></th>
+									<th onclick="order(this)">재고량<a>↓</a></th>
 									<th onclick="order(this)">소요량<a>↓</a></th>
 									<th onclick="order(this)">단위<a>↓</a></th>
 									<th onclick="order(this)">투입예상량<a>↓</a></th>
 								</tr>
 							</thead>
-							<tbody>
+							<tbody id="materialbody">
 									<tr>
 									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-								
-								<!--몇개씩 자를지는 상의해봐요 ~ -->
-								<tr onclick="opendatail()">
-									<td>1</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>100</td>
-								</tr>
-								<tr>
-									<td>2</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>100</td>
 								</tr>
 							</tbody>
 						</table>
@@ -607,131 +561,36 @@
 			<h3 id="modalTitle">신규 MRP 등록</h3>
 			<form id="modalForm" class="modalForm">
 				<div class="bomTab1">
-					<div class="bomTab2">
-						<div>
-							<div>
-								<table class="grid-table">
-									<thead>
-										<tr>
-											<th>No</th>
-											<th>품목코드</th>
-											<th>품목명</th>
-											<th>규격</th>
-											<th>단위</th>
-										</tr>
-									</thead>
-									<tbody>
-										<!--등록된 품목 리스트가 쭉 나오게 ~ -->
-										<tr>
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select></td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select></td>
-										</tr>
-									</tbody>
-								</table>
-
-							</div>
-							<div>
-								<table class="grid-table">
-									<thead>
-										<tr>
-											<th>No</th>
-											<th>자재코드</th>
-											<th>자재명</th>
-											<th>규격</th>
-											<th>단위</th>
-										</tr>
-									</thead>
-									<tbody>
-										<!--등록된 자재 리스트가 쭉 나오게 ~ -->
-										<tr>
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select></td>
-										</tr>
-										<tr>
-											<td>2</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><select>
-													<option value="">--</option>
-													<option value="g">g</option>
-													<option value="kg">kg</option>
-													<option value="mL">mL</option>
-													<option value="L">L</option>
-													<option value="ea">ea</option>
-												</select></td>
-										</tr>
-									</tbody>
-								</table>
-
-							</div>
-						</div>
-						<div>
-							<ul style="list-style: none;">
-								품목
-								<li>원자재1</li>
-								<li>원자재2</li>
-								<li>원자재3</li>
-								<li>원자재4</li>
-							</ul>
-						</div>
-					</div>
+					
 
 					<div class="bomTab3">
-							<div class="flex-row">
-							<div><span>발주번호</span><input type="text" /></div>
-							<div><span>수량</span><input type="text" /></div>
-						</div>
-						<div><span>품목코드</span><input type="text" /></div>
-						<div><span>품목명</span><input type="text" /></div>
 						<div class="flex-row">
-							<div><span>원자재코드</span><input type="text" /></div>
-							<div><span>순번</span><input type="text" /></div>
-						</div>
-						<div><span>원자재명</span><input type="text" /></div>
-						<div class="flex-row">
-							<div><span>소요량</span><input type="text" /></div>
-							<div><span>재료비</span><input type="text" /></div>
-						</div>
-						<div class="flex-row">
-							<div><span>로스율</span><input type="text" /></div>
-							<div><span>생산성</span><input type="text" /></div>
-						</div>
-						<div><span>비고</span><input type="text"/></div>
+							<div><span>주문번호</span><input type="text" id="modalOrderCode" /></div>
+					        <div><span>필요생산수량</span><input type="text" id="modalProductProductionQty" /></div>
+					    </div>
+					    	<div><span>품목코드</span><input type="text" id="modalProductItemCd" /></div>
+					    	<div><span>품목명</span><input type="text" id="modalProductItemNm" /></div>
+					   	<div class="flex-row">
+					        <div><span>고객사</span><input type="text" id="modalCustomerNm" /></div>
+					        <div><span>주문일자</span><input type="date" id="modalOrderDate" /></div>
+					    </div>
+					    <div class="flex-row">
+							<div><span>MRP 상태</span><input type="text" id="modalMrpStatus" /></div> 
+					        <div><span>납기일자</span><input type="date" id="modalOrderDeliveryDate" /></div> 
+
+					    </div>
+					    <div class="flex-row">
+					        <div><span>원자재코드</span><input type="text" id="modalSelectedMaterialCode" /></div>
+					        <div><span>원자재명</span><input type="text" id="modalSelectedMaterialName" /></div>
+					    </div>
+					    <div class="flex-row">
+					        <div><span>(자재)소요량</span><input type="text" id="modalCalculatedMaterialQty" /></div>
+					        <div><span>(자재)단위</span><input type="text" id="modalSelectedMaterialUnit" /></div> </div>
+					     <div class="flex-row">
+					        <div><span>생산성</span><input type="text" id="modalProductivity" /></div>
+					        <div><span>계산된원가</span><input type="text" id="modalCalculatedCost" /></div>
+					     </div>
+					    <div><span>비고</span><input type="text" id="modalRemark"/></div>
 					</div>
 
 				</div>
@@ -801,74 +660,7 @@
 	</div>
 
 	<script src="/js/top.js"></script>
-	<script>
-		let currentTh = null;
-		let currentOrder = 'desc';
-
-		function order(thValue) {//정렬
-			const allArrows = document.querySelectorAll("th a");
-			allArrows.forEach(a => a.textContent = '↓');
-
-			if (currentTh === thValue) {
-				currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-			} else {
-				currentOrder = 'asc';
-				currentTh = thValue;
-			}
-
-			const arrow = thValue.querySelector('a');
-			arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-		}
-
-
-
-
-
-		//Modal ~ 
-		function openModal() {
-			const title = document.getElementById('modalTitle');
-			title.textContent = '신규 MRP 등록';
-			document.getElementById('modal').style.display = 'flex';
-			document.querySelector('#modalForm button[name="save"]').style.display = 'block';
-			document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
-		}
-
-		function closeModal() {
-			document.getElementById('modal').style.display = 'none';
-		}
-
-		function outsideClick(e) {
-			if (e.target.id === 'modal') {
-				closeModal();
-			}
-		}
-
-
-
-		function submitModal(event) {
-			event.preventDefault();
-			const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-			console.log(currentTab + ' 등록됨:', siteName);
-			closeModal();
-		}
-
-		//테이블 클릭 시 출력되는 modal
-		function opendatail() {
-			openModal();
-			document.getElementById('modalTitle').textContent = 'MRP 수정';
-
-			document.querySelector('#modalForm button[name="save"]').style.display = 'none';
-			document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
-		}
-		
-		document.addEventListener('DOMContentLoaded', () => {
-			  document.querySelectorAll('table').forEach(table => {
-			    const firstCells = table.querySelectorAll('tbody tr td:first-child');
-			    firstCells.forEach(td => {
-			      td.setAttribute('onclick', 'event.stopPropagation()');
-			    });
-			  });
-			});
+	<script src="/js/mrp.js">
 	</script>
 
 </body>
