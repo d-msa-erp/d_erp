@@ -144,8 +144,8 @@ async function loadOutboundTable(page = currentPage, sortBy = currentSortBy, sor
                 <td><input type="checkbox" class="trans-checkbox" data-inv-trans-idx="${trans.invTransIdx}" /></td>
                 <td>${trans.invTransCode || ''}</td>
                 <td>${formatDate(trans.transDate) || ''}</td>
+                <td>${trans.custNm || ''}</td> 
                 <td>${trans.itemNm || ''} ${trans.itemCd ? '(' + trans.itemCd + ')' : ''}</td>
-                <td>${trans.custNm || ''}</td>
                 <td>${trans.transQty !== null ? Number(trans.transQty).toLocaleString() : '0'}</td>
                 <td>${trans.unitPrice !== null ? Number(trans.unitPrice).toLocaleString() : '0'}</td>
                 <td>${totalAmount.toLocaleString()}</td>
@@ -218,7 +218,7 @@ async function openModal(mode, invTransIdx = null) {
 	saveButton.style.display = 'none'; // 저장 버튼 숨김
 	editButton.style.display = 'none'; // 수정 버튼 숨김
 	modalTransCode.readOnly = true; // 출고 코드 필드 읽기 전용
-	modalTransStatusGroup.style.display = 'none'; // 상태 선택 그룹 숨김
+	// modalTransStatusGroup.style.display = 'none'; // 상태 선택 그룹 숨김 (아래에서 모드별로 제어)
 
 	try {
 		// 모달용 데이터리스트 데이터 로드
@@ -233,6 +233,8 @@ async function openModal(mode, invTransIdx = null) {
 		modalTransCode.value = '자동 생성'; // 출고 코드 기본값
 		modalTransDate.value = new Date().toISOString().substring(0, 10); // 출고일 기본값 (오늘)
 		modalInvTransIdx.value = ''; // ID 필드 초기화
+        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
+        modalTransStatusSelect.value = 'S1'; // 상태 기본값 'S1' (출고전) 설정 [수정됨]
 	} else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
 		modalTitle.textContent = '출고 상세 정보'; // 타이틀 변경
 		editButton.style.display = 'block'; // 수정 버튼 표시
@@ -284,10 +286,16 @@ async function openModal(mode, invTransIdx = null) {
 // 모달 닫기 함수
 function closeModal() {
 	modal.style.display = 'none'; // 모달 숨김
-	modalForm.reset(); // 폼 초기화
+	modalForm.reset(); // 폼 초기화 (select 포함)
 	currentInvTransIdxForModal = null; // 현재 모달 ID 초기화
 	// 유효성 메시지 초기화
-	[modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput].forEach(input => input.setCustomValidity(''));
+	[modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput, modalTransStatusSelect] // modalTransStatusSelect 추가 [수정됨]
+		.forEach(input => {
+			input.setCustomValidity('');
+            if (input.tagName === 'SELECT') { // Selectbox는 첫번째 옵션("상태를 선택해주세요")으로 초기화
+                input.selectedIndex = 0;
+            }
+		});
 	// 모달 닫을 때 품목 리스트 전체로 리셋
 	loadModalItemsDatalist().catch(err => console.error("모달 닫을 때 품목 리스트 리셋 오류:", err));
 }
@@ -349,7 +357,7 @@ async function loadSearchDatalistData() {
 		await Promise.all([
 			loadSearchItemsDatalist(), // 검색용 전체 품목 초기 로드
 			(async () => {
-				// === BIZ_FLAG '02' (매출처)로 수정 ===
+				// bizFlag '02' (매출처)로 수정
 				const custResponse = await fetch('/api/customers/active-for-selection?bizFlag=02');
 				if (custResponse.ok) searchCustsData = await custResponse.json();
 				else console.error('검색용 거래처(매출처) 목록 조회 오류:', await custResponse.text());
@@ -379,7 +387,7 @@ async function loadModalDatalistData() {
 		const loadItemsPromise = loadModalItemsDatalist(); // 모달용 품목 리스트 (초기 전체)
 
 		const [custRes, warehouseRes, managerRes] = await Promise.all([
-			// === BIZ_FLAG '02' (매출처)로 수정 ===
+			// bizFlag '02' (매출처)로 수정
 			fetch('/api/customers/active-for-selection?bizFlag=02'),
 			fetch('/api/warehouses/active-for-selection'),
 			fetch('/api/users/active-for-selection')
@@ -716,12 +724,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			transDate: formData.get('transDate'),
 			transQty: parseInt(formData.get('transQty')),
 			unitPrice: parseFloat(formData.get('unitPrice')),
-			transStatus: formData.get('transStatus') || 'S1', // 상태 기본값 'S1' (출고전)
+			transStatus: formData.get('transStatus'), // 모달에서 선택된 값 사용
 			userIdx: formData.get('userIdx') ? parseInt(formData.get('userIdx')) : null,
 			itemIdx: parseInt(formData.get('itemIdx')),
 			custIdx: parseInt(formData.get('custIdx')),
 			remark: formData.get('remark')
 		};
+        
+        // 상태 값이 비어있는 경우 (예: 사용자가 "상태를 선택해주세요"를 그대로 둔 경우) 기본값 'S1' 사용
+        if (!data.transStatus) {
+            data.transStatus = 'S1';
+        }
 
 		const url = isEditMode ? `/api/inv-transactions/${data.invTransIdx}` : '/api/inv-transactions';
 		const method = isEditMode ? 'PUT' : 'POST';
