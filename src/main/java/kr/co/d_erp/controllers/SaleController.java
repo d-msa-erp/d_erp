@@ -1,6 +1,8 @@
 package kr.co.d_erp.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,8 +29,6 @@ public class SaleController {
         
             return salesService.getSalesOrders(orderType, sortBy, sortDirection);
     }
-<<<<<<< Updated upstream
-=======
    
     // 구매 발주(P)만 조회
     @GetMapping("/purchases")
@@ -40,6 +40,11 @@ public class SaleController {
         return salesService.getPurchaseOrders(orderType, sortBy, sortDirection); // 서비스 메서드 호출
     }
     
+    @GetMapping("/search")
+    public List<SalesView> searchItems(@RequestParam String searchTerm) {
+        return salesService.searchItems(searchTerm);
+    }
+    
     
     @GetMapping("/getno")
     public Map<String, Object> getOrderNo() {
@@ -49,5 +54,4 @@ public class SaleController {
         result.put("orderNo", randomOrderNo);
         return result;
     }
->>>>>>> Stashed changes
 }

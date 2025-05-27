@@ -1,7 +1,6 @@
 package kr.co.d_erp.domain;
 
 import jakarta.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

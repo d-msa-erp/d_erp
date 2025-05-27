@@ -197,7 +197,7 @@
             width: 100%;
             border-collapse: collapse;
             display: grid;
-            grid-template-columns: 1fr 2fr 2fr 3fr 1fr 2fr 1fr 2fr;
+            grid-template-columns: 1fr 1.4fr 3fr 3fr 1fr 2fr 1fr 2fr 1.2fr;
         }
 
         thead,
@@ -397,9 +397,9 @@
                 <div class="table-wrapper">
                     <div>
                         <div style="color: red;">적정재고 n개 미만은 이곳에 출력</div>
-                        <input type="text" placeholder="검색" />
+                        <input type="text" placeholder="검색" id="searchInput"/>
                         <div>
-                            <button type="button">
+                            <button type="button" onclick="searchItems()">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 							<button type="button" onclick="openModal()">
@@ -421,9 +421,7 @@
 							</button>
                         </div>
                         <table class="grid-table">
-
                             <thead>
-
                                 <tr>
                                     <th><input type="checkbox" /></th>
                                     <th onclick="order('itemCode')">자재번호<a>↓</a></th>
@@ -433,34 +431,12 @@
 						            <th onclick="order('orderDate')">발주일<a>↓</a></th>
 						            <th onclick="order('totalPrice')">총액<a>↓</a></th>
 						            <th onclick="order('userName')">발주처 담당자<a>↓</a></th>
+						            <th onclick="order('orderStatus')">상태<a>↓</a></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                	<tr>
-									<td class="nodata" style="grid-column: span 8;justify-content: center;">등록된 데이터가 없습니다.</td>
-								</tr>
-                                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()">
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                            </tbody>
+                            <tbody id="purchasesTableBody">
+
+              				</tbody>
                         </table>
                    <div class="pagination-wrap">
 							총 n건 1/n페이지
@@ -489,32 +465,29 @@
             <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" required />
+                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
                 </div>
                 <div>
-                    <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" required />
+                    <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" id="itemName" required />
                 </div>
                 <div>
-                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
+                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" id="unitPrice" required />
                 </div>
                 <div class="flex-row">
                     <div>
-                        <span>발주 수량 : </span><input type="text" placeholder="단위를 입력해주세요" required />
+                        <span>발주 수량 : </span><input type="text" placeholder="수량을 입력해주세요" id="quantity" required />
                     </div>
 
-                    <div><span>적정 재고 :</span> <span>255</span></div>
-                    <div><span>현재 재고 :</span> <span>255</span></div>
+                    <div><span>적정 재고 :</span><span id="optimalInventory"></span></div>
+                    <div><span>현재 재고 :</span><span id="currentInventory"></span></div>
 
                 </div>
 
                 <div>
                     <span>발주처</span>
-                    <select>
-                        <option value="">발주처를 선택해주세요</option>
-                        <option value="1">발주처1</option>
-                        <option value="2">발주처2</option>
-                        <option value="3">발주처3</option>
-                    </select>
+                    <input type="text" list="companyList" placeholder="거래처를 검색하세요" id="companySearchInput" required>
+					<datalist id="companyList"></datalist>
+					<input type="hidden" id="selectedCustIdx" name="custIdx">
                 </div>
                 <div>
                     <div>
@@ -523,16 +496,16 @@
                     </div>
                     <div>
                         <span>납기예정일</span>
-                        <input type="date" />
+                        <input type="date" id="deliveryDate"/>
                     </div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
 					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" name="save" style="display: none;">
+						<button type="button" name="save" style="display: none;" id="saveBtn">
 							<span class="material-symbols-outlined">save</span> 등록
 						</button>
-						<button type="button" name="edit" style="display: block;">
+						<button type="button" name="edit" style="display: block;" id="editBtn">
 							<span class="material-symbols-outlined">edit</span> 수정
 						</button>
 						<button type="button" onclick="closeModal()">
@@ -577,7 +550,7 @@
                         document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
                     });
 
-
+		/*
         //Modal ~ 
         function openModal() {
             const title = document.getElementById('modalTitle');
@@ -603,7 +576,8 @@
             console.log(currentTab + ' 등록됨:', siteName);
             closeModal();
         }
-
+		
+        /*
         //테이블 클릭 시 출력되는 modal
         function opendatail() {
             openModal();
@@ -613,7 +587,7 @@
             document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
 
         }
-
+		*/
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('table').forEach(table => {
                 const firstCells = table.querySelectorAll('tbody tr td:first-child');

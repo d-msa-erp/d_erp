@@ -433,10 +433,29 @@
                                     <th onclick="order(this)">단위<a>↓</a></th>
                                 </tr>
                             </thead>
-                            <tbody id="ivenbody">
-                                <tr id="noinven" style="display:none;">
+                            <tbody>
+                                	<tr>
 									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
 								</tr>
+                                <!--몇개씩 자를지는 상의해봐요 ~ -->
+                                <tr onclick="opendatail()">
+                                    <td><input type="checkbox" /></td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                    <td>test</td>
+                                </tr>
                             </tbody>
                         </table>
                         <div class="pagination-wrap">
@@ -523,7 +542,73 @@
 
 
 <script src="/js/top.js"></script>
-    <script src="/js/stock.js"></script>
+    <script>
+        let currentTh = null;
+        let currentOrder = 'desc';
+
+        function order(thValue) {//정렬
+            const allArrows = document.querySelectorAll("th a");
+            allArrows.forEach(a => a.textContent = '↓');
+
+            if (currentTh === thValue) {
+                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+            } else {
+                currentOrder = 'asc';
+                currentTh = thValue;
+            }
+
+            const arrow = thValue.querySelector('a');
+            arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+        }
+
+
+
+
+
+        //Modal ~ 
+        function openModal() {
+            const title = document.getElementById('modalTitle');
+            title.textContent = '신규 자재/품목 등록';
+            document.getElementById('modal').style.display = 'flex';
+            document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
+            document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function outsideClick(e) {
+            if (e.target.id === 'modal') {
+                closeModal();
+            }
+        }
+
+        function submitModal(event) {
+            event.preventDefault();
+            const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
+            console.log(currentTab + ' 등록됨:', siteName);
+            closeModal();
+        }
+
+        //테이블 클릭 시 출력되는 modal
+        function opendatail() {
+            openModal();
+            document.getElementById('modalTitle').textContent = '자재/품목 정보';
+            
+            document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
+            document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+        	  document.querySelectorAll('table').forEach(table => {
+        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
+        	    firstCells.forEach(td => {
+        	      td.setAttribute('onclick', 'event.stopPropagation()');
+        	    });
+        	  });
+        	});
+    </script>
 </body>
 
 </html>

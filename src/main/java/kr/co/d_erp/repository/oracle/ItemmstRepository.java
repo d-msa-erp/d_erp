@@ -1,27 +1,15 @@
 package kr.co.d_erp.repository.oracle;
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-
-
-=======
->>>>>>> Stashed changes
 import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
->>>>>>> Stashed changes
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-<<<<<<< Updated upstream
-import kr.co.d_erp.domain.Itemmst;
-<<<<<<< Updated upstream
-=======
-=======
->>>>>>> Stashed changes
 import kr.co.d_erp.dtos.BomSummaryProjection;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
@@ -31,20 +19,10 @@ import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
 import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
->>>>>>> Stashed changes
 
 @Repository
-<<<<<<< Updated upstream
-public interface ItemmstRepository extends JpaRepository<Itemmst, Long>{
-
-<<<<<<< Updated upstream
-	
-}
-=======
-=======
 public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
 
->>>>>>> Stashed changes
     /**
      * Datalist에 사용할 모든 (또는 활성) 품목 정보를 DTO로 조회합니다.
      * 품목명으로 정렬합니다.
@@ -189,4 +167,3 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     // 희원 여기까지 --------------------------
     
 }
->>>>>>> Stashed changes

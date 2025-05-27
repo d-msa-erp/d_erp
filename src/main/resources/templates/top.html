@@ -34,6 +34,10 @@ body {
 .top-Wrapper .title {
 	font-size: 1.5rem;
 	color: #333;
+	cursor: pointer;
+}
+.top-Wrapper .title:hover {
+color: #46a6ff;
 }
 
 .top-Wrapper .logout {
@@ -63,10 +67,21 @@ body {
 	top: 100%;
 	left: 0;
 	background-color: #f8f9fa;
-	display: none;
+	overflow: hidden;
+	max-height: 0;
+	opacity: 0;
+	transition: max-height 0.3s ease, opacity 0.3s ease;
 	min-width: 140px;
 	z-index: 100;
 	border-radius: 3px;
+	pointer-events: none;
+}
+
+.top-Wrapper .menu-item:hover .submenu,
+.top-Wrapper .menu-item.active .submenu {
+	max-height: 500px; /* 충분히 큰 값 */
+	opacity: 1;
+	pointer-events: auto;
 }
 
 .top-Wrapper .submenu span {
@@ -261,6 +276,17 @@ table {
 	max-height: 300px;
 	overflow-y: auto;
 }
+
+.top-Wrapper .menu-item > .label {
+	transition: background-color 0.3s, color 0.3s;
+	border-radius: 3px;
+}
+
+.top-Wrapper .menu-item:hover > .label {
+	background-color: #e0f0ff;
+	color: #007bff;
+}
+
 </style>
 </head>
 <body>
@@ -314,16 +340,16 @@ table {
 				<div class="menu-item" onclick="toggleMenu(event, this)">
 					<div class="label">생산 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='planning'">생산 계획</span> <span
-							onclick="location.h">생산 지시</span> <span onclick="location.h">생산
-							실적 관리</span>
+						<span onclick="location.href='planning'">생산 계획</span> 
+<!-- 						<span onclick="location.h">생산 지시</span>  -->
+<!-- 						<span onclick="location.h">생산 실적 관리</span> -->
 					</div>
 				</div>
 
 				<div class="menu-item" onclick="toggleMenu(event, this)">
 					<div class="label">인사 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='/hr'">사원관리 관리</span>
+						<span onclick="location.href='/hr'">사원 관리</span>
 					</div>
 				</div>
 				<div class="menu-item" onclick="toggleMenu(event, this)">

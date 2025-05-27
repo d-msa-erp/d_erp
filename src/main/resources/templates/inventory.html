@@ -562,77 +562,6 @@
         	}
         	
             fetch(url)
-<<<<<<< Updated upstream
-                .then(response => { // 첫 번째 .then()에서 response 객체 받음
-                    const totalCount = response.headers.get('X-Total-Count'); // 헤더 추출
-                    return response.json().then(data => ({ data: data, totalCount: totalCount })); // 데이터와 총 개수 함께 반환
-                })
-                .then(({ data, totalCount }) => { // 두 번째 .then()에서 받음
-                    console.log('서버 응답 데이터:', data);
-                    console.log('총 개수:', totalCount);
-
-                    const items = data; // 서버가 배열 형태로 데이터를 반환한다고 가정
-                    totalPages = Math.ceil(totalCount / pageSize);
-                    currentPage = page;
-
-                    totalCountSpan.textContent = `총 ${totalCount || 0}건`;
-                    currentPageSpan.textContent = `${currentPage}/${totalPages || 1}페이지`;
-                    prevPageButton.disabled = currentPage === 1;
-                    nextPageButton.disabled = currentPage === totalPages;
-                    currentPageInput.value = currentPage;
-
-                    itemTableBody.innerHTML = '';
-                    if (items && items.length > 0) {
-                        noDataRow.style.display = 'none';
-                        items.forEach(item => {
-                            const row = itemTableBody.insertRow();
-                            row.style.cursor = 'pointer'; // 클릭 가능한 스타일 추가
-                            row.addEventListener('click', () => openModal(item)); // 클릭 이벤트 리스너 추가
-                            const checkboxCell = row.insertCell();
-                            const checkbox = document.createElement('input');
-                            checkbox.type = 'checkbox';
-                            checkbox.classList.add('item-checkbox');
-                            checkbox.addEventListener('click',(e) =>{
-                            	e.stopPropagation();
-                            });
-                            checkboxCell.appendChild(checkbox);
-                            const itemNameCell = row.insertCell();
-                            itemNameCell.textContent = item.item_NM || "";
-                            
-                            const itemCodeCell = row.insertCell();
-                            
-                            itemCodeCell.textContent = item.item_CD || "";
-                            
-                            const itemCat1Cell = row.insertCell();
-                            //itemCat1Cell.value = item.item_CAT1 || "";
-                            itemCat1Cell.textContent = item.item_CATX1 || "";
-                            
-                            const itemCat2Cell = row.insertCell();
-                            itemCat2Cell.textContent = item.item_CATX2 || ""; 
-                            
-                            const custNmCell = row.insertCell();
-                            custNmCell.textContent = item.cust_NM || ""; 
-                            
-                            const unitNmCell = row.insertCell();
-                            unitNmCell.textContent = item.unit_NM || "";   
-                            
-                            const qtyCell = row.insertCell();
-                            qtyCell.textContent = item.qty || "";         
-                            
-                            const itemCostCell = row.insertCell();
-                            itemCostCell.textContent = item.item_COST || "";
-                            
-                            row.dataset.item = JSON.stringify(item);
-                        });
-                        updateCheckAllItem();
-                    } else {
-                        noDataRow.style.display = '';
-                    }
-                })
-                .catch(error => {
-                    console.error('데이터를 가져오는 중 오류 발생:', error);
-                    noDataRow.style.display = '';
-=======
             .then(response => {
                 const totalCountHeader = response.headers.get('X-Total-Count');
                 // API가 Page<Item.Response>를 반환하면, data는 content 배열을 포함한 Page 객체일 수 있습니다.
@@ -645,7 +574,6 @@
                     // 현재 코드는 헤더에서 totalCount를 가져오고, data가 직접 아이템 배열이라고 가정합니다.
                     // 만약 Page 객체가 넘어온다면: const items = responseData.content; totalPages = responseData.totalPages; currentPage = responseData.number + 1;
                     return { data: responseData.content ? responseData.content : responseData, totalCount: totalCountHeader || (responseData.totalElements !== undefined ? responseData.totalElements : 0) };
->>>>>>> Stashed changes
                 });
             })
             .then(({ data, totalCount }) => {
@@ -888,12 +816,7 @@
 		async function selectCat1(selectedCatIdx=null) {
 			const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
 			cat1Select.innerHTML = '<option value="">대분류를 선택해주세요</option>';
-<<<<<<< Updated upstream
-			console.log("selectCat1 called with selectedCatIdx:", selectedCatIdx); // 추가
-			
-=======
             const cat2Select = document.querySelector('#modalForm select[name="item_CATX2"]'); // 소분류 셀렉트
->>>>>>> Stashed changes
 			try{
 				const response = await fetch(`/api/items/cats`);
 		        if (!response.ok) { throw new Error(`Failed to load categories: ${response.status}`);}
@@ -924,7 +847,6 @@
 		        console.error('대분류 목록 로드 실패:', error);
 				alert('대분류 목록을 불러오는 중 오류가 발생했습니다.');
 			}
-			
 		}
 		// 대분류 선택 변경 시 소분류를 로드하는 이벤트 핸들러
 		async function cat2Change() {
@@ -988,21 +910,6 @@
 		        const units = await response.json(); // units는 UnitForItemDto 배열
 		        units.forEach(unit => {
 		            const option = document.createElement('option');
-<<<<<<< Updated upstream
-		            option.value = unit.unit_IDX; // option의 value는 item_UNIT
-		            option.textContent = unit.unit_NM; // option의 텍스트는 UNIT_NM
-		        	
-		            unitSelect.appendChild(option);
-		        });
-
-		        if (selectedUnitIdx !== null) {
-		            unitSelect.value = selectedUnitIdx; // 수정 모드일 때 선택된 단위 설정
-		            
-		        } else {
-		            unitSelect.value = ""; // 신규 모드일 때 초기화
-		           
-		        }
-=======
 		            option.value = unit.unitIdx; // 필드명 변경: unit_IDX -> unitIdx
 		            option.textContent = unit.unitNm; // 필드명 변경: unit_NM -> unitNm
 		            unitSelect.appendChild(option);
@@ -1010,7 +917,6 @@
                 if (selectedUnitIdx !== null) {
                     unitSelect.value = selectedUnitIdx;
                 }
->>>>>>> Stashed changes
 		    } catch (error) {
 		        console.error('단위 목록 로드 실패:', error);
 		        alert('단위 목록을 불러오는 중 오류가 발생했습니다.');
@@ -1023,20 +929,6 @@
             const title = document.getElementById('modalTitle');
 		    const form = document.getElementById('modalForm');
 		    form.reset(); // 폼 초기화
-<<<<<<< Updated upstream
-		    
-		    // 품목코드 필드 (수정 가능/불가 제어)
-		    const modalItemCode = document.querySelector('#modalForm input[name="item_CD"]');
-		    // 거래처 선택 필드 (select 태그)
-		    const customerSelect = document.getElementById('cust_NM');
-		    const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
-		    const cat2Select = document.querySelector('#modalForm select[name="item_CATX2"]');
-		    const unitSelect = document.querySelector('#modalForm select[name="item_UNIT"]');
-
-		  
-		    // 수정 모드일 때 (item 객체가 전달됨)
-		    if (item) {
-=======
 
             // 숨겨진 필드 (소분류 ID 임시 저장용 - 수정 시점)
             let cat2HiddenInput = document.querySelector('#modalForm input[name="item_CAT2_hidden_for_edit"]');
@@ -1055,27 +947,15 @@
 		    const unitSelect = document.querySelector('#modalForm select[name="item_UNIT"]');
 		
 		    if (item) { // 수정 모드 (item은 Item.Response)
->>>>>>> Stashed changes
 		        title.textContent = '품목 수정';
 		        document.querySelector('#modalForm button[name="save"]').style.display = 'none';
 		        document.querySelector('#modalForm button[name="edit"]').style.display = 'block';
 		
-<<<<<<< Updated upstream
-		        // 기존 품목 정보 채우기
-		        document.querySelector('#modalForm input[name="item_CD"]').value = item.item_CD || "";
-		        document.querySelector('#modalForm input[name="item_NM"]').value = item.item_NM || "";
-		        
-		        document.querySelector('#modalForm select[name="item_CATX1"]').value = item.item_CAT1 || ""; // 대분류명
-		        document.querySelector('#modalForm select[name="item_CATX2"]').value = item.item_CAT2 || ""; // 소분류명
-		        document.querySelector('#modalForm input[name="item_SPEC"]').value = item.item_SPEC || "";
-		        document.querySelector('#modalForm input[name="item_COST"]').value = item.item_COST || "";
-=======
 		        itemCodeInput.value = item.itemCd || "";
                 itemCodeInput.readOnly = true;
 		        document.querySelector('#modalForm input[name="item_NM"]').value = item.itemNm || "";
 		        document.querySelector('#modalForm input[name="item_SPEC"]').value = item.itemSpec || "";
 		        document.querySelector('#modalForm input[name="item_COST"]').value = item.itemCost === null ? "" : item.itemCost;
->>>>>>> Stashed changes
 		        document.querySelector('#modalForm input[name="remark"]').value = item.remark || "";
 		        document.querySelector('#modalForm input[name="optimal_INV"]').value = item.optimalInv === null ? "" : item.optimalInv;
 		        document.querySelector('#modalForm input[name="item_IDX"]').value = item.itemIdx || "";
@@ -1093,45 +973,6 @@
                 selectCat1(item.itemCat1Id); // Item.Response의 itemCat1Id 사용, 이 함수가 selectCat2도 트리거함
                 selectUnit(item.itemUnitId); // Item.Response의 itemUnitId 사용
 		
-<<<<<<< Updated upstream
-		        // 품목코드는 수정 불가하도록 readonly 설정
-		       modalItemCode.readOnly = true;
-		
-		        // 거래처 드롭다운 로드 및 해당 품목의 거래처 선택
-		        selectCust().then(() => {
-		            if (customerSelect && item.cust_IDX) {
-		            	customerSelect.value = item.cust_IDX; 
-		            }
-		        }).catch(error => {
-		            console.error('거래처 목록 로드 또는 선택 중 오류 발생:', error);
-		            alert('거래처 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
-		        });
-		       /*  selectUnit().then(() => {
-		        	if (unitSelect && item.item_UNIT)
-		        }) */
-		        selectCat1(item.item_CAT1).then(() => { // item.item_CAT1으로 대분류 로드 및 선택
-		            // 대분류 선택이 완료된 후에 소분류 로드 및 선택을 진행
-		            if (item.item_CAT1) {
-		                selectCat2(item.item_CAT1, item.item_CAT2).catch(error => {
-		                    console.error('소분류 로드 중 오류 발생:', error);
-		                });
-		            } else {
-		                cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
-		                cat2Select.value = "";
-		                cat2Select.disabled = true;
-		            }
-		        }).catch(error => {
-		            console.error('대분류 목록 로드 또는 선택 중 오류 발생:', error);
-		            alert('대분류 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
-		        });    
-		        selectUnit(item.item_UNIT).catch(error => { // item.item_UNIT으로 단위 로드 및 선택
-		            console.error('단위 목록 로드 또는 선택 중 오류 발생:', error);
-		            alert('단위 정보를 불러오거나 설정하는 중 오류가 발생했습니다.');
-		        });
-		        
-		        // 수정 버튼 이벤트 리스너 연결
-=======
->>>>>>> Stashed changes
 		        const editButton = document.querySelector('#modalForm button[name="edit"]');
                 // 이벤트 리스너 중복 방지를 위해 기존 리스너를 클로닝으로 제거 후 새로 추가
                 const newEditButton = editButton.cloneNode(true);
@@ -1149,23 +990,10 @@
 		        itemCodeInput.readOnly = false; // 자동생성 시 true로 바뀜
 		        createItemCD();
 		
-<<<<<<< Updated upstream
-		        // 거래처 드롭다운 로드 (선택된 값 없음)
-		        selectCust(null);
-				
-		        selectCat1(null).then(() => {
-		            cat2Select.innerHTML = '<option value="">소분류를 선택해주세요</option>';
-		            cat2Select.disabled = true;
-		        });
-		        selectUnit(null);
-		        
-		        // 등록 버튼 이벤트 리스너 연결
-=======
 		        selectCust();
 		        selectCat1(); // 대분류 로드 (선택된 값 없이) -> 여기서 소분류는 자동으로 초기화됨
                 selectUnit();
 
->>>>>>> Stashed changes
 		        const saveBtn = document.querySelector('#modalForm button[name="save"]');
                 const newSaveBtn = saveBtn.cloneNode(true);
                 saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);
@@ -1219,57 +1047,9 @@
                 itemCost: formProps.item_COST ? parseFloat(formProps.item_COST) : null
             };
             
-<<<<<<< Updated upstream
-            
-            let selectedUnitIdx = 0; // 이 라인이 추가 또는 수정되었습니다.
-            if (newItem.item_UNIT && String(newItem.item_UNIT).trim() !== '') {
-                selectedUnitIdx = parseInt(newItem.item_UNIT);
-                // 추가 유효성 검사: 숫자로 변환되지 않았다면 알림
-                if (isNaN(selectedUnitIdx)) {
-                    alert("단위는 유효한 숫자여야 합니다.");
-                    return;
-                }
-            } else {
-                // 단위가 선택되지 않았을 경우 필수 입력 알림
-                alert("단위를 선택해주세요.");
-                return;
-            }
-            newItem.item_UNIT = selectedUnitIdx;
-            console.log("전송될 데이터 : ",newItem);
-            
-            //유효성 검사
-            if (!newItem.item_NM || newItem.item_NM.trim() === '') {
-                alert("품목명은 필수 입력 사항입니다.");
-                return;
-            }else if (isNaN(newItem.cust_IDX) || newItem.cust_IDX <= 0) { // parseInt 결과가 NaN이거나 유효하지 않은 ID (0 등)
-                alert("거래처를 선택해주세요.");
-            	
-                return;
-            }else if (!newItem.item_CAT1 || newItem.item_CAT1 <= 0) {
-                alert("대분류를 선택해주세요.");
-                return;
-            }else if (!newItem.item_COST || newItem.item_COST.trim() === '') {
-                alert("단가는 필수 입력 사항입니다.");
-                return;
-            }else if (!newItem.optimal_INV || newItem.optimal_INV.trim() === '') {
-                alert("적정재고는 필수 입력 사항입니다.");
-                return;
-            }
-            let parsedCost = parseFloat(newItem.item_COST);
-            if (isNaN(parsedCost)) {
-                alert("단가는 유효한 숫자여야 합니다."); // 숫자가 아닌 경우 유효성 메시지
-                return;
-            }
-            newItem.item_COST = parseInt(parsedCost);
-            
-            
-            if (newItem.item_CAT1 === 1) {
-                newItem.item_FLAG = '01';
-=======
             // itemFlag 설정 (기존 로직 유지 또는 서버에서 처리하도록 변경)
             if (payload.itemCat1Id === 1) { // 예시: 대분류 ID가 1이면 '01'
                 payload.itemFlag = '01';
->>>>>>> Stashed changes
             } else {
                 payload.itemFlag = '02'; // 그 외 '02'
             }
@@ -1314,40 +1094,6 @@
 		//품목 데이터 업데이트 함수
 		function updateItem(item_IDX) {
 			
-<<<<<<< Updated upstream
-		    const formData = new FormData(document.getElementById('modalForm'));
-		    const updatedItem = Object.fromEntries(formData.entries());
-		    updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
-		    if(updatedItem.cust_NM){
-		    	updatedItem.cust_IDX = parseInt(updatedItem.cust_NM);
-		        
-		    }
-		    if (updatedItem.item_CATX1) {
-		        updatedItem.item_CAT1 = parseInt(updatedItem.item_CATX1);
-		        
-		    }
-		    if (updatedItem.item_CATX2) {
-		        updatedItem.item_CAT2 = parseInt(updatedItem.item_CATX2);
-		       
-		    }
-		    if (updatedItem.item_UNIT) {
-		        updatedItem.item_UNIT = parseInt(updatedItem.item_UNIT);
-		        
-		    }
-		    if (updatedItem.item_COST) {
-		        updatedItem.item_COST = parseInt(updatedItem.item_COST);
-		    }
-
-		     if (updatedItem.item_CAT1 === 1) {
-		         updatedItem.item_FLAG = '01';
-		     } else {
-		         updatedItem.item_FLAG = '02';
-		     }
-		    
-            console.log("전송될 updatedItem:", updatedItem); 
-            console.log("1번",updatedItem.item_NM);
-            console.log("2번",item_IDX);
-=======
 			const formData = new FormData(document.getElementById('modalForm'));
             const formProps = Object.fromEntries(formData.entries());
 
@@ -1372,7 +1118,6 @@
                 payload.itemFlag = '02'; // 그 외 '02'
             }
             console.log("전송될 수정 품목 데이터 (payload):", payload); 
->>>>>>> Stashed changes
             
             // 유효성 검사 (submitModal과 유사하게 적용)
             if (!payload.itemNm || payload.itemNm.trim() === '') { alert("품목명은 필수 입력 사항입니다."); return; }

@@ -39,13 +39,25 @@ public class UsermstController {
 
 	// 사용자 추가
 	@PostMapping
-	public ResponseEntity<Usermst> createUser(@RequestBody Usermst Usermst) {
+	public ResponseEntity<?> createUser(@RequestBody Usermst usermst) { // 반환 타입을 ResponseEntity<?> 또는 ResponseEntity<Object> 등으로 변경
+		//오류 확인용 시스아웃 
+		System.out.println("--- Controller: createUser ---");
+	    System.out.println("Received userId: " + usermst.getUserId());
+	    System.out.println("Received userPswd from JSON: " + usermst.getUserPswd()); // ⭐ 이 값 확인!
+	    System.out.println("Received userNm: " + usermst.getUserNm());
+		
 		try {
-			Usermst newUser = UsermstService.addUser(Usermst);
-			return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(null); // 간단한 예외 처리
-		}
+	        Usermst newUser = UsermstService.addUser(usermst);
+	        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);
+	    } catch (IllegalArgumentException e) {
+	        // 오류 메시지를 포함한 객체를 body로 전달
+	        return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+	    } catch (Exception e) { // 다른 예외도 고려 (예: 데이터 바인딩 실패 등)
+	        // 실제 운영 환경에서는 더 구체적인 로깅과 에러 처리가 필요
+	        // logger.error("Error creating user", e);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+	                             .body(java.util.Map.of("message", "사용자 등록 중 서버 오류가 발생했습니다: " + e.getMessage()));
+	    }
 	}
 
 	// 사용자 수정

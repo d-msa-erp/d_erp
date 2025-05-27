@@ -207,7 +207,7 @@ table.grid-table {
 	width: 100%;
 	border-collapse: collapse;
 	display: grid;
-	grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr;
+	grid-template-columns: 1fr 2fr 2fr 3fr 2fr 2fr 2fr 1fr;
 	overflow-x: auto;
 }
 
@@ -313,7 +313,7 @@ table input[type="text"] {
 .modal-content .modalForm .three-items {
 	grid-column: span 2;
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
+	grid-template-columns: 1fr 1fr 1fr 1fr;
 	gap: 20px;
 }
 
@@ -366,6 +366,15 @@ table input[type="text"] {
 
 .modal-content .modal-buttons>:nth-child(3)button {
 	background: #777;
+}
+
+.modal-content input:not([type="checkbox"]), .modal-content select, .modal-content textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* 슬라이드 css */
@@ -485,7 +494,7 @@ width: 100%;
 
 						<input type="text" placeholder="검색" id="searchInput" />
 						<div>
-							<button type="button" id="searchBtn">
+							<button type="button" id="searchBtn" onclick="searchItems()">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 							<button type="button"
@@ -513,21 +522,13 @@ width: 100%;
 							<thead>
 								<tr>
 									<th><input type="checkbox" /></th>
-<<<<<<< Updated upstream
-									<th onclick="order(this)">주문번호<a>↓</a></th>
-									<th onclick="order(this)">품명<a>↓</a></th>
-									<th onclick="order(this)">품목<a>↓</a></th>
-									<th onclick="order(this)">수량<a>↓</a></th>
-									<th onclick="order(this)">고객사<a>↓</a></th>
-									<th onclick="order(this)">납기일<a>↓</a></th>
-=======
 									<th onclick="order('orderCode')">주문번호<a>↓</a></th>
 									<th onclick="order('itemCode')">품목코드<a>↓</a></th>
 									<th onclick="order('itemName')">품목명<a>↓</a></th>
 									<th onclick="order('quantity')">수량<a>↓</a></th>
 									<th onclick="order('customerName')">고객사<a>↓</a></th>
-									<th onclick="order('deliveryDate')">납기일<a>↓</a></th>
->>>>>>> Stashed changes
+									<th onclick="order('deliveryDate')">납기일<a>↓</a></th>							
+									<th onclick="order('orderStatus')">상태<a>↓</a></th>							
 								</tr>
 							</thead>
 							<tbody id="salesTableBody">
@@ -560,56 +561,59 @@ width: 100%;
 			<h3 id="modalTitle">신규 등록</h3>
 			<form id="modalForm" class="modalForm">
 				<div>
-					<span>착수일</span><input type="date" required />
+					<span>착수일</span><input type="date" id="startDate" required />
 				</div>
 				<div>
-					<span>납기일</span><input type="date" required />
+					<span>납기일</span><input type="date" id="dueDate" required />
 				</div>
 				<div>
-					<span>주문번호</span><input type="text" placeholder="랜덤값으로 들어가게" required />
+					<span>주문번호</span><input type="text" id="orderNo" th:value="${orderNo}" readonly required />
 				</div>
 				
-<div class="custom-select-wrapper">
-<span>거래처</span>
-    <input type="text" list="companyList" placeholder="거래처를 검색하세요" required>
-<datalist id="companyList" >
-  <option value="삼성전자">
-  <option value="LG화학">
-  <option value="현대자동차">
-  <option value="기아">
-  <option value="SK하이닉스">
-</datalist>
-  </div>
-				<div>
-					<span>담당자</span><input type="text" placeholder="세션으로 받아오기" required />
+				<div class="custom-select-wrapper">
+					<span>거래처</span>
+					<input type="text" list="companyList" placeholder="거래처를 검색하세요" id="companySearchInput" required>
+					<datalist id="companyList"></datalist>
+					<input type="hidden" id="selectedCustIdx" name="custIdx">
 				</div>
 				<div>
-					<span>담당자 번호</span><input type="text" placeholder="세션으로 받아오기"
-						required />
+					<span>담당자</span><input type="text" th:value="${UserNm}" id="userName" readonly />
+					<input type="hidden" th:value="${UserIdx}" id="userIdx"/>
+				</div>
+				<div>
+					<span>담당자 번호</span><input type="text" th:value="${UserTel}" id="userTel"
+						readonly />
 				</div>
 
 				<div class="three-items">
 
 					<div>
 						<div class="custom-select-wrapper">
-<span>품목</span>
-    <input type="text" list="companyList" placeholder="거래처를 검색하세요" required>
-<datalist id="companyList">
-  <option value="삼성전자">
-  <option value="LG화학">
-  <option value="현대자동차">
-  <option value="기아">
-  <option value="SK하이닉스">
-</datalist>
-  </div>
+							<span>품목</span>
+							<input type="text" list="itemList" placeholder="품목을 검색하세요" id="itemSearchInput" required>
+							<datalist id="itemList">
+							
+							</datalist>
+							<input type="hidden" id="itemCycleTime">
+							<input type="hidden" id="itemPrice">
+							<input type="hidden" id="itemIdx">
+						</div>
 					</div>
-
+						
 					<div>
-						<span>수량</span><input type="text" placeholder="수량을 입력해주세요"
+						<span>수량</span><input type="text" placeholder="수량을 입력해주세요" id="quantity"
 							required />
 					</div>
 					<div>
-						<span>비고</span><input type="text" placeholder="비고를 입력해주세요"
+						<span>입고 예정 창고</span>
+						<input type="text" list="whList" placeholder="창고를 입력해주세요" id="whSearchInput" required />
+						<datalist id="whList">
+							
+						</datalist>
+						<input type="hidden" id="selectedwhIdx" name="whIdx">
+					</div>
+					<div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" id="remark"
 							required />
 
 					</div>
@@ -618,10 +622,10 @@ width: 100%;
 
 
 				<div class="modal-buttons" style="grid-column-start: 3;">
-					<button type="button" name="save" style="display: none;">
+					<button type="button" name="save" style="display: none;" id="saveBtn">
 						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit">
+					<button type="button" name="edit" id="editBtn">
 						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal()">
@@ -640,6 +644,7 @@ width: 100%;
 
  <!-- 이부분 참고하세요~ -->
  <script>
+ /*
     const searchInput = document.getElementById('selectSearch');
     const select = document.getElementById('mySelect');
     const originalOptions = Array.from(select.options); // 원본 저장
@@ -657,6 +662,7 @@ width: 100%;
         }
       });
     });
+ */
   </script>
  <!-- 이부분 참고하세요~ -->
   
@@ -693,7 +699,7 @@ width: 100%;
 
 
 
-
+	/*	
     //Modal ~ 
     function openModal() {
         const title = document.getElementById('modalTitle');
@@ -702,9 +708,10 @@ width: 100%;
         document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
         document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
     }
-
+	
     function closeModal() {
         document.getElementById('modal').style.display = 'none';
+        dataList.innerHTML = '';
     }
 
     function outsideClick(e) {
@@ -712,13 +719,15 @@ width: 100%;
             closeModal();
         }
     }
+    */
     function submitModal(event) {
         event.preventDefault();
         const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
         console.log(currentTab + ' 등록됨:', siteName);
         closeModal();
     }
-
+	
+    /*
     //테이블 클릭 시 출력되는 modal
     function opendatail() {
         openModal();
@@ -727,6 +736,7 @@ width: 100%;
         document.querySelector('#modalForm input[name="save"]').style.display = 'none';
         document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
     }
+    */
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('table').forEach(table => {

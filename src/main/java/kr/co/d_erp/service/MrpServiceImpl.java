@@ -2,6 +2,7 @@ package kr.co.d_erp.service;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,60 +21,17 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MrpServiceImpl implements MrpService {
-
-    private final OrderRepository orderRepository;
-    private final ItemmstRepository itemmstRepository; // 품목 정보 조회를 위해
-    private final MrpRepository mrpRepository;   // TB_MRP 테이블 직접 접근
-    private final BomDtlRepository bomDtlRepository;     // BOM 정보 조회용	
-    private final ItemInvenRepository itemInvenRepository ; // 현재고 조회용
-    private final CustmstRepository custmstRepository;
-    private final UnitRepository unitRepository;
-    
-    @PersistenceContext
-    private EntityManager entityManager; // MRP_RESULT_DETAILS 뷰 조회를 위해
-
-    
+    // ... 필드 주입 ...
+    private final ItemInvenRepository invenRepository; // 필드명이 invenRepository로 잘 되어 있음
+    // ...
     @Override
-    @Transactional(readOnly = true) // 실제 구현 메서드에 @Transactional 적용
+    @Transactional(readOnly = true)
     public Long getCurrentStockByItemIdx(Long itemIdx) {
         if (itemIdx == null) {
-            // throw new IllegalArgumentException("Item ID cannot be null");
-            return 0L; // 또는 null을 반환하거나 예외를 던지는 것을 고려
+            return 0L;
         }
-        // 주입된 itemInvenRepository 인스턴스 사용
-        Optional<InvenDto> inventoryOpt = itemInvenRepository.findByItem_ItemIdx(itemIdx);
-
-        // InvenDto의 stockQty 필드가 Long 타입이라고 가정
-        return inventoryOpt.map(InvenDto::getStockQty).orElse(0L); // 재고 없으면 0L 반환
+        Optional<InvenDto> inventoryOpt = invenRepository.findByItem_ItemIdx(itemIdx); // 주입된 invenRepository 사용
+        return inventoryOpt.map(InvenDto::getStockQty).orElse(0L);
     }
-    
-}  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    /*
-    @Autowired
-    public MrpService(OrderRepository orderRepository,
-                      ItemmstRepository itemRepository,
-                      MrpRepository mrpRepository,
-                      BomDtlRepository bomRepository,
-                      ItemInvenRepository invenRepository,
-                      CustmstRepository custRepository,
-                      UnitRepository unitRepository) {
-        this.orderRepository = orderRepository;
-        this.itemRepository = itemRepository;
-        this.mrpRepository = mrpRepository;
-        this.bomRepository = bomRepository;
-        this.invenRepository = invenRepository;
-        this.custmstRepository = custRepository;
-        this.unitRepository = unitRepository;
-    }
-    */
 
+}

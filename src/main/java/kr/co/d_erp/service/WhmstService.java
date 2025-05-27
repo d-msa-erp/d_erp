@@ -1,23 +1,29 @@
 package kr.co.d_erp.service;
 
-import kr.co.d_erp.domain.Usermst; // Usermst 엔티티 import
+import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.domain.Whmst;
-import kr.co.d_erp.dtos.WhmstDto; // WhmstDto 클래스 import
-import kr.co.d_erp.repository.oracle.UsermstRepository; // UsermstRepository import
+import kr.co.d_erp.domain.WarehouseInventoryDetailView; // 뷰 엔티티 import
+import kr.co.d_erp.dtos.WhmstDto;
+import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; // 창고 재고 상세 DTO import
+import kr.co.d_erp.repository.oracle.UsermstRepository;
 import kr.co.d_erp.repository.oracle.WhmstRepository;
+import kr.co.d_erp.repository.oracle.WarehouseInventoryDetailViewRepository; // 뷰 레포지토리 import
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class WhmstService {
 
     private final WhmstRepository whmstRepository;
-    private final UsermstRepository usermstRepository; // ⭐ 변수명 소문자로 변경 ⭐
+    private final UsermstRepository usermstRepository;
+    private final WarehouseInventoryDetailViewRepository warehouseInventoryDetailViewRepository; // ⭐ 추가 ⭐
 
     /**
      * 모든 창고 목록을 조회합니다. (정렬 및 검색 지원)
@@ -59,13 +65,12 @@ public class WhmstService {
         whmst.setUseFlag(whmstDto.getUseFlag() != null ? whmstDto.getUseFlag() : "Y");
         whmst.setWhLocation(whmstDto.getWhLocation());
 
-        // ⭐ 변경: DTO의 whUserIdx로 Usermst 엔티티를 찾아 Whmst 엔티티의 whUser 필드에 설정 ⭐
         if (whmstDto.getWhUserIdx() != null) {
             Usermst user = usermstRepository.findById(whmstDto.getWhUserIdx())
                                             .orElseThrow(() -> new NoSuchElementException("담당 사용자를 찾을 수 없습니다: " + whmstDto.getWhUserIdx()));
-            whmst.setWhUser(user); // Usermst 엔티티 객체를 Whmst 엔티티에 설정
+            whmst.setWhUser(user);
         } else {
-            whmst.setWhUser(null); // 담당자가 없는 경우
+            whmst.setWhUser(null);
         }
 
         Whmst savedWhmst = whmstRepository.save(whmst);
@@ -91,7 +96,6 @@ public class WhmstService {
         existingWhmst.setUseFlag(updatedWhmstDto.getUseFlag() != null ? updatedWhmstDto.getUseFlag() : "Y");
         existingWhmst.setWhLocation(updatedWhmstDto.getWhLocation());
 
-        // ⭐ 변경: DTO의 whUserIdx로 Usermst 엔티티를 찾아 Whmst 엔티티의 whUser 필드에 설정 ⭐
         if (updatedWhmstDto.getWhUserIdx() != null) {
             Usermst user = usermstRepository.findById(updatedWhmstDto.getWhUserIdx())
                                             .orElseThrow(() -> new NoSuchElementException("담당 사용자를 찾을 수 없습니다: " + updatedWhmstDto.getWhUserIdx()));
@@ -119,7 +123,122 @@ public class WhmstService {
      */
     @Transactional(readOnly = true)
     public List<Usermst> getActiveUsersForSelection() {
-        // Usermst 엔티티의 userStatus 필드를 기준으로 조회
         return usermstRepository.findByUserStatus("01"); // '01'이 활성 상태 코드라고 가정
+    }
+
+    // 창고 상세 재고 정보 조회 메서드
+    /**
+     * 특정 창고의 상세 재고 정보를 조회합니다.
+     * @param whIdx 창고 고유 번호
+     * @return 해당 창고의 재고 상세 정보 DTO 목록
+     */
+    @Transactional(readOnly = true)
+    public List<WarehouseInventoryDetailDto> getWarehouseInventoryDetailsByWhIdx(Long whIdx) {
+        return warehouseInventoryDetailViewRepository.findByWhIdx(whIdx).stream()
+        		.map(this::convertToWarehouseInventoryDetailDto)
+                .filter(dto -> dto != null) // 재고없을때 null반환 
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 특정 창고의 상세 재고 정보를 창고 코드로 조회합니다. 
+     * @param whCd 창고 코드
+     * @return 해당 창고의 재고 상세 정보 DTO 목록
+     */
+    @Transactional(readOnly = true)
+    public List<WarehouseInventoryDetailDto> getWarehouseInventoryDetailsByWhCd(String whCd) {
+        return warehouseInventoryDetailViewRepository.findByWhCd(whCd).stream()
+                .map(this::convertToWarehouseInventoryDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 모든 창고의 상세 재고 정보를 조회합니다.
+     * @return 모든 창고의 재고 상세 정보 DTO 목록
+     */
+    @Transactional(readOnly = true)
+    public List<WarehouseInventoryDetailDto> getAllWarehouseInventoryDetails() {
+        return warehouseInventoryDetailViewRepository.findAll().stream()
+                .map(this::convertToWarehouseInventoryDetailDto)
+                .collect(Collectors.toList());
+    }
+
+    // WarehouseInventoryDetailView 엔티티를 WarehouseInventoryDetailDto로 변환하는 private 메서드
+    private WarehouseInventoryDetailDto convertToWarehouseInventoryDetailDto(WarehouseInventoryDetailView view) {
+    	if (view == null) {
+            return null; // null을 반환
+        }
+    	
+    	return WarehouseInventoryDetailDto.builder()
+                // Warehouse Info
+                .whIdx(view.getWhIdx())
+                .whCd(view.getWhCd())
+                .whNm(view.getWhNm())
+                .whRemark(view.getWhRemark())
+                .whType1(view.getWhType1())
+                .whType2(view.getWhType2())
+                .whType3(view.getWhType3())
+                .useFlag(view.getUseFlag())
+                .whLocation(view.getWhLocation())
+
+                // Warehouse User Info
+                .whUserId(view.getWhUserId())
+                .whUserNm(view.getWhUserNm())
+                .whUserEmail(view.getWhUserEmail())
+                .whUserTel(view.getWhUserTel())
+                .whUserHp(view.getWhUserHp())
+                .whUserDept(view.getWhUserDept())
+                .whUserPosition(view.getWhUserPosition())
+
+                // Inventory Info
+                .invIdx(view.getInvIdx())
+                .stockQty(view.getStockQty())
+                .invCreatedDate(view.getInvCreatedDate())
+                .invUpdatedDate(view.getInvUpdatedDate())
+
+                // Item Info
+                .itemIdx(view.getItemIdx())
+                .itemCd(view.getItemCd())
+                .itemNm(view.getItemNm())
+                .itemFlag(view.getItemFlag())
+                .itemSpec(view.getItemSpec())
+                .itemCost(view.getItemCost())
+                .optimalInv(view.getOptimalInv())
+                .cycleTime(view.getCycleTime())
+                .itemRemark(view.getItemRemark())
+
+                // Item Category Info
+                .itemCat1Cd(view.getItemCat1Cd())
+                .itemCat1Nm(view.getItemCat1Nm())
+                .itemCat2Cd(view.getItemCat2Cd()) // DTO 필드명과 뷰 컬럼명 일치 확인 필요
+                .itemCat2Nm(view.getItemCat2Nm()) // DTO 필드명과 뷰 컬럼명 일치 확인 필요
+
+                // Item Unit Info
+                .itemUnitNm(view.getItemUnitNm())
+
+                // Item Customer Info
+                .itemCustCd(view.getItemCustCd())
+                .itemCustNm(view.getItemCustNm())
+                .build();
+    }
+    
+    /**
+     * Datalist에 사용될 활성 상태의 창고 목록을 조회합니다.
+     * WhmstDto 리스트를 반환하며, 담당자 이름과 ID를 포함할 수 있습니다 (리포지토리 쿼리 구현에 따라).
+     * @return 활성 창고 DTO 목록
+     */
+    @Transactional(readOnly = true)
+    public List<WhmstDto> findActiveWarehousesForSelection() {
+        Sort defaultSort = Sort.by(Sort.Direction.ASC, "whNm"); // 창고명 오름차순 정렬
+
+        // WhmstRepository에 정의된 findActiveWarehouseDtosByUseFlag 메소드를 직접 호출합니다.
+        // 이 메소드는 이미 List<WhmstDto>를 반환하므로, 서비스에서의 수동 변환이 필요 없습니다.
+        List<WhmstDto> activeWarehouseDtos = whmstRepository.findActiveWarehouseDtosByUseFlag("Y", defaultSort);
+
+        if (activeWarehouseDtos == null) {
+            return List.of(); // 리포지토리 결과가 null일 경우 빈 리스트 반환
+        }
+        
+        return activeWarehouseDtos;
     }
 }

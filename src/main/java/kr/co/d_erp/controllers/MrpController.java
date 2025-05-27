@@ -14,20 +14,24 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/mrp")
-@RequiredArgsConstructor
+@RequiredArgsConstructor // final 필드에 대한 생성자를 자동으로 만들어줍니다.
 public class MrpController {
 
-	private final MrpService mrpService;
-	
-	
-	 @GetMapping("/orders")
-	    public ResponseEntity<Map<String, Object>> getItemStockQuantity(@PathVariable Long itemIdx) {
-	        Long stockQty = mrpService.getCurrentStockByItemIdx(itemIdx); // 서비스 메서드 호출
+    private final MrpService mrpService; // ★★★ MrpService 인스턴스 필드 선언 및 final로 지정
 
-	        Map<String, Object> response = new HashMap<>();
-	        response.put("itemIdx", itemIdx);
-	        response.put("stockQty", stockQty);
+    // getItemStockQuantity 메서드
+    // API 경로를 좀 더 명확하게 변경하는 것을 권장합니다. (예: /stock-quantity/{itemIdx})
+    @GetMapping("/stockcheck/{itemIdx}") // 예시 경로 수정
+    public ResponseEntity<Map<String, Object>> getItemStockQuantity(@PathVariable Long itemIdx) {
+        // ★★★ 주입된 mrpService 인스턴스를 통해 메서드 호출 ★★★
+        Long stockQty = mrpService.getCurrentStockByItemIdx(itemIdx); 
 
-	        return ResponseEntity.ok(response);
-	    }
+        Map<String, Object> response = new HashMap<>();
+        response.put("itemIdx", itemIdx);
+        response.put("stockQty", stockQty);
+
+        return ResponseEntity.ok(response);
+    }
+    
+    // ... 다른 MRP 관련 컨트롤러 메서드들 ...
 }
