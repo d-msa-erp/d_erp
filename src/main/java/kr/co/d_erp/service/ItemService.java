@@ -20,12 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityNotFoundException;
-import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
 import kr.co.d_erp.dtos.Item;
 import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
+import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 import kr.co.d_erp.mappers.ItemMapper;
 import kr.co.d_erp.repository.oracle.ItemCatRepository;
@@ -59,14 +59,14 @@ public class ItemService {
 	private final ItemMapper itemMapper;
 
 	@Transactional
-    public void deleteItems(List<Integer> itemIdxs) {
+    public void deleteItems(List<Long> itemIdxs) {
         // ItemmstRepository.deleteAllById(itemIdxs); // 개별 삭제 (더 안전할 수 있음, 콜백 등)
         ItemmstRepository.deleteAllByIdInBatch(itemIdxs); // 배치 삭제 (효율적)
     }
 
     @Transactional(readOnly = true)
     public byte[] createExcelFile(String CsearchCat, String CsearchItem) throws IOException {
-        List<ItemDto> items = ItemmstRepository.findForExcel(CsearchCat, CsearchItem);
+        List<Itemmst> items = ItemmstRepository.findForExcel(CsearchCat, CsearchItem);
 
         Workbook workbook = new XSSFWorkbook();
         Sheet sheet = workbook.createSheet("품목 리스트");
@@ -84,7 +84,7 @@ public class ItemService {
         }
 
         int rowNum = 1;
-        for (ItemDto item : items) {
+        for (Itemmst item : items) {
             Row row = sheet.createRow(rowNum++);
             row.createCell(0).setCellValue(item.getItemCd());
             row.createCell(1).setCellValue(item.getItemNm());
@@ -110,7 +110,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ItemDto> getSearchItem(Pageable pageable, String CsearchCat, String CsearchItem) {
+    public Page<Itemmst> getSearchItem(Pageable pageable, String CsearchCat, String CsearchItem) {
         // Specification 사용 또는 Repository에 JPQL/NativeQuery 정의
         // 위 Repository의 findWithJoinsAndSearch 사용
         return ItemmstRepository.findWithJoinsAndSearch(CsearchCat, CsearchItem, pageable);
@@ -123,7 +123,7 @@ public class ItemService {
     }
     
     @Transactional(readOnly = true)	
-    public Page<ItemDto> getPagingItem(Pageable pageable) {
+    public Page<Itemmst> getPagingItem(Pageable pageable) {
         // Repository의 findAllWithJoins 사용
         return ItemmstRepository.findAllWithJoins(pageable);
     }
@@ -134,17 +134,18 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public ItemDto getItemById(int item_IDX) {
+
+    public Itemmst getItemById(Long itemIdx) {
         // Fetch Join을 사용하여 연관 엔티티를 함께 로드하는 것이 좋을 수 있음 (findById 호출 시)
         // 또는 필요시 여기서 DTO로 변환하여 반환
-        return ItemmstRepository.findById(item_IDX)
-                .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + item_IDX));
+        return ItemmstRepository.findById(itemIdx)
+                .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + itemIdx));
     }
     
     // ItemUpdateRequestDto 같은 별도 DTO를 받는 것이 좋음
     @Transactional
-    public ItemDto updateItem(Integer itemIdx, ItemDto itemUpdateRequest) { // DTO를 받도록 변경
-        ItemDto existingItem = ItemmstRepository.findById(itemIdx)
+    public Itemmst updateItem(Long itemIdx, Itemmst itemUpdateRequest) { // DTO를 받도록 변경
+        Itemmst existingItem = ItemmstRepository.findById(itemIdx)
                 .orElseThrow(() -> new EntityNotFoundException("Item not found with id: " + itemIdx));
 
         // 기본 정보 업데이트
@@ -204,7 +205,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public List<CatDto> findALLcat2(int PARENT_IDX) { // 이 메서드가 소분류를 찾는 것이라면
+    public List<CatDto> findALLcat2(Long PARENT_IDX) { // 이 메서드가 소분류를 찾는 것이라면
         return ItemCatRepository.findByParentIdxOrderByCatIdx(PARENT_IDX);
     }
 
@@ -220,7 +221,7 @@ public class ItemService {
     
     // ItemCreateRequestDto 같은 별도 DTO를 받는 것이 좋음
     @Transactional
-    public ItemDto insertItem(ItemDto itemToSave) { // DTO를 받도록 변경 (ItemCreateRequestDto)
+    public Itemmst insertItem(Itemmst itemToSave) { // DTO를 받도록 변경 (ItemCreateRequestDto)
         if (ItemmstRepository.existsByItemCd(itemToSave.getItemCd().trim())) {
             throw new IllegalArgumentException("품목 코드 '" + itemToSave.getItemCd() + "'는 사용중입니다.");
         }

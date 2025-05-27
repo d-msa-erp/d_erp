@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
 @Table(name= "TB_ITEMMST")
 @Getter
 @Setter
@@ -23,7 +22,8 @@ public class ItemDto {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_seq") // 시퀀스 사용
     @SequenceGenerator(name = "item_seq", sequenceName = "ISEQ$$_74438", allocationSize = 1) // Oracle 시퀀스명
     @Column(name = "ITEM_IDX")
-    private Integer itemIdx;
+    private Long itemIdx;
+
 
     @Column(name = "ITEM_CD", unique = true, nullable = false) // 품목코드, 유니크하고 필수
     private String itemCd;
@@ -41,16 +41,14 @@ public class ItemDto {
     private String remark;
 
     @Column(name = "OPTIMAL_INV")
-    private Integer optimalInv;
-
+    private Long optimalInv;
     @Column(name = "ITEM_COST")
     private Double itemCost; // Double 타입
 
 	
 	  // 연관 관계 매핑
 	  
-	  @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩
-	  
+	  @ManyToOne(fetch = FetchType.LAZY) // 지연 로딩 
 	  @JoinColumn(name = "CUST_IDX", referencedColumnName = "CUST_IDX") //TB_CUSTMST의 CUST_IDX와 조인 
 	  private CustomerForItemDto CustomerForItemDto; // 거래처 엔티티 (아래에 정의 필요)
 	 

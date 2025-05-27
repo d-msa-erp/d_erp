@@ -1,9 +1,11 @@
 package kr.co.d_erp.repository.oracle;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 import kr.co.d_erp.dtos.InvenDto;
 
-public interface ItemInvenRepository extends JpaRepository<InvenDto, Integer> {
-    
+public interface ItemInvenRepository extends JpaRepository<InvenDto, Long> {
+	Optional<InvenDto> findByItem_ItemIdx(Long itemIdx);
+
 }

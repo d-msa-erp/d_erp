@@ -14,7 +14,7 @@ import lombok.Setter;
 public class CustomerForItemDto {
     @Id
     @Column(name = "CUST_IDX")
-    private Integer custIdx;
+    private Long custIdx;
 
     @Column(name = "CUST_NM")
     private String custNm;
