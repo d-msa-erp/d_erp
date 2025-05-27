@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import kr.co.d_erp.domain.BomDtl;
+import kr.co.d_erp.dtos.BomExcelViewProjection;
 import kr.co.d_erp.dtos.BomListItemProjection;
 
 @Repository
@@ -52,4 +53,10 @@ public interface BomDtlRepository extends JpaRepository<BomDtl, Long> {
 
 	    List<BomDtl> findByParentItemIdxOrderBySeqNoAsc(Long parentItemIdx); //
 	    Optional<BomDtl> findByParentItemIdxAndSubItemIdx(Long parentItemIdx, Long subItemIdx);
+	    /**
+	     * V_BOM_EXCEL_DATA 뷰에서 특정 상위 품목 IDX들에 해당하는 모든 BOM 상세 라인을 조회.
+	     */
+	    @Query(value = "SELECT * FROM V_BOM_EXCEL_DATA WHERE parentItemIdx IN (:parentItemIdxList) ORDER BY parentItemIdx ASC, seqNo ASC", nativeQuery = true)
+	    List<BomExcelViewProjection> findExcelDataByParentItemIdxIn(@Param("parentItemIdxList") List<Long> parentItemIdxList);
+	    
 	}
