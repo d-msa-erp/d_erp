@@ -605,6 +605,9 @@
                         	e.stopPropagation();
                         });
                         checkboxCell.appendChild(checkbox);
+                        checkboxCell.addEventListener('click', (e) => {
+                            e.stopPropagation(); 
+                        });
                         
                         row.insertCell().textContent = item.itemNm || "";      // 품목명
                         row.insertCell().textContent = item.itemCd || "";      // 품목코드
