@@ -39,4 +39,9 @@ public class ItemJpaService { // 클래스 이름을 ItemJpaservice 또는 ItemD
         }
         return items;
     }
+    
+    public List<ItemForSelectionDto> findActiveItems(String itemFlag) {
+        return itemmstRepository.findForSelectionBy(itemFlag);
+    }
+    
 }
