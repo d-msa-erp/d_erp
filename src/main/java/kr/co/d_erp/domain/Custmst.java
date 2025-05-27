@@ -2,6 +2,7 @@ package kr.co.d_erp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 

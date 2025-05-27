@@ -475,9 +475,9 @@
 				<div class="table-wrapper">
 					<div>
 						
-						<input type="text" placeholder="검색" />
+						<input type="text" id="mrpsearchInput" placeholder="상품명을 입력하세요" />
 						<div>
-							<button type="button">
+							<button type="button" id="mrpSearchBtn">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 <!-- 							<button type="button" onclick="openModal()"> -->
@@ -532,6 +532,7 @@
 									<td>test</td>
 									<td>10000000</td>
 								</tr>
+<<<<<<< Updated upstream
 								<tr>
 									<td><input type="checkbox" /></td>
 									<td>test</td>
@@ -542,6 +543,8 @@
 									<td>test</td>
 									<td>100000000</td>
 								</tr>
+=======
+>>>>>>> Stashed changes
 							</tbody>
 						</table>
 
@@ -567,15 +570,6 @@
 								<!--몇개씩 자를지는 상의해봐요 ~ -->
 								<tr onclick="opendatail()">
 									<td>1</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>test</td>
-									<td>100</td>
-								</tr>
-								<tr>
-									<td>2</td>
 									<td>test</td>
 									<td>test</td>
 									<td>test</td>
@@ -788,6 +782,313 @@
 
 	<script src="/js/top.js"></script>
 	<script>
+	let currentMrpOrderPage = 1;
+	let totalMrpOrderPages = 1;
+	const mrpPageSize = 5; // 페이지당 항목 수
+    let currentSelectedOrderId = null; // 현재 선택된 주문 ID
+	
+    let mrpsearchInput, mrpSearchBtn, mrpOrderTableBody, mrpMaterialTableBody;
+    let mrpOrderTotalCountSpan, mrpOrderCurrentPageSpan, mrpOrderPrevPageBtn, mrpOrderNextPageBtn, mrpOrderCurrentPageInput;
+    let checkAllOrdersCheckbox;
+    
+	document.addEventListener('DOMContentLoaded', () => {
+        // MRP 관리 페이지용 DOM 요소 할당
+        mrpSearchInput = document.getElementById('mrpSearchInput');
+        mrpSearchButton = document.getElementById('mrpSearchBtn');
+        mrpOrderTableBody = document.getElementById('mrpOrderTableBody');
+        mrpMaterialTableBody = document.getElementById('mrpMaterialTableBody');
+        
+        mrpOrderTotalCountSpan = document.getElementById('mrpOrderTotalCount');
+        mrpOrderCurrentPageSpan = document.getElementById('mrpOrderCurrentPage');
+        mrpOrderPrevPageBtn = document.getElementById('mrpOrderBtnPrevPage');
+        mrpOrderNextPageBtn = document.getElementById('mrpOrderBtnNextPage');
+        mrpOrderCurrentPageInput = document.getElementById('mrpOrderCurrentPageInput');
+        checkAllOrdersCheckbox = document.getElementById('checkAllOrders');
+
+        // 초기 MRP 대상 주문 목록 로드
+        fetchMrpTargetOrders(currentMrpOrderPage, '');
+
+        // 검색 버튼 이벤트 리스너
+        if (mrpSearchBtn) {
+        	mrpSearchBtn.addEventListener('click', () => {
+                const searchTerm = mrpSearchInput.value.trim();
+                fetchMrpTargetOrders(1, searchTerm); // 검색 시 1페이지부터
+                clearMaterialTable(); // 새 검색 시 하단 테이블 초기화
+            });
+        }
+        
+        // 검색 입력창에서 Enter 키 입력 시 검색 실행
+        if (mrpSearchInput) {
+            mrpSearchInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // 폼 제출 방지
+                    mrpSearchButton.click(); // 검색 버튼 클릭 이벤트 트리거
+                }
+            });
+        }
+
+        // 페이지네이션 버튼 이벤트 리스너
+        if (mrpOrderPrevPageBtn) {
+            mrpOrderPrevPageBtn.addEventListener('click', () => {
+                if (currentMrpOrderPage > 1) {
+                    fetchMrpTargetOrders(currentMrpOrderPage - 1, mrpSearchInput.value.trim());
+                }
+            });
+        }
+        if (mrpOrderNextPageBtn) {
+            mrpOrderNextPageBtn.addEventListener('click', () => {
+                if (currentMrpOrderPage < totalMrpOrderPages) {
+                    fetchMrpTargetOrders(currentMrpOrderPage + 1, mrpSearchInput.value.trim());
+                }
+            });
+        }
+        if (mrpOrderCurrentPageInput) {
+            mrpOrderCurrentPageInput.addEventListener('change', function() {
+                const pageNumber = parseInt(this.value);
+                if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalMrpOrderPages) {
+                    fetchMrpTargetOrders(pageNumber, mrpSearchInput.value.trim());
+                } else {
+                    alert('유효한 페이지 번호를 입력하세요.');
+                    this.value = currentMrpOrderPage;
+                }
+            });
+        }
+
+        // 테이블 내 체크박스 클릭 시 이벤트 전파 중지 (부모 tr의 opendatail 방지)
+        // 이 로직은 테이블이 동적으로 생성될 때 각 체크박스에 대해 설정하거나 이벤트 위임 사용
+        // 아래 fetchMrpTargetOrders 함수 내에서 각 행 생성 시 체크박스에 이벤트 리스너 추가하는 방식으로 변경
+        
+        // 전체 선택 체크박스 이벤트
+        if(checkAllOrdersCheckbox) {
+            checkAllOrdersCheckbox.addEventListener('change', function() {
+                const checkboxes = mrpOrderTableBody.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+        }
+
+        // MRP 계산 버튼 이벤트 리스너 (예시)
+        const calculateBtn = document.getElementById('mrpCalculateButton');
+        if(calculateBtn) {
+            calculateBtn.addEventListener('click', handleMrpCalculate);
+        }
+
+        // MRP 삭제 버튼 이벤트 리스너 (예시)
+        const deleteBtn = document.getElementById('mrpDeleteButton');
+        if(deleteBtn) {
+            deleteBtn.addEventListener('click', handleMrpDelete);
+        }
+
+	});
+
+    // MRP 대상 주문 목록 조회 함수
+    async function fetchMrpTargetOrders(page, searchKeyword) {
+        currentMrpOrderPage = page; // 현재 페이지 업데이트
+        let url = `/api/mrp/orders?page=${page - 1}&size=${mrpPageSize}`; // 서버 API는 page를 0-indexed로 받을 수 있음
+        if (searchKeyword) {
+            url += `&searchKeyword=${encodeURIComponent(searchKeyword)}`;
+        }
+        // 만약 정렬 파라미터도 보낸다면 추가: &sort=orderIdx,desc 등
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const pageData = await response.json(); // Spring Page 객체 또는 유사 구조 가정
+            
+            mrpOrderTableBody.innerHTML = ''; // 테이블 초기화
+            const noDataRow = mrpOrderTableBody.insertRow();
+            noDataRow.innerHTML = `<td class="nodata" colspan="10" style="justify-content: center;">등록된 데이터가 없습니다.</td>`;
+            noDataRow.style.display = 'none';
+
+
+            if (pageData && pageData.content && pageData.content.length > 0) {
+                const orders = pageData.content; // MrpFirstDto 배열
+                orders.forEach(order => {
+                    const row = mrpOrderTableBody.insertRow();
+                    row.style.cursor = 'pointer';
+                    // 행 클릭 시 두 번째 테이블 로드 및 모달 열기 (opendatail 대신 새 함수 사용)
+                    row.addEventListener('click', () => handleOrderRowClick(order)); 
+
+                    const cellCheckbox = row.insertCell();
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = order.orderId; // 주문 ID를 값으로 가짐
+                    checkbox.onclick = (event) => event.stopPropagation(); // 이벤트 전파 중단
+                    cellCheckbox.appendChild(checkbox);
+
+                    row.insertCell().textContent = order.orderCode || '';
+                    row.insertCell().textContent = order.productionCode || ''; // DTO에 productionCode 필드 필요
+                    row.insertCell().textContent = order.itemCd || '';
+                    row.insertCell().textContent = order.itemNm || '';
+                    row.insertCell().textContent = order.customerNm || '';
+                    row.insertCell().textContent = order.itemSpec || '';
+                    row.insertCell().textContent = order.unitNm || '';
+                    row.insertCell().textContent = order.orderQty === null ? '' : order.orderQty;
+                    row.insertCell().textContent = order.productivity || ''; // DTO에 productivity 필드 필요
+                });
+                noDataRow.style.display = 'none';
+            } else {
+                mrpOrderTableBody.innerHTML = `<tr><td class="nodata" colspan="10" style="justify-content: center;">검색된 데이터가 없거나 등록된 데이터가 없습니다.</td></tr>`;
+            }
+
+            // 페이지네이션 정보 업데이트
+            totalMrpOrderPages = pageData.totalPages || 1;
+            mrpOrderTotalCountSpan.textContent = `총 ${pageData.totalElements || 0}건`;
+            mrpOrderCurrentPageSpan.textContent = `${currentMrpOrderPage}/${totalMrpOrderPages}페이지`;
+            mrpOrderCurrentPageInput.value = currentMrpOrderPage;
+            mrpOrderPrevPageBtn.disabled = currentMrpOrderPage === 1;
+            mrpOrderNextPageBtn.disabled = currentMrpOrderPage === totalMrpOrderPages || totalMrpOrderPages === 0;
+            if(checkAllOrdersCheckbox) checkAllOrdersCheckbox.checked = false;
+
+
+        } catch (error) {
+            console.error("MRP 대상 주문 목록 조회 오류:", error);
+            mrpOrderTableBody.innerHTML = `<tr><td class="nodata" colspan="10" style="justify-content: center;">데이터 조회 중 오류 발생</td></tr>`;
+            mrpOrderTotalCountSpan.textContent = '총 0건';
+            mrpOrderCurrentPageSpan.textContent = '1/1페이지';
+            mrpOrderPrevPageBtn.disabled = true;
+            mrpOrderNextPageBtn.disabled = true;
+        }
+    }
+
+    // 주문 목록 행 클릭 시 처리 함수
+    function handleOrderRowClick(orderData) {
+        console.log("Selected Order Data:", orderData);
+        currentSelectedOrderId = orderData.orderId; // 선택된 주문 ID 저장
+        
+        // 선택된 행 강조 표시 (선택적)
+        document.querySelectorAll('#mrpOrderTableBody tr').forEach(r => r.classList.remove('selected-row'));
+        event.currentTarget.classList.add('selected-row'); // event.currentTarget 사용 주의, orderData를 받은 함수이므로 직접 DOM 조작
+
+        fetchMrpMaterialRequirements(orderData.orderId); // 두 번째 테이블 데이터 로드
+        // opendatail(orderData); // 필요하다면 모달 열기 (orderData를 전달하도록 opendatail 수정 필요)
+    }
+
+    // 특정 주문에 대한 자재 소요량 목록 조회 함수
+    async function fetchMrpMaterialRequirements(orderId) {
+        if (!orderId) {
+            clearMaterialTable("주문 ID가 없습니다.");
+            return;
+        }
+        const url = `/api/mrp/orders/${orderId}/requirements`; // 또는 /exploded-bom
+        try {
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const materials = await response.json(); // MaterialRequirementDto 배열
+
+            mrpMaterialTableBody.innerHTML = ''; // 테이블 초기화
+            const noDataRow = mrpMaterialTableBody.insertRow();
+            noDataRow.innerHTML = `<td class="nodata" colspan="7" style="justify-content: center;">등록된 데이터가 없습니다.</td>`;
+            noDataRow.style.display = 'none';
+
+            if (materials && materials.length > 0) {
+                materials.forEach((material, index) => {
+                    const row = mrpMaterialTableBody.insertRow();
+                    // row.onclick = () => opendatail(material); // 두 번째 테이블 클릭 시 동작 정의 필요
+
+                    row.insertCell().textContent = index + 1; // NO
+                    row.insertCell().textContent = material.materialCd || '';
+                    row.insertCell().textContent = material.materialNm || '';
+                    row.insertCell().textContent = material.materialSpec || '';
+                    row.insertCell().textContent = material.requiredQty === null ? '' : material.requiredQty; // 소요량
+                    row.insertCell().textContent = material.unitNm || '';
+                    row.insertCell().textContent = material.expectedInputQty === null ? '' : material.expectedInputQty; // 투입예상량
+                });
+                noDataRow.style.display = 'none';
+            } else {
+                 mrpMaterialTableBody.innerHTML = `<tr><td class="nodata" colspan="7" style="justify-content: center;">해당 주문에 대한 자재 소요량 데이터가 없습니다.</td></tr>`;
+            }
+        } catch (error) {
+            console.error("자재 소요량 목록 조회 오류:", error);
+            clearMaterialTable("자재 소요량 조회 중 오류 발생");
+        }
+    }
+
+    function clearMaterialTable(message = "상단에서 주문/계획을 선택해주세요.") {
+        if(mrpMaterialTableBody){
+             mrpMaterialTableBody.innerHTML = `<tr><td class="nodata" colspan="7" style="justify-content: center;">${message}</td></tr>`;
+        }
+    }
+
+    // MRP 계산 처리 함수 (예시)
+    async function handleMrpCalculate() {
+        const selectedOrderIds = getSelectedOrderIds();
+        if (selectedOrderIds.length === 0) {
+            alert("계산할 주문을 선택해주세요.");
+            return;
+        }
+        if (!confirm(`${selectedOrderIds.length}개 주문에 대해 MRP 계산을 실행하시겠습니까?`)) {
+            return;
+        }
+        console.log("MRP 계산 실행 대상:", selectedOrderIds);
+        try {
+            const response = await fetch('/api/mrp/run-calculation', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ orderIds: selectedOrderIds })
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'MRP 계산 요청 실패' }));
+                throw new Error(errorData.message || response.statusText);
+            }
+            const resultMessage = await response.text();
+            alert(resultMessage);
+            fetchMrpTargetOrders(currentMrpOrderPage, mrpSearchInput.value.trim()); // 목록 새로고침
+            if (currentSelectedOrderId) { // 현재 선택된 주문이 있다면 해당 주문의 자재 목록도 새로고침
+                fetchMrpMaterialRequirements(currentSelectedOrderId);
+            } else {
+                clearMaterialTable();
+            }
+        } catch (error) {
+            console.error("MRP 계산 요청 오류:", error);
+            alert("MRP 계산 중 오류가 발생했습니다: " + error.message);
+        }
+    }
+    
+    // MRP 삭제 처리 함수 (예시)
+    async function handleMrpDelete() {
+        const selectedOrderIds = getSelectedOrderIds();
+        if (selectedOrderIds.length === 0) {
+            alert("삭제할 주문을 선택해주세요.");
+            return;
+        }
+        if (!confirm(`${selectedOrderIds.length}개 주문(및 관련 MRP 계획)을 삭제하시겠습니까?`)) {
+            return;
+        }
+        console.log("MRP 삭제 대상:", selectedOrderIds);
+         try {
+            const response = await fetch('/api/mrp/orders/batch-delete', { // 이전 제안 엔드포인트 사용
+                method: 'POST', // 또는 DELETE (하지만 body로 List를 보내려면 POST가 편함)
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(selectedOrderIds) // List<Long> 바로 전달
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: '삭제 요청 실패' }));
+                throw new Error(errorData.message || response.statusText);
+            }
+            alert("선택된 항목이 삭제되었습니다.");
+            fetchMrpTargetOrders(1, ''); // 첫 페이지로 이동 및 검색어 초기화
+            clearMaterialTable();
+        } catch (error) {
+            console.error("MRP 삭제 요청 오류:", error);
+            alert("삭제 중 오류가 발생했습니다: " + error.message);
+        }
+    }
+
+    // 선택된 주문 ID들 가져오는 함수
+    function getSelectedOrderIds() {
+        const selectedIds = [];
+        const checkboxes = mrpOrderTableBody.querySelectorAll('input[type="checkbox"]:checked');
+        checkboxes.forEach(checkbox => {
+            if (checkbox.value) { // value에 orderId가 있다고 가정
+                selectedIds.push(parseInt(checkbox.value)); // 서버에서 Long으로 받으므로 parseInt 또는 parseFloat
+            }
+        });
+        return selectedIds;
+    }
 		let currentTh = null;
 		let currentOrder = 'desc';
 

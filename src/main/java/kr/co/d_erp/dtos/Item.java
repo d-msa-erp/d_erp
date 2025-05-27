@@ -31,11 +31,11 @@ public class Item {
         private String itemSpec;
         private String remark;
         private String itemFlag;
-        private Integer custIdx;
-        private Integer itemCat1Id; // 대분류 ID
-        private Integer itemCat2Id; // 소분류 ID
-        private Integer itemUnitId; // 단위 ID
-        private Integer optimalInv; // 적정 재고
+        private Long custIdx;
+        private Long itemCat1Id; // 대분류 ID
+        private Long itemCat2Id; // 소분류 ID
+        private Long itemUnitId; // 단위 ID
+        private Long optimalInv; // 적정 재고
         private Double itemCost;   // 단가
     }
 
@@ -48,11 +48,11 @@ public class Item {
         private String itemSpec;
         private String remark;
         private String itemFlag;
-        private Integer custIdx;
-        private Integer itemCat1Id;
-        private Integer itemCat2Id;
-        private Integer itemUnitId;
-        private Integer optimalInv;
+        private Long custIdx;
+        private Long itemCat1Id;
+        private Long itemCat2Id;
+        private Long itemUnitId;
+        private Long optimalInv;
         private Double itemCost;
     }
 
@@ -61,34 +61,44 @@ public class Item {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Response {
-        private Integer itemIdx;
+        private Long itemIdx;
         private String itemCd;
         private String itemNm;
         private String itemFlag;
         private String itemSpec;
         private String remark;
-        private Integer optimalInv;
+        private Long optimalInv;
         private Double itemCost;
-        private Integer qty; // 현재고량
+        private Long qty; // 현재고량
 
-        private Integer custIdx;
+        private Long custIdx;
         private String custNm; // 거래처명
 
-        private Integer itemCat1Id;
+        private Long itemCat1Id;
         private String itemCat1Nm; // 대분류명
 
-        private Integer itemCat2Id;
+        private Long itemCat2Id;
         private String itemCat2Nm; // 소분류명
 
-        private Integer itemUnitId;
+        private Long itemUnitId;
         private String unitNm;     // 단위명
     }
 
+<<<<<<< Updated upstream
 	private Integer ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, OPTIMAL_INV, QTY;
 >>>>>>> Stashed changes
 	private String ITEM_CD,ITEM_NM, ITEM_FLAG, ITEM_SPEC, REMARK, UNIT_NM;
 	private String CAT_NM,ITEM_CATX1,ITEM_CATX2,CUST_NM;
 	private Integer PARENT_IDX, CUST_IDX, CAT_IDX, UNIT_IDX;
 	private long USERIDX;
+=======
+	private Long ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, OPTIMAL_INV, QTY;
+	private String ITEM_CD,ITEM_NM, ITEM_FLAG, ITEM_SPEC, REMARK, UNIT_NM;
+	private String CAT_NM,ITEM_CATX1,ITEM_CATX2,CUST_NM;
+	private Long PARENT_IDX, CUST_IDX, CAT_IDX, UNIT_IDX;
+//	private Long CYCLE_TIME; // cycleTime 필요해서 Long > Long으로 변경했습니다 문제 생기면 삭제해주세요. -민섭
+	private BigDecimal CYCLE_TIME; 
+	private Double ITEM_COST; // Long > Double로 변경했습니다 문제 생기면 삭제해주세요. -민섭
+>>>>>>> Stashed changes
 	
 }

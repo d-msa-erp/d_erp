@@ -15,7 +15,7 @@ import lombok.Setter;
 public class UnitForItemDto {
     @Id
     @Column(name = "UNIT_IDX")
-    private Integer unitIdx;
+    private Long unitIdx;
 
     @Column(name = "UNIT_NM")
     private String unitNm;

@@ -1,11 +1,9 @@
 package kr.co.d_erp.dtos;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.Data;
 
 @Data
-@Entity
 public class Inven {
 
 	@Id

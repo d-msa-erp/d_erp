@@ -35,6 +35,7 @@ import kr.co.d_erp.dtos.Item;
 =======
 import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
+import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 >>>>>>> Stashed changes
 import kr.co.d_erp.service.ItemService;
@@ -46,6 +47,7 @@ public class ItemApiController {
 
 	   private final ItemService itemService;
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
 	    @Autowired
 	    public ItemApiController(ItemService itemService) {
@@ -234,9 +236,12 @@ public class ItemApiController {
 	    
 =======
 	private ItemDto mapToItemEntityForCreate(Item.CreateRequest dto) {
+=======
+	private Itemmst mapToItemEntityForCreate(Item.CreateRequest dto) {
+>>>>>>> Stashed changes
         // ItemDto가 실제 JPA 엔티티 클래스라고 가정합니다.
         // 만약 Item.java 자체가 JPA 엔티티라면, Item 객체를 생성해야 합니다.
-        ItemDto entity = new ItemDto();
+		Itemmst entity = new Itemmst();
         entity.setItemCd(dto.getItemCd());
         entity.setItemNm(dto.getItemNm());
         entity.setItemSpec(dto.getItemSpec());
@@ -268,9 +273,9 @@ public class ItemApiController {
         return entity;
     }
 
-    private ItemDto mapToItemEntityForUpdate(Item.UpdateRequest dto) {
+    private Itemmst mapToItemEntityForUpdate(Item.UpdateRequest dto) {
         // ItemDto가 실제 JPA 엔티티 클래스라고 가정합니다.
-        ItemDto entityUpdates = new ItemDto();
+    	Itemmst entityUpdates = new Itemmst();
         entityUpdates.setItemNm(dto.getItemNm());
         entityUpdates.setItemSpec(dto.getItemSpec());
         entityUpdates.setRemark(dto.getRemark());
@@ -297,7 +302,7 @@ public class ItemApiController {
         return entityUpdates;
     }
 
-    private Item.Response mapToItemResponseDto(ItemDto entity) {
+    private Item.Response mapToItemResponseDto(Itemmst entity) {
         if (entity == null) return null;
         Item.Response dto = new Item.Response();
         dto.setItemIdx(entity.getItemIdx());
@@ -375,7 +380,7 @@ public class ItemApiController {
     }
 
     @GetMapping("/sub/{PARENT_IDX}")
-    public ResponseEntity<List<CatDto>> getSubCategoriesByParentId(@PathVariable("PARENT_IDX") int parentIdx) {
+    public ResponseEntity<List<CatDto>> getSubCategoriesByParentId(@PathVariable("PARENT_IDX") Long parentIdx) {
         List<CatDto> categories = itemService.findALLcat2(parentIdx);
         return ResponseEntity.ok(categories);
     }
@@ -391,8 +396,8 @@ public class ItemApiController {
         try {
             // ItemDto는 JPA 엔티티 클래스 이름으로 가정합니다.
             // 만약 Item.java 자체가 엔티티라면 new Item()으로 변경해야 합니다.
-            ItemDto itemToSave = mapToItemEntityForCreate(createRequestDto);
-            ItemDto savedItem = itemService.insertItem(itemToSave);
+        	Itemmst itemToSave = mapToItemEntityForCreate(createRequestDto);
+        	Itemmst savedItem = itemService.insertItem(itemToSave);
             Item.Response responseDto = mapToItemResponseDto(savedItem);
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -413,7 +418,7 @@ public class ItemApiController {
             @RequestParam(value = "CsearchItem", required = false) String CsearchItem) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "itemIdx"));
-        Page<ItemDto> itemEntityPage; // ItemDto는 JPA 엔티티로 가정
+        Page<Itemmst> itemEntityPage; // ItemDto는 JPA 엔티티로 가정
 
         if (CsearchItem != null && !CsearchItem.trim().isEmpty()) {
             itemEntityPage = itemService.getSearchItem(pageable, CsearchCat, CsearchItem);
@@ -430,9 +435,9 @@ public class ItemApiController {
     }
     
     @GetMapping("/{item_IDX}")
-    public ResponseEntity<Item.Response> getItemById(@PathVariable("item_IDX") int itemIdx) {
+    public ResponseEntity<Item.Response> getItemById(@PathVariable("item_IDX") Long itemIdx) {
         try {
-            ItemDto itemEntity = itemService.getItemById(itemIdx); // ItemDto는 JPA 엔티티로 가정
+        	Itemmst itemEntity = itemService.getItemById(itemIdx); // ItemDto는 JPA 엔티티로 가정
             Item.Response responseDto = mapToItemResponseDto(itemEntity);
             return ResponseEntity.ok(responseDto);
         } catch (EntityNotFoundException e) {
@@ -441,12 +446,12 @@ public class ItemApiController {
     }
 
     @PutMapping("/{item_IDX}")
-    public ResponseEntity<?> updateItem(@PathVariable("item_IDX") int itemIdx,
+    public ResponseEntity<?> updateItem(@PathVariable("item_IDX") Long itemIdx,
                                           @RequestBody Item.UpdateRequest updateRequestDto) {
         try {
             // ItemDto는 JPA 엔티티 클래스 이름으로 가정합니다.
-            ItemDto itemUpdates = mapToItemEntityForUpdate(updateRequestDto);
-            ItemDto updatedItem = itemService.updateItem(itemIdx, itemUpdates);
+        	Itemmst itemUpdates = mapToItemEntityForUpdate(updateRequestDto);
+        	Itemmst updatedItem = itemService.updateItem(itemIdx, itemUpdates);
             Item.Response responseDto = mapToItemResponseDto(updatedItem);
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
@@ -460,7 +465,7 @@ public class ItemApiController {
     }
 
     @PostMapping("/deletes")
-    public ResponseEntity<String> deleteItems(@RequestBody List<Integer> itemIdxs) {
+    public ResponseEntity<String> deleteItems(@RequestBody List<Long> itemIdxs) {
         if (itemIdxs == null || itemIdxs.isEmpty()) {
             return ResponseEntity.badRequest().body("삭제할 품목 ID가 없습니다.");
         }

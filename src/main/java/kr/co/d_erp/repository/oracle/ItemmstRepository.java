@@ -1,9 +1,12 @@
 package kr.co.d_erp.repository.oracle;
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
 
 
+=======
+>>>>>>> Stashed changes
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,9 +16,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+<<<<<<< Updated upstream
 import kr.co.d_erp.domain.Itemmst;
 <<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
 import kr.co.d_erp.dtos.BomSummaryProjection;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
@@ -23,16 +29,22 @@ import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
+import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 >>>>>>> Stashed changes
 
 @Repository
+<<<<<<< Updated upstream
 public interface ItemmstRepository extends JpaRepository<Itemmst, Long>{
 
 <<<<<<< Updated upstream
 	
 }
 =======
+=======
+public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
+
+>>>>>>> Stashed changes
     /**
      * Datalist에 사용할 모든 (또는 활성) 품목 정보를 DTO로 조회합니다.
      * 품목명으로 정렬합니다.
@@ -53,7 +65,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long>{
      */
     @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
            "FROM Itemmst i " +
-           "WHERE i.custmst.custIdx = :custIdx " +
+           "WHERE i.CustomerForItemDto.custIdx = :custIdx " +
            "AND i.itemFlag IS NOT NULL") // 예시: 기본적인 활성 조건 (실제 '활성' 조건으로 변경 필요)
     List<ItemForSelectionDto> findForSelectionByCustIdx(@Param("custIdx") Long custIdx, Sort sort);
 
@@ -112,25 +124,24 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long>{
     List<ItemSelectionProjection> findItemsByFlagForSelection(@Param("itemFlag") String itemFlag);
     //여기까지 추가함 선익
     
-    
     //----------------희원 추가 항목
     
     boolean existsByItemCd(String itemCd);
     
     // ITEM_CATX1, ITEM_CATX2 등은 실제 엔티티의 연관 필드명(예: catDto1.catNm)으로 변경 필요
-    @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
            "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
            "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'ItemName' AND i.itemNm LIKE %:CsearchItem%) OR " +
            "(COALESCE(:CsearchCat, '') = '' AND i.itemNm LIKE %:CsearchItem%))")
-    Page<ItemDto> findWithJoinsAndSearch(
+    Page<Itemmst> findWithJoinsAndSearch(
             @Param("CsearchCat") String CsearchCat,
             @Param("CsearchItem") String CsearchItem,
             Pageable pageable
     );
 
-    @Query("SELECT count(i) FROM ItemDto i LEFT JOIN i.CatDto1 c1 LEFT JOIN i.CatDto2 c2 " +
+    @Query("SELECT count(i) FROM Itemmst i LEFT JOIN i.CatDto1 c1 LEFT JOIN i.CatDto2 c2 " +
        "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
        "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
        "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
@@ -142,21 +153,21 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long>{
     );
 
     // Excel 다운로드를 위한 검색 (페이징 없음)
-     @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+     @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
            "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
            "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'ItemName' AND i.itemNm LIKE %:CsearchItem%) OR " +
            "(COALESCE(:CsearchCat, '') = '' AND i.itemNm LIKE %:CsearchItem%))")
-    List<ItemDto> findForExcel(
+    List<Itemmst> findForExcel(
             @Param("CsearchCat") String CsearchCat,
             @Param("CsearchItem") String CsearchItem
     );
 
 
     // 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함)
-    @Query("SELECT i FROM ItemDto i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
-    Page<ItemDto> findAllWithJoins(Pageable pageable);
+    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+    Page<Itemmst> findAllWithJoins(Pageable pageable);
 
 
 
