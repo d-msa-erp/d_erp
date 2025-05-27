@@ -391,12 +391,18 @@
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
+            <div class="flex-container">
                 <div class="header">
                     <h4 style="margin: 0;">발주 관리</h4>
                 </div>
+                
+                
+                <div style="color: red;" id="lowStockNotice"></div>
+                
+                
+                
                 <div class="table-wrapper">
                     <div>
-                        <div style="color: red;">적정재고 n개 미만은 이곳에 출력</div>
                         <input type="text" placeholder="검색" id="searchInput"/>
                         <div>
                             <button type="button" onclick="searchItems()">
@@ -531,6 +537,7 @@
 					</div>
 				</div>
             </form>
+			</div>
         </div>
 
     </div>

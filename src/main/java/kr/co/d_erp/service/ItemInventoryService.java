@@ -18,4 +18,11 @@ public class ItemInventoryService {
     public List<ItemInventoryView> getInventoryByItemFlag(String itemFlag) {
         return itemInventoryViewRepository.findByItemFlag(itemFlag);
     }
+
+    public List<ItemInventoryView> getLowInventoryItems() {
+        List<ItemInventoryView> all = itemInventoryViewRepository.findAll();
+        return all.stream()
+                  .filter(i -> i.getStockQty() < i.getOptimalInv())
+                  .toList();
+    }
 }
