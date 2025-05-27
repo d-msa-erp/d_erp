@@ -132,6 +132,17 @@ document.addEventListener('DOMContentLoaded', function() {
 			}
 		});
 	}
+	
+	// 전체선택/해제 기능
+	const selectAllCheckbox = document.getElementById('selectAllBOMCheckbox');
+	selectAllCheckbox.addEventListener('change', function() {
+	  const checked = this.checked;
+	  // tbody 안의 모든 행 체크박스에 동일하게 적용
+	  document.querySelectorAll('#bomTbody tr td input[type="checkbox"]').forEach(cb => {
+	    cb.checked = checked;
+	  });
+	});
+	
 });
 
 // =====================================================================================
@@ -806,3 +817,5 @@ function openSpecModal() {
 	document.getElementById('modal-spec').style.display = 'flex';
 	// loadUnits(); // bomUnit.js 에 있어야 함
 }
+
+
