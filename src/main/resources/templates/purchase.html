@@ -381,24 +381,71 @@
         .flex-row>div>span {
             white-space: nowrap;
         }
+
+        .low-inventory-box-wrapper {
+            min-width: 300px;
+            max-width: 350px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .low-inventory-box {
+            border: 2px solid red;
+            border-radius: 10px;
+            padding: 15px;
+            color: red;
+            font-size: 14px;
+            background-color: #fff0f0;
+        }
+        .main-container {
+		    display: flex;
+		    gap: 20px;
+		    align-items: flex-start; /* 높이 정렬은 필요 시 조정 */
+		    padding: 20px;
+		}
+		.low-inventory-box-wrapper {
+		    width: 300px;
+		    flex-shrink: 0;
+		    height: 100%; /* 오른쪽에 맞춰 늘어나게 */
+		    background-color: #f9f9f9;
+		    border: 2px solid #ccc;
+		    border-radius: 10px;
+		    padding: 10px;
+		    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+		    display: flex;
+		    flex-direction: column;
+		    margin-top: 70px;
+		}
+		
+		/* 오른쪽 박스 */
+		.site-Wrapper {
+		    flex: 1;
+		    display: flex;
+		    flex-direction: column;
+		}
     </style>
 </head>
 
 <body>
     <div th:replace="~{/top.html :: top}"></div>
-
+	<div class="main-container">
+    <div class="low-inventory-box-wrapper">
+        <h4 style="margin-bottom: 10px;">📦 적정 재고 미달 품목</h4>
+        <div id="lowStockNotice" class="low-inventory-box">
+            <!-- JS로 채워짐 -->
+        </div>
+    </div>
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
-            <div class="flex-container">
                 <div class="header">
                     <h4 style="margin: 0;">발주 관리</h4>
                 </div>
-                
-                
-                <div style="color: red;" id="lowStockNotice"></div>
-                
+                               
                 
                 
                 <div class="table-wrapper">
@@ -458,12 +505,11 @@
 						</div>
                     </div>
 
-
-                </div>
+				</div>
             </div>
         </form>
     </div>
-
+</div>
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -537,11 +583,10 @@
 					</div>
 				</div>
             </form>
-			</div>
         </div>
 
     </div>
-
+	
 
     <script src="/js/top.js"></script>
     <script src="/js/purchase.js"></script>
