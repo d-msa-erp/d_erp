@@ -123,16 +123,15 @@ function switchTab(el, type) {
 }
 
 // === 품목 정보를 extraTab에 로드하는 함수 ===
-async function loadItemsForExtraTab() {
+async function loadItemsForExtraTab(custIdx) {
     const itemTableBody = document.getElementById('itemTableBody');
     if (!itemTableBody) {
         console.warn("ID가 'itemTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
     itemTableBody.innerHTML = ''; // 이전 아이템 목록 지우기
-
     try {
-        const response = await fetch('/api/items/active-for-selection');
+        const response = await fetch(`/api/items/active-for-selection?custIdx=${custIdx}`);
         if (!response.ok) {
             throw new Error(`HTTP 오류! 상태: ${response.status}`);
         }
@@ -194,7 +193,7 @@ function switchModalTab(tabId) {
                 editButton.style.display = 'none'; // extraTab에서는 수정 버튼 숨김
                 // extraTab이 활성화될 때 품목 정보 로드
                 if (contentToActivate && contentToActivate.id === 'extraTab') {
-                    loadItemsForExtraTab();
+                    loadItemsForExtraTab(window.currentCustIdx);
                 }
             } else { // infoTab 등 다른 탭
                 if (saveButton && saveButton.style.display === 'none') { // 수정 모드일 때만
@@ -277,6 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchBtn = document.getElementById('searchBtn');
     if(searchBtn) searchBtn.addEventListener('click', () => {
         const keyword = document.getElementById('searchInput').value.trim();
+		if(!keyword){
+			alert("검색어를 입력해주세요.");
+			return;
+		}
         loadCustomers(window.currentBizFlag, 'custIdx', 'desc', keyword);
     });
         

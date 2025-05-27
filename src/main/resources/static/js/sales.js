@@ -185,7 +185,10 @@ function renderErrorMessage(message) {
 
 function searchItems() {
     const searchQuery = document.getElementById('searchInput').value;
-
+	if(!searchQuery){
+		alert("검색어를 입력해주세요.");
+		return;
+	}
     const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
 
     // Ajax 요청 보내기
@@ -224,10 +227,11 @@ async function openModal(data = null) {
     document.querySelector('#modalForm button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
 
-
     if(data){
+		title.textContent = '주문 정보';
 		saveBtn.style.display = 'none';
 		editBtn.style.display = 'block';
+		document.querySelector('#modalForm button[name="cancel"]').style.display = 'none';
 		document.getElementById('orderNo').value = data.orderCode || '';
 	   	document.getElementById('startDate').value = formatDate(data.orderDate);
 	   	document.getElementById('dueDate').value = formatDate(data.deliveryDate);
@@ -237,6 +241,15 @@ async function openModal(data = null) {
 	   	document.getElementById('userName').value = data.managerName || '';
 	   	document.getElementById('userTel').value = data.managerTel || '';
 	   	document.getElementById('remark').value = data.remark || '';
+	   	document.getElementById('whSearchInput').value = data.whNm || '';
+		
+		const inputs = modal.querySelectorAll('input');
+		inputs.forEach(input => {
+            if (input.type !== 'hidden') {
+                input.readOnly = true;
+                input.disabled = true;
+            }
+        });
 	} else{
 	    fetchOrderNo(); // 주문번호 초기화 (있다면)
 		loadCustomer();
@@ -502,17 +515,7 @@ async function openSalesDetail(orderIdx) {
 
 function closeModal() {
 	document.getElementById('modal').style.display = 'none';
-	
-	document.getElementById('itemSearchInput').value = '';
-	document.getElementById('whSearchInput').value = '';
-	document.getElementById('itemIdx').value = '';
-	document.getElementById('itemPrice').value = '';
-	document.getElementById('itemCycleTime').value = '';
-	document.getElementById('quantity').value = '';
-	document.getElementById('startDate').value = '';
-	document.getElementById('dueDate').value = '';
-	document.getElementById('remark').value = '';
-	companySearchInput.value = '';
+	document.getElementById('modalForm').reset();
 	
 	dataList.innerHTML = '';
 	
