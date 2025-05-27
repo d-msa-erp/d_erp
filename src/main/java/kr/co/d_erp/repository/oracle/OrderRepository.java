@@ -17,13 +17,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	
 	@Query(value = "SELECT SYSDATE FROM DUAL", nativeQuery = true)
 	Timestamp oracleTodayRaw();
-	
-	@Query("SELECT o FROM Order o LEFT JOIN FETCH o.customer c LEFT JOIN FETCH o.item i " + // "o.Customer"를 "o.customer"로 변경
-		       "WHERE o.orderType = :orderType " +
-		       "AND (:searchKeyword IS NULL OR o.orderCode LIKE %:searchKeyword% OR i.itemNm LIKE %:searchKeyword% OR c.custNm LIKE %:searchKeyword%)")
-		Page<Order> findOrdersForMrpSummary(
-		    @Param("orderType") String orderType,
-		    @Param("searchKeyword") String searchKeyword,
-		    Pageable pageable
-		);
+
 }
