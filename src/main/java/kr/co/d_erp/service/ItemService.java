@@ -296,7 +296,7 @@ public class ItemService {
 				itemIdxAsLong = Long.valueOf(item.getITEM_IDX());
 			}
 //			return new ItemForSelectionDto(itemIdxAsLong, item.getITEM_NM(), item.getITEM_CD(), item.getCYCLE_TIME(), item.getITEM_COST()); // cycleTime, itemCost 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
-			return new ItemForSelectionDto(itemIdxAsLong, item.getITEM_NM(), item.getITEM_CD(), item.getCYCLE_TIME(), item.getITEM_COST()); // cycleTime, itemCost 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
+			return new ItemForSelectionDto(itemIdxAsLong, item.getITEM_NM(), item.getITEM_CD(), item.getCYCLE_TIME(), item.getITEM_COST(), item.getITEM_FLAG()); // cycleTime, itemCost 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
 		}).collect(Collectors.toList());
 	}
 }

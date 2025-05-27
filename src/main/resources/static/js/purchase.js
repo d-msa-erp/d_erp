@@ -190,6 +190,25 @@ function order(sortBy) {//정렬
 	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
 }
 
+async function loadItems() {
+    try {
+        const response = await fetch('/api/inventory/qty'); // API 경로와 쿼리 확인
+        if (!response.ok) throw new Error("서버 응답 오류");
+
+        itemList = await response.json();
+
+        const datalist = document.getElementById("itemList");
+        datalist.innerHTML = "";
+
+        itemList.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.itemNm; // 보여지는 값은 자재명
+            datalist.appendChild(option);
+        });
+    } catch (error) {
+        console.error("자재 목록 로드 실패:", error);
+    }
+}
 
 function openModal(data = null) {
     const title = document.getElementById('modalTitle');
@@ -198,6 +217,8 @@ function openModal(data = null) {
     document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
 	
+	
+	
 	if(data){
 		saveBtn.style.display = 'none';
 		editBtn.style.display = 'block';
@@ -205,8 +226,27 @@ function openModal(data = null) {
 		document.getElementById('itemName').value = data.itemName;
 		document.getElementById('unitPrice').value = data.unitPrice;
 		document.getElementById('quantity').value = data.orderQty;
+	} else {
+		loadItems();
 	}
 }
+
+document.getElementById("itemName").addEventListener("change", () => {
+    const selectedName = document.getElementById("itemName").value;
+    const selectedItem = itemList.find(item => item.itemNm === selectedName);
+
+    if (selectedItem) {
+        document.getElementById("itemCode").value = selectedItem.itemCd || '';
+        document.getElementById("unitPrice").value = selectedItem.itemCost || '';
+        document.getElementById("itemIdx").value = selectedItem.itemIdx || '';
+
+
+        // 이 부분은 API에서 current/optimal 재고 정보를 같이 가져오거나, 별도로 요청해야 함
+        document.getElementById("currentInventory").textContent = selectedItem.currentInventory || '0';
+        document.getElementById("optimalInventory").textContent = selectedItem.optimalInventory || '0';
+    }
+});
+
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
