@@ -348,7 +348,9 @@ function displayNoStockMessage(isError = false) {
 	const deleteStockButton = document.getElementById('deleteStockButton');
 	const message = isError ? '재고 데이터 로드 실패' : '재고 데이터 없음';
 	const color = isError ? 'red' : 'inherit';
-	warehouseStockTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: ${color};">${message}</td></tr>`;
+	warehouseStockTableBody.innerHTML = `<tr style="display: contents;">
+	<td colspan="8" style="grid-column: 1 / -1; text-align: center; color: ${color}; display: block; padding: 20px 0;">
+	${message}</td> </tr>`;
 	selectAllStockCheckboxes.disabled = true;
 	selectAllStockCheckboxes.checked = false;
 	moveStockButton.disabled = true;
