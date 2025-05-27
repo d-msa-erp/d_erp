@@ -22,4 +22,5 @@ public class CatDto {
 
     @Column(name = "PARENT_IDX")
     private Long parentIdx; // 대분류의 경우 null 또는 0
+
 }

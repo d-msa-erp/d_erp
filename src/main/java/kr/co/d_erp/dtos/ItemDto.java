@@ -24,6 +24,7 @@ public class ItemDto {
     @Column(name = "ITEM_IDX")
     private Long itemIdx;
 
+
     @Column(name = "ITEM_CD", unique = true, nullable = false) // 품목코드, 유니크하고 필수
     private String itemCd;
 
@@ -41,7 +42,6 @@ public class ItemDto {
 
     @Column(name = "OPTIMAL_INV")
     private Long optimalInv;
-
     @Column(name = "ITEM_COST")
     private Double itemCost; // Double 타입
 

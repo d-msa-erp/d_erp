@@ -77,3 +77,4 @@ public interface ItemMapper {
     @Select("SELECT CAT_IDX FROM TB_ITEM_CAT WHERE CAT_NM = #{catNm} AND PARENT_IDX = #{parentIdx}")
     Integer getChildCatIdxByCatNm(@Param("catNm") String catNm, @Param("parentIdx") int parentIdx);
 }
+ 

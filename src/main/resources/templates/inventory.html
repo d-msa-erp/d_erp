@@ -1079,7 +1079,6 @@
                     alert('새로운 품목이 등록되었습니다.');
                     closeModal('modal');
                     window.location.reload();
-                    
                 } else {
                     const errorData = await response.json().catch(() => ({ message: '알 수 없는 오류 발생' }));
                     alert('품목 등록에 실패했습니다: ' + (errorData.message || response.statusText));

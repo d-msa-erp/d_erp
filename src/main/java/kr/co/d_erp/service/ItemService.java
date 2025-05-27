@@ -134,6 +134,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
+
     public Itemmst getItemById(Long itemIdx) {
         // Fetch Join을 사용하여 연관 엔티티를 함께 로드하는 것이 좋을 수 있음 (findById 호출 시)
         // 또는 필요시 여기서 DTO로 변환하여 반환

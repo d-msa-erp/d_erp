@@ -17,6 +17,7 @@ public class UnitForItemDto {
     @Column(name = "UNIT_IDX")
     private Long unitIdx;
 
+
     @Column(name = "UNIT_NM")
     private String unitNm;
 }
