@@ -465,10 +465,13 @@
             <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
+                    <span>자재명</span>
+					<input type="text" id="itemName" list="itemList" placeholder="자재명을 입력해주세요" required />
+					<datalist id="itemList"></datalist>
+					<input type="hidden" id="itemIdx">
                 </div>
                 <div>
-                    <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" id="itemName" required />
+                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
                 </div>
                 <div>
                     <span>단가</span><input type="text" placeholder="단가를 입력해주세요" id="unitPrice" required />

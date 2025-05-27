@@ -16,5 +16,6 @@ public class ItemForSelectionDto {
 //    private Long cycleTime; // cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
 	private BigDecimal cycleTime; // cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
 	private Double itemCost; // itemCost 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
+	private String itemFlag;
 	// 필요시 다른 필드 (예: 규격 - itemSpec) 추가 가능
 }
