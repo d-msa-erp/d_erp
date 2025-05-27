@@ -4,6 +4,7 @@ const companyCustMap = new Map(); // 거래처명에 따른 idx를 담을 map
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadPurchases('deliveryDate', 'asc');
+	loadLowInventoryItems();
 });
 function setdate() {
     const today = new Date();
@@ -456,3 +457,31 @@ document.getElementById('whSearchInput').addEventListener('input', function() {
         document.getElementById('selectedwhIdx').value = ''; // 일치하는 값이 없으면 빈 값으로 설정
     }
 });
+
+// 적정 재고 미만 품목
+async function loadLowInventoryItems() {
+    try {
+        const response = await fetch('/api/inventory/qty-low');
+        if (!response.ok) {
+            throw new Error(`서버 응답 오류: ${response.status}`);
+        }
+
+        const items = await response.json();
+        const container = document.getElementById('lowStockNotice');
+
+        if (items.length === 0) {
+            container.innerHTML = "모든 품목이 적정 재고 이상입니다.";
+            return;
+        }
+
+        const list = items.map(item => `
+            <div>
+                <strong>${item.itemNm}</strong> (${item.itemCd}) - 재고: ${item.stockQty}, 적정: ${item.optimalInv}
+            </div>
+        `).join('');
+
+        container.innerHTML = `<p>적정 재고 미달 품목:</p>${list}`;
+    } catch (error) {
+        console.error('재고 데이터를 불러오는 데 실패했습니다.', error);
+    }
+}

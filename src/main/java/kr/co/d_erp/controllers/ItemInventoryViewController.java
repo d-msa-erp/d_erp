@@ -1,6 +1,7 @@
 package kr.co.d_erp.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,5 +22,10 @@ public class ItemInventoryViewController {
 	@GetMapping("/qty")
 	public List<ItemInventoryView> getInventoryByItemFlag(@RequestParam(defaultValue = "01") String itemFlag) {
         return service.getInventoryByItemFlag(itemFlag);   
+    }
+	
+	@GetMapping("/qty-low")
+	public List<ItemInventoryView> getLowInventoryItems() {
+        return service.getLowInventoryItems();
     }
 }

@@ -11,4 +11,5 @@ import kr.co.d_erp.domain.ItemInventoryView;
 @Repository
 public interface ItemInventoryViewRepository extends JpaRepository<ItemInventoryView, Long> {
     List<ItemInventoryView> findByItemFlag(String itemFlag);
+    List<ItemInventoryView> findByStockQtyLessThan(int optimalInv);
 }
