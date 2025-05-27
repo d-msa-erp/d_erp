@@ -1,7 +1,5 @@
 package kr.co.d_erp.dtos;
 
-<<<<<<< Updated upstream
-=======
 
 import lombok.AllArgsConstructor;
 
@@ -9,18 +7,11 @@ import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 
 
->>>>>>> Stashed changes
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 public class Item {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-	private Integer ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, ITEM_COST, OPTIMAL_INV, CYCLE_TIME, QTY;
-=======
-=======
->>>>>>> Stashed changes
     // 생성 요청 DTO
     @Data
     @NoArgsConstructor
@@ -84,14 +75,6 @@ public class Item {
         private String unitNm;     // 단위명
     }
 
-<<<<<<< Updated upstream
-	private Integer ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, OPTIMAL_INV, QTY;
->>>>>>> Stashed changes
-	private String ITEM_CD,ITEM_NM, ITEM_FLAG, ITEM_SPEC, REMARK, UNIT_NM;
-	private String CAT_NM,ITEM_CATX1,ITEM_CATX2,CUST_NM;
-	private Integer PARENT_IDX, CUST_IDX, CAT_IDX, UNIT_IDX;
-	private long USERIDX;
-=======
 	private Long ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, OPTIMAL_INV, QTY;
 	private String ITEM_CD,ITEM_NM, ITEM_FLAG, ITEM_SPEC, REMARK, UNIT_NM;
 	private String CAT_NM,ITEM_CATX1,ITEM_CATX2,CUST_NM;
@@ -99,6 +82,5 @@ public class Item {
 //	private Long CYCLE_TIME; // cycleTime 필요해서 Long > Long으로 변경했습니다 문제 생기면 삭제해주세요. -민섭
 	private BigDecimal CYCLE_TIME; 
 	private Double ITEM_COST; // Long > Double로 변경했습니다 문제 생기면 삭제해주세요. -민섭
->>>>>>> Stashed changes
 	
 }

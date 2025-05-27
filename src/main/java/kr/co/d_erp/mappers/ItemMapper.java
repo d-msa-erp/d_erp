@@ -11,10 +11,6 @@ import org.springframework.data.domain.Pageable;
 
 import kr.co.d_erp.dtos.Item;
 
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 @Mapper
 public interface ItemMapper {
 	public List<Item> selectALLItem();
@@ -79,7 +75,4 @@ public interface ItemMapper {
     @Select("SELECT CAT_IDX FROM TB_ITEM_CAT WHERE CAT_NM = #{catNm} AND PARENT_IDX = #{parentIdx}")
     Integer getChildCatIdxByCatNm(@Param("catNm") String catNm, @Param("parentIdx") int parentIdx);
 }
-<<<<<<< Updated upstream
-=======
- 
->>>>>>> Stashed changes
+
