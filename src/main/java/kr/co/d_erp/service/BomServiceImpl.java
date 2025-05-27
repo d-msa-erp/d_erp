@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.BomDtl;
+import kr.co.d_erp.domain.Itemmst; //
 import kr.co.d_erp.dtos.*;
 import kr.co.d_erp.repository.oracle.BomDtlRepository; //
 import kr.co.d_erp.repository.oracle.ItemmstRepository; //

@@ -16,6 +16,7 @@ public class CatDto {
     @Id
     @Column(name = "CAT_IDX")
     private Long catIdx;
+
     @Column(name = "CAT_NM")
     private String catNm;
 

@@ -48,7 +48,10 @@ public class OrderDetailView {
 
     @Column(name = "item_name")
     private String itemName;
-
+    
+    @Column(name = "wh_nm")
+    private String whNm;
+    
     @Column(name = "manager_name")
     private String managerName;
 
