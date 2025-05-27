@@ -137,6 +137,7 @@
       padding-right: 10px;
       text-align: center;
       cursor: pointer;
+      padding-bottom: 4px;
     }
 
     .table-wrapper>div:nth-child(2)>span.active {
@@ -762,9 +763,6 @@
 
   <script src="/js/top.js"></script>
   <script>
-    // This script block can be moved to customer.js if preferred,
-    // but it's fine here if it only contains these simple UI functions.
-
     function switchModalTab(tabId) {
       const modalDetailContent = document.querySelector('#modal-detail .modal-content');
       if (!modalDetailContent) return;
@@ -783,12 +781,10 @@
     }
 
     function outsideClick(event) {
-      // event.currentTarget is the modal div itself (since onclick is on it)
       if (event.target === event.currentTarget) {
-        // Calls the closeModal function from customer.js
         if (typeof closeModal === 'function') {
             closeModal(event.currentTarget.id);
-        } else { // Fallback if closeModal from customer.js is not found
+        } else { 
             event.currentTarget.style.display = 'none';
         }
       }
