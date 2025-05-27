@@ -1,4 +1,4 @@
-
+console.log('bomUnit.js로드 확인');
 //UNIT(단위 모달용)
 document.addEventListener('DOMContentLoaded', () => {
 	const modal = document.getElementById('modal-spec');
@@ -38,9 +38,11 @@ document.addEventListener('DOMContentLoaded', () => {
             <td>${i + 1}</td>
             <td>${unit.unitNm}</td>
             <td>
+			
               <button type="button"
                       class="delete-unit-btn"
                       data-idx="${unit.unitIdx}">
+					  <span class="material-symbols-outlined">delete</span>
                 삭제
               </button>
             </td>`;
