@@ -3,6 +3,7 @@ package kr.co.d_erp.mappers;
 
 import java.util.List;
 
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -10,6 +11,7 @@ import org.apache.ibatis.annotations.Update;
 import org.springframework.data.domain.Pageable;
 
 import kr.co.d_erp.dtos.Item;
+
 
 @Mapper
 public interface ItemMapper {
@@ -75,3 +77,4 @@ public interface ItemMapper {
     @Select("SELECT CAT_IDX FROM TB_ITEM_CAT WHERE CAT_NM = #{catNm} AND PARENT_IDX = #{parentIdx}")
     Integer getChildCatIdxByCatNm(@Param("catNm") String catNm, @Param("parentIdx") int parentIdx);
 }
+ 

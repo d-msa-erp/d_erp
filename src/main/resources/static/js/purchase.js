@@ -148,7 +148,10 @@ function renderErrorMessage(message) {
 
 function searchItems() {
     const searchQuery = document.getElementById('searchInput').value;
-
+	if(!searchQuery){
+			alert("검색어를 입력해주세요.");
+			return;
+	}
     const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
 
     // Ajax 요청 보내기
@@ -207,6 +210,7 @@ function openModal(data = null) {
 
 function closeModal() {
     document.getElementById('modal').style.display = 'none';
+	document.getElementById('modalForm').reset();
 }
 
 function outsideClick(e) {
@@ -218,7 +222,6 @@ function outsideClick(e) {
 function submitModal(event) {
     event.preventDefault();
     const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-    console.log(currentTab + ' 등록됨:', siteName);
     closeModal();
 }
 
@@ -226,7 +229,7 @@ function submitModal(event) {
 //테이블 클릭 시 출력되는 modal
 async function openPurchasedetail(orderIdx) {
     document.getElementById('modalTitle').textContent = '자재 정보';
-    console.log(orderIdx);
+
     document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
 	try {
