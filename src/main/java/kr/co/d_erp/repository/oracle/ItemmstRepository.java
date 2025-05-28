@@ -1,6 +1,7 @@
 package kr.co.d_erp.repository.oracle;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -29,7 +30,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      * @param sort 정렬 정보
      * @return ItemForSelectionDto 리스트
      */
-    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
+    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost, i.itemFlag) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
            "FROM Itemmst i " +
            "WHERE i.itemFlag IS NOT NULL") // 예시: 기본적인 활성 조건 (실제 '활성' 조건으로 변경 필요)
     List<ItemForSelectionDto> findAllForSelection(Sort sort);
@@ -41,7 +42,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      * @param sort 정렬 정보
      * @return ItemForSelectionDto 리스트
      */
-    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
+    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost, i.itemFlag) " + // itemCost, cycleTime 필요해서 추가했습니다 문제 생기면 삭제해주세요. -민섭
            "FROM Itemmst i " +
            "WHERE i.CustomerForItemDto.custIdx = :custIdx " +
            "AND i.itemFlag IS NOT NULL") // 예시: 기본적인 활성 조건 (실제 '활성' 조건으로 변경 필요)
@@ -52,6 +53,10 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     //       예: "WHERE i.custmst.custIdx = :custIdx AND i.useYn = 'Y'"
     
     
+    @Query("SELECT new kr.co.d_erp.dtos.ItemForSelectionDto(i.itemIdx, i.itemNm, i.itemCd, i.cycleTime, i.itemCost, i.itemFlag) " +
+    	       "FROM Itemmst i " +
+    	       "WHERE i.itemFlag = :itemFlag")
+    List<ItemForSelectionDto> findForSelectionBy(@Param("itemFlag") String itemFlag);
     
     
     //추가 선익 BOM 요약 리스트를 가져오는 네이티브 쿼리 + 원가계산
@@ -165,5 +170,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      List<UnitForItemDto> findAllUnits();
     
     // 희원 여기까지 --------------------------
+     
+    Optional<Itemmst> findByItemIdx(Long itemIdx); // -민섭
     
 }

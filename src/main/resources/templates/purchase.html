@@ -381,12 +381,63 @@
         .flex-row>div>span {
             white-space: nowrap;
         }
+
+        .low-inventory-box-wrapper {
+            min-width: 300px;
+            max-width: 350px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .low-inventory-box {
+            border: 2px solid red;
+            border-radius: 10px;
+            padding: 15px;
+            color: red;
+            font-size: 14px;
+            background-color: #fff0f0;
+        }
+        .main-container {
+		    display: flex;
+		    gap: 20px;
+		    align-items: flex-start; /* 높이 정렬은 필요 시 조정 */
+		    padding: 20px;
+		}
+		.low-inventory-box-wrapper {
+		    width: 300px;
+		    flex-shrink: 0;
+		    height: 100%; /* 오른쪽에 맞춰 늘어나게 */
+		    background-color: #f9f9f9;
+		    border: 2px solid #ccc;
+		    border-radius: 10px;
+		    padding: 10px;
+		    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+		    display: flex;
+		    flex-direction: column;
+		    margin-top: 70px;
+		}
+		
+		/* 오른쪽 박스 */
+		.site-Wrapper {
+		    flex: 1;
+		    display: flex;
+		    flex-direction: column;
+		}
     </style>
 </head>
 
 <body>
     <div th:replace="~{/top.html :: top}"></div>
-
+	<div class="main-container">
+    <div class="low-inventory-box-wrapper">
+        <h4 style="margin-bottom: 10px;">📦 적정 재고 미달 품목</h4>
+        <div id="lowStockNotice" class="low-inventory-box">
+            <!-- JS로 채워짐 -->
+        </div>
+    </div>
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
@@ -394,9 +445,11 @@
                 <div class="header">
                     <h4 style="margin: 0;">발주 관리</h4>
                 </div>
+                               
+                
+                
                 <div class="table-wrapper">
                     <div>
-                        <div style="color: red;">적정재고 n개 미만은 이곳에 출력</div>
                         <input type="text" placeholder="검색" id="searchInput"/>
                         <div>
                             <button type="button" onclick="searchItems()">
@@ -452,12 +505,11 @@
 						</div>
                     </div>
 
-
-                </div>
+				</div>
             </div>
         </form>
     </div>
-
+</div>
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
@@ -465,10 +517,15 @@
             <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
                 <div>
-                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
+                    <span>자재명</span>
+					<input type="text" id="itemName" list="itemList" placeholder="자재명을 입력해주세요" required />
+					<datalist id="itemList"></datalist>
+					<input type="hidden" id="itemIdx">
+					<input type="hidden" id="orderNo" th:value="${orderNo}" />
+					<input type="hidden" th:value="${UserIdx}" id="userIdx"/>
                 </div>
                 <div>
-                    <span>자재명</span><input type="text" placeholder="자재명을 입력해주세요" id="itemName" required />
+                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
                 </div>
                 <div>
                     <span>단가</span><input type="text" placeholder="단가를 입력해주세요" id="unitPrice" required />
@@ -490,6 +547,14 @@
 					<input type="hidden" id="selectedCustIdx" name="custIdx">
                 </div>
                 <div>
+					<span>입고 예정 창고</span>
+					<input type="text" list="whList" placeholder="창고를 입력해주세요" id="whSearchInput" required />
+					<datalist id="whList">
+						
+					</datalist>
+					<input type="hidden" id="selectedwhIdx" name="whIdx">
+				</div>
+                <div>
                     <div>
                         <span>발주일</span>
                         <input type="date" id="orderDate" readonly/>
@@ -498,6 +563,10 @@
                         <span>납기예정일</span>
                         <input type="date" id="deliveryDate"/>
                     </div>
+                    <div>
+						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" id="remark"
+							required />
+					</div>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
@@ -517,7 +586,7 @@
         </div>
 
     </div>
-
+	
 
     <script src="/js/top.js"></script>
     <script src="/js/purchase.js"></script>
@@ -542,13 +611,15 @@
         }
 	*/
 //발주일 핸들링용
-            document.addEventListener('DOMContentLoaded', function () {
+/*
+					function setdate() {
                         const today = new Date();
                         const yyyy = today.getFullYear();
                         const mm = String(today.getMonth() + 1).padStart(2, '0');
                         const dd = String(today.getDate()).padStart(2, '0');
                         document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
-                    });
+                    };
+                    */
 
 		/*
         //Modal ~ 

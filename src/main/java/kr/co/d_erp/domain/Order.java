@@ -41,10 +41,10 @@ public class Order {
     @Column(name = "ORDER_DATE", nullable = false)
     private LocalDate orderDate;
 
-    @Column(name = "CUST_IDX", nullable = false, insertable = false, updatable = false)
+    @Column(name = "CUST_IDX", nullable = false)
     private Long custIdx;
 
-    @Column(name = "ITEM_IDX", nullable = false, insertable = false, updatable = false)
+    @Column(name = "ITEM_IDX", nullable = false)
     private Long itemIdx; // ID 필드는 읽기 전용으로 (JPA가 관계를 통해 ID를 관리)
 
     @Column(name = "ORDER_QTY", nullable = false)
@@ -77,6 +77,7 @@ public class Order {
     @Column(name = "UPDATED_DATE")
     private LocalDate updatedDate;
     
+    /*
     @ManyToOne(fetch = FetchType.LAZY) // LAZY 로딩 권장
     @JoinColumn(name = "CUST_IDX", referencedColumnName = "CUST_IDX", insertable = false, updatable = false)
     private Custmst customer;
@@ -84,4 +85,5 @@ public class Order {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ITEM_IDX", referencedColumnName = "ITEM_IDX")
     private Itemmst item;     // 객체 관계 매핑이 ITEM_IDX 컬럼을 실제로 관리
+    */
 }
