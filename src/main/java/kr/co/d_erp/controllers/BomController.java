@@ -1,5 +1,22 @@
 package kr.co.d_erp.controllers;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.d_erp.dtos.BomItemDetailDto;
 import kr.co.d_erp.dtos.BomSaveRequestDto;
 import kr.co.d_erp.dtos.BomSequenceUpdateDto;
@@ -7,14 +24,7 @@ import kr.co.d_erp.dtos.BomSummaryDto;
 import kr.co.d_erp.dtos.BomUpdateRequestDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.service.BomService;
-import kr.co.d_erp.service.ItemService;
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * BOM 관련 웹 요청을 처리하는 REST 컨트롤러입니다.
@@ -126,5 +136,42 @@ public class BomController {
             return ResponseEntity.internalServerError().build();
         }
     }
+    
+    /*엑셀 POI 입니당*/
+    @PostMapping("/download-excel-details")
+    public void downloadSelectedBomDetailsAsExcel(
+            @RequestBody List<Long> bomIds, // === DTO 대신 List<Long>으로 직접 받도록 수정 ===
+            HttpServletResponse response) throws IOException {
+
+        if (bomIds == null || bomIds.isEmpty()) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            try (java.io.PrintWriter writer = response.getWriter()) {
+                 writer.write("BOM ID 목록이 비어있습니다.");
+            }
+            return;
+        }
+
+        Workbook workbook = bomService.generateBomDetailsExcel(bomIds); // 서비스 호출 시 bomIds 직접 전달
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String currentTimestamp = sdf.format(new Date());
+        String filename = "BOM_Details_" + currentTimestamp + ".xlsx";
+        String encodedFilename = java.net.URLEncoder.encode(filename, "UTF-8").replaceAll("\\+", "%20");
+
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodedFilename + "\"; filename*=UTF-8''" + encodedFilename);
+
+        try {
+            workbook.write(response.getOutputStream());
+        } catch (IOException e) {
+            System.err.println("엑셀 파일 응답 스트림 작성 중 오류 발생: " + e.getMessage());
+            throw e;
+        } finally {
+            if (workbook != null) {
+                workbook.close();
+            }
+        }
+    }
+
     
 }

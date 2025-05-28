@@ -68,6 +68,8 @@ public class InvTransactionController {
 	@PostMapping
 	public ResponseEntity<InvTransactionResponseDto> createInvTransaction(
 			@Valid @RequestBody InvTransactionRequestDto requestDto) {
+		
+		
 		InvTransactionResponseDto responseDto = invTransactionService.insertTransaction(requestDto);
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
