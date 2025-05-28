@@ -74,11 +74,7 @@ async function displayMaterialDetailsInForm(materialData, productProductionQty) 
     setInputValueById('modalSelectedMaterialUnit', materialData.unitNm);
     setInputValueById('modalCalculatedMaterialQty', totalRequiredMaterialQty.toFixed(3));
     setInputValueById('modalCalculatedMaterialCost', calculatedCostByUserFormula.toFixed(2));
-    if (materialData.subItemIdx !== undefined) {
-        await fetchCurrentStock(materialData.subItemIdx, 'modalSelectedMaterialStock');
-    } else {
-        setInputValueById('modalSelectedMaterialStock', 'N/A');
-    }
+	setInputValueById('modalSelectedMaterialStock', materialData.subQty !== undefined ? materialData.subQty : 'N/A');
 }
 
 async function fetchAndDisplayBomForModal(parentProductItemId, productProductionQty) {
@@ -316,10 +312,9 @@ async function populateMaterialTable(parentProductItemId, productProductionQty) 
                 row.insertCell().textContent = index + 1;
                 row.insertCell().textContent = component.subItemCd || '';
                 row.insertCell().textContent = component.subItemNm || '';
-                const materialStockCell = row.insertCell();
-                await fetchCurrentStock(component.subItemIdx, materialStockCell);
-                const useQtyCell = row.insertCell();
-                useQtyCell.textContent = component.useQty || 0;
+				row.insertCell().textContent = component.subQty !== undefined ? component.subQty : 'N/A';
+				const useQtyCell = row.insertCell();
+              	useQtyCell.textContent = component.useQty || 0;                   // 소요량 (단위 소요량)
                 row.dataset.useqty = component.useQty || 0;
                 row.insertCell().textContent = component.unitNm || '';
                 row.insertCell().textContent = '';
@@ -359,21 +354,40 @@ async function handleCalculateButtonClick() {
 
     const materialRows = materialbody.querySelectorAll('tr');
     materialRows.forEach(row => {
-        if (row.querySelector('.nodata') || row.cells.length < 7) return; 
+		if (row.querySelector('.nodata') || row.cells.length < 7) return; // 헤더나 빈 행 제외
 
-        const expectedInputQtyCell = row.cells[6]; 
-        const materialUnitUseQty = parseFloat(row.dataset.useqty || 0);
+		const materialStockCell = row.cells[3]; // "재고량" 셀 (0-indexed: NO, 자재코드, 자재명, 재고량)
+		const expectedInputQtyCell = row.cells[6]; // "투입예상량" 셀
+		const materialUnitUseQty = parseFloat(row.dataset.useqty || 0);
 
-        if (deficitQty <= 0) {
-            expectedInputQtyCell.textContent = "출고 가능";
-        } else {
-            if (!isNaN(materialUnitUseQty)) {
-                const calculatedInputQty = deficitQty * materialUnitUseQty;
-                expectedInputQtyCell.textContent = calculatedInputQty.toFixed(3);
-            } else {
-                expectedInputQtyCell.textContent = "소요량오류";
-            }
-        }
+		// JAVASCRIPT 수정: 스타일 초기화를 위해 기존 경고 클래스 제거
+		expectedInputQtyCell.classList.remove('deficit-warning');
+		expectedInputQtyCell.style.color = ''; // 직접 스타일링 했다면 초기화
+		expectedInputQtyCell.style.fontWeight = ''; // 직접 스타일링 했다면 초기화
+
+		if (deficitQty <= 0) {
+		    expectedInputQtyCell.textContent = "출고 가능";
+		} else {
+		    if (!isNaN(materialUnitUseQty)) {
+		        const calculatedInputQty = deficitQty * materialUnitUseQty;
+		        expectedInputQtyCell.textContent = calculatedInputQty.toFixed(3);
+
+		        // JAVASCRIPT 수정: 투입예상량과 자재 현재고 비교 및 스타일 변경
+		        const materialCurrentStockText = materialStockCell.textContent;
+		        // "N/A" 또는 숫자가 아닌 경우 비교를 피하거나 0으로 간주
+		        const materialCurrentStock = parseFloat(materialCurrentStockText);
+
+		        if (!isNaN(materialCurrentStock) && calculatedInputQty > materialCurrentStock) {
+		            // CSS 클래스 사용하는 방식 (권장)
+		            expectedInputQtyCell.classList.add('deficit-warning');
+		            // 또는 직접 스타일링하는 방식:
+		            // expectedInputQtyCell.style.color = 'red';
+		            // expectedInputQtyCell.style.fontWeight = 'bold';
+		        }
+		    } else {
+		        expectedInputQtyCell.textContent = "소요량오류";
+		    }
+		}
     });
 }
 
@@ -385,7 +399,7 @@ async function opendetail(data) {
     const modalForm = document.getElementById('modalForm');
     if (modalForm) {
         modalForm.querySelector('button[name="save"]').style.display = 'none';
-        modalForm.querySelector('button[name="edit"]').style.display = 'block';
+        modalForm.querySelector('button[name="edit"]').style.display = 'none';
     }
     console.log("opendetail called with data:", data);
 
@@ -443,7 +457,7 @@ function openModal() {
     modal.style.display = 'flex';
     const modalForm = document.getElementById('modalForm');
     if (modalForm) {
-        modalForm.querySelector('button[name="save"]').style.display = 'block';
+        modalForm.querySelector('button[name="save"]').style.display = 'none';
         modalForm.querySelector('button[name="edit"]').style.display = 'none';
     }
 }

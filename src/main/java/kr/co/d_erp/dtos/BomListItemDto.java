@@ -21,4 +21,5 @@ public class BomListItemDto {
     private BigDecimal itemPrice;
     private String remark; // 하위 품목의 비고
     private BigDecimal subItemMasterCost; // 하위품목 마스터 원가
+    private BigDecimal subQty;	//희원 추가(하위품목 재고)
 }

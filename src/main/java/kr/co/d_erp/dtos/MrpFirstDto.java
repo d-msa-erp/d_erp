@@ -13,19 +13,27 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class MrpFirstDto {
-    private Long orderIdx;      // TB_ORDER.ORDER_IDX (PK)
-    private String orderCode;   // TB_ORDER.ORDER_CODE (주문번호)
-    private String orderType;   // TB_ORDER.ORDER_TYPE
-    private LocalDate orderDate; // TB_ORDER.ORDER_DATE
-    private Long custIdx;       // TB_ORDER.CUST_IDX
-    private String customerNm;  // TB_CUSTMST.CUST_NM (조인해서 가져옴)
-    private Long itemId;        // TB_ORDER.ITEM_IDX (주문된 품목의 ID)
-    private String itemCd;      // TB_ITEMMST.ITEM_CD (주문된 품목 코드)
-    private String itemNm;      // TB_ITEMMST.ITEM_NM (주문된 품목명)
-    private String itemSpec;    // TB_ITEMMST.ITEM_SPEC (규격)
-    private String unitNm;      // TB_UNIT_MST.UNIT_NM (주문된 품목의 단위명, ITEM_IDX로 조회)
-    private Integer orderQty;   // TB_ORDER.ORDER_QTY
-    private LocalDate deliveryDate; // TB_ORDER.DELIVERY_DATE (납기일)
-    private String orderStatus; // TB_ORDER.ORDER_STATUS
-    private BigDecimal productive;
+	private Long orderIdx;
+    private String orderCode;
+    private String orderType;
+    private LocalDate orderDate;
+    private String customerNm;
+
+    private Long productPrimaryItemIdx; // ord.ITEM_IDX (기존 itemId에서 변경)
+    private String productItemCd;       // 기존 itemCd
+    private String productItemNm;       // 기존 itemNm
+    private String productItemSpec;     // 기존 itemSpec
+    private String productUnitNm;       // 기존 unitNm (완제품 단위)
+    private BigDecimal orderQty;          // 완제품 총 생산/주문 수량 (기존 orderQty)
+
+    private LocalDate orderDeliveryDate; // 기존 deliveryDate
+    private String orderStatusOverall;  // 한글 주문 상태 (기존 orderStatus에서 변경)
+
+    // 새로 추가/명확화된 필드 (MRP_RESULT_DETAILS 뷰 또는 관련 테이블에서 가져와야 함)
+    private String productionCode;      // 생산 코드
+    private BigDecimal productivity;      // 생산성 (기존 productive에서 변경)
+    private BigDecimal productCurrentStock; // 완제품 현재고
+    
+    // mrpRemark는 MrpSecondDto에 있으므로, 필요시 이 DTO에도 추가 가능 (주문 레벨의 비고)
+    private String remark; // 주문에 대한 비고 (ord.REMARK 등에서 가져옴)
 }
