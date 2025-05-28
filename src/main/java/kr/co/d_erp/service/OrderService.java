@@ -46,14 +46,14 @@ public class OrderService {
 
         // 필드 세팅
         order.setOrderCode(dto.getOrderCode());
-        // order.setOrderType(dto.getOrderType());
+        order.setOrderType(dto.getOrderType());
         order.setOrderDate(dto.getOrderDate());
         order.setCustIdx(dto.getCustIdx());
         order.setItemIdx(dto.getItemIdx());
         order.setOrderQty(dto.getOrderQty());
         order.setUnitPrice(dto.getUnitPrice());
         order.setDeliveryDate(dto.getDeliveryDate());
-        order.setOrderStatus(dto.getOrderStatus());
+        order.setOrderStatus("I1"); // 임시 값
         order.setExpectedWhIdx(dto.getExpectedWhIdx());
         order.setUserIdx(dto.getUserIdx());
         order.setRemark(dto.getRemark());
@@ -68,24 +68,8 @@ public class OrderService {
         Timestamp dbNow = orderRepository.oracleTodayRaw();
         order.setCreatedDate(dbNow.toLocalDateTime());
 
-        // 먼저 주문 저장 (→ orderIdx 생성됨)
-        Order savedOrder = orderRepository.save(order);
-
-        // 입출고 이력 생성
-        InvTransactionRequestDto invd = new InvTransactionRequestDto();
-        invd.setCustIdx(savedOrder.getCustIdx());
-        invd.setOrderIdx(savedOrder.getOrderIdx());
-        invd.setWhIdx(savedOrder.getExpectedWhIdx());
-        invd.setTransType(savedOrder.getOrderType().equals("S") ? "S" : "R");
-        invd.setTransStatus(savedOrder.getOrderType().equals("S") ? "S1" : "R1");
-        invd.setTransDate(savedOrder.getDeliveryDate());
-        invd.setTransQty(BigDecimal.valueOf(savedOrder.getOrderQty()));
-        invd.setUserIdx(savedOrder.getUserIdx());
-        invd.setUnitPrice(BigDecimal.valueOf(savedOrder.getUnitPrice()));
-        invd.setItemIdx(savedOrder.getItemIdx());
-        invd.setRemark(savedOrder.getRemark());
-
-        invTransactionService.insertTransaction(invd);
+        // MRP 계산에 필요한 orderIdx를 생성하기 위해 임시 저장
+        Order savedOrder = orderRepository.save(order); 
 
         // MRP 계산
         List<BomDtl> bomList = bomDtlRepository.findByParentItemIdxOrderBySeqNoAsc(savedOrder.getItemIdx());
@@ -140,11 +124,27 @@ public class OrderService {
             System.out.println("✅ 모든 자재 충분");
         }
         
-        if (hasMaterialShortage) {
-            order.setOrderStatus("S2"); // 자재 부족 → 생산 필요
-        } else {
-            order.setOrderStatus("S1"); // 자재 충분 → 입고 대기
-        }
+        order.setOrderStatus(hasMaterialShortage ? "S2" : "S1");
+        // 한번 더 호출해서 update
+        savedOrder = orderRepository.save(order);
+        
+        // 입출고 이력 생성
+        InvTransactionRequestDto invd = new InvTransactionRequestDto();
+        invd.setCustIdx(savedOrder.getCustIdx());
+        invd.setOrderIdx(savedOrder.getOrderIdx());
+        invd.setWhIdx(savedOrder.getExpectedWhIdx());
+        invd.setTransType(savedOrder.getOrderType().equals("S") ? "S" : "R");
+        invd.setTransStatus(savedOrder.getOrderType().equals("S")
+        	    ? (hasMaterialShortage ? "S2" : "S1")
+        	    : "R1");
+        invd.setTransDate(savedOrder.getDeliveryDate());
+        invd.setTransQty(BigDecimal.valueOf(savedOrder.getOrderQty()));
+        invd.setUserIdx(savedOrder.getUserIdx());
+        invd.setUnitPrice(BigDecimal.valueOf(savedOrder.getUnitPrice()));
+        invd.setItemIdx(savedOrder.getItemIdx());
+        invd.setRemark(savedOrder.getRemark());
+
+        invTransactionService.insertTransaction(invd);
         
         return new OrderResponseDto(
                 savedOrder.getOrderIdx(),
