@@ -224,22 +224,46 @@ async function loadItems() {
 	}
 }
 
-function openModal(data = null) {
+async function openModal(data = null) {
     const title = document.getElementById('modalTitle');
-    title.textContent = '발주 정보';
+	title.textContent = '발주 등록';
     document.getElementById('modal').style.display = 'flex';
     document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-	
+	document.getElementById('optimalInventory').style.display = 'block';
+	document.getElementById('currentInventory').style.display = 'block';
+	document.getElementById('optimalInventoryText').style.display = 'block';
+	document.getElementById('currentInventoryText').style.display = 'block';
 	
 	
 	if(data){
-		saveBtn.style.display = 'none';
-		editBtn.style.display = 'block';
-		document.getElementById('itemCode').value = data.itemCode;
-		document.getElementById('itemName').value = data.itemName;
-		document.getElementById('unitPrice').value = data.unitPrice;
-		document.getElementById('quantity').value = data.orderQty;
+		if (data.origin === 'lowInventory') {
+            // 재고 부족 박스에서 온 경우
+			await loadItems();
+			loadWarehouse();
+			setdate();
+			fetchOrderNo();
+            document.getElementById('itemCode').value = data.itemCd || '';
+            document.getElementById('itemName').value = data.itemNm || '';
+            document.getElementById('unitPrice').value = data.itemCost || '';
+            document.getElementById('quantity').value = '';
+            document.getElementById('optimalInventory').textContent = data.optimalInv ?? '';
+            document.getElementById('currentInventory').textContent = data.stockQty ?? '';
+            document.getElementById('itemIdx').value = data.itemIdx;
+			document.getElementById('itemName').dispatchEvent(new Event('change')); // 거래처 목록을 받아오기 위한 강제 이벤트 발생
+        } else {
+			title.textContent = '발주 정보';
+			saveBtn.style.display = 'none';
+			editBtn.style.display = 'block';
+            document.getElementById('itemCode').value = data.itemCode;
+            document.getElementById('itemName').value = data.itemName;
+            document.getElementById('unitPrice').value = data.unitPrice;
+            document.getElementById('quantity').value = data.orderQty;
+			document.getElementById('optimalInventory').style.display = 'none';
+			document.getElementById('currentInventory').style.display = 'none';
+			document.getElementById('optimalInventoryText').style.display = 'none';
+			document.getElementById('currentInventoryText').style.display = 'none';
+        }
 	} else {
 		loadItems();
 		loadWarehouse();
@@ -277,9 +301,9 @@ document.getElementById("itemName").addEventListener("change", () => {
     // 거래처 리스트 생성
     const companyList = document.getElementById("companyList");
     companyList.innerHTML = "";
-    companyCustMap.clear(); // ✅ 잊지 말고 초기화
+    companyCustMap.clear();
 
-    const uniqueCompanies = new Map(); // ✅ 여기 새로 생성!
+    const uniqueCompanies = new Map();
     matchingItems.forEach(item => {
         if (!uniqueCompanies.has(item.custNm)) {
             uniqueCompanies.set(item.custNm, item.custIdx);
@@ -381,8 +405,6 @@ function submitModal(event) {
 
 //테이블 클릭 시 출력되는 modal
 async function openPurchasedetail(orderIdx) {
-    document.getElementById('modalTitle').textContent = '자재 정보';
-
     document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
     document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
 	try {
@@ -474,14 +496,26 @@ async function loadLowInventoryItems() {
             return;
         }
 
-        const list = items.map(item => `
-            <div>
-                <strong>${item.itemNm}</strong> (${item.itemCd}) - 재고: ${item.stockQty}, 적정: ${item.optimalInv}
-            </div>
-        `).join('');
+		const list = items.map(item => {
+		    item.origin = 'lowInventory'; // 추가
+		    return `
+		        <div class="low-item" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
+		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.stockQty}, 적정: ${item.optimalInv}
+		        </div>
+		    `;
+		}).join('');
 
         container.innerHTML = `<p>적정 재고 미달 품목:</p>${list}`;
     } catch (error) {
         console.error('재고 데이터를 불러오는 데 실패했습니다.', error);
     }
 }
+
+
+document.getElementById('lowStockNotice').addEventListener('click', function (e) {
+    const target = e.target.closest('.low-item');
+    if (target) {
+        const data = JSON.parse(target.dataset.item.replace(/&apos;/g, "'"));
+        openModal(data);
+    }
+});
