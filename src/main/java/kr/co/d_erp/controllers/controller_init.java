@@ -117,10 +117,10 @@ public class controller_init {
 		return "/mrp.html";
 	}
 
-	@GetMapping("/pagesettings")
-	public String pagesettings() {
-		return "/pagesettings.html";
-	}
+//	@GetMapping("/pagesettings")
+//	public String pagesettings() {
+//		return "/pagesettings.html";
+//	}//페이지 수정 삭제
 	@GetMapping("/hr")
 	public String hr() {
 		return "/hr.html";
