@@ -64,7 +64,7 @@ public class Custmst {
     private String bizFax;
 
     @Column(name = "COMP_EMP_NM")
-    private Long compEmpNm;
+    private String compEmpNm;
 
     @Column(name = "BIZ_FLAG", nullable = false, length = 2)
     private String bizFlag;

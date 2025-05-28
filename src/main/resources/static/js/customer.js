@@ -58,7 +58,7 @@ function renderCustomers(customers) {
                 if (selectAllMainCheckbox) selectAllMainCheckbox.checked = allChecked;
             });
 
-            ['custNm', 'presidentNm', 'bizTel', 'custEmail'].forEach(key => {
+            ['custNm', 'compEmpNm', 'bizTel', 'custEmail'].forEach(key => {
                 const cell = document.createElement('td');
                 cell.textContent = cust[key] || '';
                 row.appendChild(cell);
@@ -140,8 +140,6 @@ async function loadItemsForExtraTab(custIdx) {
         if (items && items.length > 0) {
             items.forEach(item => {
                 const row = document.createElement('tr');
-
-                // 체크박스 셀 생성 로직 없음
 
                 // 품목명 셀
                 const nameCell = document.createElement('td');

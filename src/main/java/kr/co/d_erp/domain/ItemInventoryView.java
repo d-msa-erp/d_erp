@@ -65,4 +65,7 @@ public class ItemInventoryView {
 
     @Column(name = "WH_NM")
     private String whNm;
+    
+    @Column(name = "WH_IDX")
+    private Long whIdx;
 }

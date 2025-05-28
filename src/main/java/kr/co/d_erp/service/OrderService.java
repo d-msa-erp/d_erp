@@ -46,7 +46,7 @@ public class OrderService {
 
         // 필드 세팅
         order.setOrderCode(dto.getOrderCode());
-        order.setOrderType(dto.getOrderType());
+        // order.setOrderType(dto.getOrderType());
         order.setOrderDate(dto.getOrderDate());
         order.setCustIdx(dto.getCustIdx());
         order.setItemIdx(dto.getItemIdx());
@@ -92,6 +92,8 @@ public class OrderService {
         List<Mrp> mrpList = new ArrayList<>();
         List<String> warnings = new ArrayList<>();
 
+        boolean hasMaterialShortage = false;
+        
         for (BomDtl bom : bomList) {
             BigDecimal requiredQty = BigDecimal.valueOf(savedOrder.getOrderQty())
                 .multiply(bom.getUseQty())
@@ -115,6 +117,10 @@ public class OrderService {
 
             BigDecimal stock = inventoryRepository.getTotalStockByItemIdx(bom.getSubItemIdx());
             
+            if (stock == null || stock.compareTo(requiredQty) < 0) {
+                hasMaterialShortage = true;
+            }
+            
             String itemNm = itemmstRepository
                     .findByItemIdx(bom.getSubItemIdx())
                     .map(Itemmst::getItemNm)
@@ -133,7 +139,13 @@ public class OrderService {
         } else {
             System.out.println("✅ 모든 자재 충분");
         }
-
+        
+        if (hasMaterialShortage) {
+            order.setOrderStatus("S2"); // 자재 부족 → 생산 필요
+        } else {
+            order.setOrderStatus("S1"); // 자재 충분 → 입고 대기
+        }
+        
         return new OrderResponseDto(
                 savedOrder.getOrderIdx(),
                 savedOrder.getOrderCode(),
