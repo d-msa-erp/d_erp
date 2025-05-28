@@ -17,5 +17,4 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 	
 	@Query(value = "SELECT SYSDATE FROM DUAL", nativeQuery = true)
 	Timestamp oracleTodayRaw();
-
 }
