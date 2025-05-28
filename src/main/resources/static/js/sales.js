@@ -12,6 +12,7 @@ const cycleTimeInput = document.getElementById('itemCycleTime');
 let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
+let qtyLowData = [];
 let currentTh = null;
 let currentOrder = 'asc';
 	
@@ -226,6 +227,7 @@ async function openModal(data = null) {
     document.getElementById('modal').style.display = 'flex';
     document.querySelector('#modalForm button[name="save"]').style.display = 'block';
     document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
+	const inputs = modal.querySelectorAll('input');
 
     if(data){
 		title.textContent = '주문 정보';
@@ -243,7 +245,6 @@ async function openModal(data = null) {
 	   	document.getElementById('remark').value = data.remark || '';
 	   	document.getElementById('whSearchInput').value = data.whNm || '';
 		
-		const inputs = modal.querySelectorAll('input');
 		inputs.forEach(input => {
             if (input.type !== 'hidden') {
                 input.readOnly = true;
@@ -251,6 +252,12 @@ async function openModal(data = null) {
             }
         });
 	} else{
+		inputs.forEach(input => {
+            if (input.type !== 'hidden') {
+                input.readOnly = false;
+                input.disabled = false;
+            }
+        });
 	    fetchOrderNo(); // 주문번호 초기화 (있다면)
 		loadCustomer();
 		loadWarehouse();
@@ -282,27 +289,15 @@ async function loadCustomer(){
 
 
 // 창고 목록 불러오기
-async function loadWarehouse(){
-	try{
-	const warehouseResponse = await fetch('/api/warehouses');
-	if (!warehouseResponse.ok) throw new Error('창고 데이터 요청 실패');
-	
-	const warehouses = await warehouseResponse.json();
-	const warehouseList = document.getElementById("whList");
-	
-	warehouseList.innerHTML = '';
-	warehouseOptions = [];
-	
-	warehouses.forEach(wh => {
-		const whOption = document.createElement('option');
-		whOption.value = wh.whNm;
-		whOption.dataset.idx = wh.whIdx;
-		warehouseList.appendChild(whOption);
-		warehouseOptions.push(whOption);
-	})
-	} catch(err){
-		console.log("창고 로드 오류 : ",err);
-	}
+async function loadWarehouse() {
+    try {
+        const response = await fetch('/api/inventory/qty-low');
+        if (!response.ok) throw new Error('창고 데이터 요청 실패');
+
+        qtyLowData = await response.json(); // 전역에 저장만 하고 표시 X
+    } catch (err) {
+        console.error("창고 로드 오류:", err);
+    }
 }
 
 document.getElementById('whSearchInput').addEventListener('input', function() {
@@ -400,16 +395,32 @@ document.getElementById('selectedCustIdx').addEventListener('input', async funct
 // 품목 입력되면 해당 cycleTime, itemCost hidden에 저장
 document.getElementById('itemSearchInput').addEventListener('input', function () {
     const selectedItemName = this.value;
-    const itemInfo = itemDataMap[selectedItemName]; // 객체로 접근
+    const itemInfo = itemDataMap[selectedItemName];
+
+    const warehouseList = document.getElementById('whList');
+    warehouseList.innerHTML = '';
+    warehouseOptions = [];
 
     if (itemInfo) {
+        const itemIdx = itemInfo.itemIdx;
+
         document.getElementById('itemCycleTime').value = itemInfo.cycleTime || '';
         document.getElementById('itemPrice').value = itemInfo.itemCost || '';
         document.getElementById('itemIdx').value = itemInfo.itemIdx || '';
+
+        const matchedWarehouses = qtyLowData.filter(item => item.itemIdx == itemIdx);
+
+        matchedWarehouses.forEach(wh => {
+            const option = document.createElement('option');
+            option.value = wh.whNm;
+            option.dataset.idx = wh.whIdx;
+            warehouseList.appendChild(option);
+            warehouseOptions.push(option);
+        });
     } else {
         document.getElementById('itemCycleTime').value = '';
-		document.getElementById('itemPrice').value  = '';
-		document.getElementById('itemIdx').value = '';
+        document.getElementById('itemPrice').value = '';
+        document.getElementById('itemIdx').value = '';
     }
 });
 
