@@ -34,7 +34,7 @@ function submitModal(event) {
 }
 
 //테이블 클릭 시 출력되는 modal
-function opendatail() {
+function opendetail() {
     openModal();
     document.getElementById('modalTitle').textContent = '자재/품목 정보';
     

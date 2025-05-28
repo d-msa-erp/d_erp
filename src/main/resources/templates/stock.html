@@ -438,7 +438,7 @@
 									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
 								</tr>
                                 <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendatail()">
+                                <tr onclick="opendetail()">
                                     <td><input type="checkbox" /></td>
                                     <td>test</td>
                                     <td>test</td>
@@ -592,7 +592,7 @@
         }
 
         //테이블 클릭 시 출력되는 modal
-        function opendatail() {
+        function opendetail() {
             openModal();
             document.getElementById('modalTitle').textContent = '자재/품목 정보';
             
