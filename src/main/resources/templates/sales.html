@@ -677,66 +677,12 @@ width: 100%;
         const label = document.getElementById('toggleState');
         label.textContent = el.checked ? '납기일' : '착수일';
     }
-	/*
-    let currentTh = null;
-    let currentOrder = 'desc';
-
-    function order(thValue) {//정렬
-        const allArrows = document.querySelectorAll("th a");
-        allArrows.forEach(a => a.textContent = '↓');
-
-        if (currentTh === thValue) {
-            currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-        } else {
-            currentOrder = 'asc';
-            currentTh = thValue;
-        }
-
-        const arrow = thValue.querySelector('a');
-        arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-    }
-	*/
-
-
-
-	/*	
-    //Modal ~ 
-    function openModal() {
-        const title = document.getElementById('modalTitle');
-        title.textContent = '접수 등록';
-        document.getElementById('modal').style.display = 'flex';
-        document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
-        document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-    }
-	
-    function closeModal() {
-        document.getElementById('modal').style.display = 'none';
-        dataList.innerHTML = '';
-    }
-
-    function outsideClick(e) {
-        if (e.target.id === 'modal') {
-            closeModal();
-        }
-    }
-    */
     function submitModal(event) {
         event.preventDefault();
         const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
         console.log(currentTab + ' 등록됨:', siteName);
         closeModal();
     }
-	
-    /*
-    //테이블 클릭 시 출력되는 modal
-    function opendatail() {
-        openModal();
-        document.getElementById('modalTitle').textContent = '접수 정보';
-
-        document.querySelector('#modalForm input[name="save"]').style.display = 'none';
-        document.querySelector('#modalForm input[name="edit"]').style.display = 'block';
-    }
-    */
 
     document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('table').forEach(table => {
