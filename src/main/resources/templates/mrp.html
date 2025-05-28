@@ -200,13 +200,13 @@
 			width: 100%;
 			border-collapse: collapse;
 			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+			grid-template-columns: 1fr 1.5fr 1.5fr 1.5fr 2.5fr 2fr 1fr 1fr 1fr 1.3fr;
 		}
         .grid-table2{
             width: 100%;
 			border-collapse: collapse;
 			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 2fr;
+			grid-template-columns: 1fr 1.5fr 2fr 1.3fr 1fr 1fr 2fr;
         }
 		thead,
 		tbody,
@@ -245,6 +245,9 @@
 			background: #f0f0f0;
 			font-weight: bold;
 			cursor: pointer;
+			position: -webkit-sticky;
+		    position: sticky;
+		    top: 0; 
 		}
 
 		table input[type="text"] {
@@ -458,6 +461,12 @@
 		.bomTab5 .grid-table{
 			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
 		}
+		.selected-row {
+    background-color: lightskyblue; /* 또는 #e6f7ff 등 */
+}
+tbody > tr.selected-row td {
+    background-color: lightskyblue !important; /* 하늘색 배경, 다른 스타일에 덮어쓰이지 않도록 !important 사용 (테스트 후 제거 시도) */
+}
 	</style>
 
 </head>
@@ -490,7 +499,7 @@
 					<div></div>
 					<div id="table-customer" style="padding: 20px;position: relative;display: flex;flex-direction: column;gap: 20px;">
 						<div class="print-wrap">
-							<button type="button">
+							<button type="button" id="calculateMrpBtn">
 								<span class="material-symbols-outlined">calculate</span> 계산
 							</button>
 							<button type="button">
@@ -506,16 +515,16 @@
 							<thead>
 
 								<tr>
-									<th><input id="checkAllOrders" type="radio" /></th>
-									<th onclick="order(this)">주문번호<a>↓</a></th>
-									<th onclick="order(this)">생산코드<a>↓</a></th>
-									<th onclick="order(this)">품목코드<a>↓</a></th>
-									<th onclick="order(this)">품목명<a>↓</a></th>
-									<th onclick="order(this)">고객사<a>↓</a></th>
-									<th onclick="order(this)">재고<a>↓</a></th>
-									<th onclick="order(this)">단위<a>↓</a></th>
-									<th onclick="order(this)">수량<a>↓</a></th>
-									<th onclick="order(this)">생산성<a>↓</a></th>
+									<th>선택</th>
+									<th onclick="order(this)">주문번호</th>
+									<th onclick="order(this)">생산코드</th>
+									<th onclick="order(this)">품목코드</th>
+									<th onclick="order(this)">품목명</th>
+									<th onclick="order(this)">고객사</th>
+									<th onclick="order(this)">재고</th>
+									<th onclick="order(this)">단위</th>
+									<th onclick="order(this)">수량</th>
+									<th onclick="order(this)">생산성</th>
 								</tr>
 							</thead>
 							<tbody id="itembody">
@@ -530,18 +539,18 @@
 							<thead>
 
 								<tr>
-									<th onclick="order(this)">NO<a>↓</a></th>
-									<th onclick="order(this)">자재코드<a>↓</a></th>
-									<th onclick="order(this)">자재명<a>↓</a></th>
-									<th onclick="order(this)">재고량<a>↓</a></th>
-									<th onclick="order(this)">소요량<a>↓</a></th>
-									<th onclick="order(this)">단위<a>↓</a></th>
-									<th onclick="order(this)">투입예상량<a>↓</a></th>
+									<th onclick="order(this)">NO</th>
+									<th onclick="order(this)">자재코드</th>
+									<th onclick="order(this)">자재명</th>
+									<th onclick="order(this)">재고량</th>
+									<th onclick="order(this)">소요량</th>
+									<th onclick="order(this)">단위</th>
+									<th onclick="order(this)">투입예상량</th>
 								</tr>
 							</thead>
 							<tbody id="materialbody">
 									<tr>
-									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
+									<td class="nodata" style="grid-column: span 7;justify-content: center;">선택한 주문번호의 자재 데이터가 없습니다.</td>
 								</tr>
 							</tbody>
 						</table>
@@ -588,7 +597,7 @@
 					        <div><span>(자재)단위</span><input type="text" id="modalSelectedMaterialUnit" /></div> </div>
 					     <div class="flex-row">
 					        <div><span>생산성</span><input type="text" id="modalProductivity" /></div>
-					        <div><span>계산된원가</span><input type="text" id="modalCalculatedCost" /></div>
+					        <div><span>계산된원가</span><input type="text" id="modalCalculatedMaterialCost" /></div>
 					     </div>
 					    <div><span>비고</span><input type="text" id="modalRemark"/></div>
 					</div>
@@ -610,40 +619,7 @@
 											<th>비고</th>
 										</tr>
 									</thead>
-									<tbody>
-										<!--등록된 품목 리스트가 쭉 나오게 ~ -->
-										<tr>
-											<td>1</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											
-										</tr>
-										<tr>
-											<td>2</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-										</tr>
-										<tr>
-											<td>3</td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-											<td><input type="text" value="test" /></td>
-										</tr>
-						
+									<tbody id="bomMaterialListBody">
 									</tbody>
 								</table>
 							</div>

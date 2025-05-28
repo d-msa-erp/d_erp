@@ -65,34 +65,39 @@ public class MrpServiceImpl implements MrpService {
         dto.setOrderIdx(viewdto.getOrderIdx());
         dto.setOrderCode(viewdto.getOrderCode());
         dto.setOrderType(viewdto.getOrderType());
-        dto.setOrderDate(viewdto.getOrderDate()); // LocalDate -> LocalDate (직접 할당)
-        dto.setOrderDeliveryDate(viewdto.getOrderDeliveryDate()); // LocalDate -> LocalDate (직접 할당)
+        dto.setOrderDate(viewdto.getOrderDate());
+        dto.setOrderDeliveryDate(viewdto.getOrderDeliveryDate());
         dto.setCustomerNm(viewdto.getCustomerNm());
 
         dto.setProductPrimaryItemIdx(viewdto.getProductPrimaryItemIdx());
         dto.setProductItemCd(viewdto.getProductItemCd());
         dto.setProductItemNm(viewdto.getProductItemNm());
+        dto.setOrderQty(viewdto.getProductOrderQty());
+
+        // --- 새로 추가된 필드 매핑 ---
+        dto.setProductUnitNm(viewdto.getProductUnitNm());
+        dto.setProductCurrentStock(viewdto.getProductCurrentStock());
+        dto.setLossRate(viewdto.getLossRt()); // viewdto.getLossRt() 사용
+        // dto.setProductionCode(viewdto.getProductionCode()); // 뷰에 없으므로 주석 유지
+        // dto.setProductivity(viewdto.getProductivity());   // 뷰에 없으므로 주석 유지
+        // --- 여기까지 새로 추가된 필드 매핑 ---
 
         dto.setMaterialItemIdx(viewdto.getMaterialItemIdx());
         dto.setMaterialItemCd(viewdto.getMaterialItemCd());
         dto.setMaterialItemNm(viewdto.getMaterialItemNm());
         dto.setMaterialItemSpec(viewdto.getMaterialItemSpec());
-
         dto.setMaterialUnitIdx(viewdto.getMaterialUnitIdx());
         dto.setMaterialUnitNm(viewdto.getMaterialUnitNm());
 
         dto.setRequiredQty(viewdto.getRequiredQty());
         dto.setCalculatedCost(viewdto.getCalculatedCost());
-
-        dto.setRequireDate(viewdto.getRequireDate()); // LocalDate/LocalDateTime -> LocalDate/LocalDateTime (타입 일치 시 직접 할당)
+        dto.setRequireDate(viewdto.getRequireDate());
         dto.setMrpStatus(viewdto.getMrpStatus());
         dto.setMrpRemark(viewdto.getMrpRemark());
-        dto.setMrpCreatedDate(viewdto.getMrpCreatedDate()); // LocalDateTime -> LocalDateTime (직접 할당)
-        dto.setMrpUpdatedDate(viewdto.getMrpUpdatedDate()); // LocalDateTime -> LocalDateTime (직접 할당)
+        dto.setMrpCreatedDate(viewdto.getMrpCreatedDate());
+        dto.setMrpUpdatedDate(viewdto.getMrpUpdatedDate());
         dto.setOrderStatusOverall(viewdto.getOrderStatusOverall());
-
-        // expectedInputQty는 뷰에 컬럼이 없으므로, 별도 로직으로 채우거나 기본값 설정
-        dto.setExpectedInputQty(viewdto.getRequiredQty()); // 예시: 우선 소요량과 동일하게
+        dto.setExpectedInputQty(viewdto.getRequiredQty());
 
         return dto;
     }

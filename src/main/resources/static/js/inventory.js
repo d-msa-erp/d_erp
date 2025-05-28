@@ -84,8 +84,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         row.insertCell().textContent = item.custNm || "";      // 거래처명
                         row.insertCell().textContent = item.unitNm || "";      // 단위명
                         row.insertCell().textContent = item.qty === null ? "0" : item.qty; // 현재고량
-                        row.insertCell().textContent = item.itemCost === null ? "" : item.itemCost; // 단가
+                        //row.insertCell().textContent = item.itemCost === null ? "" : item.itemCost; // 단가
                         
+						const costCell = row.insertCell();
+						costCell.textContent = formatCurrencyKR(item.itemCost); // 단가 (천단위 쉼표 및 "원" 추가)
                         row.dataset.item = JSON.stringify(item); // Item.Response 전체 저장
                     });
                     updateCheckAllItem();
@@ -212,6 +214,34 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
        	
     });
+	
+	function formatCurrencyKR(value, includeDecimals = false) {
+	    if (value === null || value === undefined || isNaN(parseFloat(value))) {
+	        return ""; // 또는 "가격 정보 없음", "0원" 등
+	    }
+	    const number = parseFloat(value);
+	    const options = {
+	        // style: 'currency', // 'currency' 스타일은 통화 기호(₩)를 자동으로 붙이지만, "원"을 직접 붙이기로 함
+	        // currency: 'KRW', // 위와 동일
+	        minimumFractionDigits: includeDecimals ? 2 : 0, // 소수점 표시 여부
+	        maximumFractionDigits: includeDecimals ? 2 : 0
+	    };
+	    return number.toLocaleString('ko-KR', options) + "원";
+	}
+
+	// JAVASCRIPT 수정: 통화 형식 문자열에서 숫자만 추출하는 함수 추가
+	function unformatCurrencyKR(formattedValue) {
+	    if (typeof formattedValue !== 'string') {
+	        // 이미 숫자이거나, null/undefined이면 그대로 반환 또는 적절히 처리
+	        const num = parseFloat(formattedValue);
+	        return isNaN(num) ? null : num;
+	    }
+	    // "원" 문자 및 쉼표(,) 제거 후 숫자로 변환
+	    const numericString = formattedValue.replace(/[원,]/g, ""); 
+	    const numValue = parseFloat(numericString);
+	    return isNaN(numValue) ? null : numValue; // 변환 실패 시 null 반환
+	}
+
 	
 		let currentTh = null;
 		let currentOrder = 'desc';
