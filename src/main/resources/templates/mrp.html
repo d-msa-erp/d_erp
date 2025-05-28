@@ -396,10 +396,10 @@
 			gap: 10px;
 		}
 		.bomTab1 input{height: 100%; width: 100%; padding: 5px;}
-.bomTab1 > div {
-	height: 100%;
-	align-self: stretch;
-}
+		.bomTab1 > div {
+			height: 100%;
+			align-self: stretch;
+		}
 		.bomTab2 {
 			display: grid;
 			grid-template-columns: 7fr 1fr;
@@ -462,11 +462,15 @@
 			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
 		}
 		.selected-row {
-    background-color: lightskyblue; /* 또는 #e6f7ff 등 */
-}
-tbody > tr.selected-row td {
-    background-color: lightskyblue !important; /* 하늘색 배경, 다른 스타일에 덮어쓰이지 않도록 !important 사용 (테스트 후 제거 시도) */
-}
+	    	background-color: lightskyblue; /* 또는 #e6f7ff 등 */
+		}
+		tbody > tr.selected-row td {
+		    background-color: lightskyblue !important; /* 하늘색 배경, 다른 스타일에 덮어쓰이지 않도록 !important 사용 (테스트 후 제거 시도) */
+		}
+		.deficit-warning {
+		    color: red;
+		    font-weight: bold;
+		}
 	</style>
 
 </head>
@@ -491,9 +495,9 @@ tbody > tr.selected-row td {
 <!-- 							<button type="button" onclick="openModal()"> -->
 <!-- 								<span class="material-symbols-outlined">add</span> 1 -->
 <!-- 							</button> -->
-							<button type="button">
+<!-- 							<button type="button">
 								<span class="material-symbols-outlined">delete</span> 삭제
-							</button>
+							</button> -->
 						</div>
 					</div>
 					<div></div>
@@ -604,26 +608,22 @@ tbody > tr.selected-row td {
 
 				</div>
 				<div class="bomTab5"> 
-						<div>
-							<div>
-								<table class="grid-table">
-									<thead>
-										<tr>
-											<th>No</th>
-											<th>품목명</th>
-											<th>원자재명</th>
-											<th>순번</th>
-											<th>소요량</th>
-											<th>로스율</th>
-											<th>재료비</th>
-											<th>비고</th>
-										</tr>
-									</thead>
-									<tbody id="bomMaterialListBody">
-									</tbody>
-								</table>
-							</div>
-						</div>
+					<table class="grid-table">
+						<thead>
+							<tr>
+								<th>No</th>
+								<th>품목명</th>
+								<th>원자재명</th>
+								<th>순번</th>
+								<th>소요량</th>
+								<th>로스율</th>
+								<th>재료비</th>
+								<th>비고</th>
+							</tr>
+						</thead>
+						<tbody id="bomMaterialListBody">
+						</tbody>
+					</table>
 				</div>
 				<div class="modal-buttons">
 					<button type="button" name="save">등록</button>

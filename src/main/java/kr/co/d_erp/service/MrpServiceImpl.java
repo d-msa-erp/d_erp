@@ -5,62 +5,83 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import kr.co.d_erp.domain.MrpDetailView;
+import kr.co.d_erp.dtos.BomItemDetailDto;
+import kr.co.d_erp.dtos.MrpFirstDto;
+import kr.co.d_erp.dtos.MrpFirstDtoProjection;
 import kr.co.d_erp.dtos.MrpSecondDto;
-import kr.co.d_erp.repository.oracle.ItemCustomerRepository;
-import kr.co.d_erp.repository.oracle.ItemInvenRepository;
-import kr.co.d_erp.repository.oracle.ItemUnitRepository;
-import kr.co.d_erp.repository.oracle.ItemmstRepository;
 import kr.co.d_erp.repository.oracle.MrpDetailViewRepository;
-import kr.co.d_erp.repository.oracle.MrpRepository;
+
+
 import lombok.RequiredArgsConstructor;
+import java.math.BigDecimal;
+
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MrpServiceImpl implements MrpService {
-    // ... 필드 주입 ...
-    private final ItemInvenRepository invenRepository; // 필드명이 invenRepository로 잘 되어 있음
-    private final MrpRepository mrpRepository;
-    private final ItemUnitRepository unitRepository;
-    private final ItemCustomerRepository custRepository;
-    private final ItemmstRepository itemmstRepository;
+
     private final MrpDetailViewRepository mrpviewRepo;
-    
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final BomService bomService; // BomService 주입
 
     @Override
-    public Page<MrpSecondDto> findMrpTargetOrders(String orderTypeFilter, String searchKeyword, Pageable pageable) {
-    	// orderTypeFilter가 null이거나 비어있으면 null로 처리하여 JPQL의 IS NULL 조건이 동작하도록 함 (선택 사항)
+    public Page<MrpFirstDto> findMrpTargetOrders(String orderTypeFilter, String searchKeyword, Pageable pageable) {
         String effectiveOrderTypeFilter = (orderTypeFilter != null && !orderTypeFilter.isEmpty()) ? orderTypeFilter : null;
         String effectiveSearchKeyword = (searchKeyword != null && !searchKeyword.isEmpty()) ? searchKeyword : null;
 
-        Page<MrpDetailView> mrpDetailViewPage = mrpviewRepo.findOrdersForMrp(effectiveOrderTypeFilter, effectiveSearchKeyword, pageable);
-        return mrpDetailViewPage.map(this::mapviewdtoToMrpSecondDto); // 기존 변환 메소드 재활용
+        // 네이티브 쿼리를 사용하여 고유한 주문/완제품 정보를 가져옵니다.
+        Page<MrpFirstDtoProjection> projectionPage = mrpviewRepo.findUniqueMrpTargetOrders(
+            effectiveOrderTypeFilter,
+            effectiveSearchKeyword,
+            pageable
+        );
+        
+        return projectionPage.map(this::mapProjectionToMrpFirstDto);
     }
-    
+
+    private MrpFirstDto mapProjectionToMrpFirstDto(MrpFirstDtoProjection projection) {
+        if (projection == null) return null;
+        return MrpFirstDto.builder()
+                .orderIdx(projection.getOrderIdx())
+                .orderCode(projection.getOrderCode())
+                .orderType(projection.getOrderType())
+                .orderDate(projection.getOrderDate())
+                .orderDeliveryDate(projection.getOrderDeliveryDate())
+                .customerNm(projection.getCustomerNm())
+                .productPrimaryItemIdx(projection.getProductPrimaryItemIdx())
+                .productItemCd(projection.getProductItemCd())
+                .productItemNm(projection.getProductItemNm())
+                .productItemSpec(projection.getProductItemSpec())
+                .orderQty(projection.getOrderQty()) // 완제품 총 생산 수량
+                .productUnitNm(projection.getProductUnitNm())
+                .productCurrentStock(projection.getProductCurrentStock())
+                .productionCode(projection.getProductionCode()) // 뷰에서 NULL이면 null
+                .productivity(projection.getProductivity())     // 뷰에서 NULL이면 null
+                .remark(projection.getRemark())
+                .orderStatusOverall(projection.getOrderStatusOverall())
+                .build();
+    }
+
     @Override
     @Transactional(readOnly = true)
     public Page<MrpSecondDto> findMrpResults(Long orderIdx, Pageable pageable) {
-        // Specification 등을 사용하여 동적 쿼리 생성 가능
         Page<MrpDetailView> viewResultsPage;
         if (orderIdx != null) {
             viewResultsPage = mrpviewRepo.findByOrderIdx(orderIdx, pageable);
         } else {
-            // TODO: orderId가 없을 때의 전체 조회 또는 다른 기본 필터링 조건 적용
-            viewResultsPage = mrpviewRepo.findAll(pageable); // 예시
+            viewResultsPage = mrpviewRepo.findAll(pageable); 
         }
-
-        // MrpResultDetailView 엔티티를 MrpSecondDto로 변환
-        return viewResultsPage.map(this::mapviewdtoToMrpSecondDto);
+        return viewResultsPage.map(this::mapViewToMrpSecondDto);
     }
 
-    private MrpSecondDto mapviewdtoToMrpSecondDto(MrpDetailView viewdto) {
+    // MrpDetailView (자재 레벨)를 MrpSecondDto로 변환하는 함수
+    private MrpSecondDto mapViewToMrpSecondDto(MrpDetailView viewdto) {
         if (viewdto == null) return null;
         MrpSecondDto dto = new MrpSecondDto();
+        // ... (이전 답변의 MrpSecondDto 매핑 로직 유지) ...
+        // 이 함수는 MrpDetailView (MRP_RESULT_DETAILS 뷰의 한 행)를 MrpSecondDto로 변환합니다.
+        // MrpSecondDto는 여전히 자재 중심의 상세 정보를 포함할 수 있습니다.
         dto.setMrpIdx(viewdto.getMrpIdx());
         dto.setOrderIdx(viewdto.getOrderIdx());
         dto.setOrderCode(viewdto.getOrderCode());
@@ -68,19 +89,17 @@ public class MrpServiceImpl implements MrpService {
         dto.setOrderDate(viewdto.getOrderDate());
         dto.setOrderDeliveryDate(viewdto.getOrderDeliveryDate());
         dto.setCustomerNm(viewdto.getCustomerNm());
-
         dto.setProductPrimaryItemIdx(viewdto.getProductPrimaryItemIdx());
         dto.setProductItemCd(viewdto.getProductItemCd());
         dto.setProductItemNm(viewdto.getProductItemNm());
-        dto.setOrderQty(viewdto.getProductOrderQty());
+        dto.setOrderQty(viewdto.getProductOrderQty()); // 완제품 총 생산 수량 (MrpDetailView에 이 필드가 있어야 함)
 
-        // --- 새로 추가된 필드 매핑 ---
         dto.setProductUnitNm(viewdto.getProductUnitNm());
         dto.setProductCurrentStock(viewdto.getProductCurrentStock());
-        dto.setLossRate(viewdto.getLossRt()); // viewdto.getLossRt() 사용
-        // dto.setProductionCode(viewdto.getProductionCode()); // 뷰에 없으므로 주석 유지
-        // dto.setProductivity(viewdto.getProductivity());   // 뷰에 없으므로 주석 유지
-        // --- 여기까지 새로 추가된 필드 매핑 ---
+        dto.setLossRate(viewdto.getLossRt());
+        // MrpDetailView 엔티티에 getProductionCode(), getProductivity()가 있다면 매핑 가능
+        // dto.setProductionCode(viewdto.getProductionCode()); 
+        // dto.setProductivity(viewdto.getProductivity());   
 
         dto.setMaterialItemIdx(viewdto.getMaterialItemIdx());
         dto.setMaterialItemCd(viewdto.getMaterialItemCd());
@@ -88,8 +107,7 @@ public class MrpServiceImpl implements MrpService {
         dto.setMaterialItemSpec(viewdto.getMaterialItemSpec());
         dto.setMaterialUnitIdx(viewdto.getMaterialUnitIdx());
         dto.setMaterialUnitNm(viewdto.getMaterialUnitNm());
-
-        dto.setRequiredQty(viewdto.getRequiredQty());
+        dto.setRequiredQty(viewdto.getRequiredQty()); // 자재별 소요량
         dto.setCalculatedCost(viewdto.getCalculatedCost());
         dto.setRequireDate(viewdto.getRequireDate());
         dto.setMrpStatus(viewdto.getMrpStatus());
@@ -98,8 +116,11 @@ public class MrpServiceImpl implements MrpService {
         dto.setMrpUpdatedDate(viewdto.getMrpUpdatedDate());
         dto.setOrderStatusOverall(viewdto.getOrderStatusOverall());
         dto.setExpectedInputQty(viewdto.getRequiredQty());
-
         return dto;
     }
 
+    @Override
+    public BomItemDetailDto getBomDetailsForMrp(Long parentItemId) {
+        return bomService.getBomDetails(parentItemId);
+    }
 }

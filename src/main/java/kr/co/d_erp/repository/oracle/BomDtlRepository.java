@@ -32,6 +32,7 @@ public interface BomDtlRepository extends JpaRepository<BomDtl, Long> {
                     unit.UNIT_NM       as unitNm,
                     s_item.ITEM_FLAG   as itemFlag,      -- 하위 품목의 ITEM_FLAG
                     s_item.ITEM_COST   as subItemMasterCost, -- 하위 품목의 마스터 코스트
+                    inv.STOCK_QTY	   as subQty,		-- 희원 추가 (하위 품목의 현재고량)
                     bom.SEQ_NO         as seqNo,
                     bom.LOSS_RT        as lossRt,
                     bom.ITEM_PRICE     as itemPrice,
@@ -44,6 +45,8 @@ public interface BomDtlRepository extends JpaRepository<BomDtl, Long> {
                     TB_ITEMMST s_item ON bom.S_ITEM_IDX = s_item.ITEM_IDX
                 LEFT JOIN
                     TB_UNIT_MST unit ON s_item.ITEM_UNIT = unit.UNIT_IDX
+                LEFT JOIN
+                	TB_INVENTORY inv ON s_item.ITEM_IDX = inv.ITEM_IDX
                 WHERE
                     bom.P_ITEM_IDX = :parentItemIdx
                 ORDER BY

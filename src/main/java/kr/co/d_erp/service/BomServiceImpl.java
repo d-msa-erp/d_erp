@@ -136,7 +136,8 @@ public class BomServiceImpl implements BomService {
                 p.getLossRt(),
                 p.getItemPrice(),
                 p.getRemark(),     // 하위 품목 비고
-                p.getSubItemMasterCost()//하위 품목 마스터원가
+                p.getSubItemMasterCost(),//하위 품목 마스터원가
+                p.getSubQty()
             ))
             .collect(Collectors.toList());
 

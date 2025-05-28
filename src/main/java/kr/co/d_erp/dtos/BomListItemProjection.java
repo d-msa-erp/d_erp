@@ -27,5 +27,6 @@ public interface BomListItemProjection {
     BigDecimal getParentCycleTime(); // p_item.CYCLE_TIME 에 대한 Getter
     String getParentRemark();      // p_item.REMARK 에 대한 Getter
     BigDecimal getSubItemMasterCost();
+    BigDecimal getSubQty();	//희원 추가(하위품목 재고량)
     
 }
