@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,30 +21,39 @@ public class SaleController {
 
 	private final SalesService salesService;
 
-    // 구매 발주(P)만 조회
-    @GetMapping("/sales")
-    public List<SalesView> getSalesOrders( 
-    		@RequestParam(defaultValue = "S") String orderType, // 기본값 'P'로 설정
-            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
-            @RequestParam(defaultValue = "asc") String sortDirection){ // 기본 정렬 방향 'asc') {
-        
-            return salesService.getSalesOrders(orderType, sortBy, sortDirection);
-    }
-   
-    // 구매 발주(P)만 조회
-    @GetMapping("/purchases")
-    public List<SalesView> getPurchaseOrders(
-            @RequestParam(defaultValue = "P") String orderType, // 기본값 'P'로 설정
-            @RequestParam(defaultValue = "deliveryDate") String sortBy, // 기본 정렬 기준 'deliveryDate'
-            @RequestParam(defaultValue = "asc") String sortDirection // 기본 정렬 방향 'asc'
-    ) {
-        return salesService.getPurchaseOrders(orderType, sortBy, sortDirection); // 서비스 메서드 호출
-    }
-    
-    @GetMapping("/search")
-    public List<SalesView> searchItems(@RequestParam String searchTerm) {
-        return salesService.searchItems(searchTerm);
-    }
+	// 판매 조회 (S)
+	@GetMapping("/sales")
+	public Page<SalesView> getSalesOrders(
+	        @RequestParam(defaultValue = "S") String orderType,
+	        @RequestParam(defaultValue = "deliveryDate") String sortBy,
+	        @RequestParam(defaultValue = "asc") String sortDirection,
+	        @RequestParam(defaultValue = "0") int page // ✅ 페이지 파라미터 추가
+	) {
+	    return salesService.getSalesOrders(orderType, sortBy, sortDirection, page);
+	}
+
+	// 구매 발주 (P)
+	@GetMapping("/purchases")
+	public Page<SalesView> getPurchaseOrders(
+	        @RequestParam(defaultValue = "P") String orderType,
+	        @RequestParam(defaultValue = "deliveryDate") String sortBy,
+	        @RequestParam(defaultValue = "asc") String sortDirection,
+	        @RequestParam(defaultValue = "0") int page // ✅ 페이지 파라미터 추가
+	) {
+	    return salesService.getPurchaseOrders(orderType, sortBy, sortDirection, page);
+	}
+
+	// 품목 검색 (검색 결과도 많을 수 있으므로 페이징 적용)
+	@GetMapping("/search")
+	public Page<SalesView> searchItems(
+		    @RequestParam String searchTerm,
+		    @RequestParam(defaultValue = "deliveryDate") String dateType,
+		    @RequestParam(required = false) String startDate,
+		    @RequestParam(required = false) String endDate,
+		    @RequestParam(defaultValue = "0") int page
+	) {
+	    return salesService.searchItems(searchTerm, dateType, startDate, endDate, page);
+	}
     
     
     @GetMapping("/getno")

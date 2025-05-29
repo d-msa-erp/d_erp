@@ -4,7 +4,7 @@ window.currentBizFlag = '02'; // 기본 탭 설정 ('02': 거래처)
 let currentTh = 'custIdx';    // 기본 정렬 컬럼
 let currentOrder = 'desc';  // 기본 정렬 순서 (내림차순)
 window.currentCustIdx = null; // 수정을 위한 현재 고객 ID 저장용
-
+let currentPage = 0;
 // 고객 목록을 가져오는 함수 (AJAX 통신)
 async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = currentOrder, keyword = '') {
     const customerTableBody = document.getElementById('customerTableBody');
@@ -15,18 +15,60 @@ async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = curren
     currentTh = sortBy;
     currentOrder = sortDirection;
 
-    const apiUrl = `/api/customer/${bizFlag}?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword)}`;
+    const apiUrl = `/api/customer/${bizFlag}?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword)}&page=${currentPage}`;
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
             throw new Error(`HTTP 오류! 상태: ${response.status}`);
         }
         const customers = await response.json();
-        renderCustomers(customers);
+
+		const paginationInfo = document.getElementById("paginationInfo");
+		if (paginationInfo) {
+		    paginationInfo.textContent = `총 ${customers.totalElements}건 ${customers.number + 1}/${customers.totalPages}페이지`;
+		}
+
+		// 현재 페이지 표시
+		const currentPageInput = document.getElementById("currentPageInput");
+		if (currentPageInput) {
+		    currentPageInput.value = customers.number + 1;
+		}
+
+		// 이전 버튼
+		document.getElementById("btn-prev-page")?.addEventListener('click', () => {
+		    if (currentPage > 0) {
+		        currentPage--;
+		        loadCustomers(bizFlag, sortBy, sortDirection, keyword);
+		    }
+		});
+
+		// 다음 버튼
+		document.getElementById("btn-next-page")?.addEventListener('click', () => {
+		    if (currentPage < customers.totalPages - 1) {
+		        currentPage++;
+		        loadCustomers(bizFlag, sortBy, sortDirection, keyword);
+		    }
+		});
+
+		currentPageInput?.addEventListener('keypress', (e) => {
+		    if (e.key === 'Enter') {
+		        let page = parseInt(currentPageInput.value);
+		        if (!isNaN(page) && page >= 1 && page <= customers.totalPages) {
+		            currentPage = page - 1;
+		            loadCustomers(bizFlag, sortBy, sortDirection, keyword);
+		        } else {
+		            alert('올바른 페이지 번호를 입력하세요.');
+		            currentPageInput.value = data.number + 1;
+		        }
+		    }
+		});
+        renderCustomers(customers.content);
     } catch (error) {
         console.error('데이터 로딩 실패:', error);
         renderErrorMessage('데이터 로딩 중 오류가 발생했습니다.', 'customerTableBody', 5);
     }
+
+
 }
 
 // 테이블에 고객 데이터를 렌더링하는 함수

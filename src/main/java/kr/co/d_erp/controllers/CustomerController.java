@@ -5,6 +5,8 @@ import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.CustomerForSelectionDto;
 import kr.co.d_erp.service.CustmstService;
 import lombok.RequiredArgsConstructor;
+
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,74 +19,70 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomerController {
 
-    private final CustmstService custmstService;
+	private final CustmstService custmstService;
 
-    @GetMapping("/api/customer/{bizFlag}")
-    public List<Custmst> getCustomers(@PathVariable("bizFlag") String bizFlag,
-                                      @RequestParam(defaultValue = "custNm") String sortBy,
-                                      @RequestParam(defaultValue = "asc") String sortDirection,
-                                      @RequestParam(required = false) String keyword) {
-        return custmstService.getCustomers(bizFlag, sortBy, sortDirection, keyword);
-    }
+	@GetMapping("/api/customer/{bizFlag}")
+	public org.springframework.data.domain.Page<Custmst> getCustomers(@PathVariable String bizFlag, @RequestParam String sortBy,
+			@RequestParam String sortDirection, @RequestParam(required = false) String keyword,
+			@RequestParam(defaultValue = "0") int page) {
+		return custmstService.getCustomers(bizFlag, sortBy, sortDirection, keyword, page);
+	}
 
-    // 상세 보기
-    @GetMapping("/api/customer/detail/{id}")
-    public ResponseEntity<Custmst> getCustomerById(@PathVariable("id") Long id) {
-        Optional<Custmst> customer = custmstService.getCustomerById(id);
-        return customer.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
-    }
+	// 상세 보기
+	@GetMapping("/api/customer/detail/{id}")
+	public ResponseEntity<Custmst> getCustomerById(@PathVariable("id") Long id) {
+		Optional<Custmst> customer = custmstService.getCustomerById(id);
+		return customer.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+	}
 
-    // 거래처 정보 수정
-    @PutMapping("/api/customer/update/{custIdx}")
-    public ResponseEntity<Custmst> updateCustomer(@PathVariable("custIdx") Long custIdx,
-                                                  @RequestBody Custmst updatedCust) {
-        Custmst savedCust = custmstService.updateCustomer(custIdx, updatedCust);
-        return ResponseEntity.ok(savedCust);
-    }
+	// 거래처 정보 수정
+	@PutMapping("/api/customer/update/{custIdx}")
+	public ResponseEntity<Custmst> updateCustomer(@PathVariable("custIdx") Long custIdx,
+			@RequestBody Custmst updatedCust) {
+		Custmst savedCust = custmstService.updateCustomer(custIdx, updatedCust);
+		return ResponseEntity.ok(savedCust);
+	}
 
-    // 거래처 등록
-    @PostMapping("/api/customer/save")
-    public ResponseEntity<?> saveCustomer(@RequestBody Custmst customer) {
-        try {
-            Custmst savedCustomer = custmstService.saveCustomer(customer);
-            return ResponseEntity.ok(savedCustomer);
-        } catch (Exception e) {
-            System.out.println(e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("등록 중 오류가 발생했습니다.");
-        }
-    }
+	// 거래처 등록
+	@PostMapping("/api/customer/save")
+	public ResponseEntity<?> saveCustomer(@RequestBody Custmst customer) {
+		try {
+			Custmst savedCustomer = custmstService.saveCustomer(customer);
+			return ResponseEntity.ok(savedCustomer);
+		} catch (Exception e) {
+			System.out.println(e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("등록 중 오류가 발생했습니다.");
+		}
+	}
 
-    // 거래처 삭제
-    @DeleteMapping("/api/customer/delete")
-    public ResponseEntity<?> deleteCustomers(@RequestBody List<Long> ids) {
-        try {
-            ids.forEach(custmstService::deleteCustomer);
-            return ResponseEntity.noContent().build();
-        } catch (DataIntegrityViolationException e) {
-            if (e.getMessage() != null && e.getMessage().contains("ORA-02292")) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("품목들을 먼저 삭제해주세요.");
-            }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("삭제 중 오류가 발생했습니다.");
-        }
-    }
+	// 거래처 삭제
+	@DeleteMapping("/api/customer/delete")
+	public ResponseEntity<?> deleteCustomers(@RequestBody List<Long> ids) {
+		try {
+			ids.forEach(custmstService::deleteCustomer);
+			return ResponseEntity.noContent().build();
+		} catch (DataIntegrityViolationException e) {
+			if (e.getMessage() != null && e.getMessage().contains("ORA-02292")) {
+				return ResponseEntity.status(HttpStatus.CONFLICT).body("품목들을 먼저 삭제해주세요.");
+			}
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("삭제 중 오류가 발생했습니다.");
+		}
+	}
 
-    // 거래처 이름 목록 받아오기 (bizFlag = 02)
-    @GetMapping("/api/customers/names")
-    public List<CustomerDTO> getCustomerNames() {
-        return custmstService.getCustomerNamesWithCode("02");
-    }
+	// 거래처 이름 목록 받아오기 (bizFlag = 02)
+	@GetMapping("/api/customers/names")
+	public List<CustomerDTO> getCustomerNames() {
+		return custmstService.getCustomerNamesWithCode("02");
+	}
 
-    // Datalist용 거래처 정보 조회 API
-    @GetMapping("/api/customers/active-for-selection")
-    public ResponseEntity<List<CustomerForSelectionDto>> getActiveCustomersForDatalist(
-            @RequestParam(name = "bizFlag", defaultValue = "01") String bizFlag) {
-        List<CustomerForSelectionDto> customers = custmstService.findActiveCustomersForSelection(bizFlag);
-        if (customers == null || customers.isEmpty()) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.ok(customers);
-    }
+	// Datalist용 거래처 정보 조회 API
+	@GetMapping("/api/customers/active-for-selection")
+	public ResponseEntity<List<CustomerForSelectionDto>> getActiveCustomersForDatalist(
+			@RequestParam(name = "bizFlag", defaultValue = "01") String bizFlag) {
+		List<CustomerForSelectionDto> customers = custmstService.findActiveCustomersForSelection(bizFlag);
+		if (customers == null || customers.isEmpty()) {
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.ok(customers);
+	}
 }
