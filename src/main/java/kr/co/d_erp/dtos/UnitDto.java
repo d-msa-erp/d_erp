@@ -4,11 +4,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UnitDto {
     private Integer unitIdx; 
     private String unitNm;   
@@ -16,5 +18,6 @@ public class UnitDto {
     public UnitDto(String unitNm) {
         this.unitNm = unitNm;
     }
-    
+ 
+    //희원 > Builder 어노테이션 추
 }

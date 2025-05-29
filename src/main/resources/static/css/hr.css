@@ -1,0 +1,456 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	font-family: sans-serif;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.site-Wrapper {
+	width: 100%;
+	max-width: 1200px;
+	align-self: center;
+	padding: 20px;
+}
+
+.site-Dataset {
+	width: 100%;
+	border: 1px solid #777;
+	border-radius: 10px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.site-Dataset .header {
+	background: #46a6ff;
+	color: white;
+	padding: 10px 20px;
+	font-size: 20px;
+}
+
+.site-Dataset .form-content {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 20px;
+	gap: 20px;
+}
+
+.form-item {
+	display: flex;
+	align-items: center;
+	width: calc(33.333% - 13.33px);
+}
+
+.form-item.addr {
+	width: calc(66.666% - 10px);
+}
+
+.form-item span {
+	padding-right: 10px;
+	white-space: nowrap;
+}
+
+.form-item input {
+	width: 100%;
+	height: 100%;
+	border-radius: 3px;
+	padding: 5px;
+	font-size: 14px;
+	border: 1px solid #ccc;
+}
+
+.form-item input:focus {
+	border: 1px solid #46a6ff;
+	outline: none;
+}
+
+.table-wrapper {
+	width: 100%;
+	max-width: 1200px;
+}
+
+.table-wrapper>div:nth-child(1) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 20px;
+	position: relative;
+}
+
+.table-wrapper>div:nth-child(1)>input[type="text"] {
+	width: 30%;
+	padding: 5px;
+}
+
+.table-wrapper>div:nth-child(1)>div {
+	width: 30%;
+	display: flex;
+	justify-content: space-between;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 {
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	position: absolute;
+	left: 20px;
+	display: flex;
+	justify-content: flex-start;
+	gap: 10px;
+}
+
+.table-wrapper>div:nth-child(1)>div button {
+	width: 30%;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
+	padding: 5px;
+	gap: 10px;
+	background: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
+	background: #007bff;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
+	background: #28a745;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
+	background: #dc3545;
+	color: white;
+}
+
+.table-wrapper>div:nth-child(2) {
+	padding: 20px 20px 0 20px;
+	display: flex;
+	flex-direction: column;
+}
+
+.table-wrapper>div:nth-child(2)>span {
+	width: 30%;
+	padding-right: 10px;
+	text-align: center;
+	cursor: pointer;
+}
+
+.table-wrapper>div:nth-child(2)>span.active {
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.table-wrapper>div:nth-child(3) {
+	position: relative;
+}
+
+.nodata {
+	text-align: center;
+}
+
+.print-wrap {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 0 20px;
+	display: flex;
+	gap: 10px;
+	width: 200px;
+}
+
+.print-wrap>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+table.grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr 1fr 1fr;
+}
+
+thead, tbody, tr {
+	display: contents;
+}
+
+tbody>tr:nth-child(even) td {
+	background: #f9f9f9;
+}
+
+tbody>tr:hover td {
+	background: #46a6ff;
+	cursor: pointer;
+}
+
+tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
+	justify-content: center;
+}
+
+th, td {
+	padding: 10px;
+	border: 1px solid #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+thead th {
+	background: #f0f0f0;
+	font-weight: bold;
+	cursor: pointer;
+}
+
+table input[type="text"] {
+	width: 100%;
+	padding: 5px;
+}
+
+.pagination-wrap {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	padding-top: 20px;
+}
+
+.pagination-wrap>div {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.pagination-wrap>div input[type="text"] {
+	width: 50px;
+	text-align: center;
+}
+
+.pagination-wrap>div button {
+	width: 20px;
+	background: #007bff;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.table-wrapper button:hover {
+	filter: brightness(0.9);
+}
+
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.4);
+	justify-content: center;
+	align-items: center;
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
+}
+
+.modal-content {
+	background: white;
+	padding: 20px;
+	border-radius: 10px;
+	max-width: 700px;
+	position: relative;
+	max-height: 800px;
+	overflow: auto;
+}
+
+.modal-content .modalForm {
+	margin-top: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	justify-items: center;
+	align-items: center;
+}
+
+.modal-content .modalForm>div, .modal-content .modalForm>label {
+	width: 100%;
+	display: flex;
+	gap: 10px;
+	justify-content: flex-start;
+	align-items: center;
+}
+
+.modal-content .modalForm>div>span, .modal-content .modalForm>label>span
+	{
+	white-space: nowrap;
+	padding-right: 10px;
+}
+
+.modal-content input {
+	width: 100%;
+	padding: 10px;
+	border: 1px solid #ccc;
+}
+
+.modal-content input[type="color"] {
+	width: 100%;
+	height: 40px;
+	border: none;
+	margin-top: 10px;
+}
+
+.modal-content .modal-buttons {
+	margin-top: 15px;
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	width: 100%;
+	grid-column-start: 3;
+}
+
+.modal-content .modal-buttons>button:hover {
+	filter: brightness(0.9);
+}
+
+.modal-content .modal-buttons>button {
+	width: 100%;
+	background: #007bff;
+	color: #fff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	padding: 5px;
+}
+
+.modal-buttons button:nth-of-type(3) {
+	background: #777 !important;
+}
+
+.modal-content .modalForm th, .modal-content .modalForm td {
+	margin: 0 !important;
+	padding: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+}
+
+.modal-content .bomTab1 select {
+	height: 100%;
+	width: 100%;
+}
+
+.modal-content .grid-table {
+	width: 100%;
+	height: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
+	padding: 0;
+}
+
+.bomTab1 {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+}
+
+.bomTab1 input {
+	height: 100%;
+	width: 100%;
+	padding: 5px;
+}
+
+.bomTab1>div {
+	height: 100%;
+	align-self: stretch;
+}
+
+.bomTab2 {
+	display: grid;
+	grid-template-columns: 2.7fr 1fr;
+	gap: 10px;
+}
+
+.bomTab2>div {
+	display: flex;
+	flex-direction: column;
+	gap: 10px !important;
+	justify-content: space-between;
+	overflow-y: auto;
+}
+
+.bomTab2>div>div {
+	height: 100%;
+}
+
+.bomTab2>div>ul {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.bomTab2>div>ul>li {
+	padding-left: 10px;
+}
+
+.bomTab3 {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.bomTab3>div {
+	display: flex;
+	white-space: nowrap;
+	gap: 10px;
+	align-items: center;
+}
+
+.bomTab3 .flex-row {
+	display: flex;
+	gap: 10px;
+	width: 100%;
+}
+
+.bomTab3 .flex-row>div {
+	flex: 1;
+	display: flex;
+	align-items: center;
+}
+
+.bomTab3 .flex-row>div span {
+	white-space: nowrap;
+	padding-right: 10px;
+}
+
+.bomTab3 .flex-row>div input {
+	width: 100%;
+}
+
+.bomTab5 {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.bomTab5 .grid-table {
+	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
+}

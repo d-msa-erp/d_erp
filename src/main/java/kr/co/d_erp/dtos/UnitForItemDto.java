@@ -11,7 +11,6 @@ import lombok.Setter;
 @Table(name = "TB_UNIT_MST")
 @Getter
 @Setter
-
 public class UnitForItemDto {
     @Id
     @Column(name = "UNIT_IDX")
