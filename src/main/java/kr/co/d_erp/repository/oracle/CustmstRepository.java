@@ -17,6 +17,7 @@ import java.util.List;
 public interface CustmstRepository extends JpaRepository<Custmst, Long> {
 	
 	Page<Custmst> findByBizFlag(String bizFlag, Pageable pageable);
+	List<Custmst> findAll();
 
 	@Query("SELECT c FROM Custmst c WHERE c.bizFlag = :bizFlag AND " +
 	       "(c.custNm LIKE :keyword OR c.presidentNm LIKE :keyword OR c.bizTel LIKE %:keyword% OR c.custEmail LIKE %:keyword%)")

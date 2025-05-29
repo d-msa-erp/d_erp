@@ -466,7 +466,7 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
                         <div class="print-wrap">
-                            <button type="button">
+                            <button type="button" onclick="downloadExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
 							<button type="button">
@@ -491,19 +491,18 @@
 
               				</tbody>
                         </table>
-                   <div class="pagination-wrap">
-							총 n건 1/n페이지
-					<div class="pagiination">
-								<button type="button" id="btn-prev-page">
-									<span class="material-symbols-outlined">chevron_left</span>
-								</button>
-								<input type="text" value="1">
-								<button type="button" id="btn-next-page">
-									<span class="material-symbols-outlined">chevron_right</span>
-								</button>
-							</div>
+                   		<div class="pagination-wrap">
+						  <span id="paginationInfo">총 0건 1/1페이지</span>
+						  <div class="paigination">
+						    <button type="button" id="btn-prev-page">
+						      <span class="material-symbols-outlined">chevron_left</span>
+						    </button>
+						    <input type="text" id="currentPageInput" value="1">
+						    <button type="button" id="btn-next-page">
+						      <span class="material-symbols-outlined">chevron_right</span>
+						    </button>
+						  </div>
 						</div>
-                    </div>
 
 				</div>
             </div>

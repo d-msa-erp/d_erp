@@ -1,9 +1,16 @@
 package kr.co.d_erp.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.Custmst;
+import kr.co.d_erp.domain.SalesView;
 import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.CustomerForSelectionDto;
 import kr.co.d_erp.repository.oracle.CustmstRepository;
@@ -95,5 +103,39 @@ public class CustmstService {
                         cust.getCustCd()
                 ))
                 .collect(Collectors.toList());
+    }
+    
+    public byte[] generateExcel() throws IOException {
+	 	List<Custmst> custList = custmstRepository.findAll();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("주문목록");
+
+            // 헤더 작성
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("거래처코드");
+            header.createCell(1).setCellValue("거래처명");
+            header.createCell(2).setCellValue("대표자명");
+            header.createCell(3).setCellValue("연락처");
+            header.createCell(4).setCellValue("이메일");
+
+
+            // 데이터 작성
+            int rowIdx = 1;
+            for (Custmst cust : custList) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(cust.getCustCd());
+                row.createCell(1).setCellValue(cust.getCustNm());
+                row.createCell(2).setCellValue(cust.getPresidentNm());
+                row.createCell(3).setCellValue(cust.getBizTel());
+                row.createCell(4).setCellValue(cust.getCustEmail());
+            }
+
+            // 엑셀 데이터를 바이트 배열로 반환
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                workbook.write(out);
+                return out.toByteArray();
+            }
+        }
     }
 }
