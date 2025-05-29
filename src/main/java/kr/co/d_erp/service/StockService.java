@@ -7,12 +7,17 @@ import org.springframework.data.domain.Pageable;
 
 import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.StockDto;
+import kr.co.d_erp.dtos.StockForResponseDto;
 import kr.co.d_erp.dtos.StockRequestDto;
 import kr.co.d_erp.dtos.UnitDto;
 import kr.co.d_erp.dtos.WhmstDto;
 
 public interface StockService {
 	Page<StockDto> getInventoryList(String itemFlagFilter, String searchKeyword, Pageable pageable);
+	
+	List<StockForResponseDto> getAllItemForStock();
+	
+	void deleteInventories(List<Long> invIdxs);
 	
     // 단위 목록 조회 메소드 추가
     List<UnitDto> getAllUnits();

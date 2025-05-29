@@ -32,4 +32,5 @@ public class StockDto {
     
     private Long custIdxForItem;
     private Integer unitIdx;
+    private Long invIdx;
 }

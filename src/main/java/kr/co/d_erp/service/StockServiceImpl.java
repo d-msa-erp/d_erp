@@ -17,6 +17,7 @@ import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.CustomerForItemDto;
 import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.StockDto;
+import kr.co.d_erp.dtos.StockForResponseDto;
 import kr.co.d_erp.dtos.StockProjection;
 import kr.co.d_erp.dtos.StockRequestDto;
 import kr.co.d_erp.dtos.UnitDto;
@@ -39,6 +40,43 @@ public class StockServiceImpl implements StockService{
 	private final ItemUnitRepository itemUnitRepository; // 'i' 소문자로 변경 (인스턴스 변수)
     private final ItemCustomerRepository itemCustomerRepository; // 'i' 소문자로 변경 (인스턴스 변수)
 	
+    
+    @Override
+    public List<StockForResponseDto> getAllItemForStock() {
+    	 List<Itemmst> allItems = itemMstRepository.findAll(Sort.by(Sort.Direction.ASC, "itemNm")); // 품목명으로 정렬
+    	    return allItems.stream().map(item -> {
+	    	    Integer unitIdxAsInteger = null;
+	            String unitName = null;
+	            if (item.getUnitForItemDto() != null) { // 필드명 변경에 따른 getter 변경 및 null 체크
+	                if (item.getUnitForItemDto().getUnitIdx() != null) {
+	                    unitIdxAsInteger = item.getUnitForItemDto().getUnitIdx().intValue(); // Long -> Integer 변환
+	                }
+	                unitName = item.getUnitForItemDto().getUnitNm();
+	            }
+	
+	            Long customerIdx = null;
+	            String customerName = null;
+	            if (item.getCustomerForItemDto() != null) { // 필드명 변경에 따른 getter 변경 및 null 체크
+	                customerIdx = item.getCustomerForItemDto().getCustIdx();
+	                customerName = item.getCustomerForItemDto().getCustNm();
+	            }
+    	    	return StockForResponseDto.builder()
+    	            .itemIdx(item.getItemIdx())
+    	            .itemCd(item.getItemCd())
+    	            .itemNm(item.getItemNm())
+    	            .itemCost(item.getItemCost())
+    	            .optimalInv(item.getOptimalInv())
+    	            .unitIdx(unitIdxAsInteger)
+                    .unitNm(unitName)
+                    .custIdx(customerIdx)
+                    .custNm(customerName)
+    	            .itemSpec(item.getItemSpec())
+    	            .build();
+    	    }).collect(Collectors.toList());
+    	    
+    }
+    
+    
 	@Override
 	public Page<StockDto> getInventoryList(String itemFlagFilter, String searchKeyword, Pageable pageable) {
 		String effectiveFlagFilter = (itemFlagFilter != null && !itemFlagFilter.isEmpty()) ? itemFlagFilter : null;
@@ -69,6 +107,7 @@ public class StockServiceImpl implements StockService{
                 .userNm(p.getUserNm())
                 .userTel(p.getUserTel())
                 .userMail(p.getUserMail())
+                .invIdx(p.getInvIdx())
                 .reMark(p.getReMark()) // Projection과 DTO 필드명 일치 (reMark vs remark)
                 .itemFlag(p.getItemFlag())
                 .unitIdx(p.getUnitIdx())
@@ -111,51 +150,42 @@ public class StockServiceImpl implements StockService{
     @Override
     public StockDto createStockItem(StockRequestDto requestDto) {
         // 1. 연관 엔티티 조회 (단위, 거래처, 창고)
-		UnitForItemDto unitMst = itemUnitRepository.findById(requestDto.getUnitIdx())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 단위 ID 입니다: " + requestDto.getUnitIdx()));
-		CustomerForItemDto custMst = itemCustomerRepository.findById(requestDto.getCustIdx())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 거래처 ID 입니다: " + requestDto.getCustIdx()));
-        Whmst whMst = whMstRepository.findById(requestDto.getWhIdx())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 창고 ID 입니다: " + requestDto.getWhIdx()));
+		if (requestDto.getItemIdxToRegi() == null) {
+	        throw new IllegalArgumentException("품목 ID(itemIdxToRegi)는 필수입니다.");
+	    }
+	    if (requestDto.getWhIdx() == null) {
+	        throw new IllegalArgumentException("창고 ID(whIdx)는 필수입니다.");
+	    }
+	    if (requestDto.getQty() == null || requestDto.getQty().compareTo(BigDecimal.ZERO) <= 0) { // 수량은 0보다 커야 함
+	        throw new IllegalArgumentException("수량(qty)은 0보다 커야 합니다.");
+	    }
+	    
+	    // 1. 선택된 기존 품목 정보 조회
+	    Itemmst selectedItemMst = itemMstRepository.findById(requestDto.getItemIdxToRegi())
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 품목 ID 입니다: " + requestDto.getItemIdxToRegi()));
 
-        // 2. 품목 코드 중복 검사 (필요시)
-        if (itemMstRepository.existsByItemCd(requestDto.getItemCd())) {
-            throw new IllegalArgumentException("이미 존재하는 품목 코드입니다: " + requestDto.getItemCd());
-        }
+	    // 2. 재고를 등록할 창고 정보 조회
+	    Whmst whMst = whMstRepository.findById(requestDto.getWhIdx())
+	            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 창고 ID 입니다: " + requestDto.getWhIdx()));
 
-        // 3. 품목 마스터(TB_ITEMMST) 정보 생성 및 저장
-        Itemmst newItemMst = Itemmst.builder()
-                .itemCd(requestDto.getItemCd())
-                .itemNm(requestDto.getItemNm())
-                .itemSpec(requestDto.getItemSpec())
-                .itemFlag(requestDto.getItemFlag())
-                .UnitForItemDto(unitMst)
-                .CustomerForItemDto(custMst)
-                .itemCost(requestDto.getItemCost())
-                .optimalInv(requestDto.getOptimalInv())
-                .remark(requestDto.getRemark())
-                .build();
-        Itemmst savedItemMst = itemMstRepository.save(newItemMst);
 
-        // 4. 재고(TB_INVENTORY) 정보 생성 및 저장
-        // 동일 창고, 동일 품목 재고가 이미 있는지 확인 후 처리 (여기서는 신규 등록만 가정)
-        Optional<Inventory> existingInventory = invenRepository.findByWhIdxAndItemIdx(whMst.getWhIdx(), savedItemMst.getItemIdx());
+        // 2. 품목 마스터(TB_ITEMMST) 정보 생성 및 저장
+        Optional<Inventory> existingInventory = invenRepository.findByWhIdxAndItemIdx(whMst.getWhIdx(), selectedItemMst.getItemIdx());
         if (existingInventory.isPresent()) {
-            // 실무에서는 여기서 수량을 합치거나, 예외를 발생시킬 수 있습니다.
-            // 여기서는 예외를 발생시키겠습니다. (신규 품목 등록 시 초기 재고는 없어야 한다는 가정)
-            throw new IllegalArgumentException("해당 창고에 이미 품목의 재고가 존재합니다. 품목 ID: " + savedItemMst.getItemIdx() + ", 창고 ID: " + whMst.getWhIdx());
+            throw new IllegalArgumentException("해당 창고에 이미 해당 품목의 재고가 존재합니다.");
         }
+
 
         Inventory newInventory = Inventory.builder()
-                .whIdx(whMst.getWhIdx()) // WhMst 엔티티 대신 ID를 직접 사용
-                .itemIdx(savedItemMst.getItemIdx()) // ItemMst 엔티티 대신 ID를 직접 사용
+                .whIdx(whMst.getWhIdx())
+                .itemIdx(selectedItemMst.getItemIdx())
                 .stockQty(requestDto.getQty())
-                // createdDate, updatedDate는 Inventory 엔티티의 @PrePersist, @PreUpdate로 자동 설정됨
+                // createdDate, updatedDate는 Inventory 엔티티의 @PrePersist 등으로 자동 설정
                 .build();
-        invenRepository.save(newInventory);
+        Inventory savedInventory = invenRepository.save(newInventory); // 변수에 담아두면 convertToStockDto에 전달 용이
 
-        // 5. 반환할 StockDto 생성 (저장된 정보를 기반으로)
-        return convertToStockDto(savedItemMst, newInventory, whMst.getWhNm());
+        // 3. 반환할 StockDto 생성 (저장된 정보를 기반으로)
+        return convertToStockDto(selectedItemMst, savedInventory, whMst.getWhNm());
     }
 
     @Transactional
@@ -249,5 +279,23 @@ public class StockServiceImpl implements StockService{
                         .whNm(wh.getWhNm())
                         .build())
                 .collect(Collectors.toList());
+    }
+    
+    @Transactional
+    @Override
+    public void deleteInventories(List<Long> invIdxs) {
+    	if (invIdxs == null || invIdxs.isEmpty()) {
+            throw new IllegalArgumentException("삭제할 재고 ID 목록이 비어있습니다.");
+        }
+        // 방법 1: deleteAllByIdInBatch (존재한다면, 더 효율적일 수 있음)
+        // inventoryRepository.deleteAllByIdInBatch(invIdxs);
+
+        // 방법 2: Spring Data JPA가 메소드 이름으로 생성하는 쿼리 사용
+        invenRepository.deleteByInvIdxIn(invIdxs);
+
+        // 방법 3: 직접 반복 삭제 (덜 효율적일 수 있음)
+        // List<Inventory> inventoriesToDelete = inventoryRepository.findAllById(invIdxs);
+        // inventoryRepository.deleteAll(inventoriesToDelete);
+    	
     }
 }

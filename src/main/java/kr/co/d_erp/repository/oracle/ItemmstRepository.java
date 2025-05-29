@@ -112,7 +112,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     boolean existsByItemCd(String itemCd);
     
     // ITEM_CATX1, ITEM_CATX2 등은 실제 엔티티의 연관 필드명(예: catDto1.catNm)으로 변경 필요
-    @Query("SELECT i "
+    @Query("SELECT DISTINCT  i "
     		+ "FROM Itemmst i "
     		+ "LEFT JOIN "
     		+ "FETCH i.CustomerForItemDto c "
@@ -123,7 +123,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     		+ "LEFT JOIN "
     		+ "FETCH i.UnitForItemDto u "
     		+ "LEFT JOIN "
-    		+ "FETCH i.InvenDto inv " +
+    		+ "FETCH i.invenDtos inv " +
            "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
            "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
@@ -147,7 +147,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     );
 
     // Excel 다운로드를 위한 검색 (페이징 없음)
-     @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+     @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.invenDtos inv " +
            "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
            "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
@@ -160,7 +160,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
 
 
     // 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함)
-    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.invenDtos")
     Page<Itemmst> findAllWithJoins(Pageable pageable);
 
 

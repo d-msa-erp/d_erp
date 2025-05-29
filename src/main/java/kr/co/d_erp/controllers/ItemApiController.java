@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.persistence.EntityNotFoundException;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
+import kr.co.d_erp.dtos.InvenDto;
 import kr.co.d_erp.dtos.Item;
 import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
@@ -124,7 +125,15 @@ public class ItemApiController {
         dto.setRemark(entity.getRemark());
         dto.setOptimalInv(entity.getOptimalInv());
         dto.setItemCost(entity.getItemCost()); // ItemDto 엔티티의 itemCost 사용
-        dto.setQty(entity.getInvenDto() != null ? entity.getInvenDto().getStockQty() : null);
+        Long totalStockQty = 0L;
+        if (entity.getInvenDtos() != null) {
+            for (InvenDto invenDto : entity.getInvenDtos()) {
+                if (invenDto.getStockQty() != null) {
+                    totalStockQty += invenDto.getStockQty();
+                }
+            }
+        }
+        dto.setQty(totalStockQty);
 
         if (entity.getCustomerForItemDto() != null) {
             dto.setCustIdx(entity.getCustomerForItemDto().getCustIdx());
