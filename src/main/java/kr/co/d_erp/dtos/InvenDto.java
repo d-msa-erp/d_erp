@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class InvenDto {
     @Column(name = "INV_IDX")
     private Integer invIdx;
 
-    @OneToOne // Inventory가 Item을 참조하고, Item의 PK가 Inventory의 PK로 사용될 경우 @MapsId 사용
+    @ManyToOne // Inventory가 Item을 참조하고, Item의 PK가 Inventory의 PK로 사용될 경우 @MapsId 사용 OneToOne > ManyToOne 변경 -민섭
     @JoinColumn(name = "ITEM_IDX", referencedColumnName = "ITEM_IDX")
     private Itemmst item;
 
