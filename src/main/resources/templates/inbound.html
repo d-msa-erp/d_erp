@@ -99,10 +99,10 @@
                         입고 목록
                     </h4>
                     <div class="table-actions">
-                        <button type="button" id="excelExportButton">
+                        <button type="button" id="excelExportButton" onclick="downloadSelectedInboundDetailsAsExcel()">
                             <span class="material-symbols-outlined">table_view</span> 엑셀
                         </button>
-                        <button type="button" id="printButton">
+                        <button type="button" id="printButton" onclick="printSelectedInboundDetails()">
                             <span class="material-symbols-outlined">print</span> 인쇄
                         </button>
                     </div>
@@ -236,6 +236,8 @@
     </div>
     <script src="/js/top.js"></script>
     <script src="/js/inbound.js"></script>
+    <script src="/js/inboundExcel.js"></script>
+    <script src="/js/inboundPrint.js"></script>
 </body>
 
 </html>
