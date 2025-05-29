@@ -17,6 +17,7 @@ import kr.co.d_erp.domain.SalesView;
 public interface SalesRepository extends JpaRepository<SalesView, String> {	
 	Page<SalesView> findByOrderType(String orderType, Pageable pageable);
 	List<SalesView> findByOrderType(String orderType);
+	
 	@Query("""
 		    SELECT s FROM SalesView s
 		    WHERE (
@@ -44,5 +45,8 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 		    @Param("endDate") LocalDate endDate,
 		    Pageable pageable
 		);
+	
+	@Query("SELECT DISTINCT s FROM SalesView s WHERE s.orderIdx IN :ids")
+	List<SalesView> findByOrderIdxIn(@Param("ids") List<Long> ids);
 
 }

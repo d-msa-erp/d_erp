@@ -10,6 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,11 @@ public class SaleController {
 	        @RequestParam(defaultValue = "0") int page // ✅ 페이지 파라미터 추가
 	) {
 	    return salesService.getSalesOrders(orderType, sortBy, sortDirection, page);
+	}
+	
+	@GetMapping("/printsales")
+	public List<SalesView> findSalesOrder(@RequestParam("id") List<Long> orderIdx) {
+	    return salesService.findSlaesOrders(orderIdx);
 	}
 
 	// 구매 발주 (P)
