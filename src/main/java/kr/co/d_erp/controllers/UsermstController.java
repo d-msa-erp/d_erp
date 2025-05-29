@@ -1,6 +1,7 @@
 package kr.co.d_erp.controllers;
 
 import kr.co.d_erp.domain.Usermst;
+import kr.co.d_erp.dtos.PageDto;
 import kr.co.d_erp.dtos.UserSelectDto;
 import kr.co.d_erp.service.UsermstService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,25 @@ public class UsermstController {
 
 	private final UsermstService UsermstService;
 
-	// 전체 리스트 출력 (+ 정렬)
+	// 페이징을 지원하는 사용자 목록 조회
+	@GetMapping("/paged")
+	public ResponseEntity<PageDto<Usermst>> getAllUsersWithPaging(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "userId") String sortBy,
+			@RequestParam(defaultValue = "desc") String sortDirection,
+			@RequestParam(required = false) String keyword) {
+		try {
+			PageDto<Usermst> users = UsermstService.findAllUsersWithPaging(page, size, sortBy, sortDirection, keyword);
+			return ResponseEntity.ok(users);
+		} catch (Exception e) {
+			// 실제 애플리케이션에서는 더 구체적인 로깅과 에러 처리가 필요합니다.
+			// 예: logger.error("Failed to retrieve users", e);
+			return ResponseEntity.status(500).build();
+		}
+	}
+
+	// 전체 리스트 출력 (+ 정렬) - 기존 API 유지
 	@GetMapping
 	public ResponseEntity<List<Usermst>> getAllUsers(@RequestParam(defaultValue = "userStatus") String sortBy,
 			@RequestParam(defaultValue = "desc") String sortDirection, @RequestParam(required = false) String keyword) {
