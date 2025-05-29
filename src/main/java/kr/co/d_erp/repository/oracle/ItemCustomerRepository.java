@@ -12,4 +12,6 @@ public interface ItemCustomerRepository extends JpaRepository<CustomerForItemDto
     // 필요시 정렬 추가
     @Override
     List<CustomerForItemDto> findAll(); // 필요시 OrderBy 추가 가능 (예: findAllByOrderByCustNmAsc())
+    
+    List<CustomerForItemDto> findByBizFlagOrderByCustNmAsc(String bizFlag); // 거래처명 오름차순 정렬 추가
 }

@@ -18,4 +18,7 @@ public class CustomerForItemDto {
 
     @Column(name = "CUST_NM")
     private String custNm;
+    
+    @Column(name = "BIZ_FLAG")
+    private String bizFlag;
 }

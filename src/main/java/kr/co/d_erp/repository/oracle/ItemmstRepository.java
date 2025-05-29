@@ -112,7 +112,18 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     boolean existsByItemCd(String itemCd);
     
     // ITEM_CATX1, ITEM_CATX2 등은 실제 엔티티의 연관 필드명(예: catDto1.catNm)으로 변경 필요
-    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto c LEFT JOIN FETCH i.CatDto1 c1 LEFT JOIN FETCH i.CatDto2 c2 LEFT JOIN FETCH i.UnitForItemDto u LEFT JOIN FETCH i.InvenDto inv " +
+    @Query("SELECT i "
+    		+ "FROM Itemmst i "
+    		+ "LEFT JOIN "
+    		+ "FETCH i.CustomerForItemDto c "
+    		+ "LEFT JOIN "
+    		+ "FETCH i.CatDto1 c1 "
+    		+ "LEFT JOIN "
+    		+ "FETCH i.CatDto2 c2 "
+    		+ "LEFT JOIN "
+    		+ "FETCH i.UnitForItemDto u "
+    		+ "LEFT JOIN "
+    		+ "FETCH i.InvenDto inv " +
            "WHERE (:CsearchItem IS NULL OR :CsearchItem = '' OR " +
            "(:CsearchCat = 'itemBigCat' AND c1.catNm LIKE %:CsearchItem%) OR " +
            "(:CsearchCat = 'itemSmallCat' AND c2.catNm LIKE %:CsearchItem%) OR " +
@@ -168,6 +179,9 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
      // TB_UNIT_MST에서 모든 단위 조회 (MyBatis의 selectUnits)
      @Query("SELECT u FROM UnitForItemDto u ORDER BY u.unitIdx")
      List<UnitForItemDto> findAllUnits();
+     
+     Optional<Itemmst> findByItemCd(String itemCd);
+     
     
     // 희원 여기까지 --------------------------
      
