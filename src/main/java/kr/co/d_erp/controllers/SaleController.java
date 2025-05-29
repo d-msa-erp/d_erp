@@ -1,10 +1,14 @@
 package kr.co.d_erp.controllers;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +46,28 @@ public class SaleController {
 	) {
 	    return salesService.getPurchaseOrders(orderType, sortBy, sortDirection, page);
 	}
+	
+	
+	@GetMapping("/purchase/excel")
+	public ResponseEntity<byte[]> exportPurchaseExcel() throws IOException {
+	    byte[] excelData = salesService.generateExcelforPurchase();
+
+	    return ResponseEntity.ok()
+	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=purchase-data.xlsx")
+	        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+	        .body(excelData);
+	}
+	
+	@GetMapping("/sale/excel")
+	public ResponseEntity<byte[]> exportSaleExcel() throws IOException {
+		byte[] excelData = salesService.generateExcelforSale();
+		
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sales-data.xlsx")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(excelData);
+	}
+	
 
 	// 품목 검색 (검색 결과도 많을 수 있으므로 페이징 적용)
 	@GetMapping("/search")
