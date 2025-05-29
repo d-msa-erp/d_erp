@@ -37,10 +37,10 @@
 					</div>
 					<div id="table-customer" style="padding: 20px; position: relative;">
 						<div class="print-wrap">
-							<button type="button">
+							<button type="button" onclick="downloadSelectedWarehouseDetailsAsExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button">
+							<button type="button"  onclick="printSelectedWarehouseDetails()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
@@ -251,6 +251,8 @@
 		</div>
 	</div>
 	<script src="/js/warehouse.js"></script>
+	<script src="/js/warehousePrint.js"></script>
+	<script src="/js/warehouseExcel.js"></script>
 	<script src="/js/top.js"></script>
 </body>
 

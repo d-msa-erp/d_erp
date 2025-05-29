@@ -20,11 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream; 
+import java.io.IOException; 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +42,7 @@ public class WhmstService {
     
     /**
      * 창고간 재고 이동을 처리합니다.
-     * 
-     * @param fromWhIdx 출발 창고 ID
+     * * @param fromWhIdx 출발 창고 ID
      * @param request 창고 이동 요청 정보
      * @return 처리 결과 메시지
      */
@@ -432,5 +436,96 @@ public class WhmstService {
         }
         
         return dto;
+    }
+
+    /**
+     * 선택된 창고들의 상세 정보를 포함하는 엑셀 파일을 생성합니다.
+     * @param warehouseIds 엑셀로 내보낼 창고 ID 목록
+     * @return 생성된 엑셀 파일의 ByteArrayOutputStream
+     * @throws IOException 엑셀 생성 중 오류 발생 시
+     */
+    @Transactional(readOnly = true)
+    public ByteArrayOutputStream generateWarehousesExcel(List<Long> warehouseIds) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("창고 상세 정보");
+
+        // 헤더 스타일
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+
+
+        // 데이터 셀 스타일
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+        dataStyle.setVerticalAlignment(VerticalAlignment.TOP);
+        dataStyle.setWrapText(true); // 셀 너비에 맞춰 텍스트 자동 줄바꿈
+
+        // 엑셀 헤더 생성
+        String[] headers = {"창고 코드", "창고명", "창고 타입", "사용 여부", "주소", "비고", "담당자"};
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 데이터 추가
+        int rowNum = 1;
+        for (Long whIdx : warehouseIds) {
+            WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+            if (warehouse != null) {
+                Row dataRow = sheet.createRow(rowNum++);
+                
+                // 창고 타입 문자열 조합
+                StringBuilder whType = new StringBuilder();
+                if ("Y".equals(warehouse.getWhType1())) whType.append("자재 ");
+                if ("Y".equals(warehouse.getWhType2())) whType.append("제품 ");
+                if ("Y".equals(warehouse.getWhType3())) whType.append("반품 ");
+                String whTypeStr = whType.toString().trim();
+
+                dataRow.createCell(0).setCellValue(warehouse.getWhCd());
+                dataRow.createCell(1).setCellValue(warehouse.getWhNm());
+                dataRow.createCell(2).setCellValue(whTypeStr);
+                dataRow.createCell(3).setCellValue("Y".equals(warehouse.getUseFlag()) ? "사용" : "미사용");
+                dataRow.createCell(4).setCellValue(warehouse.getWhLocation());
+                dataRow.createCell(5).setCellValue(warehouse.getRemark());
+                dataRow.createCell(6).setCellValue(warehouse.getWhUserNm());
+                
+                // 모든 셀에 데이터 스타일 적용
+                for (int i = 0; i < headers.length; i++) {
+                    if (dataRow.getCell(i) != null) { // 셀이 존재할 경우만 스타일 적용
+                         dataRow.getCell(i).setCellStyle(dataStyle);
+                    }
+                }
+            }
+        }
+        
+        // 컬럼 너비 자동 조정
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            // 자동 조정 후 너무 좁거나 넓으면 최소/최대 너비 설정 가능
+            // 예: sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 500); // 약간 더 넓게
+        }
+
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        workbook.close();
+
+        return bos;
     }
 }
