@@ -21,6 +21,13 @@ let currentPage = 0;
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadSales('orderDate', 'asc');
+	
+	const selectAllMainCb = document.getElementById('selectAllCheckbox'); // 메인 테이블의 전체 선택 체크박스 ID
+	if(selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
+	    document.querySelectorAll('#salesTableBody .sales-checkbox').forEach(cb => {
+	        cb.checked = this.checked;
+	    });
+	});
 });
 
 function order(sortBy) {//정렬
@@ -649,4 +656,25 @@ function downloadExcel() {
             alert("엑셀 다운로드 중 오류 발생");
             console.error(err);
         });
+}
+
+function printSelectedSales() {
+	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+	    cb.closest('tr').querySelector('input[type="hidden"]').value
+	);
+
+	const fetchUrlFn = id => `/api/orders/printsales?${ids.map(id => `id=${id}`).join('&')}`;
+	const columns = [
+		{ key: 'orderCode', label: '주문번호' },
+		{ key: 'itemName', label: '품목명' },
+		{ key: 'customerName', label: '거래처' },
+		{ key: 'quantity', label: '수량' },
+		{ key: 'orderDate', label: '발주일', render: formatDate },
+		{ key: 'deliveryDate', label: '납기일', render: formatDate },
+		{ key: 'totalPrice', label: '총액' },
+		{ key: 'userName', label: '담당자' }
+	];
+
+	printByIds(ids, fetchUrlFn, columns, '발주 인쇄');
 }

@@ -512,7 +512,7 @@ width: 100%;
 							<button type="button" onclick="downloadExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button">
+							<button type="button" onclick="printSelectedSales()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
@@ -521,7 +521,7 @@ width: 100%;
 
 							<thead>
 								<tr>
-									<th><input type="checkbox" /></th>
+									<th><input type="checkbox" id="selectAllCheckbox" /></th>
 									<th onclick="order('orderCode')">주문번호<a>↓</a></th>
 									<th onclick="order('itemCode')">품목코드<a>↓</a></th>
 									<th onclick="order('itemName')">품목명<a>↓</a></th>
@@ -640,6 +640,7 @@ width: 100%;
 </body>
 <script src="/js/top.js"></script>
 <script src="/js/sales.js"></script>
+<script src="/js/salesPrint.js"></script>
 
 
  <!-- 이부분 참고하세요~ -->
