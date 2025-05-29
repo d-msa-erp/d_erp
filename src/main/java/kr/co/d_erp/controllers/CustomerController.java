@@ -8,10 +8,13 @@ import lombok.RequiredArgsConstructor;
 
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,5 +87,15 @@ public class CustomerController {
 			return ResponseEntity.noContent().build();
 		}
 		return ResponseEntity.ok(customers);
+	}
+	
+	@GetMapping("/api/customers/excel")
+	public ResponseEntity<byte[]> exportSaleExcel() throws IOException {
+		byte[] excelData = custmstService.generateExcel();
+		
+		return ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sales-data.xlsx")
+				.contentType(MediaType.APPLICATION_OCTET_STREAM)
+				.body(excelData);
 	}
 }

@@ -16,7 +16,7 @@ import kr.co.d_erp.domain.SalesView;
 @Repository
 public interface SalesRepository extends JpaRepository<SalesView, String> {	
 	Page<SalesView> findByOrderType(String orderType, Pageable pageable);
-	
+	List<SalesView> findByOrderType(String orderType);
 	@Query("""
 		    SELECT s FROM SalesView s
 		    WHERE (
