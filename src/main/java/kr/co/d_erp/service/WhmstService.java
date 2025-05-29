@@ -44,11 +44,6 @@ public class WhmstService {
      */
     @Transactional  
     public String transferStock(Long fromWhIdx, StockTransferRequestDto request) {
-        System.out.println("=== transferStock 시작 ===");
-        System.out.println("fromWhIdx: " + fromWhIdx);
-        System.out.println("toWhIdx: " + request.getToWhIdx());
-        System.out.println("userIdx: " + request.getUserIdx());
-        System.out.println("items count: " + request.getItems().size());
         
         try {
             // 출발 창고와 목적지 창고 존재 여부 확인
@@ -70,7 +65,6 @@ public class WhmstService {
             LocalDate transferDate = LocalDate.now();
             
             for (StockTransferItemDto item : request.getItems()) {
-                System.out.println("Processing item - itemIdx: " + item.getItemIdx() + ", qty: " + item.getTransferQty());
                 
                 try {
                     // 1. 출발 창고에서 출고 처리
@@ -90,9 +84,7 @@ public class WhmstService {
                     }
                     outboundRequest.setRemark("창고이동 출고: " + (request.getRemark() != null ? request.getRemark() : ""));
                     
-                    System.out.println("출고 처리 시작");
                     invTransactionService.insertTransaction(outboundRequest);
-                    System.out.println("출고 처리 완료");
                     
                     // 2. 목적지 창고로 입고 처리
                     InvTransactionRequestDto inboundRequest = new InvTransactionRequestDto();
@@ -111,14 +103,11 @@ public class WhmstService {
                     }
                     inboundRequest.setRemark("창고이동 입고: " + (request.getRemark() != null ? request.getRemark() : ""));
                     
-                    System.out.println("입고 처리 시작");
                     invTransactionService.insertTransaction(inboundRequest);
-                    System.out.println("입고 처리 완료");
                     
                     successCount++;
                     
                 } catch (Exception e) {
-                    System.out.println("아이템 처리 실패: " + e.getMessage());
                     e.printStackTrace();
                     resultMessage.append(String.format("품목 ID %d 이동 실패: %s\n", 
                         item.getItemIdx(), e.getMessage()));
@@ -134,14 +123,9 @@ public class WhmstService {
                 result = String.format("재고 이동 완료: %d/%d건\n%s", 
                     successCount, totalCount, resultMessage.toString());
             }
-            
-            System.out.println("=== transferStock 완료 ===");
-            System.out.println("결과: " + result);
             return result;
             
         } catch (Exception e) {
-            System.out.println("=== transferStock 실패 ===");
-            System.out.println("에러: " + e.getMessage());
             e.printStackTrace();
             throw e; // 예외를 다시 던져서 트랜잭션 롤백 발생
         }
