@@ -96,10 +96,10 @@
                         <span class="material-symbols-outlined">list_alt</span> 출고 목록
                     </h4>
                     <div class="table-actions">
-                        <button type="button" id="excelExportButton">
+                        <button type="button" id="excelExportButton" onclick="downloadSelectedOutboundDetailsAsExcel()">
                             <span class="material-symbols-outlined">table_view</span> 엑셀
                         </button>
-                        <button type="button" id="printButton">
+                        <button type="button" id="printButton" onclick="printSelectedOutboundDetails()">
                             <span class="material-symbols-outlined">print</span> 인쇄
                         </button>
                     </div>
@@ -228,6 +228,8 @@
     </div>
     <script src="/js/top.js"></script>
     <script src="/js/outbound.js"></script>
+    <script src="/js/outboundExcel.js"></script>
+    <script src="/js/outboundPrint.js"></script>
 </body>
 
 </html>

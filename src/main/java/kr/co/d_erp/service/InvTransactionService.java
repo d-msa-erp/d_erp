@@ -1,5 +1,7 @@
 package kr.co.d_erp.service;
 
+import java.io.ByteArrayOutputStream; 
+import java.io.IOException; 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.*; 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook; 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -50,8 +54,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래(입고/출고)를 등록합니다.
-	 * 
-	 * @param requestDto 재고 거래 등록 요청 DTO
+	 * * @param requestDto 재고 거래 등록 요청 DTO
 	 * @return 등록 결과 DTO
 	 */
 	@Transactional
@@ -87,8 +90,7 @@ public class InvTransactionService {
 
 	/**
 	 * 내부 주문을 생성합니다 (창고 이동 등을 위한 임시 주문).
-	 * 
-	 * @param requestDto 재고 거래 요청 DTO
+	 * * @param requestDto 재고 거래 요청 DTO
 	 * @return 생성된 주문 엔티티
 	 */
 	private Order createInternalOrder(InvTransactionRequestDto requestDto) {
@@ -126,8 +128,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 엔티티를 생성합니다.
-	 * 
-	 * @param requestDto 재고 거래 요청 DTO
+	 * * @param requestDto 재고 거래 요청 DTO
 	 * @param orderToLink 연결할 주문 엔티티
 	 * @return 생성된 재고 거래 엔티티
 	 */
@@ -160,9 +161,8 @@ public class InvTransactionService {
 	}
 
 	/**
-	 * 재고 처리를 수행합니다 (입고/출고 완료 상태인 경우).
-	 * 
-	 * @param invTransaction 재고 거래 엔티티
+	 * 재고 처리를 수행합니다 (입고완료/출고완료 상태인 경우).
+	 * * @param invTransaction 재고 거래 엔티티
 	 * @param orderToLink 연결된 주문 엔티티
 	 * @param requestDto 요청 DTO
 	 */
@@ -193,8 +193,7 @@ public class InvTransactionService {
 
 	/**
 	 * 주문 코드를 생성합니다.
-	 * 
-	 * @param transType 거래 유형 (R: 입고, S: 출고)
+	 * * @param transType 거래 유형 (R: 입고, S: 출고)
 	 * @return 생성된 주문 코드
 	 */
 	private String generateOrderCode(String transType) {
@@ -204,8 +203,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 정보를 수정합니다.
-	 * 
-	 * @param invTransIdx 수정할 재고 거래 ID
+	 * * @param invTransIdx 수정할 재고 거래 ID
 	 * @param requestDto 수정 요청 DTO
 	 * @return 수정 결과 DTO
 	 */
@@ -251,8 +249,7 @@ public class InvTransactionService {
 
 	/**
 	 * 거래 정보 필드를 업데이트합니다.
-	 * 
-	 * @param existingInvTransaction 기존 거래 엔티티
+	 * * @param existingInvTransaction 기존 거래 엔티티
 	 * @param requestDto 수정 요청 DTO
 	 */
 	private void updateTransactionFields(TbInvTrans existingInvTransaction, InvTransactionRequestDto requestDto) {
@@ -278,15 +275,18 @@ public class InvTransactionService {
 		if (requestDto.getUserIdx() != null) {
 			Usermst usermst = usermstRepository.findById(requestDto.getUserIdx()).orElse(null);
 			existingInvTransaction.setUsermst(usermst);
-		} else {
-			existingInvTransaction.setUsermst(null);
+		}
+		// NOTE: UserIdx가 null로 들어오면 기존 사용자 연결을 끊어야 할 수도 있음.
+		// 현재 코드는 null이면 그냥 통과 (기존 usermst 유지)
+		// 명시적으로 null로 설정하려면 else 블록에 existingInvTransaction.setUsermst(null); 추가 필요.
+		else {
+			existingInvTransaction.setUsermst(null); // 명시적으로 null로 설정
 		}
 	}
 
 	/**
 	 * 수정 시 재고 조정을 처리합니다.
-	 * 
-	 * @param updatedInvTransaction 수정된 거래 엔티티
+	 * * @param updatedInvTransaction 수정된 거래 엔티티
 	 * @param oldStatus 기존 상태
 	 * @param oldQuantity 기존 수량
 	 * @param oldWhIdx 기존 창고 ID
@@ -319,13 +319,13 @@ public class InvTransactionService {
 
 		// 2. 새 상태가 완료이고, (이전 상태가 완료가 아니었거나, 또는 주요 정보가 변경되어 위에서 이전 효과가 제거된 경우): 새 재고 효과 적용
 		if ("R3".equals(newStatus)) {
-			if (!"R3".equals(oldStatus) || inventoryAdjusted) {
+			if (!"R3".equals(oldStatus) || inventoryAdjusted) { // inventoryAdjusted가 true면 이미 이전 효과 제거됨 -> 새 효과 적용
 				inventoryService.increaseStock(newWhIdx, itemIdxForStock, newQuantity, currentUserIdForStock);
 				System.out.println("신규/수정 입고완료(R3) 재고 증가: 창고ID=" + newWhIdx + ", 품목ID=" + itemIdxForStock + ", 새수량=" + newQuantity);
 				inventoryAdjusted = true;
 			}
 		} else if ("S2".equals(newStatus)) {
-			if (!"S2".equals(oldStatus) || inventoryAdjusted) {
+			if (!"S2".equals(oldStatus) || inventoryAdjusted) { // inventoryAdjusted가 true면 이미 이전 효과 제거됨 -> 새 효과 적용
 				inventoryService.decreaseStock(newWhIdx, itemIdxForStock, newQuantity, currentUserIdForStock);
 				System.out.println("신규/수정 출고완료(S2) 재고 감소: 창고ID=" + newWhIdx + ", 품목ID=" + itemIdxForStock + ", 새수량=" + newQuantity);
 				inventoryAdjusted = true;
@@ -337,8 +337,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래를 삭제합니다.
-	 * 
-	 * @param invTransIdx 삭제할 재고 거래 ID
+	 * * @param invTransIdx 삭제할 재고 거래 ID
 	 */
 	@Transactional
 	public void deleteTransactionById(Long invTransIdx) {
@@ -359,8 +358,7 @@ public class InvTransactionService {
 
 	/**
 	 * 삭제 시 재고 조정을 처리합니다.
-	 * 
-	 * @param transaction 삭제할 거래 엔티티
+	 * * @param transaction 삭제할 거래 엔티티
 	 */
 	private void adjustInventoryOnDelete(TbInvTrans transaction) {
 		String transStatus = transaction.getTransStatus();
@@ -386,8 +384,7 @@ public class InvTransactionService {
 
 	/**
 	 * 여러 재고 거래를 일괄 삭제합니다.
-	 * 
-	 * @param invTransIdxes 삭제할 재고 거래 ID 목록
+	 * * @param invTransIdxes 삭제할 재고 거래 ID 목록
 	 */
 	@Transactional
 	public void deleteTransactions(List<Long> invTransIdxes) {
@@ -413,8 +410,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 목록을 조건에 따라 조회합니다.
-	 * 
-	 * @param criteria 검색 조건
+	 * * @param criteria 검색 조건
 	 * @param pageable 페이징 정보
 	 * @return 페이징된 재고 거래 목록
 	 */
@@ -460,8 +456,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 상세 정보를 조회합니다.
-	 * 
-	 * @param invTransIdx 재고 거래 ID
+	 * * @param invTransIdx 재고 거래 ID
 	 * @return 재고 거래 상세 DTO
 	 */
 	public VInvTransactionDetailsDto findTransactionById(Long invTransIdx) {
@@ -472,8 +467,7 @@ public class InvTransactionService {
 
 	/**
 	 * VInvTransactionDetails 엔티티를 DTO로 변환합니다.
-	 * 
-	 * @param entity VInvTransactionDetails 엔티티
+	 * * @param entity VInvTransactionDetails 엔티티
 	 * @return 변환된 DTO
 	 */
 	private VInvTransactionDetailsDto convertToDto(VInvTransactionDetails entity) {
@@ -502,5 +496,165 @@ public class InvTransactionService {
 		dto.setCustCd(entity.getCustCd());
 		dto.setCustNm(entity.getCustNm());
 		return dto;
+	}
+
+	/**
+	 * 선택된 재고 거래(입고/출고)의 상세 정보를 엑셀 파일로 생성합니다.
+	 * * @param invTransIds 엑셀로 내보낼 재고 거래 ID 목록
+	 * @param transType 거래 유형 ('R' 또는 'S')
+	 * @return 생성된 엑셀 파일의 ByteArrayOutputStream
+	 * @throws IOException 엑셀 생성 중 오류 발생 시
+	 */
+	@Transactional(readOnly = true)
+	public ByteArrayOutputStream generateInvTransactionsExcel(List<Long> invTransIds, String transType) throws IOException {
+		Workbook workbook = new XSSFWorkbook();
+		Sheet sheet = workbook.createSheet(("R".equals(transType) ? "입고" : "출고") + " 상세 정보");
+
+		// 헤더 스타일
+		CellStyle headerStyle = workbook.createCellStyle();
+		Font headerFont = workbook.createFont();
+		headerFont.setBold(true);
+		headerStyle.setFont(headerFont);
+		headerStyle.setAlignment(HorizontalAlignment.CENTER);
+		headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+		headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		headerStyle.setBorderBottom(BorderStyle.THIN);
+		headerStyle.setBorderTop(BorderStyle.THIN);
+		headerStyle.setBorderLeft(BorderStyle.THIN);
+		headerStyle.setBorderRight(BorderStyle.THIN);
+
+		// 데이터 셀 스타일
+		CellStyle dataStyle = workbook.createCellStyle();
+		dataStyle.setBorderBottom(BorderStyle.THIN);
+		dataStyle.setBorderTop(BorderStyle.THIN);
+		dataStyle.setBorderLeft(BorderStyle.THIN);
+		dataStyle.setBorderRight(BorderStyle.THIN);
+		dataStyle.setAlignment(HorizontalAlignment.LEFT);
+		dataStyle.setVerticalAlignment(VerticalAlignment.TOP);
+		dataStyle.setWrapText(true); // 셀 너비에 맞춰 텍스트 자동 줄바꿈
+
+		// 숫자 포맷 (수량, 단가, 총액)
+		CellStyle numberStyle = workbook.createCellStyle();
+		numberStyle.cloneStyleFrom(dataStyle);
+		DataFormat format = workbook.createDataFormat();
+		numberStyle.setDataFormat(format.getFormat("#,##0")); // 정수형 숫자 포맷 (쉼표 포함)
+
+		CellStyle decimalStyle = workbook.createCellStyle();
+		decimalStyle.cloneStyleFrom(dataStyle);
+		decimalStyle.setDataFormat(format.getFormat("#,##0.00")); // 소수점 두 자리 숫자 포맷 (단가용)
+
+		// 엑셀 헤더 생성
+		String[] headers = {
+				("R".equals(transType) ? "입고 코드" : "출고 코드"),
+				("R".equals(transType) ? "입고일" : "출고일"),
+				"품목명(품번)",
+				"거래처",
+				("R".equals(transType) ? "입고수량" : "출고수량"),
+				"단가",
+				"총액",
+				("R".equals(transType) ? "입고창고" : "출고창고"),
+				("R".equals(transType) ? "입고관리자" : "출고관리자"),
+				"상태",
+				"비고"
+		};
+		Row headerRow = sheet.createRow(0);
+		for (int i = 0; i < headers.length; i++) {
+			Cell cell = headerRow.createCell(i);
+			cell.setCellValue(headers[i]);
+			cell.setCellStyle(headerStyle);
+		}
+
+		// 데이터 추가
+		int rowNum = 1;
+		for (Long invTransIdx : invTransIds) {
+			VInvTransactionDetailsDto transaction = findTransactionById(invTransIdx); // 개별 거래 정보 조회
+			if (transaction != null) {
+				Row dataRow = sheet.createRow(rowNum++);
+				
+				BigDecimal transQty = transaction.getTransQty() != null ? transaction.getTransQty() : BigDecimal.ZERO;
+				BigDecimal unitPrice = transaction.getUnitPrice() != null ? transaction.getUnitPrice() : BigDecimal.ZERO;
+				BigDecimal totalAmount = transQty.multiply(unitPrice);
+
+				dataRow.createCell(0).setCellValue(transaction.getInvTransCode());
+				dataRow.createCell(1).setCellValue(transaction.getTransDate() != null ? transaction.getTransDate().toString() : ""); // 날짜는 문자열로
+				dataRow.createCell(2).setCellValue(transaction.getItemNm() + (transaction.getItemCd() != null ? "(" + transaction.getItemCd() + ")" : ""));
+				dataRow.createCell(3).setCellValue(transaction.getCustNm());
+				
+				Cell transQtyCell = dataRow.createCell(4);
+				transQtyCell.setCellValue(transQty.doubleValue());
+				transQtyCell.setCellStyle(numberStyle); // 수량에 숫자 스타일 적용
+
+				Cell unitPriceCell = dataRow.createCell(5);
+				unitPriceCell.setCellValue(unitPrice.doubleValue());
+				unitPriceCell.setCellStyle(decimalStyle); // 단가에 소수점 스타일 적용
+
+				Cell totalAmountCell = dataRow.createCell(6);
+				totalAmountCell.setCellValue(totalAmount.doubleValue());
+				totalAmountCell.setCellStyle(numberStyle); // 총액에 숫자 스타일 적용
+
+				dataRow.createCell(7).setCellValue(transaction.getWhNm());
+				dataRow.createCell(8).setCellValue(transaction.getUserNm());
+				dataRow.createCell(9).setCellValue(getTransStatusText(transaction.getTransStatus(), transaction.getTransType())); // 상태 코드 변환
+				dataRow.createCell(10).setCellValue(transaction.getInvTransRemark());
+				
+				// 모든 셀에 기본 데이터 스타일 적용 (숫자 스타일은 덮어쓰기 위해 나중에 적용)
+				for (int i = 0; i < headers.length; i++) {
+                    if (dataRow.getCell(i) != null) {
+                        // 숫자 셀은 이미 특정 스타일이 적용되었으므로 건너뛰고, 나머지에만 기본 데이터 스타일 적용
+                        if (i != 4 && i != 5 && i != 6) { // 수량, 단가, 총액 컬럼 제외
+                            dataRow.getCell(i).setCellStyle(dataStyle);
+                        }
+                    }
+                }
+			}
+		}
+		
+		// 컬럼 너비 자동 조정
+		for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            // 필요에 따라 최소/최대 너비 설정
+            int currentWidth = sheet.getColumnWidth(i);
+            if (currentWidth < 2500) { // 너무 좁으면 최소 2500 (약 8pt)
+                sheet.setColumnWidth(i, 2500);
+            } else if (currentWidth > 8000) { // 너무 넓으면 최대 8000 (약 25pt)
+                sheet.setColumnWidth(i, 8000);
+            }
+        }
+
+
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		workbook.write(bos);
+		workbook.close();
+
+		return bos;
+	}
+
+	/**
+	 * 거래 상태 코드를 텍스트로 변환합니다. (inbound.js, outbound.js와 유사하게)
+	 * @param statusCode 상태 코드 (예: R1, S2)
+	 * @param transType 거래 유형 ('R' 또는 'S')
+	 * @return 변환된 텍스트
+	 */
+	private String getTransStatusText(String statusCode, String transType) {
+		if (statusCode == null || statusCode.isEmpty()) {
+			return "";
+		}
+		
+		if ("R".equals(transType)) {
+			switch (statusCode) {
+				case "R1": return "입고전";
+				case "R2": return "가입고";
+				case "R3": return "입고완료";
+				default: return statusCode;
+			}
+		} else if ("S".equals(transType)) {
+			switch (statusCode) {
+				case "S1": return "출고전";
+				case "S2": return "출고완료";
+				default: return statusCode;
+			}
+		}
+		return statusCode; // 알 수 없는 타입의 경우 원본 코드 반환
 	}
 }
