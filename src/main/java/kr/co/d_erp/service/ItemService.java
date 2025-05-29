@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import jakarta.persistence.EntityNotFoundException;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
+import kr.co.d_erp.dtos.InvenDto;
 import kr.co.d_erp.dtos.Item;
 import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
@@ -92,7 +93,13 @@ public class ItemService {
             row.createCell(3).setCellValue(item.getCatDto2() != null ? item.getCatDto2().getCatNm() : "");
             row.createCell(4).setCellValue(item.getCustomerForItemDto() != null ? item.getCustomerForItemDto().getCustNm() : "");
             row.createCell(5).setCellValue(item.getUnitForItemDto() != null ? item.getUnitForItemDto().getUnitNm() : "");
+            /*
             row.createCell(6).setCellValue(item.getInvenDto() != null ? item.getInvenDto().getStockQty() : 0);
+            */
+            List<InvenDto> invenList = item.getInvenDto();
+            Long stockQty = (invenList != null && !invenList.isEmpty()) ? invenList.get(0).getStockQty() : 0;
+
+            row.createCell(6).setCellValue(stockQty);
             row.createCell(7).setCellValue(item.getItemCost() != null ? item.getItemCost() : 0.0);
             row.createCell(8).setCellValue(item.getItemSpec());
             row.createCell(9).setCellValue(item.getRemark());

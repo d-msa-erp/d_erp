@@ -149,7 +149,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
 
 
     // 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함)
-    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+    @Query("SELECT DISTINCT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
     Page<Itemmst> findAllWithJoins(Pageable pageable);
 
 
