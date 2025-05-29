@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,14 +23,14 @@ public class CustmstService {
 
     private final CustmstRepository custmstRepository;
 
-    public List<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword) {
+    public Page<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword, int page) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Sort sort = Sort.by(direction, sortKey);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(direction, sortKey));
 
         if (keyword == null || keyword.isBlank()) {
-            return custmstRepository.findByBizFlag(bizFlag, sort);
+            return custmstRepository.findByBizFlag(bizFlag, pageable);
         } else {
-            return custmstRepository.findByBizFlagAndKeyword(bizFlag, "%" + keyword + "%", sort);
+            return custmstRepository.findByBizFlagAndKeyword(bizFlag, "%" + keyword + "%", pageable);
         }
     }
 
@@ -75,16 +78,14 @@ public class CustmstService {
     @Transactional(readOnly = true)
     public List<CustomerForSelectionDto> findActiveCustomersForSelection(String bizFlag) {
         Sort defaultSort = Sort.by(Sort.Direction.ASC, "custNm");
+        Pageable pageable = PageRequest.of(0, 1000, defaultSort); // 최대 1000개 제한
+
         List<Custmst> customers;
 
         if (bizFlag != null && !bizFlag.isEmpty()) {
-            customers = custmstRepository.findByBizFlag(bizFlag, defaultSort);
+            customers = custmstRepository.findByBizFlag(bizFlag, pageable).getContent();
         } else {
-            customers = custmstRepository.findAll(defaultSort);
-        }
-
-        if (customers == null) {
-            return List.of();
+            customers = custmstRepository.findAll(pageable).getContent();
         }
 
         return customers.stream()
