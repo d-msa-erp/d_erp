@@ -1,10 +1,14 @@
 package kr.co.d_erp.service;
 
 import kr.co.d_erp.domain.Usermst;
+import kr.co.d_erp.dtos.PageDto;
 import kr.co.d_erp.dtos.UserSelectDto;
 import kr.co.d_erp.models.PasswordHandler;
 import kr.co.d_erp.repository.oracle.UsermstRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +38,35 @@ public class UsermstService {
         users.forEach(user -> user.setPasswordHandler(passwordHandler));
         
         return users;
+    }
+
+    /**
+     * 페이징을 지원하는 사용자 목록 조회
+     * 
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 크기
+     * @param sortBy 정렬 기준 필드
+     * @param sortDirection 정렬 방향 (asc/desc)
+     * @param keyword 검색 키워드
+     * @return PageDto<Usermst>
+     */
+    public PageDto<Usermst> findAllUsersWithPaging(int page, int size, String sortBy, String sortDirection, String keyword) {
+        // 정렬 방향 변환
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Sort sort = Sort.by(direction, sortBy);
+        
+        // Pageable 객체 생성
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        // 페이징 조회
+        Page<Usermst> pageResult = userMstRepository.findAllUsersByKeywordWithPaging(keyword, pageable);
+        
+        // 각 사용자 엔티티에 PasswordHandler 주입
+        List<Usermst> users = pageResult.getContent();
+        users.forEach(user -> user.setPasswordHandler(passwordHandler));
+        
+        // PageDto로 변환하여 반환
+        return new PageDto<>(pageResult, users);
     }
 
     /**
@@ -138,7 +171,7 @@ public class UsermstService {
     /**
      * 사용자 정보 수정
      * 
-     * @param userIdx     수정할 사용자의 고유 번호
+     * @param 수정할 사용자의 고유 번호
      * @param userDetails 수정할 사용자 정보
      * @return 수정된 사용자 정보
      */

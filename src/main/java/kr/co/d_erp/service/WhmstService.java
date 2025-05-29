@@ -2,13 +2,17 @@ package kr.co.d_erp.service;
 
 import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.domain.Whmst;
-import kr.co.d_erp.domain.WarehouseInventoryDetailView; // 뷰 엔티티 import
+import kr.co.d_erp.domain.WarehouseInventoryDetailView; 
+import kr.co.d_erp.dtos.PageDto;
 import kr.co.d_erp.dtos.WhmstDto;
-import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; // 창고 재고 상세 DTO import
+import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; 
 import kr.co.d_erp.repository.oracle.UsermstRepository;
 import kr.co.d_erp.repository.oracle.WhmstRepository;
-import kr.co.d_erp.repository.oracle.WarehouseInventoryDetailViewRepository; // 뷰 레포지토리 import
+import kr.co.d_erp.repository.oracle.WarehouseInventoryDetailViewRepository; 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,16 +30,30 @@ public class WhmstService {
     private final WarehouseInventoryDetailViewRepository warehouseInventoryDetailViewRepository; // ⭐ 추가 ⭐
 
     /**
-     * 모든 창고 목록을 조회합니다. (정렬 및 검색 지원)
-     * WhmstDto 리스트를 반환하며, 담당자 이름이 포함됩니다.
+     * 모든 창고 목록을 페이징으로 조회합니다. (정렬 및 검색 지원)
+     * PageDto<WhmstDto>를 반환하며, 담당자 이름이 포함됩니다.
+     * @param page 페이지 번호 (1부터 시작)
+     * @param size 페이지 크기
      * @param sortBy 정렬 기준 컬럼명
      * @param sortDirection 정렬 방향 (asc/desc)
      * @param keyword 검색어
-     * @return 창고 DTO 목록 (담당자 이름 포함)
+     * @return 페이징된 창고 DTO 목록 (담당자 이름 포함)
      */
     @Transactional(readOnly = true)
-    public List<WhmstDto> findAllWarehouses(String sortBy, String sortDirection, String keyword) {
-        return whmstRepository.findAllWarehousesWithUserDetails(sortBy, sortDirection, keyword);
+    public PageDto<WhmstDto> findAllWarehouses(int page, int size, String sortBy, String sortDirection, String keyword) {
+        // 1-based page를 0-based로 변환
+        Pageable pageable = PageRequest.of(page - 1, size, createSort(sortBy, sortDirection));
+        
+        // 페이징된 엔티티 조회
+        Page<Whmst> warehousePage = whmstRepository.findAllWarehousesWithUserDetailsPageable(keyword, pageable);
+        
+        // 엔티티를 DTO로 변환
+        List<WhmstDto> warehouseDtos = warehousePage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+        
+        // PageDto 생성하여 반환
+        return new PageDto<>(warehousePage, warehouseDtos);
     }
 
     /**
@@ -240,5 +258,77 @@ public class WhmstService {
         }
         
         return activeWarehouseDtos;
+    }
+
+    /**
+     * Sort 객체를 생성합니다.
+     * @param sortBy 정렬 기준 컬럼명
+     * @param sortDirection 정렬 방향 (asc/desc)
+     * @return Sort 객체
+     */
+    private Sort createSort(String sortBy, String sortDirection) {
+        Sort.Direction direction = "desc".equalsIgnoreCase(sortDirection) 
+            ? Sort.Direction.DESC 
+            : Sort.Direction.ASC;
+        
+        // 정렬 필드명을 실제 엔티티 필드명으로 매핑
+        String entityField = mapSortFieldToEntityField(sortBy);
+        
+        return Sort.by(direction, entityField);
+    }
+
+    /**
+     * 클라이언트에서 전달받은 정렬 필드명을 엔티티 필드명으로 매핑합니다.
+     * @param sortBy 클라이언트 정렬 필드명
+     * @return 엔티티 필드명
+     */
+    private String mapSortFieldToEntityField(String sortBy) {
+        switch (sortBy) {
+            case "whIdx":
+                return "whIdx";
+            case "whCd":
+                return "whCd";
+            case "whNm":
+                return "whNm";
+            case "whType1":
+                return "whType1";
+            case "useFlag":
+                return "useFlag";
+            case "whLocation":
+                return "whLocation";
+            case "remark":
+                return "remark";
+            case "whUserNm":
+                return "whUser.userNm"; // 연관관계 필드
+            default:
+                return "whIdx"; // 기본값
+        }
+    }
+
+    /**
+     * Whmst 엔티티를 WhmstDto로 변환합니다.
+     * @param whmst Whmst 엔티티
+     * @return WhmstDto
+     */
+    private WhmstDto convertToDto(Whmst whmst) {
+        WhmstDto dto = new WhmstDto();
+        dto.setWhIdx(whmst.getWhIdx());
+        dto.setWhCd(whmst.getWhCd());
+        dto.setWhNm(whmst.getWhNm());
+        dto.setRemark(whmst.getRemark());
+        dto.setWhType1(whmst.getWhType1());
+        dto.setWhType2(whmst.getWhType2());
+        dto.setWhType3(whmst.getWhType3());
+        dto.setUseFlag(whmst.getUseFlag());
+        dto.setWhLocation(whmst.getWhLocation());
+        
+        // 담당자 정보 설정
+        if (whmst.getWhUser() != null) {
+            dto.setWhUserIdx(whmst.getWhUser().getUserIdx());
+            dto.setWhUserNm(whmst.getWhUser().getUserNm());
+            dto.setWhUserId(whmst.getWhUser().getUserId());
+        }
+        
+        return dto;
     }
 }

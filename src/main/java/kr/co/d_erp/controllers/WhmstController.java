@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.domain.Usermst;
+import kr.co.d_erp.dtos.PageDto;
 import kr.co.d_erp.dtos.WhmstDto;
 import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; // 창고 재고 상세 DTO import
 import kr.co.d_erp.service.WhmstService;
@@ -27,17 +28,24 @@ public class WhmstController {
 	private final WhmstService whmstService;
 
 	/**
-	 * 창고 목록 조회 API
+	 * 창고 목록 조회 API (페이징 지원)
 	 * 
+	 * @param page          페이지 번호 (1부터 시작, 기본값: 1)
+	 * @param size          페이지 크기 (기본값: 10)
 	 * @param sortBy        정렬 기준
 	 * @param sortDirection 정렬 방향
 	 * @param keyword       검색어
-	 * @return 창고 DTO 목록
+	 * @return 페이징된 창고 DTO 목록
 	 */
 	@GetMapping
-	public ResponseEntity<List<WhmstDto>> getWarehouses(@RequestParam(defaultValue = "whIdx") String sortBy,
-			@RequestParam(defaultValue = "asc") String sortDirection, @RequestParam(required = false) String keyword) {
-		List<WhmstDto> warehouses = whmstService.findAllWarehouses(sortBy, sortDirection, keyword);
+	public ResponseEntity<PageDto<WhmstDto>> getWarehouses(
+			@RequestParam(defaultValue = "1") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "whIdx") String sortBy,
+			@RequestParam(defaultValue = "asc") String sortDirection, 
+			@RequestParam(required = false) String keyword) {
+		
+		PageDto<WhmstDto> warehouses = whmstService.findAllWarehouses(page, size, sortBy, sortDirection, keyword);
 		return ResponseEntity.ok(warehouses);
 	}
 

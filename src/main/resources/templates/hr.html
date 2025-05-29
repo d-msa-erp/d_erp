@@ -64,17 +64,16 @@
 						</table>
 
 						<div class="pagination-wrap">
-							총 n건 1/n페이지
-							<div class="pagination">
-								<button type="button" id="btn-prev-page">
-									<span class="material-symbols-outlined">chevron_left</span>
-								</button>
-								<input type="text" value="1" />
-								<button type="button" id="btn-next-page">
-									<span class="material-symbols-outlined">chevron_right</span>
-								</button>
+							<span class="page-info">총 <span id="totalRecords">0</span>건 <span id="currentPageDisplay">1</span>/<span id="totalPagesDisplay">1</span>페이지</span>
+							<div class="pagination-controls">
+								<button type="button" id="btn-first-page"><span class="material-symbols-outlined">first_page</span></button>
+								<button type="button" id="btn-prev-page"><span class="material-symbols-outlined">chevron_left</span></button>
+								<input type="number" id="pageNumberInput" value="1" min="1" />
+								<button type="button" id="btn-next-page"><span class="material-symbols-outlined">chevron_right</span></button>
+								<button type="button" id="btn-last-page"><span class="material-symbols-outlined">last_page</span></button>
 							</div>
 						</div>
+						
 					</div>
 				</div>
 			</div>

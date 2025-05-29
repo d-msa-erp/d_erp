@@ -5,32 +5,50 @@ let currentKeyword = '';                 // 현재 검색 키워드
 let currentWhIdxForModal = null;         // 모달(팝업)에 현재 표시된 창고의 ID (신규 등록 시 null)
 let managersData = [];                   // 담당자 데이터를 저장할 배열 (datalist 및 유효성 검사용)
 
+// === 페이징 관련 전역 변수 ===
+let currentPage = 1;                     // 현재 페이지 번호
+let currentPageSize = 10;                // 페이지당 항목 수
+let totalPages = 1;                      // 총 페이지 수
+let totalElements = 0;                   // 총 항목 수
+
 // === 테이블 데이터 로드 함수 ===
 /**
  * 서버에서 창고 목록 데이터를 가져와 HTML 테이블을 갱신합니다.
  * @param {string} sortBy - 정렬 기준이 될 컬럼 이름 (기본값: currentSortBy)
  * @param {string} sortDirection - 정렬 방향 ('asc' 또는 'desc', 기본값: currentOrder)
  * @param {string} keyword - 검색 키워드 (기본값: currentKeyword)
+ * @param {number} page - 페이지 번호 (기본값: currentPage)
+ * @param {number} size - 페이지 크기 (기본값: currentPageSize)
  */
-async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = currentOrder, keyword = currentKeyword) {
+async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = currentOrder, keyword = currentKeyword, page = currentPage, size = currentPageSize) {
 	currentSortBy = sortBy;
 	currentOrder = sortDirection;
 	currentKeyword = keyword;
+	currentPage = page;
+	currentPageSize = size;
 
 	const tableBody = document.getElementById('warehouseTableBody');
 	tableBody.innerHTML = ''; // 기존 테이블 데이터 초기화
 
 	try {
-		const response = await fetch(`/api/warehouses?sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${keyword}`);
+		const response = await fetch(`/api/warehouses?page=${page}&size=${size}&sortBy=${sortBy}&sortDirection=${sortDirection}&keyword=${encodeURIComponent(keyword || '')}`);
 		if (!response.ok) {
 			const errorText = await response.text();
 			console.error(`Error fetching warehouses list: HTTP status ${response.status}`, errorText);
 			throw new Error(`HTTP error! status: ${response.status}, Message: ${errorText}`);
 		}
-		const warehouses = await response.json();
+		const pageData = await response.json();
+		
+		// 페이징 정보 업데이트
+		const warehouses = pageData.content || [];
+		currentPage = pageData.currentPage || 1;
+		totalPages = pageData.totalPages || 1;
+		totalElements = pageData.totalElements || 0;
+		currentPageSize = pageData.size || 10;
 
 		if (warehouses.length === 0) {
 			tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
+			updatePaginationControls(); // 페이징 컨트롤 업데이트
 			return;
 		}
 
@@ -58,9 +76,107 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
 			tableBody.appendChild(row);
 		});
 
+		updatePaginationControls(); // 페이징 컨트롤 업데이트
+
 	} catch (error) {
 		console.error('Error loading warehouses:', error);
 		tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center; color: red;">데이터 로드 실패</td></tr>';
+		updatePaginationControls(); // 에러 시에도 페이징 컨트롤 업데이트
+	}
+}
+
+// === 페이징 컨트롤 업데이트 함수 ===
+/**
+ * 페이징 정보를 바탕으로 페이징 컨트롤을 업데이트합니다.
+ */
+function updatePaginationControls() {
+	// 페이징 정보 스팬들 업데이트
+	const totalRecordsSpan = document.getElementById('totalRecords');
+	const currentPageSpan = document.getElementById('currentPage');
+	const totalPagesSpan = document.getElementById('totalPages');
+	const pageNumberInput = document.getElementById('pageNumberInput');
+
+	// 페이징 버튼들
+	const btnFirstPage = document.getElementById('btn-first-page');
+	const btnPrevPage = document.getElementById('btn-prev-page');
+	const btnNextPage = document.getElementById('btn-next-page');
+	const btnLastPage = document.getElementById('btn-last-page');
+
+	// 페이징 정보 업데이트
+	if (totalRecordsSpan) totalRecordsSpan.textContent = totalElements;
+	if (currentPageSpan) currentPageSpan.textContent = currentPage;
+	if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+	
+	// 페이지 입력 필드 업데이트
+	if (pageNumberInput) {
+		pageNumberInput.value = currentPage;
+		pageNumberInput.max = totalPages;
+	}
+
+	// 버튼 상태 및 이벤트 업데이트
+	if (btnFirstPage) {
+		btnFirstPage.disabled = currentPage <= 1;
+		btnFirstPage.onclick = () => goToPage(1);
+	}
+	
+	if (btnPrevPage) {
+		btnPrevPage.disabled = currentPage <= 1;
+		btnPrevPage.onclick = () => goToPage(currentPage - 1);
+	}
+	
+	if (btnNextPage) {
+		btnNextPage.disabled = currentPage >= totalPages;
+		btnNextPage.onclick = () => goToPage(currentPage + 1);
+	}
+	
+	if (btnLastPage) {
+		btnLastPage.disabled = currentPage >= totalPages;
+		btnLastPage.onclick = () => goToPage(totalPages);
+	}
+}
+
+// === 페이지 이동 함수 ===
+/**
+ * 지정된 페이지로 이동합니다.
+ * @param {number} page - 이동할 페이지 번호
+ */
+function goToPage(page) {
+	if (page < 1 || page > totalPages || page === currentPage) {
+		return;
+	}
+	loadWarehousesTable(currentSortBy, currentOrder, currentKeyword, page, currentPageSize);
+}
+
+// === 페이지 크기 변경 함수 ===
+/**
+ * 페이지당 표시할 항목 수를 변경합니다.
+ * @param {number} size - 새로운 페이지 크기
+ */
+function changePageSize(size) {
+	currentPageSize = size;
+	currentPage = 1; // 페이지 크기 변경 시 첫 페이지로 이동
+	loadWarehousesTable(currentSortBy, currentOrder, currentKeyword, 1, size);
+}
+
+// === 페이지 입력 필드에서 값 변경 처리 함수 ===
+/**
+ * 페이지 입력 필드에서 엔터 키나 값 변경 시 해당 페이지로 이동합니다.
+ * @param {Event} event - 이벤트 객체
+ */
+function handlePageNumberInput(event) {
+	const inputPage = parseInt(event.target.value);
+	
+	if (event.type === 'keypress' && event.key !== 'Enter') {
+		return; // 엔터키가 아니면 무시
+	}
+	
+	if (inputPage && inputPage >= 1 && inputPage <= totalPages && inputPage !== currentPage) {
+		goToPage(inputPage);
+	} else if (!inputPage || inputPage < 1 || inputPage > totalPages) {
+		event.target.value = currentPage; // 유효하지 않은 값이면 현재 페이지로 복원
+		if (event.type !== 'keypress') { // keypress가 아닐 때만 alert 표시
+			alert(`1부터 ${totalPages}까지의 페이지 번호를 입력해주세요.`);
+		}
 	}
 }
 
@@ -156,7 +272,9 @@ function order(thElement) {
 	if (currentThAnchor) {
 		currentThAnchor.textContent = currentOrder === 'asc' ? '↑' : '↓';
 	}
-	loadWarehousesTable(currentSortBy, currentOrder, currentKeyword); // 정렬된 데이터 다시 로드
+	
+	// 정렬 시 첫 페이지로 이동
+	loadWarehousesTable(currentSortBy, currentOrder, currentKeyword, 1, currentPageSize);
 }
 
 // === 모달 탭 전환 함수 ===
@@ -342,7 +460,8 @@ async function openModal(mode, whIdx = null) {
 function handleSearchSubmit(event) {
 	event.preventDefault(); // 폼 기본 제출 동작 방지
 	const keyword = document.getElementById('searchInput').value;
-	loadWarehousesTable(currentSortBy, currentOrder, keyword); // 검색 키워드로 테이블 갱신
+	// 검색 시 첫 페이지로 이동
+	loadWarehousesTable(currentSortBy, currentOrder, keyword, 1, currentPageSize);
 }
 
 // === 창고 재고 데이터 로드 및 렌더링 함수 ===
@@ -437,6 +556,20 @@ document.addEventListener('DOMContentLoaded', () => {
 	modalWhUserNmInput.addEventListener('input', () => setHiddenUserIdx('modalWhUserNm', 'hiddenWhUserIdx'));
 	modalWhUserNmInput.addEventListener('change', () => setHiddenUserIdx('modalWhUserNm', 'hiddenWhUserIdx'));
 
+	// 페이지 번호 입력 필드 이벤트 리스너들
+	const pageNumberInput = document.getElementById('pageNumberInput');
+	if (pageNumberInput) {
+		pageNumberInput.addEventListener('keypress', handlePageNumberInput);
+		pageNumberInput.addEventListener('change', handlePageNumberInput);
+		pageNumberInput.addEventListener('blur', (event) => {
+			// 포커스를 잃었을 때 유효성 검사
+			const inputPage = parseInt(event.target.value);
+			if (!inputPage || inputPage < 1 || inputPage > totalPages) {
+				event.target.value = currentPage; // 유효하지 않은 값이면 현재 페이지로 복원
+			}
+		});
+	}
+
 	// 모달 폼 제출 (창고 등록/수정) 이벤트 리스너
 	document.getElementById('modalForm').addEventListener('submit', async (event) => {
 		event.preventDefault(); // 폼 기본 제출 방지
@@ -496,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			alert(isEditMode ? '창고 정보가 성공적으로 수정되었습니다.' : '신규 창고가 성공적으로 등록되었습니다.');
 			closeModal(); // 모달 닫기
-			loadWarehousesTable(); // 테이블 갱신
+			loadWarehousesTable(); // 테이블 갱신 (현재 페이지 유지)
 		} catch (error) {
 			console.error('Error saving warehouse:', error);
 			alert(`창고 ${isEditMode ? '수정' : '등록'}에 실패했습니다: ${error.message}`);
@@ -532,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				throw new Error(errorMessage);
 			}
 			alert('선택된 창고가 성공적으로 삭제되었습니다.');
-			loadWarehousesTable(); // 테이블 갱신
+			loadWarehousesTable(); // 테이블 갱신 (현재 페이지 유지)
 		} catch (error) {
 			console.error('Error deleting warehouses:', error);
 			alert(`창고 삭제에 실패했습니다: ${error.message}. (재고를 모두 옮긴 후 다시 시도해주세요.)`);
