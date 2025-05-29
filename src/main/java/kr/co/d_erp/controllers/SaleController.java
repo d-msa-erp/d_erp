@@ -38,7 +38,7 @@ public class SaleController {
 	        @RequestParam(defaultValue = "P") String orderType,
 	        @RequestParam(defaultValue = "deliveryDate") String sortBy,
 	        @RequestParam(defaultValue = "asc") String sortDirection,
-	        @RequestParam(defaultValue = "0") int page // ✅ 페이지 파라미터 추가
+	        @RequestParam(defaultValue = "0") int page
 	) {
 	    return salesService.getPurchaseOrders(orderType, sortBy, sortDirection, page);
 	}
