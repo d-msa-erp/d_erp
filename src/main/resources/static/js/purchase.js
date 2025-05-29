@@ -559,3 +559,29 @@ document.getElementById('lowStockNotice').addEventListener('click', function(e) 
 		openModal(data);
 	}
 });
+
+function downloadExcel() {
+    const url = `/api/orders/purchase/excel`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("엑셀 다운로드 실패");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const a = document.createElement('a');
+            const url = window.URL.createObjectURL(blob);
+            a.href = url;
+            a.download = 'sales-data.xlsx'; // 저장될 파일명
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(err => {
+            alert("엑셀 다운로드 중 오류 발생");
+            console.error(err);
+        });
+}
