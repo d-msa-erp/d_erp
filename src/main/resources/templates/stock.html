@@ -390,21 +390,21 @@
                     <div>
                         <div>
                             <span>분류</span>
-                    <select>
+                    <select id="itemFlagSelect">
                         <option value="">--</option>
-                        <option value="자재">자재</option>
-                        <option value="품목">품목</option>
+                        <option value="01">자재</option>
+                        <option value="02">품목</option>
                     </select>
                         </div>
-                        <input type="text" placeholder="검색" />
+                        <input type="text" id="searchItemText" placeholder="검색" />
                         <div>
-                            <button type="button">
+                            <button type="submit" id="searchButton">
 								<span class="material-symbols-outlined">search</span> 검색
 							</button>
 							<button type="button" onclick="openModal()">
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
-							<button type="button">
+							<button type="button" id="deleteBtn">
 								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
                         </div>
@@ -412,7 +412,7 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
                         <div class="print-wrap">
-                            <button type="button">
+                            <button type="button" id="excelBtn">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
 							<button type="button">
@@ -422,9 +422,8 @@
                         <table class="grid-table">
 
                             <thead>
-
                                 <tr>
-                                    <th><input type="checkbox" /></th>
+                                    <th><input id="checkallItem" type="checkbox" /></th>
                                     <th onclick="order(this)">자재/품목코드<a>↓</a></th>
                                     <th onclick="order(this)">자재/품목명<a>↓</a></th>
                                     <th onclick="order(this)">수량<a>↓</a></th>
@@ -433,38 +432,20 @@
                                     <th onclick="order(this)">단위<a>↓</a></th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                	<tr>
+                            <tbody id="itembody">
+                                	<tr id="Noitem">
 									<td class="nodata" style="grid-column: span 7;justify-content: center;">등록된 데이터가 없습니다.</td>
 								</tr>
-                                <!--몇개씩 자를지는 상의해봐요 ~ -->
-                                <tr onclick="opendetail()">
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox" /></td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                    <td>test</td>
-                                </tr>
                             </tbody>
                         </table>
                         <div class="pagination-wrap">
-                            총 n건 1/n페이지
-                            <div class="pagiination">
+                            <span id="totalCountSpan">건</span> 
+                            <span id="currentPageSpan">1/n</span>
+                            <div class="pagination">
                                 <button type="button" id="btn-prev-page">
                                     <span class="material-symbols-outlined">chevron_left</span>
                                 </button>
-                                <input type="text" value="1">
+                                <input type="text" value="1" id="currentPageInput">
                                 <button type="button" id="btn-next-page">
                                     <span class="material-symbols-outlined">chevron_right</span>
                                 </button>
@@ -483,132 +464,68 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
-                <div>
-                    <span>자재/품목코드</span><input type="text" placeholder="자재/품목번호를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>자재/품목명</span><input type="text" placeholder="자재/품목명을 입력해주세요" required />
-                </div>
-                <div>
-                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>적정 재고</span><input type="text" placeholder="적정 재고를 입력해주세요" required />
-                </div>
-                <div class="flex-row">
-                    <span>수량</span><input type="text" placeholder="수량을 입력해주세요" required />
-               
-                    <span>단위</span><input type="text" placeholder="단위를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>매입처</span>
-                    <select>
-                        <option value="">매입처를 선택해주세요</option>
-                        <option value="1">매입처1</option>
-                        <option value="2">매입처2</option>
-                        <option value="3">매입처3</option>
-                    </select>
-                </div>
-                <div>
-
-                    <span>담당자</span><input type="text" placeholder="담당자를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>담당자 전화번호</span><input type="text" placeholder="담당자 전화번호를 입력해주세요" required />
-                </div>
-                <div>
-                    <span>담당자 이메일</span><input type="text" placeholder="담당자 이메일을 입력해주세요" required />
-                </div>
-                   <div>
-                    <span>비고</span><input type="text" placeholder="비고를 입력해주세요" required />
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-
-					<div class="modal-buttons">
-					<button type="button" name="save" style="display: none;">
-						<span class="material-symbols-outlined">save</span> 등록
-					</button>
-					<button type="button" name="edit" style="display: block;">
-						<span class="material-symbols-outlined">edit</span> 수정
-					</button>
-					<button type="button" onclick="closeModal()">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
-				</div>
-        </form>
+<!--     <div>
+    	<span>자재/품목 분류</span>
+    	<select name="item_FLAG" required>
+    		<option value="">--분류를 선택해주세요 --</option>
+    	</select>
+    </div> -->
+    <div>
+        <span>자재/품목코드</span><input type="text" name="item_CD" placeholder="자재/품목번호를 입력해주세요" required readonly /> <input type="hidden" name="item_IDX" /> </div>
+    <div>
+        <span>자재/품목명</span><input type="text" name="item_NM" placeholder="자재/품목명을 입력해주세요" required />
+    </div>
+    <div>
+        <span>단가</span><input type="text" name="item_COST" placeholder="단가를 입력해주세요" required />
+    </div>
+    <div>
+        <span>적정 재고</span><input type="text" name="optimal_INV" placeholder="적정 재고를 입력해주세요" required />
+    </div>
+    <div>
+    	<span>창고</span>
+    	<select name="wh_idx" required> <option value="">-- 창고를 선택해주세요 --</option>
+        </select>
+	</div>
+    <div class="flex-row">
+        <span>수량</span><input type="text" name="qty" placeholder="수량을 입력해주세요" required /> <span>단위</span>
+        <select name="item_UNIT"> <option value="">단위를 선택해주세요</option>
+            </select>
+    </div>
+    <div>
+        <span>매입처</span>
+        <select name="cust_NM"> <option value="">매입처를 선택해주세요</option>
+            </select>
+    </div>
+    <div>
+        <span>담당자</span><input type="text" name="user_NM" placeholder="담당자를 입력해주세요" /> </div>
+    <div>
+        <span>담당자 전화번호</span><input type="text" name="user_TEL" placeholder="담당자 전화번호를 입력해주세요" /> </div>
+    <div>
+        <span>담당자 이메일</span><input type="text" name="user_MAIL" placeholder="담당자 이메일을 입력해주세요" /> </div>
+    <div>
+        <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
+        <div class="modal-buttons">
+            <button type="button" name="save" style="display: none;">
+                <span class="material-symbols-outlined">save</span> 등록
+            </button>
+            <button type="button" name="edit" style="display: block;">
+                <span class="material-symbols-outlined">edit</span> 수정
+            </button>
+            <button type="button" onclick="closeModal()">
+                <span class="material-symbols-outlined">close</span> 취소
+            </button>
+        </div>
+    </div>
+</form>
         </div>
 
     </div>
 
 
-<script src="/js/top.js"></script>
-    <script>
-        let currentTh = null;
-        let currentOrder = 'desc';
-
-        function order(thValue) {//정렬
-            const allArrows = document.querySelectorAll("th a");
-            allArrows.forEach(a => a.textContent = '↓');
-
-            if (currentTh === thValue) {
-                currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
-            } else {
-                currentOrder = 'asc';
-                currentTh = thValue;
-            }
-
-            const arrow = thValue.querySelector('a');
-            arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-        }
-
-
-
-
-
-        //Modal ~ 
-        function openModal() {
-            const title = document.getElementById('modalTitle');
-            title.textContent = '신규 자재/품목 등록';
-            document.getElementById('modal').style.display = 'flex';
-            document.querySelector('#modalForm Button[name="save"]').style.display = 'block';
-            document.querySelector('#modalForm Button[name="edit"]').style.display = 'none';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
-
-        function outsideClick(e) {
-            if (e.target.id === 'modal') {
-                closeModal();
-            }
-        }
-
-        function submitModal(event) {
-            event.preventDefault();
-            const siteName = document.querySelector('#modalForm input[name="siteName"]').value;
-            console.log(currentTab + ' 등록됨:', siteName);
-            closeModal();
-        }
-
-        //테이블 클릭 시 출력되는 modal
-        function opendetail() {
-            openModal();
-            document.getElementById('modalTitle').textContent = '자재/품목 정보';
-            
-            document.querySelector('#modalForm Button[name="save"]').style.display = 'none';
-            document.querySelector('#modalForm Button[name="edit"]').style.display = 'block';
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => {
-        	  document.querySelectorAll('table').forEach(table => {
-        	    const firstCells = table.querySelectorAll('tbody tr td:first-child');
-        	    firstCells.forEach(td => {
-        	      td.setAttribute('onclick', 'event.stopPropagation()');
-        	    });
-        	  });
-        	});
-    </script>
+	<script src="/js/top.js"></script>
+	<script src="/js/stock.js"></script>
 </body>
 
 </html>
