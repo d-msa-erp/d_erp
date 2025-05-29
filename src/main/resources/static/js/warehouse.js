@@ -11,6 +11,11 @@ let currentPageSize = 10;                // 페이지당 항목 수
 let totalPages = 1;                      // 총 페이지 수
 let totalElements = 0;                   // 총 항목 수
 
+// === 창고이동 관련 전역 변수 ===
+let selectedStockForTransfer = [];       // 이동할 재고 목록
+let availableWarehouses = [];            // 사용 가능한 창고 목록
+let defaultCustomerId = null;            // 기본 사업장/거래처 ID
+
 // === 테이블 데이터 로드 함수 ===
 /**
  * 서버에서 창고 목록 데이터를 가져와 HTML 테이블을 갱신합니다.
@@ -246,6 +251,280 @@ function setHiddenUserIdx(inputElementId, hiddenUserIdxInputId) {
 		input.setCustomValidity(''); // 유효성 메시지 초기화
 	} else {
 		hiddenUserIdxInput.value = ''; // 일치하지 않으면 userIdx 초기화
+	}
+}
+
+// === 활성 창고 목록 로드 함수 ===
+/**
+ * 창고 이동용 활성 창고 목록을 서버에서 가져옵니다.
+ */
+async function loadActiveWarehouses() {
+	try {
+		const response = await fetch('/api/warehouses/active-for-selection');
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		availableWarehouses = await response.json();
+		return availableWarehouses;
+	} catch (error) {
+		console.error('활성 창고 목록 로드 실패:', error);
+		return [];
+	}
+}
+
+// === 사업장/거래처 정보 로드 함수 ===
+/**
+ * 기본 사업장 정보를 서버에서 가져와서 거래처 ID를 조회합니다.
+ */
+async function loadDefaultCustomer() {
+	try {
+		// 1. 사업장 정보 조회
+		const siteResponse = await fetch('/api/site/details');
+		if (!siteResponse.ok) {
+			throw new Error(`사업장 정보 조회 실패: ${siteResponse.status}`);
+		}
+		const siteData = await siteResponse.json();
+		
+		if (!siteData || siteData.length === 0) {
+			throw new Error('사업장 정보가 없습니다');
+		}
+		
+		const site = siteData[0]; // 첫 번째 사업장 사용
+		console.log('사업장 정보:', site);
+		
+		// 2. 사업장 코드로 거래처 ID 조회 (API가 있다면)
+		try {
+			const customerResponse = await fetch(`/api/customers?custCd=${site.custCd}`);
+			if (customerResponse.ok) {
+				const customerData = await customerResponse.json();
+				if (customerData && customerData.length > 0) {
+					defaultCustomerId = customerData[0].custIdx;
+					console.log('거래처 ID 조회 성공:', defaultCustomerId);
+					return defaultCustomerId;
+				}
+			}
+		} catch (error) {
+			console.log('거래처 ID 조회 API 없음, 기본값 사용');
+		}
+		
+		// 3. 거래처 조회 실패 시 기본값 사용
+		defaultCustomerId = 1;
+		return defaultCustomerId;
+		
+	} catch (error) {
+		console.error('사업장 정보 로드 실패:', error);
+		// 실패 시 기본값 사용
+		defaultCustomerId = 1;
+		return defaultCustomerId;
+	}
+}
+
+// === 창고이동 모달 열기 함수 ===
+/**
+ * 창고간 재고 이동 모달을 열고 필요한 데이터를 로드합니다.
+ */
+async function openTransferModal() {
+	const stockTableBody = document.getElementById('warehouseStockTableBody');
+	const selectedCheckboxes = stockTableBody.querySelectorAll('.stock-checkbox:checked');
+	
+	if (selectedCheckboxes.length === 0) {
+		alert('이동할 재고를 선택해주세요.');
+		return;
+	}
+
+	// 선택된 재고 정보 수집
+	selectedStockForTransfer = Array.from(selectedCheckboxes).map(checkbox => {
+		const row = checkbox.closest('tr');
+		return {
+			invIdx: checkbox.dataset.invIdx,
+			itemIdx: checkbox.dataset.itemIdx,
+			itemNm: row.cells[1].textContent,
+			itemCd: row.cells[2].textContent,
+			itemSpec: row.cells[3].textContent,
+			stockQty: parseInt(row.cells[4].textContent) || 0,
+			itemUnitNm: row.cells[5].textContent
+		};
+	});
+
+	// 모달 UI 요소들
+	const transferModal = document.getElementById('transferModal');
+	const fromWarehouseName = document.getElementById('fromWarehouseName');
+	const fromWarehouseIdx = document.getElementById('fromWarehouseIdx');
+	const toWarehouseSelect = document.getElementById('toWarehouseSelect');
+	const transferItemsTableBody = document.getElementById('transferItemsTableBody');
+
+	// 기본 사업장 정보 로드
+	await loadDefaultCustomer();
+
+	// 출발 창고 정보 설정
+	const currentWarehouse = await getCurrentWarehouseInfo();
+	fromWarehouseName.value = currentWarehouse ? `${currentWarehouse.whNm} (${currentWarehouse.whCd})` : '알 수 없음';
+	fromWarehouseIdx.value = currentWhIdxForModal;
+
+	// 목적지 창고 목록 로드
+	const warehouses = await loadActiveWarehouses();
+	toWarehouseSelect.innerHTML = '<option value="">창고를 선택하세요</option>';
+	warehouses.forEach(warehouse => {
+		// 현재 창고는 목적지에서 제외
+		if (warehouse.whIdx !== currentWhIdxForModal) {
+			const option = document.createElement('option');
+			option.value = warehouse.whIdx;
+			option.textContent = `${warehouse.whNm} (${warehouse.whCd})`;
+			toWarehouseSelect.appendChild(option);
+		}
+	});
+
+	// 이동할 재고 목록 표시
+	transferItemsTableBody.innerHTML = '';
+	selectedStockForTransfer.forEach(stock => {
+		const row = document.createElement('tr');
+		row.innerHTML = `
+			<td>${stock.itemNm}</td>
+			<td>${stock.itemCd}</td>
+			<td>${stock.itemSpec}</td>
+			<td>${stock.stockQty}</td>
+			<td>
+				<input type="number" 
+					   min="1" 
+					   max="${stock.stockQty}" 
+					   value="${stock.stockQty}" 
+					   data-inv-idx="${stock.invIdx}"
+					   class="transfer-qty-input"
+					   style="width: 80px;" />
+			</td>
+			<td>${stock.itemUnitNm}</td>
+		`;
+		transferItemsTableBody.appendChild(row);
+	});
+
+	transferModal.style.display = 'flex';
+}
+
+// === 현재 창고 정보 조회 함수 ===
+/**
+ * 현재 모달에 표시된 창고의 정보를 서버에서 가져옵니다.
+ */
+async function getCurrentWarehouseInfo() {
+	if (!currentWhIdxForModal) return null;
+	
+	try {
+		const response = await fetch(`/api/warehouses/${currentWhIdxForModal}`);
+		if (!response.ok) {
+			throw new Error(`HTTP error! status: ${response.status}`);
+		}
+		return await response.json();
+	} catch (error) {
+		console.error('현재 창고 정보 조회 실패:', error);
+		return null;
+	}
+}
+
+// === 창고이동 모달 닫기 함수 ===
+/**
+ * 창고이동 모달을 닫고 관련 데이터를 초기화합니다.
+ */
+function closeTransferModal(event) {
+	if (event && event.target !== event.currentTarget) {
+		return; // 모달 내부 클릭 시 닫히지 않도록
+	}
+	
+	const transferModal = document.getElementById('transferModal');
+	const transferForm = document.getElementById('transferForm');
+	
+	transferModal.style.display = 'none';
+	transferForm.reset();
+	selectedStockForTransfer = [];
+}
+
+// === 창고간 재고 이동 실행 함수 ===
+/**
+ * 선택된 재고를 다른 창고로 이동시킵니다.
+ */
+async function executeStockTransfer(event) {
+	event.preventDefault();
+	
+	const toWarehouseIdx = document.getElementById('toWarehouseSelect').value;
+	const remark = document.getElementById('transferRemark').value;
+	
+	if (!toWarehouseIdx) {
+		alert('목적지 창고를 선택해주세요.');
+		return;
+	}
+	
+	// 이동 수량 수집
+	const transferQtyInputs = document.querySelectorAll('.transfer-qty-input');
+	const items = [];
+	
+	for (let input of transferQtyInputs) {
+		const qty = parseInt(input.value);
+		const maxQty = parseInt(input.max);
+		
+		if (qty <= 0 || qty > maxQty) {
+			alert(`올바른 이동 수량을 입력해주세요. (1 ~ ${maxQty})`);
+			input.focus();
+			return;
+		}
+		
+		// 해당 재고 정보 찾기
+		const stockItem = selectedStockForTransfer.find(stock => stock.invIdx === input.dataset.invIdx);
+		if (!stockItem) {
+			alert('재고 정보를 찾을 수 없습니다.');
+			return;
+		}
+		
+		items.push({
+			itemIdx: parseInt(stockItem.itemIdx), // itemIdx 사용
+			transferQty: qty // BigDecimal로 전송 (숫자로 전송하면 자동 변환됨)
+		});
+	}
+	
+	// 이동 요청 데이터 구성
+	const transferRequest = {
+		toWhIdx: parseInt(toWarehouseIdx),
+		custIdx: defaultCustomerId || 1, // 로드된 사업장 ID 사용, 실패 시 기본값 1
+		userIdx: 1, // TODO: 실제 로그인한 사용자 ID로 변경 필요
+		remark: remark,
+		items: items
+	};
+	
+	// 디버깅을 위한 로그 출력
+	console.log('Transfer Request Data:', transferRequest);
+	
+	try {
+		const response = await fetch(`/api/warehouses/${currentWhIdxForModal}/transfer-stock`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(transferRequest)
+		});
+		
+		// 응답 내용을 자세히 확인
+		const responseText = await response.text();
+		console.log('Response status:', response.status);
+		console.log('Response text:', responseText);
+		
+		if (!response.ok) {
+			let errorData;
+			try {
+				errorData = JSON.parse(responseText);
+			} catch (e) {
+				console.error('JSON 파싱 실패:', e);
+				throw new Error(`HTTP ${response.status}: ${responseText}`);
+			}
+			throw new Error(errorData.message || '창고 이동에 실패했습니다.');
+		}
+		
+		const result = JSON.parse(responseText);
+		alert(result.message || '창고 이동이 완료되었습니다.');
+		
+		// 모달 닫기 및 재고 정보 새로고침
+		closeTransferModal();
+		await loadWarehouseStockDetails(currentWhIdxForModal);
+		
+	} catch (error) {
+		console.error('창고 이동 실행 실패:', error);
+		alert(`창고 이동 실패: ${error.message}`);
 	}
 }
 
@@ -695,15 +974,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	// '재고 이동' 버튼 클릭 이벤트 리스너 (기능 구현 예정)
+	// '재고 이동' 버튼 클릭 이벤트 리스너 - 수정됨
 	document.getElementById('moveStockButton').addEventListener('click', function() {
-		const selectedStock = Array.from(stockTableBody.querySelectorAll('.stock-checkbox:checked'))
-			.map(cb => ({ invIdx: cb.dataset.invIdx, itemIdx: cb.dataset.itemIdx }));
-		if (selectedStock.length > 0) {
-			alert('선택된 재고 이동 기능은 구현 예정입니다: ' + JSON.stringify(selectedStock));
-		} else {
-			alert('이동할 재고를 선택해주세요.');
-		}
+		openTransferModal();
 	});
 
 	// '재고 삭제' 버튼 클릭 이벤트 리스너 (기능 구현 예정)
@@ -718,5 +991,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			alert('삭제할 재고를 선택해주세요.');
 		}
 	});
+
+	// 창고이동 폼 제출 이벤트 리스너 - 새로 추가됨
+	document.getElementById('transferForm').addEventListener('submit', executeStockTransfer);
+
 	displayNoStockMessage(); // 페이지 로드 시 재고 테이블 초기 메시지 표시 (재고 탭이 기본으로 열릴 경우를 대비)
 });

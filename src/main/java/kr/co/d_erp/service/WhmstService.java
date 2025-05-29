@@ -2,8 +2,11 @@ package kr.co.d_erp.service;
 
 import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.domain.Whmst;
-import kr.co.d_erp.domain.WarehouseInventoryDetailView; 
+import kr.co.d_erp.domain.WarehouseInventoryDetailView;
+import kr.co.d_erp.dtos.InvTransactionRequestDto;
 import kr.co.d_erp.dtos.PageDto;
+import kr.co.d_erp.dtos.StockTransferItemDto;
+import kr.co.d_erp.dtos.StockTransferRequestDto;
 import kr.co.d_erp.dtos.WhmstDto;
 import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; 
 import kr.co.d_erp.repository.oracle.UsermstRepository;
@@ -17,6 +20,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -27,7 +32,120 @@ public class WhmstService {
 
     private final WhmstRepository whmstRepository;
     private final UsermstRepository usermstRepository;
-    private final WarehouseInventoryDetailViewRepository warehouseInventoryDetailViewRepository; // ⭐ 추가 ⭐
+    private final WarehouseInventoryDetailViewRepository warehouseInventoryDetailViewRepository;
+    private final InvTransactionService invTransactionService;
+    
+    /**
+     * 창고간 재고 이동을 처리합니다.
+     * 
+     * @param fromWhIdx 출발 창고 ID
+     * @param request 창고 이동 요청 정보
+     * @return 처리 결과 메시지
+     */
+    @Transactional  
+    public String transferStock(Long fromWhIdx, StockTransferRequestDto request) {
+        System.out.println("=== transferStock 시작 ===");
+        System.out.println("fromWhIdx: " + fromWhIdx);
+        System.out.println("toWhIdx: " + request.getToWhIdx());
+        System.out.println("userIdx: " + request.getUserIdx());
+        System.out.println("items count: " + request.getItems().size());
+        
+        try {
+            // 출발 창고와 목적지 창고 존재 여부 확인
+            if (!whmstRepository.existsById(fromWhIdx)) {
+                throw new IllegalArgumentException("출발 창고를 찾을 수 없습니다: " + fromWhIdx);
+            }
+            if (!whmstRepository.existsById(request.getToWhIdx())) {
+                throw new IllegalArgumentException("목적지 창고를 찾을 수 없습니다: " + request.getToWhIdx());
+            }
+            
+            // 같은 창고로 이동하는 경우 체크
+            if (fromWhIdx.equals(request.getToWhIdx())) {
+                throw new IllegalArgumentException("출발 창고와 목적지 창고가 같을 수 없습니다.");
+            }
+            
+            StringBuilder resultMessage = new StringBuilder();
+            int successCount = 0;
+            int totalCount = request.getItems().size();
+            LocalDate transferDate = LocalDate.now();
+            
+            for (StockTransferItemDto item : request.getItems()) {
+                System.out.println("Processing item - itemIdx: " + item.getItemIdx() + ", qty: " + item.getTransferQty());
+                
+                try {
+                    // 1. 출발 창고에서 출고 처리
+                    InvTransactionRequestDto outboundRequest = new InvTransactionRequestDto();
+                    outboundRequest.setTransType("S"); // 출고
+                    outboundRequest.setWhIdx(fromWhIdx);
+                    outboundRequest.setTransDate(transferDate);
+                    outboundRequest.setTransQty(item.getTransferQty());
+                    outboundRequest.setUnitPrice(BigDecimal.ZERO); // 창고 이동은 단가 0
+                    outboundRequest.setTransStatus("S2"); // 출고완료
+                    outboundRequest.setItemIdx(item.getItemIdx());
+                    if (request.getCustIdx() != null) {
+                        outboundRequest.setCustIdx(request.getCustIdx());
+                    }
+                    if (request.getUserIdx() != null) {
+                        outboundRequest.setUserIdx(request.getUserIdx());
+                    }
+                    outboundRequest.setRemark("창고이동 출고: " + (request.getRemark() != null ? request.getRemark() : ""));
+                    
+                    System.out.println("출고 처리 시작");
+                    invTransactionService.insertTransaction(outboundRequest);
+                    System.out.println("출고 처리 완료");
+                    
+                    // 2. 목적지 창고로 입고 처리
+                    InvTransactionRequestDto inboundRequest = new InvTransactionRequestDto();
+                    inboundRequest.setTransType("R"); // 입고
+                    inboundRequest.setWhIdx(request.getToWhIdx());
+                    inboundRequest.setTransDate(transferDate);
+                    inboundRequest.setTransQty(item.getTransferQty());
+                    inboundRequest.setUnitPrice(BigDecimal.ZERO); // 창고 이동은 단가 0
+                    inboundRequest.setTransStatus("R3"); // 입고완료
+                    inboundRequest.setItemIdx(item.getItemIdx());
+                    if (request.getCustIdx() != null) {
+                        inboundRequest.setCustIdx(request.getCustIdx());
+                    }
+                    if (request.getUserIdx() != null) {
+                        inboundRequest.setUserIdx(request.getUserIdx());
+                    }
+                    inboundRequest.setRemark("창고이동 입고: " + (request.getRemark() != null ? request.getRemark() : ""));
+                    
+                    System.out.println("입고 처리 시작");
+                    invTransactionService.insertTransaction(inboundRequest);
+                    System.out.println("입고 처리 완료");
+                    
+                    successCount++;
+                    
+                } catch (Exception e) {
+                    System.out.println("아이템 처리 실패: " + e.getMessage());
+                    e.printStackTrace();
+                    resultMessage.append(String.format("품목 ID %d 이동 실패: %s\n", 
+                        item.getItemIdx(), e.getMessage()));
+                    // 개별 아이템 실패 시에도 전체 트랜잭션을 롤백하지 않으려면
+                    // 이 부분에서 예외를 다시 던지지 않음
+                }
+            }
+            
+            String result;
+            if (successCount == totalCount) {
+                result = String.format("모든 재고 이동이 완료되었습니다. (%d건)", successCount);
+            } else {
+                result = String.format("재고 이동 완료: %d/%d건\n%s", 
+                    successCount, totalCount, resultMessage.toString());
+            }
+            
+            System.out.println("=== transferStock 완료 ===");
+            System.out.println("결과: " + result);
+            return result;
+            
+        } catch (Exception e) {
+            System.out.println("=== transferStock 실패 ===");
+            System.out.println("에러: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // 예외를 다시 던져서 트랜잭션 롤백 발생
+        }
+    }
 
     /**
      * 모든 창고 목록을 페이징으로 조회합니다. (정렬 및 검색 지원)
