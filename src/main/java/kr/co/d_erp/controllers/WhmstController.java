@@ -1,6 +1,8 @@
 package kr.co.d_erp.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+import jakarta.validation.ValidationException;
 import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.dtos.PageDto;
+import kr.co.d_erp.dtos.StockTransferRequestDto;
 import kr.co.d_erp.dtos.WhmstDto;
 import kr.co.d_erp.dtos.WarehouseInventoryDetailDto; // 창고 재고 상세 DTO import
 import kr.co.d_erp.service.WhmstService;
@@ -24,9 +29,70 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/warehouses")
 @RequiredArgsConstructor
 public class WhmstController {
+	
 
 	private final WhmstService whmstService;
-
+	
+	/**
+     * 창고간 재고 이동 API
+     * 
+     * @param fromWhIdx 출발 창고 ID
+     * @param request 창고 이동 요청 정보
+     * @return 이동 처리 결과
+     */
+	@PostMapping("/{fromWhIdx}/transfer-stock")
+	public ResponseEntity<Map<String, String>> transferStock(
+	        @PathVariable Long fromWhIdx, 
+	        @RequestBody @Valid StockTransferRequestDto request) {
+	    
+	    System.out.println("=== 창고 이동 요청 시작 ===");
+	    System.out.println("fromWhIdx: " + fromWhIdx);
+	    System.out.println("toWhIdx: " + request.getToWhIdx());
+	    System.out.println("items count: " + (request.getItems() != null ? request.getItems().size() : 0));
+	    
+	    Map<String, String> response = new HashMap<>();
+	    
+	    try {
+	        // 기본 유효성 검사
+	        if (fromWhIdx == null || request.getToWhIdx() == null) {
+	            response.put("message", "창고 정보가 올바르지 않습니다");
+	            response.put("status", "error");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	        
+	        if (request.getItems() == null || request.getItems().isEmpty()) {
+	            response.put("message", "이동할 재고가 선택되지 않았습니다");
+	            response.put("status", "error");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	        
+	        // 서비스 호출을 try-catch로 감싸서 트랜잭션 예외 처리
+	        String result;
+	        try {
+	            result = whmstService.transferStock(fromWhIdx, request);
+	        } catch (RuntimeException e) {
+	            System.out.println("서비스에서 RuntimeException 발생: " + e.getMessage());
+	            e.printStackTrace();
+	            
+	            response.put("message", "창고 이동 처리 중 오류가 발생했습니다: " + e.getMessage());
+	            response.put("status", "error");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	        
+	        response.put("message", result != null ? result : "창고 이동이 완료되었습니다");
+	        response.put("status", "success");
+	        return ResponseEntity.ok(response);
+	        
+	    } catch (Exception e) {
+	        System.out.println("컨트롤러에서 예외 발생: " + e.getClass().getSimpleName() + " - " + e.getMessage());
+	        e.printStackTrace();
+	        
+	        response.put("message", "서버 오류가 발생했습니다: " + e.getMessage());
+	        response.put("status", "error");
+	        return ResponseEntity.status(500).body(response);
+	    }
+	}
+	
 	/**
 	 * 창고 목록 조회 API (페이징 지원)
 	 * 
