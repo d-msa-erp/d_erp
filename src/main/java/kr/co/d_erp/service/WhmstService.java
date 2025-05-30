@@ -351,40 +351,47 @@ public class WhmstService {
 	 * 특정 창고의 상세 재고 정보를 조회합니다.
 	 * 
 	 * @param whIdx 창고 고유 번호
-	 * @return 해당 창고의 재고 상세 정보 DTO 목록
+	 * @return 해당 창고의 재고 상세 정보 DTO 목록 (재고 수량 > 0)
 	 */
 	@Transactional(readOnly = true)
 	public List<WarehouseInventoryDetailDto> getWarehouseInventoryDetailsByWhIdx(Long whIdx) {
 		return warehouseInventoryDetailViewRepository.findByWhIdx(whIdx).stream()
-				.map(this::convertToWarehouseInventoryDetailDto).filter(dto -> dto != null) // 재고없을때 null반환
-				.collect(Collectors.toList());
+	            .map(this::convertToWarehouseInventoryDetailDto)
+	            .filter(dto -> dto != null) // null 체크
+	            .filter(dto -> dto.getStockQty() != null && dto.getStockQty().compareTo(BigDecimal.ZERO) > 0) // 재고 수량 > 0 필터링
+	            .collect(Collectors.toList());
 	}
 
 	/**
 	 * 특정 창고의 상세 재고 정보를 창고 코드로 조회합니다.
 	 * 
 	 * @param whCd 창고 코드
-	 * @return 해당 창고의 재고 상세 정보 DTO 목록
+	 * @return 해당 창고의 재고 상세 정보 DTO 목록 (재고 수량 > 0)
 	 */
 	@Transactional(readOnly = true)
 	public List<WarehouseInventoryDetailDto> getWarehouseInventoryDetailsByWhCd(String whCd) {
 		return warehouseInventoryDetailViewRepository.findByWhCd(whCd).stream()
-				.map(this::convertToWarehouseInventoryDetailDto).collect(Collectors.toList());
+	            .map(this::convertToWarehouseInventoryDetailDto)
+	            .filter(dto -> dto != null) // null 체크
+	            .filter(dto -> dto.getStockQty() != null && dto.getStockQty().compareTo(BigDecimal.ZERO) > 0) // 재고 수량 > 0 필터링
+	            .collect(Collectors.toList());
 	}
 
 	/**
 	 * 모든 창고의 상세 재고 정보를 조회합니다.
 	 * 
-	 * @return 모든 창고의 재고 상세 정보 DTO 목록
+	 * @return 모든 창고의 재고 상세 정보 DTO 목록 (재고 수량 > 0)
 	 */
 	@Transactional(readOnly = true)
 	public List<WarehouseInventoryDetailDto> getAllWarehouseInventoryDetails() {
-		return warehouseInventoryDetailViewRepository.findAll().stream().map(this::convertToWarehouseInventoryDetailDto)
-				.collect(Collectors.toList());
+		return warehouseInventoryDetailViewRepository.findAll().stream()
+	            .map(this::convertToWarehouseInventoryDetailDto)
+	            .filter(dto -> dto != null) // null 체크
+	            .filter(dto -> dto.getStockQty() != null && dto.getStockQty().compareTo(BigDecimal.ZERO) > 0) // 재고 수량 > 0 필터링
+	            .collect(Collectors.toList());
 	}
 
-	// WarehouseInventoryDetailView 엔티티를 WarehouseInventoryDetailDto로 변환하는 private
-	// 메서드
+	// WarehouseInventoryDetailView 엔티티를 WarehouseInventoryDetailDto로 변환하는 private 메서드
 	private WarehouseInventoryDetailDto convertToWarehouseInventoryDetailDto(WarehouseInventoryDetailView view) {
 		if (view == null) {
 			return null; // null을 반환
@@ -411,14 +418,8 @@ public class WhmstService {
 				.optimalInv(view.getOptimalInv()).cycleTime(view.getCycleTime()).itemRemark(view.getItemRemark())
 
 				// Item Category Info
-				.itemCat1Cd(view.getItemCat1Cd()).itemCat1Nm(view.getItemCat1Nm()).itemCat2Cd(view.getItemCat2Cd()) // DTO
-																													// 필드명과
-																													// 뷰
-																													// 컬럼명
-																													// 일치
-																													// 확인
-																													// 필요
-				.itemCat2Nm(view.getItemCat2Nm()) // DTO 필드명과 뷰 컬럼명 일치 확인 필요
+				.itemCat1Cd(view.getItemCat1Cd()).itemCat1Nm(view.getItemCat1Nm()).itemCat2Cd(view.getItemCat2Cd()) 
+				.itemCat2Nm(view.getItemCat2Nm()) 
 
 				// Item Unit Info
 				.itemUnitNm(view.getItemUnitNm())
