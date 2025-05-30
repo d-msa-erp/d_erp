@@ -184,10 +184,8 @@ public class InvTransactionService {
 
 		if ("R3".equals(invTransaction.getTransStatus())) { // 입고완료
 			inventoryService.increaseStock(whIdxForStock, itemIdxForStock, quantityForStock, currentUserIdForStock);
-			System.out.println("입고완료(R3) 재고 증가: 창고ID=" + whIdxForStock + ", 품목ID=" + itemIdxForStock + ", 수량=" + quantityForStock);
 		} else if ("S2".equals(invTransaction.getTransStatus())) { // 출고완료
 			inventoryService.decreaseStock(whIdxForStock, itemIdxForStock, quantityForStock, currentUserIdForStock);
-			System.out.println("출고완료(S2) 재고 감소: 창고ID=" + whIdxForStock + ", 품목ID=" + itemIdxForStock + ", 수량=" + quantityForStock);
 		}
 	}
 
@@ -306,13 +304,11 @@ public class InvTransactionService {
 		if ("R3".equals(oldStatus)) {
 			if (!"R3".equals(newStatus) || !oldWhIdx.equals(newWhIdx) || oldQuantity.compareTo(newQuantity) != 0) {
 				inventoryService.decreaseStock(oldWhIdx, itemIdxForStock, oldQuantity, currentUserIdForStock);
-				System.out.println("이전 입고완료(R3) 취소/조정: 창고ID=" + oldWhIdx + ", 품목ID=" + itemIdxForStock + ", 이전수량=" + oldQuantity);
 				inventoryAdjusted = true;
 			}
 		} else if ("S2".equals(oldStatus)) {
 			if (!"S2".equals(newStatus) || !oldWhIdx.equals(newWhIdx) || oldQuantity.compareTo(newQuantity) != 0) {
 				inventoryService.increaseStock(oldWhIdx, itemIdxForStock, oldQuantity, currentUserIdForStock);
-				System.out.println("이전 출고완료(S2) 취소/조정: 창고ID=" + oldWhIdx + ", 품목ID=" + itemIdxForStock + ", 이전수량=" + oldQuantity);
 				inventoryAdjusted = true;
 			}
 		}
@@ -321,13 +317,11 @@ public class InvTransactionService {
 		if ("R3".equals(newStatus)) {
 			if (!"R3".equals(oldStatus) || inventoryAdjusted) { // inventoryAdjusted가 true면 이미 이전 효과 제거됨 -> 새 효과 적용
 				inventoryService.increaseStock(newWhIdx, itemIdxForStock, newQuantity, currentUserIdForStock);
-				System.out.println("신규/수정 입고완료(R3) 재고 증가: 창고ID=" + newWhIdx + ", 품목ID=" + itemIdxForStock + ", 새수량=" + newQuantity);
 				inventoryAdjusted = true;
 			}
 		} else if ("S2".equals(newStatus)) {
 			if (!"S2".equals(oldStatus) || inventoryAdjusted) { // inventoryAdjusted가 true면 이미 이전 효과 제거됨 -> 새 효과 적용
 				inventoryService.decreaseStock(newWhIdx, itemIdxForStock, newQuantity, currentUserIdForStock);
-				System.out.println("신규/수정 출고완료(S2) 재고 감소: 창고ID=" + newWhIdx + ", 품목ID=" + itemIdxForStock + ", 새수량=" + newQuantity);
 				inventoryAdjusted = true;
 			}
 		}
@@ -365,7 +359,6 @@ public class InvTransactionService {
 		if ("R3".equals(transStatus) || "S2".equals(transStatus)) {
 			Long itemIdxForStock = transaction.getTbOrder() != null ? transaction.getTbOrder().getItemIdx() : null;
 			if (itemIdxForStock == null) {
-				System.err.println("경고: 삭제 대상 거래(ID:" + transaction.getInvTransIdx() + ")에 연결된 주문에서 품목 ID를 찾을 수 없어 재고 조정을 건너뜁니다.");
 			} else {
 				Long whIdxForStock = transaction.getWhmst().getWhIdx();
 				BigDecimal quantityForStock = transaction.getTransQty() != null ? transaction.getTransQty() : BigDecimal.ZERO;
@@ -373,10 +366,8 @@ public class InvTransactionService {
 
 				if ("R3".equals(transStatus)) {
 					inventoryService.decreaseStock(whIdxForStock, itemIdxForStock, quantityForStock, currentUserIdForStock);
-					System.out.println("입고완료(R3) 거래 삭제 - 재고 감소: 창고ID=" + whIdxForStock + ", 품목ID=" + itemIdxForStock + ", 수량=" + quantityForStock);
 				} else if ("S2".equals(transStatus)) {
 					inventoryService.increaseStock(whIdxForStock, itemIdxForStock, quantityForStock, currentUserIdForStock);
-					System.out.println("출고완료(S2) 거래 삭제 - 재고 증가: 창고ID=" + whIdxForStock + ", 품목ID=" + itemIdxForStock + ", 수량=" + quantityForStock);
 				}
 			}
 		}
