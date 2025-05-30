@@ -53,15 +53,10 @@ window.addEventListener('resize', function () {
 	const hamburgerDisplay = window.getComputedStyle(hamburger).display;
 
 	if (hamburgerDisplay === 'none') {
-		// 햄버거 버튼 안 보이면 데스크탑 → row
-		nav.style.display = 'none';
+		nav.style.display = 'flex';
 		nav.style.flexDirection = 'row';
-		console.log("22222");
 	} else {
-		// 햄버거 버튼 보이면 모바일 → column or none 유지
-		if (nav.style.display !== 'none') {
-			nav.style.flexDirection = 'column';
-		}
+		nav.style.display = 'none'; // 추가 필요
 	}
 });
 
