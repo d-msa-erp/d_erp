@@ -254,17 +254,18 @@ public class StockServiceImpl implements StockService{
     }
     
     /**
-     * 모든 창고 목록을 조회합니다.
-     * @return 모든 창고 목록
+     * 모든 활성 창고 목록을 조회합니다 (useFlag = 'Y')
+     * @return 활성 창고 목록
      */
     @Override
     public List<WhmstDto> getAllWarehouses() {
-    	List<Whmst> warehouses = whMstRepository.findAll(Sort.by(Sort.Direction.ASC, "whNm"));
-    	return warehouses.stream()
-                .map(wh -> WhmstDto.builder()
-                        .whIdx(wh.getWhIdx())
-                        .whNm(wh.getWhNm())
-                        .build())
-                .collect(Collectors.toList());
+        // 활성 창고만 조회 (useFlag = 'Y')
+        List<Whmst> warehouses = whMstRepository.findByUseFlagOrderByWhNmAsc("Y");
+        return warehouses.stream()
+            .map(wh -> WhmstDto.builder()
+                .whIdx(wh.getWhIdx())
+                .whNm(wh.getWhNm())
+                .build())
+            .collect(Collectors.toList());
     }
 }
