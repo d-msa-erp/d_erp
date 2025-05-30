@@ -131,7 +131,7 @@ table.grid-table {
 	border-collapse: collapse;
 	display: grid;
 	/* 예시: 8개 컬럼의 너비 비율 조정 */
-	grid-template-columns: 0.5fr 1.5fr 1.5fr 1.5fr 1fr 2fr 2.5fr 1.5fr;
+	grid-template-columns: 0.5fr 1.5fr 1.5fr 1.5fr 2fr 2.5fr 1.5fr;
 }
 
 /* 테이블 헤더, 바디, 행의 디스플레이 설정 */
