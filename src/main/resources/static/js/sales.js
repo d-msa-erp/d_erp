@@ -29,11 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
 	    });
 	});
 });
-
-function order(sortBy) {//정렬
+function order(sortBy) { // 정렬
 	const allArrows = document.querySelectorAll("th a");
-	allArrows.forEach(a => a.textContent = '↓');
-
+	allArrows.forEach(a => {
+		a.textContent = '↓';
+		a.style.color = '#000';
+		a.style.opacity = '0.3';
+	});
 
 	if (currentTh === sortBy) {
 		currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
@@ -42,13 +44,16 @@ function order(sortBy) {//정렬
 		currentTh = sortBy;
 	}
 
-
 	loadSales(sortBy, currentOrder);
 
-
 	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
-	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+	if (arrow) {
+		arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+		arrow.style.color = '#000';
+		arrow.style.opacity = '1';
+	}
 }
+
 
 async function loadSales(sortBy, sortDirection, isDueDate = false) {
 	const salesTableBody = document.getElementById('salesTableBody');;

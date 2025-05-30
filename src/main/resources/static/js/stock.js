@@ -557,42 +557,53 @@ async function loadAndSetWarehouses(selectedWhId = null) {
 }
 
 // 정렬 함수
-let currentTh = null; 
-let currentOrder = 'desc'; 
+let currentTh = null;
+let currentOrder = 'desc';
+
 function order(thValue) {
-    const tbody = document.getElementById('itembody');
+	const tbody = document.getElementById('itembody');
 	if (!tbody || !thValue) return;
-    const headerText = thValue.textContent.replace(/[↓↑]/g, '').trim();
-    let sortProperty = thValue.dataset.sortProperty; 
 
-    if (!sortProperty) { // dataset이 없다면 헤더 텍스트 기반으로 추론
-        switch (headerText) {
-            case '자재/품목코드': sortProperty = 'itemCd'; break;
-            case '자재/품목명': sortProperty = 'itemNm'; break;
-            case '수량': sortProperty = 'Qty'; break;
-            case '적정재고': sortProperty = 'Inv'; break; // DTO 필드명 inv
-            case '창고명': sortProperty = 'whNm'; break;
-            case '단위': sortProperty = 'unitNm'; break;
-            default: console.warn(`정렬 속성 알 수 없음: ${headerText}`); return;
-        }
-        thValue.dataset.sortProperty = sortProperty;
-    }
+	const headerText = thValue.textContent.replace(/[↓↑]/g, '').trim();
+	let sortProperty = thValue.dataset.sortProperty;
 
-    if (currentSortTh === thValue) {
-        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
-    } else {
-        if(currentSortTh && currentSortTh.querySelector('a')) currentSortTh.querySelector('a').textContent = '↓';
-        currentSortOrder = 'asc';
-        currentSortTh = thValue;
-    }
-    
-    const arrow = currentSortTh.querySelector('a');
-    if(arrow) arrow.textContent = currentSortOrder === 'asc' ? '↑' : '↓';
-    else { // a 태그가 없다면 동적으로 생성 (최초 클릭 시)
-        const newArrow = document.createElement('a');
-        newArrow.textContent = currentSortOrder === 'asc' ? '↑' : '↓';
-        currentSortTh.appendChild(newArrow);
-    }
-    
-    fetchItems(1, itemFlagSelect?.value, searchItemText?.value.trim(), sortProperty, currentSortOrder);
+	if (!sortProperty) {
+		switch (headerText) {
+			case '자재/품목코드': sortProperty = 'itemCd'; break;
+			case '자재/품목명': sortProperty = 'itemNm'; break;
+			case '수량': sortProperty = 'Qty'; break;
+			case '적정재고': sortProperty = 'Inv'; break;
+			case '창고명': sortProperty = 'whNm'; break;
+			case '단위': sortProperty = 'unitNm'; break;
+			default: console.warn(`정렬 속성 알 수 없음: ${headerText}`); return;
+		}
+		thValue.dataset.sortProperty = sortProperty;
+	}
+
+	if (currentTh === thValue) {
+		currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
+	} else {
+		if (currentTh && currentTh.querySelector('a')) {
+			currentTh.querySelector('a').textContent = '↓';
+			currentTh.querySelector('a').style.opacity = '0.3';
+		}
+		currentOrder = 'asc';
+		currentTh = thValue;
+	}
+
+	document.querySelectorAll('th a').forEach(a => {
+		a.style.color = '#000';
+		a.style.opacity = '0.3';
+	});
+
+	let arrow = currentTh.querySelector('a');
+	if (!arrow) {
+		arrow = document.createElement('a');
+		currentTh.appendChild(arrow);
+	}
+	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+	arrow.style.color = '#000';
+	arrow.style.opacity = '1';
+
+	fetchItems(1, itemFlagSelect?.value, searchItemText?.value.trim(), sortProperty, currentOrder);
 }

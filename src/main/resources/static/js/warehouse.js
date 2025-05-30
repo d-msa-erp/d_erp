@@ -546,12 +546,19 @@ function order(thElement) {
 	}
 
 	// 모든 정렬 화살표 초기화 후 현재 정렬 컬럼에만 화살표 표시
-	document.querySelectorAll('th a').forEach(a => a.textContent = '↓');
+	document.querySelectorAll('th a').forEach(a => {
+		a.textContent = '↓';
+		a.style.color = '#000';
+		a.style.opacity = '0.3';
+	});
+
 	const currentThAnchor = thElement.querySelector('a');
 	if (currentThAnchor) {
 		currentThAnchor.textContent = currentOrder === 'asc' ? '↑' : '↓';
+		currentThAnchor.style.color = '#000';
+		currentThAnchor.style.opacity = '1';
 	}
-	
+
 	// 정렬 시 첫 페이지로 이동
 	loadWarehousesTable(currentSortBy, currentOrder, currentKeyword, 1, currentPageSize);
 }

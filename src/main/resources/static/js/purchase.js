@@ -248,9 +248,13 @@ function searchItems() {
 let currentTh = null;
 let currentOrder = 'desc';
 
-function order(sortBy) {//정렬
+function order(sortBy) { // 정렬
 	const allArrows = document.querySelectorAll("th a");
-	allArrows.forEach(a => a.textContent = '↓');  // 화살표 초기화
+	allArrows.forEach(a => {
+		a.textContent = '↓';
+		a.style.color = '#000';
+		a.style.opacity = '0.3';
+	});
 
 	// 기존에 클릭된 컬럼이면 정렬 방향을 변경, 아니면 기본 'asc'
 	if (currentTh === sortBy) {
@@ -263,9 +267,13 @@ function order(sortBy) {//정렬
 	// 서버로 정렬된 데이터를 요청
 	loadPurchases(sortBy, currentOrder);
 
-	// 화살표 방향 갱신
+	// 화살표 방향 갱신 및 스타일 적용
 	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
-	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+	if (arrow) {
+		arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+		arrow.style.color = '#000';
+		arrow.style.opacity = '1';
+	}
 }
 
 async function loadItems() {

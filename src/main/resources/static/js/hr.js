@@ -328,18 +328,22 @@ async function loadUsersTableWithPaging(sortBy, sortDirection, keyword = '') {
         }
 
         // 현재 정렬 상태를 UI에 반영하는 로직
-        const allArrows = document.querySelectorAll("th a");
-        allArrows.forEach(a => {
-            a.style.visibility = 'hidden';
-        });
-        const activeTh = document.querySelector(`th[data-sort-by="${sortBy}"]`);
-        if (activeTh) {
-            const activeArrow = activeTh.querySelector('a');
-            if (activeArrow) {
-                activeArrow.textContent = sortDirection === 'asc' ? '↑' : '↓';
-                activeArrow.style.visibility = 'visible';
-            }
-        }
+		const allArrows = document.querySelectorAll("th a");
+		allArrows.forEach(a => {
+		    a.textContent = '↓';                 // 모두 ↓로 초기화
+		    a.style.opacity = '0.3';             // 연하게 처리
+		    a.style.color = '#000';              // 색은 검정 유지
+		    a.style.visibility = 'visible';      // 항상 보이게 처리 (감추지 않음)
+		});
+
+		const activeTh = document.querySelector(`th[data-sort-by="${sortBy}"]`);
+		if (activeTh) {
+		    const activeArrow = activeTh.querySelector('a');
+		    if (activeArrow) {
+		        activeArrow.textContent = sortDirection === 'asc' ? '↑' : '↓';
+		        activeArrow.style.opacity = '1';   // 진하게
+		    }
+		}
 
         // 정적 페이징 UI 업데이트
         updateStaticPaginationUI();

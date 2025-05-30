@@ -576,12 +576,13 @@ function deleteSelectedCustomers() {
       alert(err.message || '삭제 처리 중 오류가 발생했습니다.');
     });
 }
-
 function order(thElement) {
     const allArrows = document.querySelectorAll("th a");
     allArrows.forEach(a => {
         if (a.closest('th') !== thElement) {
             a.textContent = '↓';
+            a.style.color = '#000';
+            a.style.opacity = '0.3';
         }
     });
 
@@ -595,7 +596,9 @@ function order(thElement) {
 
     const arrow = thElement.querySelector('a');
     arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-    
+    arrow.style.color = '#000';
+    arrow.style.opacity = '1';
+
     loadCustomers(window.currentBizFlag, currentTh, currentOrder);
 }
 
