@@ -1,6 +1,7 @@
 package kr.co.d_erp.repository.oracle;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -57,5 +58,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Page<StockProjection> findInventoryDetails(@Param("itemFlagFilter") String itemFlagFilter,
                                                @Param("searchKeyword") String searchKeyword,
                                                Pageable pageable);
+	void deleteByInvIdxIn(List<Long> invIdxs);
 	
 }

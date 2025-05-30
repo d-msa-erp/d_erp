@@ -228,7 +228,7 @@
 			justify-content: center;
 		}
 
-		tr td:nth-last-child(1),tr td:nth-last-child(2) {
+		tr td:nth-last-child(1) {
 			justify-content: right;
 		}
 
@@ -467,6 +467,14 @@
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 id="modalTitle">신규 등록</h3>
 			<form id="modalForm" class="modalForm">
+			     <div>
+                    <span>자재/품목 분류</span>
+                    <select name="item_FLAG" id="item_FLAG_select" required>
+                        <option value="">--분류를 선택해주세요 --</option>
+                        <option value="01">자재</option>
+                        <option value="02">품목</option>
+                    </select>
+                </div>
 				<div>
 					<span>품목코드</span><input type="text" name="item_CD" placeholder="품목코드를 입력해주세요" required />
 					<input type="hidden" name="item_IDX"  required/>

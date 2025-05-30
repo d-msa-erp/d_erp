@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.StockDto;
+import kr.co.d_erp.dtos.StockForResponseDto;
 import kr.co.d_erp.dtos.StockRequestDto;
 import kr.co.d_erp.dtos.UnitDto;
 import kr.co.d_erp.dtos.WhmstDto;
@@ -32,6 +34,13 @@ public class StockController {
 
 	private final StockService stockService;
 	
+	
+	 //TB_ITEMMST 데이터 조회
+	@GetMapping("/item-basics") // 요청 경로 예시: /api/stocks/item-basics
+	public ResponseEntity<List<StockForResponseDto>> getAllItemForStockApi() {
+	    List<StockForResponseDto> items = stockService.getAllItemForStock();
+	    return ResponseEntity.ok(items);
+	}
 	
 	 //재고 조회
 	 @GetMapping
@@ -79,5 +88,18 @@ public class StockController {
 	    public ResponseEntity<List<WhmstDto>> getAllWarehousesApi() {
 	        List<WhmstDto> warehouses = stockService.getAllWarehouses();
 	        return ResponseEntity.ok(warehouses);
+	    }
+	 
+	 @DeleteMapping("/delete") // 또는 @PostMapping("/inventories/delete-batch")
+	    public ResponseEntity<String> deleteInventories(@RequestBody List<Long> invIdxs) {
+	        try {
+	            stockService.deleteInventories(invIdxs);
+	            return ResponseEntity.ok(invIdxs.size() + "개의 재고 항목이 삭제되었습니다.");
+	        } catch (IllegalArgumentException e) {
+	            return ResponseEntity.badRequest().body(e.getMessage());
+	        } catch (Exception e) {
+	            // Log aPÍ error
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("재고 삭제 중 오류가 발생했습니다.");
+	        }
 	    }
 }

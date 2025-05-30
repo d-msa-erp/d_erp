@@ -96,7 +96,7 @@ public class ItemService {
             /*
             row.createCell(6).setCellValue(item.getInvenDto() != null ? item.getInvenDto().getStockQty() : 0);
             */
-            List<InvenDto> invenList = item.getInvenDtos();
+            List<InvenDto> invenList = item.getInvenDto();
             Long stockQty = (invenList != null && !invenList.isEmpty()) ? invenList.get(0).getStockQty() : 0;
 
             row.createCell(6).setCellValue(stockQty);

@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder	
 public class StockRequestDto {
 
+	private Long itemIdxToRegi; 
     private String itemCd;        // 품목 코드
     private String itemNm;        // 품목명
     private String itemSpec;      // 규격
