@@ -114,7 +114,10 @@ function selectDate(dateStr) {
 	
 	const mergedOrders = Object.values(uniqueOrders);
 
+	const needProduceSpan = document.getElementById("need-produce");
 	const orderInfoList = document.getElementById('orderInfoList');
+
+	let needProduceCount = 0;
 	orderInfoList.innerHTML = `
 	  <div style="font-size: 24px;">📦 예정 목록:</div>
 	  <ul style="padding-left: 16px; margin-top: 4px; font-size: 20px;">
@@ -128,10 +131,13 @@ function selectDate(dateStr) {
 			labelHTML = '<span class="label delivery">출고 예정</span>';
 		}
 
-		const status = (o.stockQty >= o.orderQty)
-		        ? '<span style="color: green;">출고 가능</span>'
-		        : '<span style="color: red;">생산 필요</span>';
+		const isEnoughStock = o.stockQty >= o.orderQty;
 
+		const status = isEnoughStock
+		  ? '<span style="color: green;">출고 가능</span>'
+		  : '<span style="color: red;">생산 필요</span>';
+
+		if (!isEnoughStock) needProduceCount++;
 		      return `
 		        <li class="order-item" 
 		            data-order='${JSON.stringify(o)}'
@@ -167,6 +173,7 @@ function selectDate(dateStr) {
 		});
 	});
 	document.getElementById('addPlanBtn').disabled = true;
+	needProduceSpan.textContent = needProduceCount;
 }
 
 
