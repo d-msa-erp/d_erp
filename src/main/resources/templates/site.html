@@ -127,7 +127,20 @@ body {
           <div class="form-item"><span>업태</span><input type="text" id="bizItem" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>전화번호</span><input type="text" id="bizTel" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
           <div class="form-item"><span>팩스</span><input type="text" id="bizFax" required oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item addr"><span>주소</span><input type="text" id="bizAddr" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
+          <div class="form-item addr" style="position: relative;">
+          <span>주소</span>
+          <input type="text" id="bizAddr" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')">
+         <button type="button" onclick="DaumPostcode(this)" data-target="bizAddr" style="
+    position: absolute;
+    right: 0;
+    height: 100%;
+    background: #007bff;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    padding: 0 10px;
+">주소 검색</button>
+          </div>
        <div class="form-item">
         <button class="save_site">
        <span class="material-symbols-outlined">edit</span>
@@ -142,6 +155,8 @@ body {
   </div>
 </body>
 <script src="/js/top.js"></script>
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+<script src="/js/kakaoApi.js"></script>
 <script>
 //사업장 리스트 출력
 document.addEventListener('DOMContentLoaded', function() {
