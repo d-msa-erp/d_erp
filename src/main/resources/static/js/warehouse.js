@@ -979,18 +979,69 @@ document.addEventListener('DOMContentLoaded', () => {
 		openTransferModal();
 	});
 
-	// '재고 삭제' 버튼 클릭 이벤트 리스너 (기능 구현 예정)
-	document.getElementById('deleteStockButton').addEventListener('click', function() {
-		const selectedInvIdxes = Array.from(stockTableBody.querySelectorAll('.stock-checkbox:checked'))
-			.map(cb => cb.dataset.invIdx);
-		if (selectedInvIdxes.length > 0) {
-			if (confirm('선택된 재고를 정말 삭제하시겠습니까? (이 기능은 구현 예정입니다)')) {
-				alert('선택된 재고 삭제 기능은 구현 예정입니다: ' + JSON.stringify(selectedInvIdxes));
-			}
-		} else {
-			alert('삭제할 재고를 선택해주세요.');
-		}
+	// '재고 삭제' 버튼 클릭 이벤트 리스너
+	document.getElementById('deleteStockButton').addEventListener('click', async function() {
+	    const stockTableBody = document.getElementById('warehouseStockTableBody');
+	    const selectedCheckboxes = stockTableBody.querySelectorAll('.stock-checkbox:checked');
+	    
+	    if (selectedCheckboxes.length === 0) {
+	        alert('삭제할 재고를 선택해주세요.');
+	        return;
+	    }
+	    
+	    const selectedInvIdxes = Array.from(selectedCheckboxes).map(cb => parseInt(cb.dataset.invIdx));
+	    const selectedItemNames = Array.from(selectedCheckboxes).map(cb => {
+	        const row = cb.closest('tr');
+	        return row.cells[1].textContent; // 품명
+	    });
+	    
+	    // 삭제 확인
+	    const confirmMessage = `다음 ${selectedInvIdxes.length}개의 재고를 정말 삭제하시겠습니까?\n\n` +
+	                          selectedItemNames.slice(0, 5).join('\n') +
+	                          (selectedItemNames.length > 5 ? '\n...' : '');
+	    
+	    if (!confirm(confirmMessage)) {
+	        return;
+	    }
+	    
+	    try {
+	        const response = await fetch(`/api/warehouses/${currentWhIdxForModal}/inventory`, {
+	            method: 'DELETE',
+	            headers: {
+	                'Content-Type': 'application/json'
+	            },
+	            body: JSON.stringify(selectedInvIdxes)
+	        });
+	        
+	        const responseText = await response.text();
+	        console.log('Delete response status:', response.status);
+	        console.log('Delete response text:', responseText);
+	        
+	        if (!response.ok) {
+	            let errorData;
+	            try {
+	                errorData = JSON.parse(responseText);
+	            } catch (e) {
+	                throw new Error(`HTTP ${response.status}: ${responseText}`);
+	            }
+	            throw new Error(errorData.message || '재고 삭제에 실패했습니다.');
+	        }
+	        
+	        const result = JSON.parse(responseText);
+	        alert(result.message || '선택된 재고가 삭제되었습니다.');
+	        
+	        // 재고 목록 새로고침
+	        await loadWarehouseStockDetails(currentWhIdxForModal);
+	        
+	        // 전체 선택 체크박스 해제
+	        document.getElementById('selectAllStockCheckboxes').checked = false;
+	        
+	    } catch (error) {
+	        console.error('재고 삭제 실패:', error);
+	        alert(`재고 삭제 실패: ${error.message}`);
+	    }
 	});
+
 
 	// 창고이동 폼 제출 이벤트 리스너 - 새로 추가됨
 	document.getElementById('transferForm').addEventListener('submit', executeStockTransfer);
