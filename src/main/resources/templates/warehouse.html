@@ -167,9 +167,19 @@
 						<div class="input-group">
 							<span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
 						</div>
-						<div class="input-group">
+						<div class="input-group" style="position:relative;">
 							<span>주소</span><input type="text" name="whLocation"
-								placeholder="창고 주소를 입력해주세요" required />
+								placeholder="창고 주소를 입력해주세요" id="addr" required />
+								<input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="addr" style="
+    position: absolute;
+    right: 0;
+    height: 100%;
+    background: #007bff;
+    border: 0;
+    border-radius: 5px;
+    color: #fff;
+    padding: 0 10px;
+">
 						</div>
 						<div class="input-group">
 							<span>비고</span><input type="text" name="remark"
@@ -259,6 +269,8 @@
 	<script src="/js/warehouse.js"></script>
 	<script src="/js/warehousePrint.js"></script>
 	<script src="/js/warehouseExcel.js"></script>
+	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script src="/js/kakaoApi.js"></script>
 	<script src="/js/top.js"></script>
 </body>
 
