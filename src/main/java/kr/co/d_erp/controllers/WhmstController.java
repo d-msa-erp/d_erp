@@ -83,6 +83,51 @@ public class WhmstController {
 			return ResponseEntity.status(500).body(response);
 		}
 	}
+	
+	/**
+	 * 선택된 재고들을 삭제합니다.
+	 * @param whIdx 창고 고유 번호
+	 * @param invIdxList 삭제할 재고 ID 목록
+	 * @return 삭제 처리 결과 메시지
+	 */
+	@DeleteMapping("/{whIdx}/inventory")
+	public ResponseEntity<Map<String, String>> deleteWarehouseInventory(
+	        @PathVariable Long whIdx,
+	        @RequestBody List<Long> invIdxList) {
+	    
+	    Map<String, String> response = new HashMap<>();
+	    
+	    try {
+	        // 기본 유효성 검사
+	        if (whIdx == null) {
+	            response.put("message", "창고 정보가 올바르지 않습니다");
+	            response.put("status", "error");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	        
+	        if (invIdxList == null || invIdxList.isEmpty()) {
+	            response.put("message", "삭제할 재고가 선택되지 않았습니다");
+	            response.put("status", "error");
+	            return ResponseEntity.badRequest().body(response);
+	        }
+	        
+	        // 재고 삭제 처리
+	        String result = whmstService.deleteWarehouseInventory(whIdx, invIdxList);
+	        
+	        response.put("message", result != null ? result : "선택된 재고가 삭제되었습니다");
+	        response.put("status", "success");
+	        return ResponseEntity.ok(response);
+	        
+	    } catch (RuntimeException e) {
+	        response.put("message", "재고 삭제 처리 중 오류가 발생했습니다: " + e.getMessage());
+	        response.put("status", "error");
+	        return ResponseEntity.badRequest().body(response);
+	    } catch (Exception e) {
+	        response.put("message", "서버 오류가 발생했습니다: " + e.getMessage());
+	        response.put("status", "error");
+	        return ResponseEntity.status(500).body(response);
+	    }
+	}
 
 	/**
 	 * 창고 목록을 페이징하여 조회합니다. * @param page 페이지 번호 (1부터 시작, 기본값: 1)
