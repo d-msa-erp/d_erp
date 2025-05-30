@@ -458,7 +458,7 @@
 							<button type="button" onclick="openModal()">
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
-							<button type="button">
+							<button type="button" >
 								<span class="material-symbols-outlined">delete</span> 삭제
 							</button>
                         </div>
@@ -469,14 +469,14 @@
                             <button type="button" onclick="downloadExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button">
+							<button type="button" onclick="printSelectedPurchase()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
                         </div>
                         <table class="grid-table">
                             <thead>
                                 <tr>
-                                    <th><input type="checkbox" /></th>
+                                    <th><input type="checkbox" id="selectAllCheckbox"/></th>
                                     <th onclick="order('itemCode')">자재번호<a>↓</a></th>
                                     <th onclick="order('itemName')">자재명<a>↓</a></th>
 						            <th onclick="order('customerName')">발주처<a>↓</a></th>
@@ -589,6 +589,7 @@
 
     <script src="/js/top.js"></script>
     <script src="/js/purchase.js"></script>
+    <script src="/js/salesPrint.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('table').forEach(table => {

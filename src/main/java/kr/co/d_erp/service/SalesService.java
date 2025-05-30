@@ -37,6 +37,10 @@ public class SalesService {
 	    return salesRepository.findByOrderType(orderType, pageable);
 	}
 	
+	public List<SalesView> findSlaesOrders(List<Long> orderIdx){
+		return salesRepository.findByOrderIdxIn(orderIdx);
+	}
+	
 	public Page<SalesView> getPurchaseOrders(String orderType, String sortBy, String sortDirection, int page) {
 	    Sort.Direction direction = Sort.Direction.fromString(sortDirection);
 	    Pageable pageable = PageRequest.of(page, 10, Sort.by(direction, sortBy)); // 페이지당 10개

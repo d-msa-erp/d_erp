@@ -20,11 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream; 
+import java.io.IOException; 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 @Service
 @RequiredArgsConstructor
@@ -37,18 +42,12 @@ public class WhmstService {
     
     /**
      * 창고간 재고 이동을 처리합니다.
-     * 
-     * @param fromWhIdx 출발 창고 ID
+     * * @param fromWhIdx 출발 창고 ID
      * @param request 창고 이동 요청 정보
      * @return 처리 결과 메시지
      */
     @Transactional  
     public String transferStock(Long fromWhIdx, StockTransferRequestDto request) {
-        System.out.println("=== transferStock 시작 ===");
-        System.out.println("fromWhIdx: " + fromWhIdx);
-        System.out.println("toWhIdx: " + request.getToWhIdx());
-        System.out.println("userIdx: " + request.getUserIdx());
-        System.out.println("items count: " + request.getItems().size());
         
         try {
             // 출발 창고와 목적지 창고 존재 여부 확인
@@ -70,7 +69,6 @@ public class WhmstService {
             LocalDate transferDate = LocalDate.now();
             
             for (StockTransferItemDto item : request.getItems()) {
-                System.out.println("Processing item - itemIdx: " + item.getItemIdx() + ", qty: " + item.getTransferQty());
                 
                 try {
                     // 1. 출발 창고에서 출고 처리
@@ -90,9 +88,7 @@ public class WhmstService {
                     }
                     outboundRequest.setRemark("창고이동 출고: " + (request.getRemark() != null ? request.getRemark() : ""));
                     
-                    System.out.println("출고 처리 시작");
                     invTransactionService.insertTransaction(outboundRequest);
-                    System.out.println("출고 처리 완료");
                     
                     // 2. 목적지 창고로 입고 처리
                     InvTransactionRequestDto inboundRequest = new InvTransactionRequestDto();
@@ -111,14 +107,11 @@ public class WhmstService {
                     }
                     inboundRequest.setRemark("창고이동 입고: " + (request.getRemark() != null ? request.getRemark() : ""));
                     
-                    System.out.println("입고 처리 시작");
                     invTransactionService.insertTransaction(inboundRequest);
-                    System.out.println("입고 처리 완료");
                     
                     successCount++;
                     
                 } catch (Exception e) {
-                    System.out.println("아이템 처리 실패: " + e.getMessage());
                     e.printStackTrace();
                     resultMessage.append(String.format("품목 ID %d 이동 실패: %s\n", 
                         item.getItemIdx(), e.getMessage()));
@@ -134,14 +127,9 @@ public class WhmstService {
                 result = String.format("재고 이동 완료: %d/%d건\n%s", 
                     successCount, totalCount, resultMessage.toString());
             }
-            
-            System.out.println("=== transferStock 완료 ===");
-            System.out.println("결과: " + result);
             return result;
             
         } catch (Exception e) {
-            System.out.println("=== transferStock 실패 ===");
-            System.out.println("에러: " + e.getMessage());
             e.printStackTrace();
             throw e; // 예외를 다시 던져서 트랜잭션 롤백 발생
         }
@@ -448,5 +436,96 @@ public class WhmstService {
         }
         
         return dto;
+    }
+
+    /**
+     * 선택된 창고들의 상세 정보를 포함하는 엑셀 파일을 생성합니다.
+     * @param warehouseIds 엑셀로 내보낼 창고 ID 목록
+     * @return 생성된 엑셀 파일의 ByteArrayOutputStream
+     * @throws IOException 엑셀 생성 중 오류 발생 시
+     */
+    @Transactional(readOnly = true)
+    public ByteArrayOutputStream generateWarehousesExcel(List<Long> warehouseIds) throws IOException {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("창고 상세 정보");
+
+        // 헤더 스타일
+        CellStyle headerStyle = workbook.createCellStyle();
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setBorderBottom(BorderStyle.THIN);
+        headerStyle.setBorderTop(BorderStyle.THIN);
+        headerStyle.setBorderLeft(BorderStyle.THIN);
+        headerStyle.setBorderRight(BorderStyle.THIN);
+
+
+        // 데이터 셀 스타일
+        CellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setAlignment(HorizontalAlignment.LEFT);
+        dataStyle.setVerticalAlignment(VerticalAlignment.TOP);
+        dataStyle.setWrapText(true); // 셀 너비에 맞춰 텍스트 자동 줄바꿈
+
+        // 엑셀 헤더 생성
+        String[] headers = {"창고 코드", "창고명", "창고 타입", "사용 여부", "주소", "비고", "담당자"};
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 데이터 추가
+        int rowNum = 1;
+        for (Long whIdx : warehouseIds) {
+            WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+            if (warehouse != null) {
+                Row dataRow = sheet.createRow(rowNum++);
+                
+                // 창고 타입 문자열 조합
+                StringBuilder whType = new StringBuilder();
+                if ("Y".equals(warehouse.getWhType1())) whType.append("자재 ");
+                if ("Y".equals(warehouse.getWhType2())) whType.append("제품 ");
+                if ("Y".equals(warehouse.getWhType3())) whType.append("반품 ");
+                String whTypeStr = whType.toString().trim();
+
+                dataRow.createCell(0).setCellValue(warehouse.getWhCd());
+                dataRow.createCell(1).setCellValue(warehouse.getWhNm());
+                dataRow.createCell(2).setCellValue(whTypeStr);
+                dataRow.createCell(3).setCellValue("Y".equals(warehouse.getUseFlag()) ? "사용" : "미사용");
+                dataRow.createCell(4).setCellValue(warehouse.getWhLocation());
+                dataRow.createCell(5).setCellValue(warehouse.getRemark());
+                dataRow.createCell(6).setCellValue(warehouse.getWhUserNm());
+                
+                // 모든 셀에 데이터 스타일 적용
+                for (int i = 0; i < headers.length; i++) {
+                    if (dataRow.getCell(i) != null) { // 셀이 존재할 경우만 스타일 적용
+                         dataRow.getCell(i).setCellStyle(dataStyle);
+                    }
+                }
+            }
+        }
+        
+        // 컬럼 너비 자동 조정
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+            // 자동 조정 후 너무 좁거나 넓으면 최소/최대 너비 설정 가능
+            // 예: sheet.setColumnWidth(i, sheet.getColumnWidth(i) + 500); // 약간 더 넓게
+        }
+
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        workbook.close();
+
+        return bos;
     }
 }

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,7 +26,7 @@ public class CustomerController {
 	private final CustmstService custmstService;
 
 	@GetMapping("/api/customer/{bizFlag}")
-	public org.springframework.data.domain.Page<Custmst> getCustomers(@PathVariable String bizFlag, @RequestParam String sortBy,
+	public Page<Custmst> getCustomers(@PathVariable String bizFlag, @RequestParam String sortBy,
 			@RequestParam String sortDirection, @RequestParam(required = false) String keyword,
 			@RequestParam(defaultValue = "0") int page) {
 		return custmstService.getCustomers(bizFlag, sortBy, sortDirection, keyword, page);
@@ -97,5 +98,10 @@ public class CustomerController {
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sales-data.xlsx")
 				.contentType(MediaType.APPLICATION_OCTET_STREAM)
 				.body(excelData);
+	}
+	
+	@GetMapping("/api/customers/print")
+	public List<Custmst> printCustomers(@RequestParam List<Long> ids) {
+	    return custmstService.getCustomersByIds(ids);
 	}
 }
