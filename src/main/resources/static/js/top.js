@@ -46,3 +46,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 });
+window.addEventListener('resize', function () {
+	const nav = document.getElementById('main-nav');
+	const hamburger = document.getElementById('hamburger-btn');
+
+	const hamburgerDisplay = window.getComputedStyle(hamburger).display;
+
+	if (hamburgerDisplay === 'none') {
+		nav.style.display = 'flex';
+		nav.style.flexDirection = 'row';
+	} else {
+		nav.style.display = 'none'; // 추가 필요
+	}
+});
+

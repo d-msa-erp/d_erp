@@ -14,6 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+//옆에 창 토글기능
+  document.getElementById("toggleLowStockBtn").addEventListener("click", function () {
+    const box = document.getElementById("lowStockNotice");
+
+    if (box.style.display === "none") {
+      box.style.display = "block";
+      this.textContent = "닫기";
+    } else {
+      box.style.display = "none";
+      this.textContent = "열기";
+    }
+  });
+
+
+
+
+
+
+
+
+
 function setdate() {
 	const today = new Date();
 	const yyyy = today.getFullYear();
@@ -487,11 +508,12 @@ async function loadWarehouse() {
 
 		const warehouses = await warehouseResponse.json();
 		const warehouseList = document.getElementById("whList");
+		const warehouseArray = warehouses.content || warehouses;
 
 		warehouseList.innerHTML = '';
 		warehouseOptions = [];
-
-		warehouses.forEach(wh => {
+		
+		warehouseArray.forEach(wh => {
 			const whOption = document.createElement('option');
 			whOption.value = wh.whNm;
 			whOption.dataset.idx = wh.whIdx;
