@@ -395,8 +395,8 @@
                             <span>분류</span>
 		                    <select id="itemFlagSelect">
 		                        <option value="">--</option>
-		                        <option value="01">자재</option>
-		                        <option value="02">품목</option>
+		                        <option value="R">입고</option>
+		                        <option value="S">출고</option>
 		                    </select>
                         </div>
                         <input type="text" id="searchItemText" placeholder="검색" />
@@ -407,18 +407,18 @@
 							<button type="button" onclick="openModal()">
 								<span class="material-symbols-outlined">add</span> 신규등록
 							</button>
-							<button type="button" id="deleteBtn">
+<!-- 							<button type="button" id="deleteBtn">
 								<span class="material-symbols-outlined">delete</span> 삭제
-							</button>
+							</button> -->
                         </div>
                     </div>
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
                         <div class="print-wrap">
-                            <button type="button" id="excelBtn">
+                            <button type="button" id="excelBtn" onclick="downloadStockasExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button">
+							<button type="button" onclick="printStockList()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
                         </div>
@@ -467,14 +467,14 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
-<!--     <div>
-    	<span>자재/품목 분류</span>
-    	<select name="item_FLAG" required>
+    <div>
+    	<span>입/출고 분류</span>
+    	<select name="transType" required>
     		<option value="">--분류를 선택해주세요 --</option>
-       		<option value="01">자재</option>
-            <option value="02">품목</option>
+       		<option value="01">입고</option>
+            <option value="02">출고</option>
     	</select>
-    </div> -->
+    </div>
     <div>
         <span>자재/품목코드</span><input type="text" name="item_CD_display" placeholder="자동으로 코드가 입력됩니다." required readonly /> <input type="hidden" name="item_CD" /> </div>
     <div>
@@ -536,6 +536,8 @@
 
 	<script src="/js/top.js"></script>
 	<script src="/js/stock.js"></script>
+		<script src="/js/stockPrint.js"></script>
+	<script src="/js/stockExcel.js"></script>
 </body>
 
 </html>

@@ -23,8 +23,10 @@ import kr.co.d_erp.dtos.InvTransactionRequestDto;
 import kr.co.d_erp.dtos.InvTransactionResponseDto;
 import kr.co.d_erp.dtos.InvTransactionSearchCriteria;
 import kr.co.d_erp.dtos.PageDto;
+import kr.co.d_erp.dtos.StockInvRequestDto;
 import kr.co.d_erp.dtos.VInvTransactionDetailsDto;
 import kr.co.d_erp.service.InvTransactionService;
+import kr.co.d_erp.service.StockService;
 
 /**
  * 입/출고 거래 관련 HTTP 요청을 처리하는 REST 컨트롤러
@@ -36,6 +38,7 @@ import kr.co.d_erp.service.InvTransactionService;
 public class InvTransactionController {
 
 	private final InvTransactionService invTransactionService;
+	private final StockService stockService;
 	private final kr.co.d_erp.repository.oracle.WhmstRepository whmstRepository;
 	private final kr.co.d_erp.repository.oracle.OrderRepository orderRepository;
 	private final kr.co.d_erp.repository.oracle.UsermstRepository usermstRepository;
@@ -49,10 +52,12 @@ public class InvTransactionController {
 	 * @param usermstRepository     사용자 Repository (주로 mapDtoToEntity에서 사용되었음)
 	 */
 	public InvTransactionController(InvTransactionService invTransactionService,
+			StockService stockService,
 			kr.co.d_erp.repository.oracle.WhmstRepository whmstRepository,
 			kr.co.d_erp.repository.oracle.OrderRepository orderRepository,
 			kr.co.d_erp.repository.oracle.UsermstRepository usermstRepository) {
 		this.invTransactionService = invTransactionService;
+		this.stockService = stockService;
 		this.whmstRepository = whmstRepository;
 		this.orderRepository = orderRepository;
 		this.usermstRepository = usermstRepository;
@@ -184,4 +189,5 @@ public class InvTransactionController {
 		invTransactionService.deleteTransactions(invTransIdxes);
 		return ResponseEntity.noContent().build();
 	}
+	
 }
