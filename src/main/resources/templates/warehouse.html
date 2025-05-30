@@ -35,12 +35,15 @@
 							</button>
 						</div>
 					</div>
+					<div
+						style="padding: 20px 20px 0 20px; display: flex; flex-direction: column;"></div>
 					<div id="table-customer" style="padding: 20px; position: relative;">
 						<div class="print-wrap">
-							<button type="button" onclick="downloadSelectedWarehouseDetailsAsExcel()">
+							<button type="button"
+								onclick="downloadSelectedWarehouseDetailsAsExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button"  onclick="printSelectedWarehouseDetails()">
+							<button type="button" onclick="printSelectedWarehouseDetails()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
@@ -150,13 +153,17 @@
 							<span>창고명</span> <input type="text" name="whNm"
 								placeholder="창고명을 입력해주세요" required />
 						</div>
-						<div class="checkbox-group">
+						<div class="input-group">
+						<span>창고 종류</span>
+											<div class="checkbox-group">
 							<label>자재 창고 <input type="checkbox" name="whType1"
 								value="Y" /></label> <label>제품 창고 <input type="checkbox"
 								name="whType2" value="Y" />
 							</label> <label>반품 창고 <input type="checkbox" name="whType3"
 								value="Y" /></label>
 						</div>
+						</div>
+		
 						<div class="input-group">
 							<span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
 						</div>
@@ -194,33 +201,32 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- 창고 이동 모달 (거래처 선택 부분 제거됨) -->
-	<div class="modal" id="transferModal" onclick="closeTransferModal(event)">
+	<div class="modal" id="transferModal"
+		onclick="closeTransferModal(event)">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 style="padding-bottom: 20px;">창고간 재고 이동</h3>
-			
+
 			<form id="transferForm" class="transfer-form">
 				<div class="transfer-info">
 					<div class="input-group">
-						<span>출발 창고</span>
-						<input type="text" id="fromWarehouseName" readonly />
-						<input type="hidden" id="fromWarehouseIdx" />
+						<span>출발 창고</span> <input type="text" id="fromWarehouseName"
+							readonly /> <input type="hidden" id="fromWarehouseIdx" />
 					</div>
-					
+
 					<div class="input-group">
-						<span>목적지 창고</span>
-						<select id="toWarehouseSelect" required>
+						<span>목적지 창고</span> <select id="toWarehouseSelect" required>
 							<option value="">창고를 선택하세요</option>
 						</select>
 					</div>
-					
+
 					<div class="input-group">
-						<span>비고</span>
-						<input type="text" id="transferRemark" placeholder="이동 사유를 입력하세요" />
+						<span>비고</span> <input type="text" id="transferRemark"
+							placeholder="이동 사유를 입력하세요" />
 					</div>
 				</div>
-				
+
 				<div class="transfer-items">
 					<h4 style="margin: 20px 0 10px 0;">이동할 재고 목록</h4>
 					<table class="grid-table">
@@ -238,7 +244,7 @@
 						</tbody>
 					</table>
 				</div>
-				
+
 				<div class="modal-buttons" style="margin-top: 30px;">
 					<button type="submit" class="green-button">
 						<span class="material-symbols-outlined">sync_alt</span> 이동 실행

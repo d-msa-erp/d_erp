@@ -97,11 +97,21 @@
 
         <div class="login-Wrapper">
             <h1>스마트 제조 시스템</h1>
+                <!-- 로그인 실패 메시지 -->
+    <div th:if="${errorMessage}" style="color: red;">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <!-- 로그아웃 성공 메시지 -->
+    <div th:if="${logoutMessage}" style="color: green;">
+        <p th:text="${logoutMessage}"></p>
+    </div>
             <form action="/loginchk" method="POST" id="frm">
                 <div class="login-Datas">
                     <input type="text" id="uId" name="uId" placeholder="아이디" required>
                     <input type="password" id="iPw" name="uPw" placeholder="패스워드" required>
 <!--                     <label> <input type="checkbox" id="remember">아이디 저장</label> -->
+
                 </div>
 
                 <button type="submit">로그인</button>

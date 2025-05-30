@@ -200,7 +200,8 @@ tbody>tr:nth-child(even) td {
 	background: #f9f9f9;
 }
 
-tbody>tr:hover>td:not(.subcategory-column):not(.drag-handle) { /* 드래그 핸들은 호버 효과 제외 */
+tbody>tr:hover>td:not(.subcategory-column):not(.drag-handle) {
+	/* 드래그 핸들은 호버 효과 제외 */
 	background: #46a6ff;
 	cursor: pointer;
 }
@@ -218,13 +219,14 @@ tr td:nth-last-child(1) {
 }
 
 th, td {
-padding: 10px;
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	padding: 10px;
+	border: 1px solid #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
-td{
+
+td {
 	justify-content: start;
 }
 
@@ -237,8 +239,8 @@ thead th {
 table input[type="text"], table input[type="number"] {
 	width: 100%;
 	padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
 }
 
 .pagination-wrap {
@@ -284,7 +286,7 @@ table input[type="text"], table input[type="number"] {
 	align-items: center;
 	backdrop-filter: blur(4px);
 	-webkit-backdrop-filter: blur(4px);
-    z-index: 1000;
+	z-index: 1000;
 }
 
 .modal-content {
@@ -293,9 +295,9 @@ table input[type="text"], table input[type="number"] {
 	border-radius: 10px;
 	width: 80%;
 	position: relative;
-    max-height: 90vh;
-    display: flex;
-    flex-direction: column;
+	max-height: 90vh;
+	display: flex;
+	flex-direction: column;
 }
 
 .modal-content .modalForm {
@@ -305,8 +307,8 @@ table input[type="text"], table input[type="number"] {
 	gap: 20px;
 	justify-items: center;
 	align-items: center;
-    flex-grow: 1;
-    overflow: hidden;
+	flex-grow: 1;
+	overflow: hidden;
 }
 
 .modal-content .modalForm>div, .modal-content .modalForm>label {
@@ -326,7 +328,7 @@ table input[type="text"], table input[type="number"] {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid #ccc;
-    border-radius: 3px;
+	border-radius: 3px;
 }
 
 .modal-content input[type="color"] {
@@ -342,7 +344,7 @@ table input[type="text"], table input[type="number"] {
 	justify-content: flex-end;
 	gap: 10px;
 	width: 100%;
-    flex-shrink: 0;
+	flex-shrink: 0;
 }
 
 .modal-content .modal-buttons>button:hover {
@@ -351,15 +353,15 @@ table input[type="text"], table input[type="number"] {
 
 .modal-content .modal-buttons>button {
 	width: auto;
-    padding: 8px 15px;
+	padding: 8px 15px;
 	background: #007bff;
 	color: #fff;
 	border: none;
 	border-radius: 5px;
 	cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
 }
 
 .modal-buttons button:nth-of-type(3) {
@@ -371,7 +373,7 @@ table input[type="text"], table input[type="number"] {
 	padding: 5px !important;
 	width: 100% !important;
 	height: 100% !important;
-    font-size: 14px;
+	font-size: 14px;
 }
 
 .modal-content .bomTab1 select {
@@ -380,13 +382,12 @@ table input[type="text"], table input[type="number"] {
 }
 
 .modal-content .grid-table {
-width: 100%;
-    border-collapse: collapse;
-    display: grid
-;
-    grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
-    padding: 0;
-    height: 100%;
+	width: 100%;
+	border-collapse: collapse;
+	display: grid;
+	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr;
+	padding: 0;
+	height: 100%;
 }
 
 .modal-content .grid-table button {
@@ -398,8 +399,8 @@ width: 100%;
 	display: grid !important;
 	grid-template-columns: 1fr 1fr;
 	gap: 20px;
-    flex-grow: 1;
-    overflow: hidden;
+	flex-grow: 1;
+	overflow: hidden;
 }
 
 .bomTab1 input {
@@ -410,14 +411,14 @@ width: 100%;
 .bomTab1>div {
 	height: 100%;
 	align-self: stretch;
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 }
 
 .bomTab2 {
 	display: grid;
 	gap: 10px;
-    height: 100%;
+	height: 100%;
 }
 
 .bomTab2>div {
@@ -425,31 +426,31 @@ width: 100%;
 	flex-direction: column;
 	gap: 10px !important;
 	justify-content: space-between;
-    max-height: 400px;
 }
 
 .bomTab2>div>div {
-    flex-grow: 1;
-    overflow-y: auto;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    max-height: 200px;
-    overflow: hidden;
+	flex-grow: 1;
+	overflow-y: auto;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	/*     max-height: 200px; */
+	overflow: hidden;
 }
 
 .bomTab2 .grid-table {
-    display: grid;
-}
-.bomTab2 .grid-table thead, .bomTab2 .grid-table tbody {
-    display: contents;
-}
-.bomTab2 .grid-table th {
-    position: sticky;
-    top: 0;
-    background: #f0f0f0;
-    z-index: 10;
+	display: grid;
 }
 
+.bomTab2 .grid-table thead, .bomTab2 .grid-table tbody {
+	display: contents;
+}
+
+.bomTab2 .grid-table th {
+	position: sticky;
+	top: 0;
+	background: #f0f0f0;
+	z-index: 10;
+}
 
 .bomTab2>div>ul {
 	display: flex;
@@ -465,8 +466,8 @@ width: 100%;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
-	justify-content: flex-start;
-    height: 100%;
+	height: 100%;
+	justify-content: space-between;
 }
 
 .bomTab3>div {
@@ -495,54 +496,57 @@ width: 100%;
 
 .bomTab3 .flex-row>div input {
 	width: 100%;
-    padding: 8px;
-}
-.bomTab3>div>input {
-    padding: 8px;
+	padding: 8px;
 }
 
+.bomTab3>div>input {
+	padding: 8px;
+}
 
 .bomTab5 {
-max-height: 120px;
-    overflow-y: auto;
-    border: 1px solid #eee;
-    border-radius: 5px;
-    flex-shrink: 0;
+	max-height: 120px;
+	overflow-y: auto;
+	border: 1px solid #eee;
+	border-radius: 5px;
+	flex-shrink: 0;
 }
 
 /* *** bomTab5 그리드 컬럼 수정 (8개) *** */
 .bomTab5 .grid-table {
-	grid-template-columns: 0.3fr 0.5fr 2fr 2fr 1fr 1fr 1fr 1.5fr; 
+	grid-template-columns: 0.3fr 0.5fr 2fr 2fr 1fr 1fr 1fr 1.5fr;
 }
+
 .bomTab5 .grid-table th, .bomTab5 .grid-table td {
-    border-bottom: 1px solid #ccc;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    padding: 8px;
+	border-bottom: 1px solid #ccc;
+	border-left: none;
+	border-right: none;
+	border-top: none;
+	padding: 8px;
 }
+
 .bomTab5 .grid-table thead th {
-    position: sticky;
-    top: 0;
-    background: #f0f0f0;
-    z-index: 10;
-    border-bottom: 1px solid #ccc;
+	position: sticky;
+	top: 0;
+	background: #f0f0f0;
+	z-index: 10;
+	border-bottom: 1px solid #ccc;
 }
 /* 첫번째/마지막 열 테두리 */
 .bomTab5 .grid-table tbody td:first-child, .bomTab5 .grid-table thead th:first-child,
-.bomTab5 .grid-table tbody td:last-child, .bomTab5 .grid-table thead th:last-child {
-    border-left: 1px solid #ccc;
-    border-right: 1px solid #ccc;
+	.bomTab5 .grid-table tbody td:last-child, .bomTab5 .grid-table thead th:last-child
+	{
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
 }
+
 .bomTab5 .grid-table tbody tr:last-child td {
-     border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
 }
 /* No data 행 스타일 수정 */
 .bomTab5 .grid-table .nodata {
-    grid-column: span 8 !important; /* *** 7을 8로 변경 *** */
-    justify-content: center !important;
+	grid-column: span 8 !important; /* *** 7을 8로 변경 *** */
+	justify-content: center !important;
 }
-
 
 .catetable {
 	grid-template-columns: 1fr 1fr 1fr 1fr !important;
@@ -554,7 +558,7 @@ max-height: 120px;
 
 .modal-content h3, .modal-content h4 {
 	margin-bottom: 10px;
-    flex-shrink: 0;
+	flex-shrink: 0;
 }
 
 .modalForm {
@@ -623,44 +627,41 @@ max-height: 120px;
 	margin-right: 10px;
 }
 
-
 /* 드래그 앤 드롭 스타일 */
 .bomTab5 .grid-table tbody tr.dragging {
-    opacity: 0.6;
-    background: #e0e0e0; 
-    border: 1px dashed #333;
+	opacity: 0.6;
+	background: #e0e0e0;
+	border: 1px dashed #333;
 }
 
 .bomTab5 .grid-table tbody tr.over {
-    border-top: 2px solid #46a6ff !important; 
+	border-top: 2px solid #46a6ff !important;
 }
 
 /* *** 드래그 손잡이 스타일 추가 *** */
 .bomTab5 .grid-table .drag-handle {
-    cursor: move; /* 손잡이 위에서만 이동 커서 표시 */
-    text-align: center;
-    vertical-align: middle;
-    user-select: none; /* 아이콘 드래그 시 텍스트 선택 방지 */
+	cursor: move; /* 손잡이 위에서만 이동 커서 표시 */
+	text-align: center;
+	vertical-align: middle;
+	user-select: none; /* 아이콘 드래그 시 텍스트 선택 방지 */
 }
 
 /* *** 드래그 손잡이 아이콘 스타일 추가 *** */
 .bomTab5 .grid-table .drag-handle .material-symbols-outlined {
-    font-size: 18px; /* 아이콘 크기 조절 */
-    vertical-align: middle; /* 수직 중앙 정렬 */
-    color: #888; /* 아이콘 색상 */
+	font-size: 18px; /* 아이콘 크기 조절 */
+	vertical-align: middle; /* 수직 중앙 정렬 */
+	color: #888; /* 아이콘 색상 */
 }
-
 
 /* 입력 필드 위에서는 텍스트 커서 유지 */
 .bomTab5 .grid-table tbody tr input {
-    cursor: text;
+	cursor: text;
 }
+
 .bomTab5 input.bom5-input {
-    padding: 5px; 
-    font-size: 13px;
+	padding: 5px;
+	font-size: 13px;
 }
-
-
 
 /* ================================================================= */
 /* BOM 모달: bomTab2 레이아웃 수정 (스크롤 문제 해결 - !important 적용) */
@@ -668,98 +669,115 @@ max-height: 120px;
 
 /* --- 모달 전체적인 Flex 구조 설정 --- */
 .modal-content {
-    max-height: 90vh !important;
-    display: flex !important;
-    flex-direction: column !important;
+	max-height: 90vh !important;
+	display: flex !important;
+	flex-direction: column !important;
 }
 
 .modal-content .modalForm {
-    flex-grow: 1 !important; /* 폼이 남은 공간 채우기 */
-    overflow: hidden !important; /* 폼 자체 스크롤 방지 */
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 0 !important; /* 축소 가능하게 */
+	flex-grow: 1 !important; /* 폼이 남은 공간 채우기 */
+	overflow: hidden !important; /* 폼 자체 스크롤 방지 */
+	display: flex !important;
+	flex-direction: column !important;
+	min-height: 0 !important; /* 축소 가능하게 */
 }
 
 .bomTab1 {
-    flex-grow: 1 !important; /* bomTab1이 폼 공간 채우기 */
-    overflow: hidden !important; /* bomTab1 자체 스크롤 방지 */
-    display: grid !important; /* 기존 Grid 유지 */
-    min-height: 0 !important; /* 축소 가능하게 */
+	flex-grow: 1 !important; /* bomTab1이 폼 공간 채우기 */
+	overflow: hidden !important; /* bomTab1 자체 스크롤 방지 */
+	display: grid !important; /* 기존 Grid 유지 */
+	min-height: 0 !important; /* 축소 가능하게 */
 }
 
 /* --- BOM Modal: 품목(상위) & 원자재(하위) 전용 스타일 (강제 적용) --- */
 .bomTab2 {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 16px !important;
-  height: 100% !important;
-  overflow: hidden !important;
+	display: flex !important;
+	flex-direction: column !important;
+	gap: 16px !important;
+	height: 100% !important;
+	overflow: hidden !important;
 }
 
-.bomTab2 > div {
-  flex: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  padding: 0 !important;
+.bomTab2>div {
+	flex: 1 !important;
+	display: flex !important;
+	flex-direction: column !important;
+	min-height: 0 !important;
+	margin: 0 !important;
+	padding: 0 !important;
 }
 
-.bomTab2 > div h4 {
-  margin: 0 0 8px !important;
-  font-size: 1rem !important;
+.bomTab2>div h4 {
+	margin: 0 0 8px !important;
+	font-size: 1rem;
 }
 
-.bomTab2 > div > div {
-  flex: 1 !important;
-  border: 1px solid #ddd !important;
-  border-radius: 4px !important;
-  padding: 4px !important;
-  background: #fff !important;
-  min-height: 150px;
+.bomTab2>div>div {
+	flex: 1 !important;
+	border: 1px solid #ddd !important;
+	border-radius: 4px !important;
+	padding: 4px !important;
+	background: #fff !important;
+	min-height: 150px;
 }
 
 .bomTab2 .grid-table {
-  width: 100% !important;
-  border-collapse: collapse !important;
-  display: grid !important;
-  grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr !important;
-  max-height: 100px;
+	width: 100% !important;
+	border-collapse: collapse !important;
+	display: grid !important;
+	grid-template-columns: 1fr 2fr 2fr 2fr 1fr 1fr !important;
+	height: calc(100% - 80px);
 }
 
-.bomTab2 .grid-table th,
-.bomTab2 .grid-table td {
-  padding: 8px !important;
-  border: 1px solid #ccc !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
+.bomTab2 .grid-table th, .bomTab2 .grid-table td {
+	padding: 8px !important;
+	border: 1px solid #ccc !important;
+	white-space: nowrap !important;
+	overflow: hidden !important;
+	text-overflow: ellipsis !important;
 }
 
 .bomTab2 .grid-table thead th {
-  position: sticky !important;
-  top: 0 !important;
-  background: #f9f9f9 !important;
-  z-index: 5 !important;
+	position: sticky !important;
+	top: 0 !important;
+	background: #f9f9f9 !important;
+	z-index: 5 !important;
 }
 
 .delete-unit-btn, .delete-btn-in-table {
-	border:none;
+	border: none;
 	background: #dc3545;
 	color: white;
 	border-radius: 5px;
 	height: auto !important;
 }
-.delete-unit-btn:hover,.delete-btn-in-table:hover{
-cursor: pointer;
+
+.delete-unit-btn:hover, .delete-btn-in-table:hover {
+	cursor: pointer;
 	filter: brightness(0.9);
 	font-weight: bold;
 }
-#bomTbody .nodata{
-    grid-column: span 6;
-    justify-self: center !important;
-    width: 100%;
-    justify-content: center;
+
+#bomTbody .nodata {
+	grid-column: span 6;
+	justify-self: center !important;
+	width: 100%;
+	justify-content: center;
 }
 
+/* 반응형!! */
+@media ( max-width : 768px) {
+	
+	.bomTab2 .grid-table {
+    grid-template-columns: 1fr 1fr 2.5fr 2fr 1fr !important;
+}
+
+
+	.bomTab2 .grid-table thead th:nth-child(4), .bomTab2 .grid-table tbody td:nth-child(4)
+		{
+		display: none !important;
+	}
+		.modal-content {
+		width: 100vw;
+	}
+}

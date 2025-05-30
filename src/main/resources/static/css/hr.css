@@ -345,7 +345,7 @@ table input[type="text"] {
 	padding-right: 10px;
 }
 
-.modal-content input {
+.modal-content input,.modal-content select  {
 	width: 100%;
 	padding: 10px;
 	border: 1px solid #ccc;
