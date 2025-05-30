@@ -36,9 +36,7 @@ public class ProductionPlanService {
 	     dto.setWhIdx(req.getWhIdx());
 	     dto.setCustIdx(req.getCustIdx());
 	     dto.setUserIdx(req.getUserIdx());
-	     
-	     System.out.println(dto.getWhIdx());
-	     System.out.println(dto.getCustIdx());
+
 	     return invTransactionService.insertTransaction(dto);
 	 }
 }
