@@ -1,0 +1,97 @@
+/* 기본 리셋 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 기본 body 스타일 */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  background: #f8f9fa;
+  line-height: 1.6;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 전체 페이지 높이 설정 */
+}
+
+/* 기본 레이아웃 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 링크 스타일 */
+a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* 버튼 스타일 */
+button, input[type="button"], input[type="submit"] {
+  background-color: #46a6ff;
+  color: white;
+  border: 1px solid #46a6ff;
+  border-radius: 5px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover, input[type="button"]:hover, input[type="submit"]:hover {
+  background-color: #007bff;
+}
+
+button:disabled, input[type="button"]:disabled, input[type="submit"]:disabled {
+  background-color: #b0c4de;
+  cursor: not-allowed;
+}
+
+/* 공통 입력 필드 스타일 */
+input[type="text"], input[type="email"], input[type="password"], select, textarea {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, select:focus, textarea:focus {
+  border-color: #46a6ff;
+  outline: none;
+}
+
+/* Flexbox 공통 스타일 */
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 모바일 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  button, input[type="button"], input[type="submit"] {
+    padding: 10px;
+  }
+
+  /* 햄버거 메뉴 스타일 */
+  .hamburger {
+    display: block;
+  }
+  
+  /* 메뉴 및 로그아웃 수정 */
+
+}

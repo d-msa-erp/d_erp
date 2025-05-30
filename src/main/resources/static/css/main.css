@@ -1,0 +1,279 @@
+/* 기본 리셋 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 기본 body 스타일 */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+  background: #f8f9fa;
+  line-height: 1.6;
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* 전체 페이지 높이 설정 */
+  padding: 0;
+  margin: 0;
+}
+
+/* 전체 페이지 레이아웃 */
+.site-Wrapper {
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-rows: auto 1fr 1fr;
+  gap: 20px;
+  flex-grow: 1;
+}
+
+/* 공지사항 */
+.notice {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+}
+
+.notice .header {
+  background: #46a6ff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.notice ul {
+  padding: 15px 20px;
+  list-style: none;
+  margin: 0;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.notice ul li {
+  padding: 8px 0;
+  cursor: pointer;
+}
+
+.notice ul li:hover {
+  text-decoration: underline;
+}
+
+.notice ul li strong {
+  color: #007bff;
+}
+
+/* 입고/출고 테이블 스타일 */
+#inv-table-wrapper, #outbound-table-wrapper {
+  padding: 15px;
+  overflow-y: auto;
+  width: 100%;
+  flex-grow: 1;
+  min-height: 150px;
+}
+
+#inv-table-wrapper table, #outbound-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#inv-table-wrapper th, #inv-table-wrapper td, #outbound-table-wrapper th, #outbound-table-wrapper td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  white-space: nowrap; /* 텍스트가 한 줄로 나열되도록 설정 */
+  overflow: hidden; /* 넘치는 텍스트를 숨김 */
+  text-overflow: ellipsis; /* 넘칠 경우 '...' 표시 */
+  max-width: 150px; /* 셀의 최대 너비 설정 (필요에 따라 조정) */
+}
+
+#inv-table-wrapper th, #outbound-table-wrapper th {
+  background-color: #f2f2f2;
+}
+
+#inv-table-wrapper tr:hover td, #outbound-table-wrapper tr:hover td {
+  background: #e6f7ff;
+}
+
+/* 공지사항 모달 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 25px;
+  border: 1px solid #bbb;
+  width: 60%;
+  max-width: 700px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.close-button-notice {
+  color: #aaa;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-button-notice:hover {
+  color: #333;
+}
+
+#noticeModalContent {
+  line-height: 1.7;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+#noticeModalTitle {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+#noticeModalDate {
+  font-size: 0.85em;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+
+/* 공지사항 모달 */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-y: auto;
+}
+
+
+.modal-content-notice {
+  background-color: #fefefe;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #bbb;
+  width: 70%;
+  max-width: 800px;
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  max-height: 80vh; /* 화면 비율에 맞게 높이 제한 */
+  overflow-y: auto; /* 내용이 길어질 경우 스크롤 */
+}
+
+.close-button-notice {
+  color: #aaa;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.close-button-notice:hover {
+  color: #333;
+}
+
+/* 모달 내용 */
+#noticeModalContent {
+  line-height: 1.7;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+  max-height: 60vh;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+#noticeModalTitle {
+  margin-top: 0;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+#noticeModalDate {
+  font-size: 0.85em;
+  color: #777;
+  margin-bottom: 15px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  #inv-table-wrapper, #outbound-table-wrapper {
+    font-size: 10px;
+  }
+
+  .site-Wrapper {
+    padding: 1rem;
+  }
+
+  .notice .header,
+  .header {
+    font-size: 1.1rem;
+  }
+
+  table {
+    font-size: 0.8rem;
+  }
+
+  table td, table th {
+    padding: 8px;
+  }
+
+  /* 모바일에서는 메뉴와 버튼 크기 조정 */
+  .hamburger {
+    display: block;
+  }
+  .modal-content-notice {
+    width: 90%; /* 모바일에서는 모달 폭을 넓힘 */
+  }
+
+  #noticeModalTitle {
+    font-size: 1.2rem;
+  }
+
+  .hamburger span {
+    font-size: 30px;
+  }
+
+  /* 모달 크기 조정 */
+  .modal-content {
+    width: 80%;
+  }
+}
