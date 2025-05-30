@@ -676,5 +676,5 @@ function printSelectedSales() {
 		{ key: 'userName', label: '담당자' }
 	];
 
-	printByIds(ids, fetchUrlFn, columns, '발주 인쇄');
+	printByIds(ids, fetchUrlFn, columns, '주문 인쇄');
 }
