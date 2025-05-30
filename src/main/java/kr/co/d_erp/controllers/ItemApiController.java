@@ -125,11 +125,17 @@ public class ItemApiController {
         dto.setRemark(entity.getRemark());
         dto.setOptimalInv(entity.getOptimalInv());
         dto.setItemCost(entity.getItemCost()); // ItemDto 엔티티의 itemCost 사용
-        /*
-        dto.setQty(entity.getInvenDto() != null ? entity.getInvenDto().getStockQty() : null);
-        */
-        List<InvenDto> invenList = entity.getInvenDto(); 
-        dto.setQty((invenList != null && !invenList.isEmpty()) ? invenList.get(0).getStockQty() : null); // 오류나면 위에 주석 코드로 되돌리시면 됩니다. -민섭-
+
+        Long totalStockQty = 0L;
+        if (entity.getInvenDtos() != null) {
+            for (InvenDto invenDto : entity.getInvenDtos()) {
+                if (invenDto.getStockQty() != null) {
+                    totalStockQty += invenDto.getStockQty();
+                }
+            }
+        }
+        dto.setQty(totalStockQty);
+
 
         if (entity.getCustomerForItemDto() != null) {
             dto.setCustIdx(entity.getCustomerForItemDto().getCustIdx());

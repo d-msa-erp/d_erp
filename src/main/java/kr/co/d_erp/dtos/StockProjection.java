@@ -22,4 +22,5 @@ public interface StockProjection {
 	    
 	    Integer getUnitIdx();
 	    Long getCustIdxForItem();
+	    Long getInvIdx();
 }

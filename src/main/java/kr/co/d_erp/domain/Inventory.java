@@ -5,6 +5,10 @@ import lombok.*;
 import java.math.BigDecimal; // BigDecimal 사용
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+
 //수정했음 오류 발생시 문의 부탁 -나영
 
 @Entity
@@ -34,9 +38,11 @@ public class Inventory {
     @Column(name = "STOCK_QTY", nullable = false, precision = 12, scale = 2) // DDL의 NUMBER(12,2) 반영
     private BigDecimal stockQty; // Double에서 BigDecimal로 변경
 
+    @CreationTimestamp
     @Column(name = "CREATED_DATE", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
+    @UpdateTimestamp
     @Column(name = "UPDATED_DATE")
     private LocalDateTime updatedDate; // Long에서 LocalDateTime으로 타입 변경
 
