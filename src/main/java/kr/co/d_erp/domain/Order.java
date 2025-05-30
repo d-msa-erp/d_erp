@@ -75,7 +75,7 @@ public class Order {
     private LocalDateTime createdDate = LocalDateTime.now();
 
     @Column(name = "UPDATED_DATE")
-    private LocalDate updatedDate;
+    private LocalDateTime updatedDate;
     
     /*
     @ManyToOne(fetch = FetchType.LAZY) // LAZY 로딩 권장

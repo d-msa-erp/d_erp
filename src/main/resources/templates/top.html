@@ -36,8 +36,9 @@ body {
 	color: #333;
 	cursor: pointer;
 }
+
 .top-Wrapper .title:hover {
-color: #46a6ff;
+	color: #46a6ff;
 }
 
 .top-Wrapper .logout {
@@ -77,8 +78,8 @@ color: #46a6ff;
 	pointer-events: none;
 }
 
-.top-Wrapper .menu-item:hover .submenu,
-.top-Wrapper .menu-item.active .submenu {
+.top-Wrapper .menu-item:hover .submenu, .top-Wrapper .menu-item.active .submenu
+	{
 	max-height: 500px; /* 충분히 큰 값 */
 	opacity: 1;
 	pointer-events: auto;
@@ -278,94 +279,296 @@ table {
 	overflow-y: auto;
 }
 
-.top-Wrapper .menu-item > .label {
+.top-Wrapper .menu-item>.label {
 	transition: background-color 0.3s, color 0.3s;
 	border-radius: 3px;
 }
 
-.top-Wrapper .menu-item:hover > .label {
+.top-Wrapper .menu-item:hover>.label {
 	background-color: #e0f0ff;
 	color: #007bff;
 }
 
-
+.hamburger {
+	display: none;
+}
+th, td{
+justify-content: center !important;
+text-align: center !important;}
+  
+/* 반응형!! */
+@media ( max-width : 768px) {
+	header {
+		position: relative;
+	}
+	.top-Wrapper .title {
+		font-size: 1.3rem;
+	}
+	.text-sm {
+		font-size: 0.8rem
+	}
+	.hamburger {
+		display: block;
+		border: none;
+		background: none;
+		align-self: flex-end;
+		padding: 10px 20px;
+	}
+	.hamburger span {
+		font-size: 30px;
+	}
+	.hamburger:hover {
+		color: #46a6ff;
+	}
+	.top-Wrapper nav {
+		display: none;
+		width: 100%;
+		text-align: end;
+		background: rgba(0, 0, 0, 0.5);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		position: absolute;
+		top: 100px;
+		position: absolute;
+		height: calc(100vh - 115px);
+		justify-content: flex-start;
+		z-index: 101;
+	}
+	.top-Wrapper .menu-item:hover .submenu {
+		display: none;
+	}
+	.top-Wrapper .menu-item.active .submenu {
+		display: flex;
+		flex-direction: column;
+		top: 0;
+	}
+	.top-Wrapper .menu-item.active .submenu {
+		display: block;
+		position: relative;
+	}
+	.table-wrapper>div:nth-child(1)>div>button {
+		font-size: 10px;
+		white-space: nowrap;
+	}
+	.table-wrapper>div:nth-child(1)>div>button>span {
+		font-size: 10px;
+	}
+	.table-wrapper>div:nth-child(1) {
+		padding: 10px 20px 0 10px !important;
+		gap: 10px !important;
+	}
+	table.grid-table {
+		font-size: 10px;
+	}
+	.modal-content {
+		background: white;
+		padding: 10px !important;
+		border-radius: 10px;
+		position: relative;
+		max-height: 90vh;
+		display: flex;
+		flex-direction: column;
+		font-size: 10px !important;
+	}
+	.modal-content input, .modal-content select {
+		text-overflow: ellipsis;
+		padding: 5px !important;
+		font-size: 10px !important;
+	}
+	.modal-content .modalForm {
+		gap: 10px !important;
+	}
+	.bomTab1 {
+		gap: 10px !important;
+	}
+	th, td {
+		padding: 5px !important;
+	}
+	.bomTab2>div h4 {
+		font-size: 10px !important;
+	}
+	.shipping-info-form {
+		gap: 10px !important;
+		font-size: 10px !important;
+	}
+	.shipping-info-form input {
+		padding: 5px !important;
+	}
+	.shipping-info-section, .search-action-buttons, .table-view-section {
+		padding: 20px 20px 0 20px !important;
+	}
+	.calendarWrap {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 10px !important;
+	}
+	.addPlanSection {
+		margin-top: 0px !important;
+	}
+	#orderInfoList {
+		flex-direction: column;
+	}
+	#orderInfoList .order-item {
+		font-size: 12px;
+		padding-top: 5px;
+	}
+	#userRole, #userDept, #userPosition {
+		padding: 0 !important;
+	}
+	.table-wrapper>div:nth-child(1) {
+		flex-direction: column;
+	}
+	.table-wrapper>div:nth-child(1)>input[type="text"] {
+		width: 100% !important;
+	}
+	.table-wrapper>div:nth-child(1)>div {
+		width: 100% !important;
+		height: 30px;
+	}
+	.table-wrapper>div:nth-child(1)>div {
+		order: 3;
+	}
+	.table-wrapper>div:nth-child(1)>.btn-wrap1 {
+		order: 2;
+		position: static !important;
+		justify-content: space-between !important;
+	}
+	.search-action-buttons button {
+		padding: 5px !important;
+		white-space: nowrap;
+	}
+}
 </style>
 </head>
 <body>
 	<header th:fragment="top">
+
 		<div class="top-Wrapper">
 			<div class="top-bar">
 				<div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
 				<div class="text-sm">
-					<span
-						class="material-symbols-outlined">person</span><span onclick="location.href='/mypage'" class="userName" th:text="${user?.userNm} ?: '방문객'"> </span> 님
-					<div class="userName-tooltip">마이페이지로 이동</div>
-					|
-					<button class="logout" onclick="location.href='logout'">로그아웃</button>
-					<!--로그인 안되어있으면 login버튼만 출력-->
+					<th:block th:if="${session.loggedInUser != null}">
+						<span class="material-symbols-outlined">person</span>
+						<span onclick="location.href='/mypage'" class="userName"
+							th:text="${session.loggedInUser.userNm}"></span> 님
+						<div class="userName-tooltip">마이페이지로 이동</div>
+						|
+						<button class="logout" onclick="location.href='logout'">로그아웃</button>
+					</th:block>
+					<th:block th:if="${session.loggedInUser == null}">
+						<button class="login" onclick="location.href='login'">로그인</button>
+					</th:block>
 				</div>
 			</div>
+			<button type="button" class="hamburger" id="hamburger-btn">
+				<span class="material-symbols-outlined"> menu </span>
+			</button>
+			<nav id="main-nav"
+				th:if="${session.loggedInUser != null and session.loggedInUser.userStatus == '01'}">
 
-			<!--아래의 모든 기능은 로그인 하지 않으면 로그인 페이지로 Redirect 시켜주세요~-->
-			<nav>
-				<div class="menu-item" onclick="toggleMenu(event, this)">
+				<div class="menu-item" onclick="toggleMenu(event, this)"
+					th:if="${{'01','02', '03', '04', '05', '06'}.contains(session.loggedInUser.userRole)}">
 					<div class="label">기준 정보 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='/site'">사업장 관리</span> <span
-							onclick="location.href='/customer'">거래처 관리</span> <span
-							onclick="location.href='/inventory'">품목 관리</span> <span
-							onclick="location.href='/bom'">BOM 관리</span>
-						<!--             <span onclick="location.href='#'">공정 관리</span> -->
-						<span onclick="location.href='/warehouse'">창고 관리</span>
+						<span onclick="location.href='/site'"
+							th:if="${{'01','02'}.contains(session.loggedInUser.userRole)}">사업장
+							관리</span> <span onclick="location.href='/customer'"
+							th:if="${{'01','02', '03', '04'}.contains(session.loggedInUser.userRole)}">거래처
+							관리</span> <span onclick="location.href='/inventory'"
+							th:if="${{'01','02', '04', '05', '06'}.contains(session.loggedInUser.userRole)}">품목
+							관리</span> <span onclick="location.href='/bom'"
+							th:if="${{'01','02', '05'}.contains(session.loggedInUser.userRole)}">BOM
+							관리</span> <span onclick="location.href='/warehouse'"
+							th:if="${{'01','02', '06'}.contains(session.loggedInUser.userRole)}">창고
+							관리</span>
 					</div>
 				</div>
 
-				<div class="menu-item" onclick="toggleMenu(event, this)">
+				<div class="menu-item" onclick="toggleMenu(event, this)"
+					th:if="${{'01','02', '03', '04', '05', '06'}.contains(session.loggedInUser.userRole)}">
 					<div class="label">구매 / 영업 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='/purchase'">발주 관리</span> <span
-							onclick="location.href='/sales'">주문 관리</span> <span
-							onclick="location.href='/outbound'">출고 관리</span>
-						<!--             <span onclick="location.href='#'">반품 관리</span> -->
-						<span onclick="location.href='mrp'">자재 소요량 계산(MRP)</span>
+						<span onclick="location.href='/purchase'"
+							th:if="${{'01', '02','04'}.contains(session.loggedInUser.userRole)}">발주
+							관리</span> <span onclick="location.href='/sales'"
+							th:if="${{'01','02', '03'}.contains(session.loggedInUser.userRole)}">주문
+							관리</span> <span onclick="location.href='/outbound'"
+							th:if="${{'01','02', '03', '06'}.contains(session.loggedInUser.userRole)}">출고
+							관리</span> <span onclick="location.href='/mrp'"
+							th:if="${{'01', '02','04', '05'}.contains(session.loggedInUser.userRole)}">자재
+							소요량 계산(MRP)</span>
 					</div>
 				</div>
 
-				<div class="menu-item" onclick="toggleMenu(event, this)">
+				<div class="menu-item" onclick="toggleMenu(event, this)"
+					th:if="${{'01','02', '04', '06'}.contains(session.loggedInUser.userRole)}">
 					<div class="label">자재 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='inbound'">입고 관리</span> <span
-							onclick="location.href='stock'">재고 관리</span>
+						<span onclick="location.href='/inbound'"
+							th:if="${{'01','02', '04', '06'}.contains(session.loggedInUser.userRole)}">입고
+							관리</span> <span onclick="location.href='/stock'"
+							th:if="${{'01','02', '06'}.contains(session.loggedInUser.userRole)}">재고
+							관리</span>
 					</div>
 				</div>
 
-				<div class="menu-item" onclick="toggleMenu(event, this)">
+				<div class="menu-item" onclick="toggleMenu(event, this)"
+					th:if="${{'01','02', '05'}.contains(session.loggedInUser.userRole)}">
 					<div class="label">생산 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='planning'">생산 계획</span> 
-<!-- 						<span onclick="location.h">생산 지시</span>  -->
-<!-- 						<span onclick="location.h">생산 실적 관리</span> -->
+						<span onclick="location.href='/planning'"
+							th:if="${{'01','02', '05'}.contains(session.loggedInUser.userRole)}">생산
+							계획</span>
 					</div>
 				</div>
 
-				<div class="menu-item" onclick="toggleMenu(event, this)">
+				<div class="menu-item" onclick="toggleMenu(event, this)"
+					th:if="${{'01','02', '07'}.contains(session.loggedInUser.userRole)}">
 					<div class="label">인사 관리</div>
 					<div class="submenu">
-						<span onclick="location.href='/hr'">사원 관리</span>
+						<span onclick="location.href='/hr'"
+							th:if="${{'01','02', '07'}.contains(session.loggedInUser.userRole)}">사원
+							관리</span>
 					</div>
 				</div>
-				<div class="menu-item" onclick="toggleMenu(event, this)">
-					<div class="label">페이지 관리</div>
-					<div class="submenu">
-						<span onclick="location.href='/pagesettings'">페이지 관리</span>
-					</div>
-				</div>
-
 			</nav>
 		</div>
 	</header>
 
+	<script th:inline="javascript">
+        /*<![CDATA[*/
+        function toggleMenu(event, element) {
+            event.stopPropagation(); // 이벤트 전파 중지
+            document.querySelectorAll('.menu-item').forEach(item => {
+                if (item !== element) {
+                    item.classList.remove('active');
+                }
+            });
+            element.classList.toggle('active');
+        }
+
+        // 다른 곳 클릭 시 메뉴 닫기
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.menu-item.active').forEach(item => {
+                item.classList.remove('active');
+            });
+        });
+
+        // 페이지 로드 시, 세션 정보를 콘솔에 출력 (디버깅용)
+        document.addEventListener('DOMContentLoaded', function() {
+            var loggedInUser = /*[[${session.loggedInUser}]]*/ null;
+            if(loggedInUser) {
+                console.log("Thymeleaf 세션 사용자:", loggedInUser);
+                console.log("Thymeleaf 역할:", loggedInUser.userRole);
+                console.log("Thymeleaf 상태:", loggedInUser.userStatus);
+            } else {
+                console.log("Thymeleaf: 세션에 loggedInUser 없음");
+            }
+        });
+        /*]]>*/
+    </script>
 
 
 </body>
+
 </html>

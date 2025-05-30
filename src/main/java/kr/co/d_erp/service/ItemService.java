@@ -93,6 +93,7 @@ public class ItemService {
             row.createCell(3).setCellValue(item.getCatDto2() != null ? item.getCatDto2().getCatNm() : "");
             row.createCell(4).setCellValue(item.getCustomerForItemDto() != null ? item.getCustomerForItemDto().getCustNm() : "");
             row.createCell(5).setCellValue(item.getUnitForItemDto() != null ? item.getUnitForItemDto().getUnitNm() : "");
+
             Long totalStockQty = 0L;
             if (item.getInvenDtos() != null) {
                 for (InvenDto invenDto : item.getInvenDtos()) {
@@ -102,6 +103,7 @@ public class ItemService {
                 }
             }
             row.createCell(6).setCellValue(totalStockQty);
+
             row.createCell(7).setCellValue(item.getItemCost() != null ? item.getItemCost() : 0.0);
             row.createCell(8).setCellValue(item.getItemSpec());
             row.createCell(9).setCellValue(item.getRemark());

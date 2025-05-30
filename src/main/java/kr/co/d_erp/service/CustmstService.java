@@ -1,14 +1,25 @@
 package kr.co.d_erp.service;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.Custmst;
+import kr.co.d_erp.domain.SalesView;
 import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.CustomerForSelectionDto;
 import kr.co.d_erp.repository.oracle.CustmstRepository;
@@ -19,15 +30,15 @@ import lombok.RequiredArgsConstructor;
 public class CustmstService {
 
     private final CustmstRepository custmstRepository;
-
-    public List<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword) {
+    
+    public Page<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword, int page) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Sort sort = Sort.by(direction, sortKey);
+        Pageable pageable = PageRequest.of(page, 10, Sort.by(direction, sortKey));
 
         if (keyword == null || keyword.isBlank()) {
-            return custmstRepository.findByBizFlag(bizFlag, sort);
+            return custmstRepository.findByBizFlag(bizFlag, pageable);
         } else {
-            return custmstRepository.findByBizFlagAndKeyword(bizFlag, "%" + keyword + "%", sort);
+            return custmstRepository.findByBizFlagAndKeyword(bizFlag, "%" + keyword + "%", pageable);
         }
     }
 
@@ -35,7 +46,11 @@ public class CustmstService {
     public Optional<Custmst> getCustomerById(Long id) {
         return custmstRepository.findById(id);
     }
-
+    
+    public List<Custmst> getCustomersByIds(List<Long> ids) {
+        return custmstRepository.findByCustIdxIn(ids);
+    }
+    
     // 등록
     public Custmst saveCustomer(Custmst custmst) {
         return custmstRepository.save(custmst);
@@ -75,16 +90,14 @@ public class CustmstService {
     @Transactional(readOnly = true)
     public List<CustomerForSelectionDto> findActiveCustomersForSelection(String bizFlag) {
         Sort defaultSort = Sort.by(Sort.Direction.ASC, "custNm");
+        Pageable pageable = PageRequest.of(0, 1000, defaultSort); // 최대 1000개 제한
+
         List<Custmst> customers;
 
         if (bizFlag != null && !bizFlag.isEmpty()) {
-            customers = custmstRepository.findByBizFlag(bizFlag, defaultSort);
+            customers = custmstRepository.findByBizFlag(bizFlag, pageable).getContent();
         } else {
-            customers = custmstRepository.findAll(defaultSort);
-        }
-
-        if (customers == null) {
-            return List.of();
+            customers = custmstRepository.findAll(pageable).getContent();
         }
 
         return customers.stream()
@@ -94,5 +107,39 @@ public class CustmstService {
                         cust.getCustCd()
                 ))
                 .collect(Collectors.toList());
+    }
+    
+    public byte[] generateExcel() throws IOException {
+	 	List<Custmst> custList = custmstRepository.findAll();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("주문목록");
+
+            // 헤더 작성
+            Row header = sheet.createRow(0);
+            header.createCell(0).setCellValue("거래처코드");
+            header.createCell(1).setCellValue("거래처명");
+            header.createCell(2).setCellValue("대표자명");
+            header.createCell(3).setCellValue("연락처");
+            header.createCell(4).setCellValue("이메일");
+
+
+            // 데이터 작성
+            int rowIdx = 1;
+            for (Custmst cust : custList) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(cust.getCustCd());
+                row.createCell(1).setCellValue(cust.getCustNm());
+                row.createCell(2).setCellValue(cust.getPresidentNm());
+                row.createCell(3).setCellValue(cust.getBizTel());
+                row.createCell(4).setCellValue(cust.getCustEmail());
+            }
+
+            // 엑셀 데이터를 바이트 배열로 반환
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                workbook.write(out);
+                return out.toByteArray();
+            }
+        }
     }
 }

@@ -845,6 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	    modal.style.display = 'flex';
 	}
 
+
 	
 	// --- 드롭다운 로드 함수들 (실제 API 호출 로직으로 채워야 함) ---
 
@@ -983,3 +984,4 @@ document.addEventListener('DOMContentLoaded', () => {
 	    
 	    fetchItems(1, itemFlagSelect?.value, searchItemText?.value.trim(), sortProperty, currentSortOrder);
 	}
+

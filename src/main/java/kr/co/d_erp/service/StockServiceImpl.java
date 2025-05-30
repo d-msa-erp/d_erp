@@ -47,6 +47,10 @@ import kr.co.d_erp.repository.oracle.ItemmstRepository;
 import kr.co.d_erp.repository.oracle.WhmstRepository;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 재고 관리 서비스 구현체
+ * 재고 조회, 등록, 수정 및 관련 기준 정보 관리 기능을 제공합니다.
+ */
 @Service
 @RequiredArgsConstructor
 public class StockServiceImpl implements StockService{
@@ -54,6 +58,7 @@ public class StockServiceImpl implements StockService{
 	private final ItemmstRepository itemMstRepository;
 	private final WhmstRepository whMstRepository;
 	private final InventoryRepository invenRepository;
+
 	private final ItemUnitRepository itemUnitRepository; // 'i' 소문자로 변경 (인스턴스 변수)
     private final ItemCustomerRepository itemCustomerRepository; // 'i' 소문자로 변경 (인스턴스 변수)
     private final InventoryService inventoryService;
@@ -93,8 +98,7 @@ public class StockServiceImpl implements StockService{
     	    }).collect(Collectors.toList());
     	    
     }
-    
-    
+  
 	@Override
 	public Page<StockDto> getInventoryList(String itemFlagFilter, String searchKeyword, Pageable pageable) {
 		String effectiveFlagFilter = (itemFlagFilter != null && !itemFlagFilter.isEmpty()) ? itemFlagFilter : null;
@@ -102,12 +106,17 @@ public class StockServiceImpl implements StockService{
         
         Page<StockProjection> projectionPage = invenRepository.findInventoryDetails(
         		effectiveFlagFilter, 
-                effectiveSearchKeyword, // CsearchCat 파라미터 제거
+                effectiveSearchKeyword,
                 pageable
             );
         return projectionPage.map(this::mapProjectionToDto);
 	}
 	
+	/**
+	 * StockProjection을 StockDto로 변환합니다.
+	 * @param p 변환할 StockProjection 객체
+	 * @return 변환된 StockDto 객체
+	 */
 	private StockDto mapProjectionToDto(StockProjection p) {
         if (p == null) return null;
         return StockDto.builder()
@@ -125,34 +134,42 @@ public class StockServiceImpl implements StockService{
                 .userNm(p.getUserNm())
                 .userTel(p.getUserTel())
                 .userMail(p.getUserMail())
+
                 .invIdx(p.getInvIdx())
                 .reMark(p.getReMark()) // Projection과 DTO 필드명 일치 (reMark vs remark)
+
                 .itemFlag(p.getItemFlag())
                 .unitIdx(p.getUnitIdx())
                 .custIdxForItem(p.getCustIdxForItem())
                 .build();
     }
 	
+	/**
+	 * 모든 단위 목록을 조회합니다.
+	 * @return 모든 단위 목록
+	 */
 	@Override
 	public List<UnitDto> getAllUnits() {
-		List<UnitForItemDto> units = itemUnitRepository.findAll(); // 필요시 정렬 추가: findAll(Sort.by("unitNm"))
+		List<UnitForItemDto> units = itemUnitRepository.findAll();
 		return units.stream()
                 .map(unit -> {
                     Integer unitIdAsInteger = null;
                     if (unit.getUnitIdx() != null) {
-                        // Long을 Integer로 변환합니다.
-                        // 데이터 손실 가능성(Integer 범위 초과)에 유의해야 합니다.
-                        // unitIdx 값이 Integer.MAX_VALUE를 넘지 않는다고 가정합니다.
                         unitIdAsInteger = unit.getUnitIdx().intValue();
                     }
                     return UnitDto.builder()
-                            .unitIdx(unitIdAsInteger) // Integer 타입으로 설정
+                            .unitIdx(unitIdAsInteger)
                             .unitNm(unit.getUnitNm())
                             .build();
                 })
                 .collect(Collectors.toList());
 	}
 	
+	/**
+	 * 사업 유형별 거래처 목록을 조회합니다.
+	 * @param bizFlag 사업 유형 구분
+	 * @return 해당 사업 유형의 거래처 목록
+	 */
 	@Override
 	public List<CustomerDTO> getCustomersByBizFlag(String bizFlag) {
 		 List<CustomerForItemDto> customers = itemCustomerRepository.findByBizFlagOrderByCustNmAsc(bizFlag);
@@ -164,6 +181,7 @@ public class StockServiceImpl implements StockService{
 	                .collect(Collectors.toList());
 	}
 	
+
 	@Override
 	public List<StockInvRequestDto> getAllItemsForStockRegistration() {
 		List<Itemmst> allItems = itemMstRepository.findAll(Sort.by(Sort.Direction.ASC, "itemNm")); // 품목명으로 정렬
@@ -258,8 +276,6 @@ public class StockServiceImpl implements StockService{
 		// TODO Auto-generated method stub
 		
 	}
-
-	
     
 	public StockDto updateStockItem(Long invIdx, StockRequestDto requestDto) {
         System.out.println("StockServiceImpl - updateStockItem 호출됨. invIdx: " + invIdx + ", DTO: " + requestDto);
@@ -337,6 +353,7 @@ public class StockServiceImpl implements StockService{
     
     private Inventory updatedInventory; // 이 필드는 멤버 변수로 있을 필요가 없습니다. updateStockItem 메소드 내 지역변수로 사용하세요.
 
+
     // convertToStockDto 헬퍼 메소드 수정 (Whmst 객체를 받아 창고 담당자 정보도 포함 가능하도록)
     private StockDto convertToStockDto(Itemmst itemMst, Inventory inventory, String whNm, Whmst warehouse) {
         Integer unitIdAsInteger = null;
@@ -382,9 +399,12 @@ public class StockServiceImpl implements StockService{
         return builder.build();
     }
     
+    /**
+     * 모든 창고 목록을 조회합니다.
+     * @return 모든 창고 목록
+     */
     @Override
     public List<WhmstDto> getAllWarehouses() {
-    	// whMstRepository
     	List<Whmst> warehouses = whMstRepository.findAll(Sort.by(Sort.Direction.ASC, "whNm"));
     	return warehouses.stream()
                 .map(wh -> WhmstDto.builder()
@@ -393,7 +413,7 @@ public class StockServiceImpl implements StockService{
                         .build())
                 .collect(Collectors.toList());
     }
-    
+
     @Transactional
     @Override
     public void deleteInventories(List<Long> invIdxs) {
@@ -470,3 +490,4 @@ public class StockServiceImpl implements StockService{
         }
     }
 }
+

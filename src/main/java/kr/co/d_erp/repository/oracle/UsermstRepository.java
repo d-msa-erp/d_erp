@@ -1,5 +1,7 @@
 package kr.co.d_erp.repository.oracle;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,6 +37,20 @@ public interface UsermstRepository extends JpaRepository<Usermst, Long> {
 			+ "LOWER(u.userStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))" // 모든 검색 필드에 대한 조건
 	)
 	List<Usermst> findAllUsersByKeyword(@Param("keyword") String keyword, Sort sort);
+
+	/**
+	 * 페이징과 키워드 검색을 지원하는 사용자 조회 메서드
+	 */
+	@Query("SELECT u FROM Usermst u WHERE " + "(:keyword IS NULL OR :keyword = '' OR " + 
+			"LOWER(u.userNm) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userId) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userTel) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userHp) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userDept) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userPosition) LIKE LOWER(CONCAT('%', :keyword, '%')) OR "
+			+ "LOWER(u.userStatus) LIKE LOWER(CONCAT('%', :keyword, '%')))"
+	)
+	Page<Usermst> findAllUsersByKeywordWithPaging(@Param("keyword") String keyword, Pageable pageable);
 
 	// 창고 담당자 셀렉트에 사용
 	// USER_STATUS가 '01'인 사용자만 조회하는 메소드

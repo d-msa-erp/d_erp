@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+
 import java.util.List;
 
 import org.apache.poi.ss.usermodel.Workbook;
@@ -38,13 +39,17 @@ import kr.co.d_erp.dtos.WhmstDto;
 import kr.co.d_erp.service.StockService;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 재고 관리 REST API 컨트롤러
+ * 재고 조회, 등록, 수정 및 관련 기준 정보 조회 기능을 제공합니다.
+ */
 @RestController
 @RequestMapping("/api/stocks")
 @RequiredArgsConstructor
 public class StockController {
 
 	private final StockService stockService;
-	
+
 	
 	 //TB_ITEMMST 데이터 조회
 	@GetMapping("/item-basics") // 요청 경로 예시: /api/stocks/item-basics
@@ -138,3 +143,4 @@ public class StockController {
 	        }
 	    }
 }
+

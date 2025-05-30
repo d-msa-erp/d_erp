@@ -1,7 +1,11 @@
-// 전역 변수로 현재 정렬 기준, 방향, 검색어를 저장
+// 전역 변수로 현재 정렬 기준, 방향, 검색어, 페이징 정보를 저장
 let currentSortBy = 'userId'; // 초기 정렬 기준 (아이디)
 let currentOrder = 'desc';        // 초기 정렬 방향 (내림차순)
 let currentKeyword = '';          // 검색 기능이 있다면 현재 검색어를 저장할 변수
+let currentPage = 0;              // 현재 페이지 (0부터 시작)
+let pageSize = 10;                // 페이지 크기
+let totalPages = 0;               // 전체 페이지 수
+let totalElements = 0;            // 전체 요소 수
 
 // 유틸리티 함수들 (전역 범위에 정의)
 function extractNumbers(inputString) {
@@ -132,9 +136,98 @@ async function openSharedModal(mode, userIdx = null) {
     modal.style.display = 'flex';
 }
 
-// --- 사원 목록을 백엔드에서 가져와 테이블을 업데이트하는 핵심 함수 (글로벌로 정의) ---
-// 이 함수가 정렬/검색 후에도 호출되므로, 상태 변환 로직이 포함되어야 합니다.
-async function loadUsersTable(sortBy, sortDirection, keyword = '') {
+// 정적 UI 업데이트 함수
+function updateStaticPaginationUI() {
+    const totalRecordsElement = document.getElementById('totalRecords');
+    const currentPageDisplayElement = document.getElementById('currentPageDisplay');
+    const totalPagesDisplayElement = document.getElementById('totalPagesDisplay');
+    const pageNumberInput = document.getElementById('pageNumberInput');
+    const btnFirstPage = document.getElementById('btn-first-page');
+    const btnPrevPage = document.getElementById('btn-prev-page');
+    const btnNextPage = document.getElementById('btn-next-page');
+    const btnLastPage = document.getElementById('btn-last-page');
+
+    // 페이지 정보 업데이트
+    if (totalRecordsElement) totalRecordsElement.textContent = totalElements;
+    if (currentPageDisplayElement) currentPageDisplayElement.textContent = currentPage + 1;
+    if (totalPagesDisplayElement) totalPagesDisplayElement.textContent = totalPages;
+    if (pageNumberInput) {
+        pageNumberInput.value = currentPage + 1;
+        pageNumberInput.max = totalPages;
+    }
+
+    // 버튼 상태 업데이트
+    if (btnFirstPage) btnFirstPage.disabled = currentPage === 0;
+    if (btnPrevPage) btnPrevPage.disabled = currentPage === 0;
+    if (btnNextPage) btnNextPage.disabled = currentPage >= totalPages - 1;
+    if (btnLastPage) btnLastPage.disabled = currentPage >= totalPages - 1;
+}
+
+// 정적 페이징 버튼 이벤트 초기화 함수
+function initStaticPaginationEvents() {
+    const btnFirstPage = document.getElementById('btn-first-page');
+    const btnPrevPage = document.getElementById('btn-prev-page');
+    const btnNextPage = document.getElementById('btn-next-page');
+    const btnLastPage = document.getElementById('btn-last-page');
+    const pageNumberInput = document.getElementById('pageNumberInput');
+
+    if (btnFirstPage) {
+        btnFirstPage.addEventListener('click', () => {
+            currentPage = 0;
+            loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+        });
+    }
+
+    if (btnPrevPage) {
+        btnPrevPage.addEventListener('click', () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+            }
+        });
+    }
+
+    if (btnNextPage) {
+        btnNextPage.addEventListener('click', () => {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+            }
+        });
+    }
+
+    if (btnLastPage) {
+        btnLastPage.addEventListener('click', () => {
+            currentPage = totalPages - 1;
+            loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+        });
+    }
+
+    if (pageNumberInput) {
+        pageNumberInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const newPage = parseInt(pageNumberInput.value) - 1;
+                if (newPage >= 0 && newPage < totalPages && newPage !== currentPage) {
+                    currentPage = newPage;
+                    loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+                }
+            }
+        });
+
+        pageNumberInput.addEventListener('blur', () => {
+            const newPage = parseInt(pageNumberInput.value) - 1;
+            if (newPage >= 0 && newPage < totalPages && newPage !== currentPage) {
+                currentPage = newPage;
+                loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+            } else {
+                pageNumberInput.value = currentPage + 1;
+            }
+        });
+    }
+}
+
+// --- 페이징을 지원하는 사원 목록 로드 함수 ---
+async function loadUsersTableWithPaging(sortBy, sortDirection, keyword = '') {
     const tableBody = document.getElementById('userTableBody');
     if (!tableBody) {
         console.warn("ID가 'userTableBody'인 요소를 찾을 수 없습니다.");
@@ -143,7 +236,7 @@ async function loadUsersTable(sortBy, sortDirection, keyword = '') {
     tableBody.innerHTML = '<tr><td colspan="8">데이터 로딩 중...</td></tr>';
 
     try {
-        let url = `/api/users?sortBy=${sortBy}&sortDirection=${sortDirection}`;
+        let url = `/api/users/paged?page=${currentPage}&size=${pageSize}&sortBy=${sortBy}&sortDirection=${sortDirection}`;
         if (keyword) {
             url += `&keyword=${encodeURIComponent(keyword)}`;
         }
@@ -153,7 +246,12 @@ async function loadUsersTable(sortBy, sortDirection, keyword = '') {
             const errorText = await response.text();
             throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
         }
-        const users = await response.json();
+        const pageData = await response.json();
+
+        // 페이징 정보 업데이트
+        totalPages = pageData.totalPages;
+        totalElements = pageData.totalElements;
+        const users = pageData.content;
 
         tableBody.innerHTML = '';
 
@@ -230,23 +328,42 @@ async function loadUsersTable(sortBy, sortDirection, keyword = '') {
         }
 
         // 현재 정렬 상태를 UI에 반영하는 로직
-        const allArrows = document.querySelectorAll("th a");
-        allArrows.forEach(a => {
-            a.style.visibility = 'hidden';
-        });
-        const activeTh = document.querySelector(`th[data-sort-by="${sortBy}"]`);
-        if (activeTh) {
-            const activeArrow = activeTh.querySelector('a');
-            if (activeArrow) {
-                activeArrow.textContent = sortDirection === 'asc' ? '↑' : '↓';
-                activeArrow.style.visibility = 'visible';
-            }
+		const allArrows = document.querySelectorAll("th a");
+		allArrows.forEach(a => {
+		    a.textContent = '↓';                 // 모두 ↓로 초기화
+		    a.style.opacity = '0.3';             // 연하게 처리
+		    a.style.color = '#000';              // 색은 검정 유지
+		    a.style.visibility = 'visible';      // 항상 보이게 처리 (감추지 않음)
+		});
+
+		const activeTh = document.querySelector(`th[data-sort-by="${sortBy}"]`);
+		if (activeTh) {
+		    const activeArrow = activeTh.querySelector('a');
+		    if (activeArrow) {
+		        activeArrow.textContent = sortDirection === 'asc' ? '↑' : '↓';
+		        activeArrow.style.opacity = '1';   // 진하게
+		    }
+		}
+
+        // 정적 페이징 UI 업데이트
+        updateStaticPaginationUI();
+
+        // 전체 선택 체크박스 상태 초기화
+        const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
         }
 
     } catch (error) {
         console.error('데이터를 불러오는 중 오류가 발생했습니다:', error);
         tableBody.innerHTML = `<tr><td colspan="8" style="color: red; text-align: center;">데이터 로딩 실패: ${error.message}</td></tr>`;
     }
+}
+
+// --- 기존 loadUsersTable 함수를 페이징 버전으로 리다이렉트 ---
+async function loadUsersTable(sortBy, sortDirection, keyword = '') {
+    // 기존 함수 호출을 페이징 함수로 리다이렉트
+    await loadUsersTableWithPaging(sortBy, sortDirection, keyword);
 }
 
 // 정렬 함수 (글로벌로 정의)
@@ -260,14 +377,18 @@ function order(thElement) {
         currentSortBy = newSortBy;
     }
 
-    // loadUsersTable 함수 내부에서 화살표 업데이트 처리 로직이 포함되어 있으므로, 여기서는 데이터 로드만 호출
-    loadUsersTable(currentSortBy, currentOrder, currentKeyword);
+    // 정렬 변경 시 첫 페이지로 이동
+    currentPage = 0;
+    loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
 }
 
 // --- 페이지 로드 후 실행될 코드 (하나의 DOMContentLoaded 리스너로 통합) ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 초기 로딩 시 사원 목록을 가져옴 (통합된 loadUsersTable 호출)
-    loadUsersTable(currentSortBy, currentOrder, currentKeyword);
+    // 초기 로딩 시 사원 목록을 가져옴 (페이징 지원)
+    loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
+
+    // 정적 페이징 이벤트 초기화
+    initStaticPaginationEvents();
 
     // 요소들을 변수에 할당
     const modalForm = document.getElementById('modalForm');
@@ -278,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
     const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
-
 
     // 전화번호 입력 필드 이벤트 리스너
     if (userTelInput) {
@@ -297,7 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchButton && searchInput) {
         searchButton.addEventListener('click', () => {
             currentKeyword = searchInput.value;
-            loadUsersTable(currentSortBy, currentOrder, currentKeyword);
+            currentPage = 0; // 검색 시 첫 페이지로 이동
+            loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
         });
         // Enter 키로 검색 기능 추가
         searchInput.addEventListener('keypress', (event) => {
@@ -369,10 +490,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 successMessage = '신규 사원이 등록되었습니다.';
                 errorMessagePrefix = '신규 사원 등록';
                 delete userData.userIdx; // 신규 등록 시 userIdx는 서버에서 생성
-				
-				//에러확인용 로그 				
-				console.log("신규 등록 시 서버로 전송 직전 userData:", JSON.stringify(userData, null, 2));
-
+                
+                //에러확인용 로그 				
+                console.log("신규 등록 시 서버로 전송 직전 userData:", JSON.stringify(userData, null, 2));
             }
 
             console.log(`${errorMessagePrefix} 데이터:`, userData);
@@ -396,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(successMessage);
 
                 closeModal();
-                loadUsersTable(currentSortBy, currentOrder, currentKeyword); // 작업 후 테이블 새로 고침
+                loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword); // 작업 후 테이블 새로 고침
 
             } catch (error) {
                 console.error(`${errorMessagePrefix} 중 오류 발생:`, error);
@@ -439,7 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 alert('선택된 사원 정보가 성공적으로 삭제되었습니다.');
-                loadUsersTable(currentSortBy, currentOrder, currentKeyword); // 삭제 후 테이블 새로 고침
+                loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword); // 삭제 후 테이블 새로 고침
 
             } catch (error) {
                 console.error('사원 삭제 중 오류 발생:', error);

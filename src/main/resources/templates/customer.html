@@ -571,6 +571,21 @@
 	  justify-content: center; /* 헤더 텍스트 중앙 정렬 */
 	}
 	
+	.bizAddr-wrapper {
+		position: relative;
+	}
+	
+	#bizAddrBtn {
+	    position: absolute;
+	    right: 0;
+	    height: 100%;
+	    background: #007bff;
+	    border: 0;
+	    border-radius: 5px;
+	    color: #fff;
+	    padding: 0 10px;
+	    cursor: pointer;
+	}
   </style>
 </head>
 
@@ -604,10 +619,10 @@
           </div>
           <div id="table-customer" style="padding: 20px; position: relative;">
             <div class="print-wrap">
-              <button type="button">
-                <span class="material-symbols-outlined">table_view</span> 엑셀
-              </button>
-              <button type="button">
+              <button type="button" onclick="downloadExcel()">
+					<span class="material-symbols-outlined">table_view</span> 엑셀
+				</button>
+              <button type="button" onclick="printSelectedCustomerDetails()">
                 <span class="material-symbols-outlined">print</span> 인쇄
               </button>
             </div>
@@ -625,16 +640,17 @@
                 </tbody>
             </table>
             <div class="pagination-wrap">
-              총 n건 1/n페이지 <div class="paigination">
-                <button type="button" id="btn-prev-page">
-                  <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <input type="text" value="1">
-                <button type="button" id="btn-next-page">
-                  <span class="material-symbols-outlined">chevron_right</span>
-                </button>
-              </div>
-            </div>
+			  <span id="paginationInfo">총 0건 1/1페이지</span>
+			  <div class="paigination">
+			    <button type="button" id="btn-prev-page">
+			      <span class="material-symbols-outlined">chevron_left</span>
+			    </button>
+			    <input type="text" id="currentPageInput" value="1">
+			    <button type="button" id="btn-next-page">
+			      <span class="material-symbols-outlined">chevron_right</span>
+			    </button>
+			  </div>
+			</div>
           </div>
         </div>
       </div>
@@ -671,10 +687,13 @@
         </div>
         <div>
           <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요" /> </div>
-        <div style="grid-column: span 2;">
-          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" />
+        <div style="grid-column: span 2;" class ="bizAddr-wrapper">
+          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" id="bizAddr" />
+          <input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="bizAddr" id="bizAddrBtn">
         </div>
-        <div class="modal-buttons" style="grid-column: 1 / -1; justify-content: flex-end;"> <button type="button" name="save" style="display: none;">
+        
+        <div class="modal-buttons" style="grid-column: 1 / -1; justify-content: flex-end;"> 
+        <button type="button" name="save" style="display: none;">
             <span class="material-symbols-outlined">save</span> 등록
           </button>
           <button type="button" name="edit" style="display: block;"> <span class="material-symbols-outlined">edit</span> 수정
@@ -700,7 +719,7 @@
               <input type="text" name="custNm" required/>
             </div>
             <div class="input-group">
-              <span>담당자명</span> <input type="text" name="presidentNm" />
+              <span>대표자명</span> <input type="text" name="presidentNm" />
             </div>
             <div class="input-group">
               <span>사업자번호</span>
@@ -726,7 +745,7 @@
               <span>업종</span>
               <input type="text" name="bizItem" />
             </div>
-            <div class="input-group"> <span>대표자명</span> 
+            <div class="input-group"> <span>담당자명</span> 
               <input type="text" name="compEmpNm" /> </div>
             <div class="input-group">
               <span>법인번호</span> <input type="text" name="compNo" id="detailCompNumber" />
@@ -762,6 +781,8 @@
   </div>
 
   <script src="/js/top.js"></script>
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script src="/js/kakaoApi.js"></script>
   <script>
     function switchModalTab(tabId) {
       const modalDetailContent = document.querySelector('#modal-detail .modal-content');
