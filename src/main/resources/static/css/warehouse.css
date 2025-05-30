@@ -130,7 +130,7 @@ table.grid-table {
 	width: 100%;
 	border-collapse: collapse;
 	display: grid;
-	/* 예시: 8개 컬럼의 너비 비율 조정 */
+	/* 메인 창고 목록: 7개 컬럼 */
 	grid-template-columns: 0.5fr 1.5fr 1.5fr 1.5fr 2fr 2.5fr 1.5fr;
 }
 
@@ -166,6 +166,12 @@ thead th {
 	font-weight: bold;
 	cursor: pointer;
 	justify-content: center; /* 헤더 텍스트 중앙 정렬 */
+}
+
+/* 재고 현황 테이블용 별도 설정 추가 */
+.modal-content table.grid-table {
+	/* 재고 현황: 8개 컬럼 (체크박스, 품명, 품번, 규격, 재고수량, 단위, 거래처명, 비고) */
+	grid-template-columns: 0.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1.5fr 2fr;
 }
 
 /* ============================================================ */
@@ -543,8 +549,10 @@ thead th {
 	margin-top: 20px;
 }
 
+/* 창고 이동 테이블용 설정 - 8개 컬럼으로 수정 */
 .transfer-items .grid-table {
-	grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 0.8fr;
+	/* 창고이동: 8개 컬럼 (체크박스, 품명, 품번, 규격, 현재수량, 이동수량, 단위, 거래처명) */
+	grid-template-columns: 0.5fr 2fr 1.5fr 1.5fr 1fr 1fr 1fr 1.5fr;
 	font-size: 14px;
 }
 

@@ -25,10 +25,11 @@ public class InvenDto {
     @JoinColumn(name = "ITEM_IDX", referencedColumnName = "ITEM_IDX")
     private Itemmst item;
 
-
+    /*
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ITEM_IDX", nullable = false)
     private Itemmst item;
+    */
     
     @Column(name = "STOCK_QTY")
     private Long stockQty;

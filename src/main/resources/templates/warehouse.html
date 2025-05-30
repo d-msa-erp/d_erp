@@ -153,32 +153,25 @@
 								placeholder="창고명을 입력해주세요" required />
 						</div>
 						<div class="input-group">
-						<span>창고 종류</span>
-											<div class="checkbox-group">
-							<label>자재 창고 <input type="checkbox" name="whType1"
-								value="Y" /></label> <label>제품 창고 <input type="checkbox"
-								name="whType2" value="Y" />
-							</label> <label>반품 창고 <input type="checkbox" name="whType3"
-								value="Y" /></label>
+							<span>창고 종류</span>
+							<div class="checkbox-group">
+								<label>자재 창고 <input type="checkbox" name="whType1"
+									value="Y" /></label> <label>제품 창고 <input type="checkbox"
+									name="whType2" value="Y" />
+								</label> <label>반품 창고 <input type="checkbox" name="whType3"
+									value="Y" /></label>
+							</div>
 						</div>
-						</div>
-		
+
 						<div class="input-group">
 							<span>사용여부</span><input type="checkbox" name="useFlag" value="Y" />
 						</div>
-						<div class="input-group" style="position:relative;">
+						<div class="input-group" style="position: relative;">
 							<span>주소</span><input type="text" name="whLocation"
-								placeholder="창고 주소를 입력해주세요" id="addr" required />
-								<input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="addr" style="
-    position: absolute;
-    right: 0;
-    height: 100%;
-    background: #007bff;
-    border: 0;
-    border-radius: 5px;
-    color: #fff;
-    padding: 0 10px;
-">
+								placeholder="창고 주소를 입력해주세요" id="addr" required /> <input
+								type="button" value="주소 찾기" onclick="DaumPostcode(this)"
+								data-target="addr"
+								style="position: absolute; right: 0; height: 100%; background: #007bff; border: 0; border-radius: 5px; color: #fff; padding: 0 10px;">
 						</div>
 						<div class="input-group">
 							<span>비고</span><input type="text" name="remark"
@@ -241,12 +234,14 @@
 					<table class="grid-table">
 						<thead>
 							<tr>
+								<th><input type="checkbox" id="selectAllTransferCheckboxes" /></th>
 								<th>품명</th>
 								<th>품번</th>
 								<th>규격</th>
 								<th>현재 수량</th>
 								<th>이동 수량</th>
 								<th>단위</th>
+								<th>거래처명</th>
 							</tr>
 						</thead>
 						<tbody id="transferItemsTableBody">
@@ -268,7 +263,8 @@
 	<script src="/js/warehouse.js"></script>
 	<script src="/js/warehousePrint.js"></script>
 	<script src="/js/warehouseExcel.js"></script>
-	<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script
+		src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 	<script src="/js/kakaoApi.js"></script>
 	<script src="/js/top.js"></script>
 </body>

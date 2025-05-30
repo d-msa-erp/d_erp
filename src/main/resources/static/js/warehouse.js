@@ -331,7 +331,7 @@ async function openTransferModal() {
 		return;
 	}
 
-	// 선택된 재고 정보 수집
+	// 선택된 재고 정보 수집 - 거래처명 추가
 	selectedStockForTransfer = Array.from(selectedCheckboxes).map(checkbox => {
 		const row = checkbox.closest('tr');
 		return {
@@ -341,7 +341,8 @@ async function openTransferModal() {
 			itemCd: row.cells[2].textContent,
 			itemSpec: row.cells[3].textContent,
 			stockQty: parseInt(row.cells[4].textContent) || 0,
-			itemUnitNm: row.cells[5].textContent
+			itemUnitNm: row.cells[5].textContent,
+			itemCustNm: row.cells[6].textContent // 거래처명 추가
 		};
 	});
 
@@ -373,31 +374,34 @@ async function openTransferModal() {
 		}
 	});
 
-	// 이동할 재고 목록 표시
+	// 이동할 재고 목록 표시 - 8개 컬럼으로 수정
 	transferItemsTableBody.innerHTML = '';
 	selectedStockForTransfer.forEach(stock => {
 		const row = document.createElement('tr');
 		row.innerHTML = `
-			<td>${stock.itemNm}</td>
-			<td>${stock.itemCd}</td>
-			<td>${stock.itemSpec}</td>
-			<td>${stock.stockQty}</td>
-			<td>
-				<input type="number" 
-					   min="1" 
-					   max="${stock.stockQty}" 
-					   value="${stock.stockQty}" 
-					   data-inv-idx="${stock.invIdx}"
-					   class="transfer-qty-input"
-					   style="width: 80px;" />
-			</td>
-			<td>${stock.itemUnitNm}</td>
-		`;
+	            <td><input type="checkbox" class="transfer-item-checkbox" checked /></td>
+	            <td>${stock.itemNm}</td>
+	            <td>${stock.itemCd}</td>
+	            <td>${stock.itemSpec}</td>
+	            <td>${stock.stockQty}</td>
+	            <td>
+	                <input type="number" 
+	                       min="1" 
+	                       max="${stock.stockQty}" 
+	                       value="${stock.stockQty}" 
+	                       data-inv-idx="${stock.invIdx}"
+	                       class="transfer-qty-input"
+	                       style="width: 80px;" />
+	            </td>
+	            <td>${stock.itemUnitNm}</td>
+	            <td>${stock.itemCustNm}</td>
+	        `;
 		transferItemsTableBody.appendChild(row);
 	});
 
 	transferModal.style.display = 'flex';
 }
+
 
 // === 현재 창고 정보 조회 함수 ===
 /**
@@ -855,6 +859,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
+	
+	// 창고이동 모달의 전체 선택 체크박스 이벤트 리스너 추가
+	document.addEventListener('change', function(event) {
+		if (event.target.id === 'selectAllTransferCheckboxes') {
+			const transferItemsTableBody = document.getElementById('transferItemsTableBody');
+			transferItemsTableBody.querySelectorAll('.transfer-item-checkbox').forEach(checkbox => {
+				checkbox.checked = event.target.checked;
+			});
+		}
+	});
 
 	// 모달 폼 제출 (창고 등록/수정) 이벤트 리스너
 	document.getElementById('modalForm').addEventListener('submit', async (event) => {
