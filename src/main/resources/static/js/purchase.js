@@ -508,11 +508,12 @@ async function loadWarehouse() {
 
 		const warehouses = await warehouseResponse.json();
 		const warehouseList = document.getElementById("whList");
+		const warehouseArray = warehouses.content || warehouses;
 
 		warehouseList.innerHTML = '';
 		warehouseOptions = [];
-
-		warehouses.forEach(wh => {
+		
+		warehouseArray.forEach(wh => {
 			const whOption = document.createElement('option');
 			whOption.value = wh.whNm;
 			whOption.dataset.idx = wh.whIdx;
