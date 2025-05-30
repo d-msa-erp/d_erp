@@ -571,6 +571,21 @@
 	  justify-content: center; /* 헤더 텍스트 중앙 정렬 */
 	}
 	
+	.bizAddr-wrapper {
+		position: relative;
+	}
+	
+	#bizAddrBtn {
+	    position: absolute;
+	    right: 0;
+	    height: 100%;
+	    background: #007bff;
+	    border: 0;
+	    border-radius: 5px;
+	    color: #fff;
+	    padding: 0 10px;
+	    cursor: pointer;
+	}
   </style>
 </head>
 
@@ -672,8 +687,9 @@
         </div>
         <div>
           <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요" /> </div>
-        <div style="grid-column: span 2;">
-          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" />
+        <div style="grid-column: span 2;" class ="bizAddr-wrapper">
+          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" id="bizAddr" />
+          <input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="bizAddr" id="bizAddrBtn">
         </div>
         
         <div class="modal-buttons" style="grid-column: 1 / -1; justify-content: flex-end;"> 
@@ -765,6 +781,8 @@
   </div>
 
   <script src="/js/top.js"></script>
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script src="/js/kakaoApi.js"></script>
   <script>
     function switchModalTab(tabId) {
       const modalDetailContent = document.querySelector('#modal-detail .modal-content');
