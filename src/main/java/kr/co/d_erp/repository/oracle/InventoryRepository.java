@@ -1,6 +1,7 @@
 package kr.co.d_erp.repository.oracle;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             + "wh.WH_NM AS whNm, "
             + "item.ITEM_SPEC AS itemSpec, "
             + "item.CUST_IDX AS custIdxForItem, "
+            + "inven.INV_IDX AS invIdx,"
             + "cust.CUST_NM AS custNm, "
             + "userMST.USER_NM AS userNm, "
             + "userMST.USER_TEL AS userTel, "
@@ -57,5 +59,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Page<StockProjection> findInventoryDetails(@Param("itemFlagFilter") String itemFlagFilter,
                                                @Param("searchKeyword") String searchKeyword,
                                                Pageable pageable);
+	
+	void deleteByInvIdxIn(List<Long> invIdxs);
 	
 }
