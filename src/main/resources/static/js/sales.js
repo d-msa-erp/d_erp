@@ -4,7 +4,7 @@ const selectedCustIdx = document.getElementById('selectedCustIdx');
 const itemCycleTime = document.getElementById('itemCycleTime');
 const itemList = document.getElementById('itemList');
 
-const startDateInput = document.getElementById('startDate');
+const startDateInput = document.getElementById('sDate');
 const quantityInput = document.getElementById('quantity');
 const dueDateInput = document.getElementById('dueDate');
 const cycleTimeInput = document.getElementById('itemCycleTime');
@@ -193,7 +193,7 @@ function rendersales(sales, isDueDate) {
 
 			const orderStatusCell = document.createElement('td');
 			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
-				sale.orderStatus === 'S2' ? '부분출고' :
+					sale.orderStatus === 'S2' ? '부분출고' :
 					sale.orderStatus === 'S3' ? '출고완료' : '';
 
 			orderStatusCell.textContent = statusText;
@@ -528,7 +528,7 @@ quantityInput.addEventListener('input', calculateDueDate);
 // 신규등록 DB저장
 document.querySelector('button[name="save"]').addEventListener('click', async () => {
 
-	if (!document.getElementById("startDate").value) {
+	if (!document.getElementById("sDate").value) {
 		alert('착수일을 입력해주세요.');
 		return;
 	} else if (!document.getElementById("quantity").value) {
@@ -545,7 +545,7 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 	const orderData = {
 		orderCode: document.getElementById("orderNo").value,
 		orderType: 'S',
-		orderDate: document.getElementById("startDate").value,
+		orderDate: document.getElementById("sDate").value,
 		custIdx: document.getElementById("selectedCustIdx").value,
 		itemIdx: document.getElementById("itemIdx").value,
 		orderQty: Number(document.getElementById("quantity").value),
