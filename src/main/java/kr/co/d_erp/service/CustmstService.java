@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class CustmstService {
 
     private final CustmstRepository custmstRepository;
-
+    
     public Page<Custmst> getCustomers(String bizFlag, String sortKey, String sortDirection, String keyword, int page) {
         Sort.Direction direction = Sort.Direction.fromString(sortDirection);
         Pageable pageable = PageRequest.of(page, 10, Sort.by(direction, sortKey));
@@ -46,7 +46,11 @@ public class CustmstService {
     public Optional<Custmst> getCustomerById(Long id) {
         return custmstRepository.findById(id);
     }
-
+    
+    public List<Custmst> getCustomersByIds(List<Long> ids) {
+        return custmstRepository.findByCustIdxIn(ids);
+    }
+    
     // 등록
     public Custmst saveCustomer(Custmst custmst) {
         return custmstRepository.save(custmst);

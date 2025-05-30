@@ -624,3 +624,83 @@ function downloadExcel() {
             console.error(err);
         });
 }
+
+async function printSelectedCustomerDetails() {
+    const checked = document.querySelectorAll('#customerTableBody input.customer-checkbox:checked');
+    if (checked.length === 0) {
+        alert("인쇄할 거래처를 선택해주세요.");
+        return;
+    }
+
+    const selectedCustomerIds = Array.from(checked).map(cb => cb.dataset.custId);
+    const fetchUrl = `/api/customers/print?${selectedCustomerIds.map(id => `ids=${id}`).join('&')}`;
+
+    let printContents = `
+        <html>
+        <head>
+            <title>거래처 상세 정보 인쇄</title>
+            <style>
+                body { font-family: '맑은 고딕', Malgun Gothic, Dotum, sans-serif; margin: 20px; font-size: 10pt; color: #333; }
+                .customer-container { page-break-inside: avoid; border: 1px solid #ccc; padding: 20px; margin-bottom: 25px; border-radius: 5px; background-color: #fff; }
+                .customer-container h2 { font-size: 16pt; margin-top: 0; margin-bottom: 15px; color: #1a237e; border-bottom: 2px solid #3949ab; padding-bottom: 8px; }
+                .detail-info { margin-bottom: 20px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 20px; }
+                .detail-info p { margin: 6px 0; font-size: 10.5pt; display: flex; align-items: center; }
+                .detail-info strong { display: inline-block; width: 100px; color: #555; font-weight: bold; flex-shrink: 0; }
+                @media print {
+                    body { margin: 0; }
+                    .customer-container { border: none; box-shadow: none; margin-bottom: 20mm; }
+                    h1.print-main-title { display: block !important; font-size: 20pt; text-align: center; margin-bottom: 25px; }
+                }
+                h1.print-main-title { display: none; }
+            </style>
+        </head>
+        <body>
+            <h1 class="print-main-title">선택된 거래처 상세 정보</h1>
+    `;
+
+    try {
+        const res = await fetch(fetchUrl);
+        if (!res.ok) throw new Error(`요청 실패: ${res.status}`);
+
+        const customers = await res.json();
+
+        customers.forEach(customer => {
+            printContents += `<div class="customer-container">`;
+            printContents += `<h2>${customer.custNm || '거래처명 없음'}</h2>`;
+            printContents += `<div class="detail-info">`;
+            printContents += `<p><strong>사업자 번호:</strong> ${customer.bizNo || ''}</p>`;
+            printContents += `<p><strong>대표자명:</strong> ${customer.presidentNm || ''}</p>`;
+            printContents += `<p><strong>이메일:</strong> ${customer.custEmail || ''}</p>`;
+            printContents += `<p><strong>전화번호:</strong> ${customer.bizTel || ''}</p>`;
+            printContents += `<p><strong>주소:</strong> ${customer.bizAddr || ''}</p>`;
+            printContents += `<p><strong>업종:</strong> ${customer.bizCond || ''}</p>`;
+            printContents += `<p><strong>업태:</strong> ${customer.bizItem || ''}</p>`;
+            printContents += `<p><strong>담당자:</strong> ${customer.compEmpNm || ''}</p>`;
+            printContents += `</div>`;
+            printContents += `</div>`;
+        });
+
+    } catch (e) {
+        console.error("[Print] 거래처 인쇄 오류:", e);
+        printContents += `<p style="color:red;">예기치 않은 오류 발생: ${e.message}</p>`;
+    }
+
+    printContents += `</body></html>`;
+
+    const printWindow = window.open('', '_blank', 'height=700,width=900,scrollbars=yes');
+    if (printWindow) {
+        printWindow.document.write(printContents);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            try {
+                printWindow.print();
+            } catch (e) {
+                console.error("인쇄 오류:", e);
+                printWindow.alert("인쇄 중 오류 발생.");
+            }
+        }, 700);
+    } else {
+        alert("팝업 차단이 활성화되어 있어 인쇄 창을 열 수 없습니다.");
+    }
+}

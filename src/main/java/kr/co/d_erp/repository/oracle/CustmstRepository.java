@@ -29,5 +29,6 @@ public interface CustmstRepository extends JpaRepository<Custmst, Long> {
 	@Query("SELECT new kr.co.d_erp.dtos.CustomerDTO(c.custIdx, c.custNm) FROM Custmst c WHERE c.bizFlag = :bizFlag")
 	List<CustomerDTO> findCustIdxAndCustNmByBizFlag(@Param("bizFlag") String bizFlag);
 
+	List<Custmst> findByCustIdxIn(List<Long> ids);
 
 }

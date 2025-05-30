@@ -11,5 +11,4 @@ public class CustomerForSelectionDto {
     private Long custIdx;
     private String custNm;
     private String custCd;
-    // 필요시 다른 필드 추가 가능
 }
