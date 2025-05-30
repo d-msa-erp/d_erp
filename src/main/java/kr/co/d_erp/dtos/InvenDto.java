@@ -3,6 +3,7 @@ package kr.co.d_erp.dtos;
 import jakarta.persistence.Column;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -24,6 +25,11 @@ public class InvenDto {
     @JoinColumn(name = "ITEM_IDX", referencedColumnName = "ITEM_IDX")
     private Itemmst item;
 
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ITEM_IDX", nullable = false)
+    private Itemmst item;
+    
     @Column(name = "STOCK_QTY")
     private Long stockQty;
 }

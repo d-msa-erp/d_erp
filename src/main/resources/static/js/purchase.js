@@ -1,31 +1,63 @@
 let itemList = []; // 품목 리스트를 담을 배열
 const companyCustMap = new Map(); // 거래처명에 따른 idx를 담을 map
 let currentPage = 0;
-
+let totalPages = 0;
+let sortBy = 'deliveryDate';
+let sortDirection = 'asc';
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadPurchases('deliveryDate', 'asc');
 	loadLowInventoryItems();
-	
+
 	const selectAllMainCb = document.getElementById('selectAllCheckbox'); // 메인 테이블의 전체 선택 체크박스 ID
-    if(selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
-        document.querySelectorAll('#purchasesTableBody .purchase-checkbox').forEach(cb => {
-            cb.checked = this.checked;
-        });
-    });
+	if (selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
+		document.querySelectorAll('#purchasesTableBody .purchase-checkbox').forEach(cb => {
+			cb.checked = this.checked;
+		});
+	});
+
+	// 이전 버튼
+	document.getElementById("btn-prev-page")?.addEventListener('click', () => {
+		if (currentPage > 0) {
+			currentPage--;
+			loadPurchases(sortBy, sortDirection);
+		}
+	});
+
+	// 다음 버튼
+	document.getElementById("btn-next-page")?.addEventListener('click', () => {
+		if (currentPage < totalPages - 1) {
+			currentPage++;
+			loadPurchases(sortBy, sortDirection);
+		}
+	});
+
+	currentPageInput?.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') {
+			let page = parseInt(currentPageInput.value);
+			if (!isNaN(page) && page >= 1 && page <= totalPages) {
+				currentPage = page - 1;
+				loadPurchases(sortBy, sortDirection);
+			} else {
+				alert('올바른 페이지 번호를 입력하세요.');
+				currentPageInput.value = currentPage + 1;
+			}
+		}
+	});
+
 });
 //옆에 창 토글기능
-  document.getElementById("toggleLowStockBtn").addEventListener("click", function () {
-    const box = document.getElementById("lowStockNotice");
+document.getElementById("toggleLowStockBtn").addEventListener("click", function() {
+	const box = document.getElementById("lowStockNotice");
 
-    if (box.style.display === "none") {
-      box.style.display = "block";
-      this.textContent = "닫기";
-    } else {
-      box.style.display = "none";
-      this.textContent = "열기";
-    }
-  });
+	if (box.style.display === "none") {
+		box.style.display = "block";
+		this.textContent = "닫기";
+	} else {
+		box.style.display = "none";
+		this.textContent = "열기";
+	}
+});
 
 
 
@@ -48,7 +80,7 @@ async function loadPurchases(sortBy, sortDirection) {
 		console.warn("ID가 'purchasesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
 	}
-
+	
 	const apiUrl = `/api/orders/purchases?sortBy=${sortBy}&sortDirection=${sortDirection}&page=${currentPage}`;
 	try {
 		const response = await fetch(apiUrl);
@@ -62,41 +94,13 @@ async function loadPurchases(sortBy, sortDirection) {
 		if (paginationInfo) {
 			paginationInfo.textContent = `총 ${purchases.totalElements}건 ${purchases.number + 1}/${purchases.totalPages}페이지`;
 		}
-
+		console.log("총 페이지 수:", purchases.totalPages);
 		// 현재 페이지 표시
 		const currentPageInput = document.getElementById("currentPageInput");
 		if (currentPageInput) {
 			currentPageInput.value = purchases.number + 1;
 		}
-
-		// 이전 버튼
-		document.getElementById("btn-prev-page")?.addEventListener('click', () => {
-			if (currentPage > 0) {
-				currentPage--;
-				loadPurchases(sortBy, sortDirection);
-			}
-		});
-
-		// 다음 버튼
-		document.getElementById("btn-next-page")?.addEventListener('click', () => {
-			if (currentPage < purchases.totalPages - 1) {
-				currentPage++;
-				loadPurchases(sortBy, sortDirection);
-			}
-		});
-
-		currentPageInput?.addEventListener('keypress', (e) => {
-			if (e.key === 'Enter') {
-				let page = parseInt(currentPageInput.value);
-				if (!isNaN(page) && page >= 1 && page <= purchases.totalPages) {
-					currentPage = page - 1;
-					loadPurchases(sortBy, sortDirection);
-				} else {
-					alert('올바른 페이지 번호를 입력하세요.');
-					currentPageInput.value = data.number + 1;
-				}
-			}
-		});
+		totalPages = purchases.totalPages;
 
 		if (purchases && purchases.content && purchases.content.length > 0) {
 			renderPurchases(purchases.content);
@@ -248,7 +252,7 @@ function searchItems() {
 let currentTh = null;
 let currentOrder = 'desc';
 
-function order(sortBy) { // 정렬
+function order(column) { // 정렬
 	const allArrows = document.querySelectorAll("th a");
 	allArrows.forEach(a => {
 		a.textContent = '↓';
@@ -263,7 +267,8 @@ function order(sortBy) { // 정렬
 		currentOrder = 'asc';  // 다른 컬럼 클릭 시 기본 'asc'로 설정
 		currentTh = sortBy;
 	}
-
+	sortBy = column;
+	sortDirection = currentOrder;
 	// 서버로 정렬된 데이터를 요청
 	loadPurchases(sortBy, currentOrder);
 
@@ -374,8 +379,10 @@ document.getElementById("itemName").addEventListener("change", () => {
 		currentInventoryEl.style.fontWeight = "";
 	}
 
+
 	// 거래처 리스트 생성
 	const companyList = document.getElementById("companyList");
+
 	companyList.innerHTML = "";
 	companyCustMap.clear();
 
@@ -520,7 +527,7 @@ async function loadWarehouse() {
 
 		warehouseList.innerHTML = '';
 		warehouseOptions = [];
-		
+
 		warehouseArray.forEach(wh => {
 			const whOption = document.createElement('option');
 			whOption.value = wh.whNm;
@@ -598,35 +605,35 @@ document.getElementById('lowStockNotice').addEventListener('click', function(e) 
 });
 
 function downloadExcel() {
-    const url = `/api/orders/purchase/excel`;
+	const url = `/api/orders/purchase/excel`;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("엑셀 다운로드 실패");
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const a = document.createElement('a');
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = 'sales-data.xlsx'; // 저장될 파일명
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(err => {
-            alert("엑셀 다운로드 중 오류 발생");
-            console.error(err);
-        });
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("엑셀 다운로드 실패");
+			}
+			return response.blob();
+		})
+		.then(blob => {
+			const a = document.createElement('a');
+			const url = window.URL.createObjectURL(blob);
+			a.href = url;
+			a.download = 'sales-data.xlsx'; // 저장될 파일명
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+		})
+		.catch(err => {
+			alert("엑셀 다운로드 중 오류 발생");
+			console.error(err);
+		});
 }
 
 function printSelectedPurchase() {
 	const checked = document.querySelectorAll('#purchasesTableBody input.purchase-checkbox:checked');
 	const ids = Array.from(checked).map(cb =>
-	    cb.closest('tr').querySelector('input[type="hidden"]').value
+		cb.closest('tr').querySelector('input[type="hidden"]').value
 	);
 
 	const fetchUrlFn = id => `/api/orders/printsales?${ids.map(id => `id=${id}`).join('&')}`;

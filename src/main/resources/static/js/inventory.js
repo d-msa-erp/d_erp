@@ -264,13 +264,32 @@ document.addEventListener('DOMContentLoaded', function() {
 		//품목 코드 자동 생성 함수
 		async function createItemCD() {
 			const itemCodeInput = document.querySelector('#modalForm input[name="item_CD"]');
+			const itemFlagSelect = document.getElementById('item_FLAG_select');
+			const selectedFlag = itemFlagSelect.value;
+			if (!selectedFlag) {
+			                return; // 코드 생성 중단
+			            }
 			itemCodeInput.readOnly = false; // 자동 생성이므로 입력 방지 후 값 설정
 			let isUni = false;
 			let Icode = '';
+			let prefix = '';
+			if (selectedFlag === '01') { // 자재
+                prefix = 'R';
+            } else if (selectedFlag === '02') { // 품목
+                prefix = 'P';
+            } else {
+                // 이 경우는 발생하면 안되지만, 방어 코드
+                console.error('유효하지 않은 자재/품목 분류 값:', selectedFlag);
+                itemCodeInput.value = '분류 선택 오류';
+                itemCodeInput.readOnly = true;
+                return;
+            }
 			while(!isUni){
-				const ranNum = Math.floor(Math.random()*999)+1;
-				const formNum = String(ranNum).padStart(3,'0');
-				Icode = 'I' + formNum;
+				let ranNumPart = '';
+				for (let i = 0; i < 8; i++) {
+				    ranNumPart += Math.floor(Math.random() * 10);
+				}
+				Icode = prefix + ranNumPart; // 예: R12345678 또는 P12345678
 				try{
 					const response = await fetch(`/api/items/check?itemCd=${Icode}`);
 					if(!response.ok){ throw new Error(`SERVER ERROR: ${response.status}`); }
@@ -284,6 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
 					alert('품목 코드 확인 중 오류가 발생했습니다.');
 					console.error('품목코드 오류 :',error);
 					itemCodeInput.value= ''; // 오류 시 입력 필드 초기화
+					itemCodeInput.readOnly = true; // 오류 시 다시 읽기 전용
 					return; // 함수 종료
 				}
 			}
@@ -442,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
             cat2HiddenInput.value = ''; // 초기화
 		
 		    const itemCodeInput = document.querySelector('#modalForm input[name="item_CD"]');
+			const itemFlagSelect = document.getElementById('item_FLAG_select');
 		    const customerSelect = document.querySelector('#modalForm select[name="cust_NM"]'); // HTML의 name="cust_NM" 사용
 		    const cat1Select = document.querySelector('#modalForm select[name="item_CATX1"]');
 		    const cat2Select = document.querySelector('#modalForm select[name="item_CATX2"]');
@@ -454,6 +475,7 @@ document.addEventListener('DOMContentLoaded', function() {
 		
 		        itemCodeInput.value = item.itemCd || "";
                 itemCodeInput.readOnly = true;
+				
 		        document.querySelector('#modalForm input[name="item_NM"]').value = item.itemNm || "";
 		        document.querySelector('#modalForm input[name="item_SPEC"]').value = item.itemSpec || "";
 		        document.querySelector('#modalForm input[name="item_COST"]').value = item.itemCost === null ? "" : item.itemCost;
@@ -488,8 +510,25 @@ document.addEventListener('DOMContentLoaded', function() {
 		        document.querySelector('#modalForm button[name="save"]').style.display = 'block';
 		        document.querySelector('#modalForm button[name="edit"]').style.display = 'none';
 		
-		        itemCodeInput.readOnly = false; // 자동생성 시 true로 바뀜
-		        createItemCD();
+				
+				itemFlagSelect.value = ''; // 자재/품목 분류 초기화
+                itemFlagSelect.disabled = false; // 신규 등록 시 선택 가능
+                itemCodeInput.value = ''; // 품목 코드 필드 초기화
+                itemCodeInput.placeholder = '분류를 먼저 선택해주세요';
+		        itemCodeInput.readOnly = true; // 자동생성 시 true로 바뀜
+				
+				const newItemFlagSelect = itemFlagSelect.cloneNode(true);
+                itemFlagSelect.parentNode.replaceChild(newItemFlagSelect, itemFlagSelect);
+				
+				newItemFlagSelect.addEventListener('change', function() {
+	                if (this.value) { // "자재" 또는 "품목"이 선택된 경우
+	                    createItemCD(); // 품목 코드 생성 함수 호출
+	                } else {
+	                    itemCodeInput.value = '';
+	                    itemCodeInput.placeholder = '분류를 먼저 선택해주세요';
+	                    itemCodeInput.readOnly = true;
+	                }
+	            });
 		
 		        selectCust();
 		        selectCat1(); // 대분류 로드 (선택된 값 없이) -> 여기서 소분류는 자동으로 초기화됨

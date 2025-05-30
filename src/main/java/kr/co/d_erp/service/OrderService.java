@@ -40,6 +40,7 @@ public class OrderService {
         order.setOrderCode(dto.getOrderCode());
         order.setOrderType(dto.getOrderType());
         order.setOrderDate(dto.getOrderDate());
+        order.setOrderStatus(dto.getOrderStatus());
         order.setCustIdx(dto.getCustIdx());
         order.setItemIdx(dto.getItemIdx());
         order.setOrderQty(dto.getOrderQty());
@@ -63,7 +64,6 @@ public class OrderService {
         // 단순 구매발주일 경우 바로 반환
         if ("P1".equals(dto.getOrderStatus())) {
             savedOrder.setOrderStatus("P1");
-            return new OrderResponseDto(savedOrder.getOrderIdx(), savedOrder.getOrderCode(), List.of());
         }
 
         // 자재 재고 확인
@@ -101,14 +101,15 @@ public class OrderService {
                 BigDecimal subStock = inventoryRepository.getTotalStockByItemIdx(bom.getSubItemIdx());
                 String itemNm = itemmstRepository.findByItemIdx(bom.getSubItemIdx())
                         .map(Itemmst::getItemNm).orElse("알 수 없음");
-
-                warnings.add(String.format("❗ 자재 부족: %s | 필요: %s | 보유: %s", itemNm, requiredQty, subStock));
+                if (subStock == null || subStock.compareTo(requiredQty) < 0) {
+                    warnings.add(String.format("❗ 자재 부족: %s | 필요: %s | 보유: %s", itemNm, requiredQty, subStock));
+                }
             }
             mrpRepository.saveAll(mrpList);
         }
-
+        
         // 상태코드 설정 후 다시 저장
-        savedOrder.setOrderStatus(hasShortage ? "S3" : "S1");
+        savedOrder.setOrderStatus(hasShortage ? "S1" : "S3");
         savedOrder = orderRepository.save(savedOrder);
 
         // 입출고 기록
@@ -124,9 +125,14 @@ public class OrderService {
         invd.setUnitPrice(BigDecimal.valueOf(savedOrder.getUnitPrice()));
         invd.setItemIdx(savedOrder.getItemIdx());
         invd.setRemark(savedOrder.getRemark());
-
-        invTransactionService.insertTransaction(invd);
-
+        
+        try {
+            invTransactionService.insertTransaction(invd);
+            System.out.println("저장 완료");
+        } catch (Exception e) {
+            System.out.println("저장 실패: " + e.getMessage());
+            e.printStackTrace();
+        }
         if (!warnings.isEmpty()) {
             System.out.println("===== 자재 부족 경고 =====");
             warnings.forEach(System.out::println);
@@ -134,7 +140,7 @@ public class OrderService {
         } else {
             System.out.println("✅ 모든 자재 충분");
         }
-
+        
         return new OrderResponseDto(
                 savedOrder.getOrderIdx(),
                 savedOrder.getOrderCode(),
