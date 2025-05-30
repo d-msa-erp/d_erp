@@ -6,7 +6,6 @@
 <input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="post1">
 
 */
-
 function DaumPostcode(btnElement) {
 	const targetId = btnElement.dataset.target;
 	const targetInput = document.getElementById(targetId);
