@@ -326,21 +326,55 @@ public class WhmstService {
 	 */
 	@Transactional
 	public void deleteWhmsts(List<Long> whIdxes) {
+	    if (whIdxes == null || whIdxes.isEmpty()) {
+	        return;
+	    }
+	    
 	    // 삭제하려는 창고들 중 재고가 있는 창고 확인
 	    List<String> warehousesWithStock = new ArrayList<>();
 	    
 	    for (Long whIdx : whIdxes) {
-	        // 해당 창고에 재고 수량 > 0인 항목이 있는지 확인
-	        List<WarehouseInventoryDetailView> stockItems = warehouseInventoryDetailViewRepository.findByWhIdx(whIdx)
-	            .stream()
-	            .filter(item -> item.getStockQty() != null && item.getStockQty().compareTo(BigDecimal.ZERO) > 0)
-	            .collect(Collectors.toList());
-	        
-	        if (!stockItems.isEmpty()) {
-	            // 창고 정보 조회해서 창고명 추가
-	            WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
-	            String warehouseName = warehouse != null ? warehouse.getWhNm() : "알 수 없는 창고";
-	            warehousesWithStock.add(String.format("%s (재고: %d개 품목)", warehouseName, stockItems.size()));
+	        try {
+	            // 해당 창고에 재고 수량 > 0인 항목이 있는지 확인
+	            List<WarehouseInventoryDetailView> allStockItems = warehouseInventoryDetailViewRepository.findByWhIdx(whIdx);
+	            
+	            // null 체크 및 필터링
+	            List<WarehouseInventoryDetailView> stockItems = allStockItems.stream()
+	                .filter(item -> item != null) // null 아이템 필터링
+	                .filter(item -> {
+	                    try {
+	                        BigDecimal stockQty = item.getStockQty();
+	                        return stockQty != null && stockQty.compareTo(BigDecimal.ZERO) > 0;
+	                    } catch (Exception e) {
+	                        // getStockQty() 호출 중 오류 발생 시 로그 남기고 재고 없음으로 처리
+	                        System.err.println("재고 수량 조회 중 오류 발생 - 창고ID: " + whIdx + ", 아이템: " + item + ", 오류: " + e.getMessage());
+	                        return false;
+	                    }
+	                })
+	                .collect(Collectors.toList());
+	            
+	            if (!stockItems.isEmpty()) {
+	                // 창고 정보 조회해서 창고명 추가
+	                try {
+	                    WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+	                    String warehouseName = warehouse != null ? warehouse.getWhNm() : "알 수 없는 창고";
+	                    warehousesWithStock.add(String.format("%s (재고: %d개 품목)", warehouseName, stockItems.size()));
+	                } catch (Exception e) {
+	                    System.err.println("창고 정보 조회 중 오류 발생 - 창고ID: " + whIdx + ", 오류: " + e.getMessage());
+	                    warehousesWithStock.add(String.format("창고ID %d (재고: %d개 품목)", whIdx, stockItems.size()));
+	                }
+	            }
+	            
+	        } catch (Exception e) {
+	            // 창고별 재고 조회 중 오류 발생 시 안전을 위해 삭제 불가로 처리
+	            System.err.println("창고 재고 확인 중 전체 오류 발생 - 창고ID: " + whIdx + ", 오류: " + e.getMessage());
+	            try {
+	                WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+	                String warehouseName = warehouse != null ? warehouse.getWhNm() : "알 수 없는 창고";
+	                warehousesWithStock.add(String.format("%s (확인 실패 - 안전상 삭제 불가)", warehouseName));
+	            } catch (Exception ex) {
+	                warehousesWithStock.add(String.format("창고ID %d (확인 실패 - 안전상 삭제 불가)", whIdx));
+	            }
 	        }
 	    }
 	    
@@ -353,7 +387,13 @@ public class WhmstService {
 	    }
 	    
 	    // 모든 창고에 재고가 없으면 삭제 진행
-	    whmstRepository.updateUseFlagToN(whIdxes);
+	    try {
+	        whmstRepository.updateUseFlagToN(whIdxes);
+	        System.out.println("창고 삭제 완료: " + whIdxes);
+	    } catch (Exception e) {
+	        System.err.println("창고 삭제 처리 중 오류 발생: " + e.getMessage());
+	        throw new RuntimeException("창고 삭제 처리 중 오류가 발생했습니다: " + e.getMessage());
+	    }
 	}
 
 	/**

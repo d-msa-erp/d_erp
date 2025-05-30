@@ -53,39 +53,95 @@ public class InvTransactionService {
 	private final InventoryService inventoryService;
 
 	/**
+	 * 입출고 상태 변경에 따른 주문/발주 상태를 업데이트합니다.
+	 * @param invTransaction 재고 거래 엔티티
+	 * @param oldStatus 이전 상태
+	 */
+	private void updateOrderStatusBasedOnInvTransaction(TbInvTrans invTransaction, String oldStatus) {
+	    Order linkedOrder = invTransaction.getTbOrder();
+	    if (linkedOrder == null) {
+	        return;
+	    }
+	    
+	    String newInvStatus = invTransaction.getTransStatus();
+	    String currentOrderStatus = linkedOrder.getOrderStatus();
+	    String newOrderStatus = null;
+	    
+	    // 출고완료 시 주문 상태 업데이트
+	    if ("S2".equals(newInvStatus) && "S".equals(invTransaction.getTransType())) {
+	        // 출고완료 상태로 변경됨 -> 주문을 출고완료 상태로
+	        if (!"S3".equals(currentOrderStatus)) {
+	            newOrderStatus = "S3"; // 주문 출고완료 상태
+	        }
+	    }
+	    // 입고완료 시 발주 상태 업데이트  
+	    else if ("R3".equals(newInvStatus) && "R".equals(invTransaction.getTransType())) {
+	        // 입고완료 상태로 변경됨 -> 발주를 입고완료 상태로
+	        if (!"P3".equals(currentOrderStatus)) {
+	            newOrderStatus = "P3"; // 발주 입고완료 상태
+	        }
+	    }
+	    // 완료 상태에서 다른 상태로 변경 시 주문/발주 상태 되돌리기
+	    else if ("S2".equals(oldStatus) && !"S2".equals(newInvStatus)) {
+	        // 출고완료에서 다른 상태로 변경 -> 주문 상태를 진행중으로 되돌림
+	        if ("S3".equals(currentOrderStatus)) {
+	            newOrderStatus = "S1"; // 주문 진행중 상태로 되돌림
+	        }
+	    }
+	    else if ("R3".equals(oldStatus) && !"R3".equals(newInvStatus)) {
+	        // 입고완료에서 다른 상태로 변경 -> 발주 상태를 진행중으로 되돌림  
+	        if ("P3".equals(currentOrderStatus)) {
+	            newOrderStatus = "P1"; // 발주 진행중 상태로 되돌림
+	        }
+	    }
+	    
+	    // 상태 변경이 필요한 경우 업데이트
+	    if (newOrderStatus != null && !newOrderStatus.equals(currentOrderStatus)) {
+	        linkedOrder.setOrderStatus(newOrderStatus);
+	        orderRepository.save(linkedOrder);
+	        
+	        System.out.println(String.format("주문/발주 상태 업데이트: 주문ID[%d] %s -> %s", 
+	            linkedOrder.getOrderIdx(), currentOrderStatus, newOrderStatus));
+	    }
+	}
+	
+	/**
 	 * 재고 거래(입고/출고)를 등록합니다.
 	 * * @param requestDto 재고 거래 등록 요청 DTO
 	 * @return 등록 결과 DTO
 	 */
 	@Transactional
 	public InvTransactionResponseDto insertTransaction(InvTransactionRequestDto requestDto) {
-		Order orderToLink;
+	    Order orderToLink;
 
-		// 기존 주문이 있으면 연결, 없으면 신규 생성
-		if (requestDto.getOrderIdx() != null && requestDto.getOrderIdx() > 0) {
-			orderToLink = orderRepository.findById(requestDto.getOrderIdx()).orElseThrow(
-					() -> new EntityNotFoundException("요청된 주문 정보를 찾을 수 없습니다. ID: " + requestDto.getOrderIdx()));
-		} else {
-			orderToLink = createInternalOrder(requestDto);
-		}
+	    // 기존 주문이 있으면 연결, 없으면 신규 생성
+	    if (requestDto.getOrderIdx() != null && requestDto.getOrderIdx() > 0) {
+	        orderToLink = orderRepository.findById(requestDto.getOrderIdx()).orElseThrow(
+	                () -> new EntityNotFoundException("요청된 주문 정보를 찾을 수 없습니다. ID: " + requestDto.getOrderIdx()));
+	    } else {
+	        orderToLink = createInternalOrder(requestDto);
+	    }
 
-		// 재고 거래 엔티티 생성 및 저장
-		TbInvTrans invTransaction = createInvTransaction(requestDto, orderToLink);
-		TbInvTrans savedInvTransaction = tbInvTransRepository.saveAndFlush(invTransaction);
-		TbInvTrans reloadedInvTransaction = tbInvTransRepository.findById(savedInvTransaction.getInvTransIdx())
-				.orElseThrow(() -> new EntityNotFoundException(
-						"저장된 트랜잭션 데이터 재조회 실패: " + savedInvTransaction.getInvTransIdx()));
+	    // 재고 거래 엔티티 생성 및 저장
+	    TbInvTrans invTransaction = createInvTransaction(requestDto, orderToLink);
+	    TbInvTrans savedInvTransaction = tbInvTransRepository.saveAndFlush(invTransaction);
+	    TbInvTrans reloadedInvTransaction = tbInvTransRepository.findById(savedInvTransaction.getInvTransIdx())
+	            .orElseThrow(() -> new EntityNotFoundException(
+	                    "저장된 트랜잭션 데이터 재조회 실패: " + savedInvTransaction.getInvTransIdx()));
 
-		// 재고 처리 (입고완료/출고완료 상태인 경우)
-		processInventory(reloadedInvTransaction, orderToLink, requestDto);
+	    // 재고 처리 (입고완료/출고완료 상태인 경우)
+	    processInventory(reloadedInvTransaction, orderToLink, requestDto);
+	    
+	    // 주문/발주 상태 업데이트 (신규 등록이므로 oldStatus는 null)
+	    updateOrderStatusBasedOnInvTransaction(reloadedInvTransaction, null);
 
-		String message = ("S".equals(reloadedInvTransaction.getTransType()) ? "출고" : "입고") + " 등록 완료";
-		if ("R3".equals(reloadedInvTransaction.getTransStatus()) || "S2".equals(reloadedInvTransaction.getTransStatus())) {
-			message += " (재고 반영됨)";
-		}
+	    String message = ("S".equals(reloadedInvTransaction.getTransType()) ? "출고" : "입고") + " 등록 완료";
+	    if ("R3".equals(reloadedInvTransaction.getTransStatus()) || "S2".equals(reloadedInvTransaction.getTransStatus())) {
+	        message += " (재고 반영됨)";
+	    }
 
-		return new InvTransactionResponseDto(reloadedInvTransaction.getInvTransIdx(),
-				reloadedInvTransaction.getInvTransCode(), message);
+	    return new InvTransactionResponseDto(reloadedInvTransaction.getInvTransIdx(),
+	            reloadedInvTransaction.getInvTransCode(), message);
 	}
 
 	/**
@@ -207,42 +263,45 @@ public class InvTransactionService {
 	 */
 	@Transactional
 	public InvTransactionResponseDto updateTransaction(Long invTransIdx, InvTransactionRequestDto requestDto) {
-		TbInvTrans existingInvTransaction = tbInvTransRepository.findById(invTransIdx)
-				.orElseThrow(() -> new EntityNotFoundException("수정할 거래 정보를 찾을 수 없습니다. ID: " + invTransIdx));
+	    TbInvTrans existingInvTransaction = tbInvTransRepository.findById(invTransIdx)
+	            .orElseThrow(() -> new EntityNotFoundException("수정할 거래 정보를 찾을 수 없습니다. ID: " + invTransIdx));
 
-		// 기존 상태 정보 저장
-		String oldStatus = existingInvTransaction.getTransStatus();
-		BigDecimal oldQuantity = existingInvTransaction.getTransQty() != null ? existingInvTransaction.getTransQty() : BigDecimal.ZERO;
-		Long oldWhIdx = existingInvTransaction.getWhmst().getWhIdx();
+	    // 기존 상태 정보 저장
+	    String oldStatus = existingInvTransaction.getTransStatus();
+	    BigDecimal oldQuantity = existingInvTransaction.getTransQty() != null ? existingInvTransaction.getTransQty() : BigDecimal.ZERO;
+	    Long oldWhIdx = existingInvTransaction.getWhmst().getWhIdx();
 
-		Long itemIdxForStock = existingInvTransaction.getTbOrder().getItemIdx();
-		if (itemIdxForStock == null) {
-			itemIdxForStock = requestDto.getItemIdx();
-		}
-		if (itemIdxForStock == null) {
-			throw new IllegalStateException("재고 처리를 위한 품목 ID를 확정할 수 없습니다. (수정) 거래 ID: " + invTransIdx);
-		}
+	    Long itemIdxForStock = existingInvTransaction.getTbOrder().getItemIdx();
+	    if (itemIdxForStock == null) {
+	        itemIdxForStock = requestDto.getItemIdx();
+	    }
+	    if (itemIdxForStock == null) {
+	        throw new IllegalStateException("재고 처리를 위한 품목 ID를 확정할 수 없습니다. (수정) 거래 ID: " + invTransIdx);
+	    }
 
-		// 거래 정보 업데이트
-		updateTransactionFields(existingInvTransaction, requestDto);
+	    // 거래 정보 업데이트
+	    updateTransactionFields(existingInvTransaction, requestDto);
 
-		TbInvTrans updatedInvTransaction = tbInvTransRepository.save(existingInvTransaction);
+	    TbInvTrans updatedInvTransaction = tbInvTransRepository.save(existingInvTransaction);
 
-		// 재고 조정 처리 (상태나 수량이 변경된 경우)
-		boolean inventoryAdjusted = adjustInventoryOnUpdate(updatedInvTransaction, oldStatus, oldQuantity, oldWhIdx, itemIdxForStock, requestDto.getUserIdx());
+	    // 재고 조정 처리 (상태나 수량이 변경된 경우)
+	    boolean inventoryAdjusted = adjustInventoryOnUpdate(updatedInvTransaction, oldStatus, oldQuantity, oldWhIdx, itemIdxForStock, requestDto.getUserIdx());
 
-		String message = ("S".equals(updatedInvTransaction.getTransType()) ? "출고" : "입고") + " 정보 수정 완료";
-		if (inventoryAdjusted) {
-			String newStatus = updatedInvTransaction.getTransStatus();
-			if ("R3".equals(newStatus) || "S2".equals(newStatus)) {
-				message += " (재고 반영됨)";
-			} else {
-				message += " (재고 조정됨)";
-			}
-		}
+	    // 주문/발주 상태 업데이트
+	    updateOrderStatusBasedOnInvTransaction(updatedInvTransaction, oldStatus);
 
-		return new InvTransactionResponseDto(updatedInvTransaction.getInvTransIdx(),
-				updatedInvTransaction.getInvTransCode(), message);
+	    String message = ("S".equals(updatedInvTransaction.getTransType()) ? "출고" : "입고") + " 정보 수정 완료";
+	    if (inventoryAdjusted) {
+	        String newStatus = updatedInvTransaction.getTransStatus();
+	        if ("R3".equals(newStatus) || "S2".equals(newStatus)) {
+	            message += " (재고 반영됨)";
+	        } else {
+	            message += " (재고 조정됨)";
+	        }
+	    }
+
+	    return new InvTransactionResponseDto(updatedInvTransaction.getInvTransIdx(),
+	            updatedInvTransaction.getInvTransCode(), message);
 	}
 
 	/**
@@ -335,19 +394,41 @@ public class InvTransactionService {
 	 */
 	@Transactional
 	public void deleteTransactionById(Long invTransIdx) {
-		TbInvTrans transaction = tbInvTransRepository.findById(invTransIdx)
-				.orElseThrow(() -> new EntityNotFoundException("삭제할 거래 정보를 찾을 수 없습니다. ID: " + invTransIdx));
+	    TbInvTrans transaction = tbInvTransRepository.findById(invTransIdx)
+	            .orElseThrow(() -> new EntityNotFoundException("삭제할 거래 정보를 찾을 수 없습니다. ID: " + invTransIdx));
 
-		// 완료 상태인 경우 재고 조정
-		adjustInventoryOnDelete(transaction);
+	    String oldStatus = transaction.getTransStatus();
+	    
+	    // 완료 상태인 경우 재고 조정
+	    adjustInventoryOnDelete(transaction);
 
-		// 연결된 내부 주문 삭제
-		Order linkedOrder = transaction.getTbOrder();
-		if (linkedOrder != null && ("I".equals(linkedOrder.getOrderType()) || "O".equals(linkedOrder.getOrderType()))) {
-			orderRepository.delete(linkedOrder);
-		}
+	    // 주문/발주 상태 되돌리기 (삭제하기 전에 처리)
+	    if ("S2".equals(oldStatus) || "R3".equals(oldStatus)) {
+	        Order linkedOrder = transaction.getTbOrder();
+	        if (linkedOrder != null) {
+	            String revertStatus = null;
+	            if ("S2".equals(oldStatus) && "S3".equals(linkedOrder.getOrderStatus())) {
+	                revertStatus = "S1"; // 출고완료 -> 주문 진행중으로 되돌림
+	            } else if ("R3".equals(oldStatus) && "P3".equals(linkedOrder.getOrderStatus())) {
+	                revertStatus = "P1"; // 입고완료 -> 발주 진행중으로 되돌림
+	            }
+	            
+	            if (revertStatus != null) {
+	                linkedOrder.setOrderStatus(revertStatus);
+	                orderRepository.save(linkedOrder);
+	                System.out.println(String.format("주문/발주 상태 되돌림 (삭제): 주문ID[%d] -> %s", 
+	                    linkedOrder.getOrderIdx(), revertStatus));
+	            }
+	        }
+	    }
 
-		tbInvTransRepository.deleteById(invTransIdx);
+	    // 연결된 내부 주문 삭제
+	    Order linkedOrder = transaction.getTbOrder();
+	    if (linkedOrder != null && ("I".equals(linkedOrder.getOrderType()) || "O".equals(linkedOrder.getOrderType()))) {
+	        orderRepository.delete(linkedOrder);
+	    }
+
+	    tbInvTransRepository.deleteById(invTransIdx);
 	}
 
 	/**
