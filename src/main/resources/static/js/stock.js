@@ -207,8 +207,8 @@
 	                if (selectedItemInfo) {
 	                    console.log("Datalist에서 선택된 품목 정보:", selectedItemInfo);
 	                    if (itemCdDisplayInput) itemCdDisplayInput.value = selectedItemInfo.itemCd || ''; // 품목코드 자동 표시
-						if (itemCdHiddenInput) itemCdHiddenInput.value = selectedItemInfo.itemCd || ''; // hidden item_CD 에도 설정
-		                if (itemNmHiddenInput) itemNmHiddenInput.value = selectedItemInfo.itemNm || '';
+						/*if (itemCdHiddenInput) itemCdHiddenInput.value = selectedItemInfo.itemCd || ''; // hidden item_CD 에도 설정
+		                if (itemNmHiddenInput) itemNmHiddenInput.value = selectedItemInfo.itemNm || '';*/
 
 	                    // JAVASCRIPT 수정: 선택된 품목 정보로 모달의 다른 필드 자동 채우기
 	                    setInputValue(form, 'item_COST', formatCurrencyKR(selectedItemInfo.itemCost));
@@ -507,6 +507,11 @@
 	            const newSaveButton = saveButton.cloneNode(true);
 	            saveButton.parentNode.replaceChild(newSaveButton, saveButton);
 	            newSaveButton.addEventListener('click', submitModal);
+	        }
+			if (itemNmSelectInput) {
+	            setTimeout(() => {
+	                itemNmSelectInput.focus();
+	            }, 0); // 0ms 지연으로도 충분한 경우가 많습니다.
 	        }
 	    }
 	    modal.style.display = 'flex';

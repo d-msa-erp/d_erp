@@ -467,16 +467,16 @@
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
-    <div>
+<!--     <div>
     	<span>자재/품목 분류</span>
     	<select name="item_FLAG" required>
     		<option value="">--분류를 선택해주세요 --</option>
        		<option value="01">자재</option>
             <option value="02">품목</option>
     	</select>
-    </div>
+    </div> -->
     <div>
-        <span>자재/품목코드</span><input type="text" name="item_CD_display" placeholder="자재/품목번호를 입력해주세요" required readonly /> <input type="hidden" name="item_CD" /> </div>
+        <span>자재/품목코드</span><input type="text" name="item_CD_display" placeholder="자동으로 코드가 입력됩니다." required readonly /> <input type="hidden" name="item_CD" /> </div>
     <div>
         <span>자재/품목명(선택)</span>
         <input type="text" list="itemListDatalist" id="item_NM_select" name="item_NM_select" placeholder="품목명을 입력하거나 선택하세요" required />
