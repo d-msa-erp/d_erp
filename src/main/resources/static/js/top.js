@@ -46,3 +46,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 	}
 });
+// 브라우저 크기 변경 시 메뉴 display 복구
+window.addEventListener('resize', function () {
+	const nav = document.getElementById('main-nav');
+	const button = document.getElementById('hamburger-btn');
+
+	if (window.innerWidth > 768) {
+		// 데스크탑 모드: nav 강제 복구
+		nav.style.display = 'flex';
+		nav.style.flexDirection = 'row';
+	} else {
+		// 모바일 모드일 때는 숨김 상태로 유지
+		nav.style.display = 'none';
+	}
+});
+

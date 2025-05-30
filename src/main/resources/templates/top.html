@@ -417,7 +417,7 @@ table {
 			<button type="button" class="hamburger" id="hamburger-btn">
 				<span class="material-symbols-outlined"> menu </span>
 			</button>
-			<nav id="main-nav"
+			<nav id="main-nav" style="display: flex; flex-direction: row;"
 				th:if="${session.loggedInUser != null and session.loggedInUser.userStatus == '01'}">
 
 				<div class="menu-item" onclick="toggleMenu(event, this)"
