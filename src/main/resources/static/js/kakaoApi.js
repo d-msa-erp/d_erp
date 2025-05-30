@@ -1,4 +1,11 @@
 // 우편번호찾기 버튼에 data-set=주소 필드 아이디 적으시면 됩니다. 그리고 onclick="DaumPostcode(this)"
+/*
+예시 입니다.
+
+<input type="text" id="post1" placeholder="우편번호">
+<input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="post1">
+
+*/
 
 function DaumPostcode(btnElement) {
 	const targetId = btnElement.dataset.target;
