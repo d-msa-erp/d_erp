@@ -13,7 +13,7 @@ let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
 let qtyLowData = [];
-let currentTh = null;
+let currentTh = 'orderDate';
 let currentOrder = 'asc';
 let currentPage = 0;
 
@@ -21,12 +21,39 @@ let currentPage = 0;
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadSales('orderDate', 'asc');
-	
+
 	const selectAllMainCb = document.getElementById('selectAllCheckbox'); // 메인 테이블의 전체 선택 체크박스 ID
-	if(selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
-	    document.querySelectorAll('#salesTableBody .sales-checkbox').forEach(cb => {
-	        cb.checked = this.checked;
-	    });
+	if (selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
+		document.querySelectorAll('#salesTableBody .sales-checkbox').forEach(cb => {
+			cb.checked = this.checked;
+		});
+	});
+
+	document.getElementById("btn-prev-page")?.addEventListener('click', () => {
+		if (currentPage > 0) {
+			currentPage--;
+			loadSales(currentTh, currentOrder);
+		}
+	});
+
+	document.getElementById("btn-next-page")?.addEventListener('click', () => {
+		if (currentPage < totalPages - 1) {
+			currentPage++;
+			loadSales(currentTh, currentOrder);
+		}
+	});
+
+	document.getElementById("currentPageInput")?.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') {
+			const page = parseInt(e.target.value);
+			if (!isNaN(page) && page >= 1 && page <= totalPages) {
+				currentPage = page - 1;
+				loadSales(currentTh, currentOrder);
+			} else {
+				alert('올바른 페이지 번호를 입력하세요.');
+				e.target.value = currentPage + 1;
+			}
+		}
 	});
 });
 function order(sortBy) { // 정렬
@@ -40,11 +67,11 @@ function order(sortBy) { // 정렬
 	if (currentTh === sortBy) {
 		currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
 	} else {
-		currentOrder = 'asc';
 		currentTh = sortBy;
+		currentOrder = 'asc';
 	}
 
-	loadSales(sortBy, currentOrder);
+	currentPage = 0; // 🔥 정렬 시 페이지 초기화
 
 	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
 	if (arrow) {
@@ -57,7 +84,7 @@ function order(sortBy) { // 정렬
 
 async function loadSales(sortBy, sortDirection, isDueDate = false) {
 	const salesTableBody = document.getElementById('salesTableBody');;
-	
+
 	if (!salesTableBody) {
 		console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
@@ -72,7 +99,7 @@ async function loadSales(sortBy, sortDirection, isDueDate = false) {
 
 		const sales = await response.json();
 		salesTableBody.innerHTML = '';
-
+		totalPages = sales.totalPages;
 		const paginationInfo = document.getElementById("paginationInfo");
 		if (paginationInfo) {
 			paginationInfo.textContent = `총 ${sales.totalElements}건 ${sales.number + 1}/${sales.totalPages}페이지`;
@@ -83,35 +110,6 @@ async function loadSales(sortBy, sortDirection, isDueDate = false) {
 		if (currentPageInput) {
 			currentPageInput.value = sales.number + 1;
 		}
-
-		// 이전 버튼
-		document.getElementById("btn-prev-page")?.addEventListener('click', () => {
-			if (currentPage > 0) {
-				currentPage--;
-				loadSales(sortBy, sortDirection, isDueDate);
-			}
-		});
-
-		// 다음 버튼
-		document.getElementById("btn-next-page")?.addEventListener('click', () => {
-			if (currentPage < sales.totalPages - 1) {
-				currentPage++;
-				loadSales(sortBy, sortDirection, isDueDate);
-			}
-		});
-
-		currentPageInput?.addEventListener('keypress', (e) => {
-			if (e.key === 'Enter') {
-				let page = parseInt(currentPageInput.value);
-				if (!isNaN(page) && page >= 1 && page <= sales.totalPages) {
-					currentPage = page - 1;
-					loadSales(sortBy, sortDirection, isDueDate);
-				} else {
-					alert('올바른 페이지 번호를 입력하세요.');
-					currentPageInput.value = data.number + 1;
-				}
-			}
-		});
 
 		if (sales && sales.content && sales.content.length > 0) {
 			rendersales(sales.content);
@@ -195,8 +193,8 @@ function rendersales(sales, isDueDate) {
 
 			const orderStatusCell = document.createElement('td');
 			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
-							   sale.orderStatus === 'S2' ? '부분출고' :
-							   sale.orderStatus === 'S3' ? '출고완료' : '';
+				sale.orderStatus === 'S2' ? '부분출고' :
+					sale.orderStatus === 'S3' ? '출고완료' : '';
 
 			orderStatusCell.textContent = statusText;
 			row.appendChild(orderStatusCell);
@@ -251,7 +249,7 @@ function searchItems() {
 		return;
 	}
 	const apiUrl = `/api/orders/search?searchTerm=${encodeURIComponent(searchQuery)}&page=${currentPage}` +
-			`&dateType=${dateType}&startDate=${startDate}&endDate=${endDate}`;
+		`&dateType=${dateType}&startDate=${startDate}&endDate=${endDate}`;
 
 	// Ajax 요청 보내기
 	fetch(apiUrl)
@@ -638,35 +636,35 @@ function outsideClick(e) {
 
 
 function downloadExcel() {
-    const url = `/api/orders/sale/excel`;
+	const url = `/api/orders/sale/excel`;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("엑셀 다운로드 실패");
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const a = document.createElement('a');
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = 'sales-data.xlsx'; // 저장될 파일명
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(err => {
-            alert("엑셀 다운로드 중 오류 발생");
-            console.error(err);
-        });
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("엑셀 다운로드 실패");
+			}
+			return response.blob();
+		})
+		.then(blob => {
+			const a = document.createElement('a');
+			const url = window.URL.createObjectURL(blob);
+			a.href = url;
+			a.download = 'sales-data.xlsx'; // 저장될 파일명
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+		})
+		.catch(err => {
+			alert("엑셀 다운로드 중 오류 발생");
+			console.error(err);
+		});
 }
 
 function printSelectedSales() {
 	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
 	const ids = Array.from(checked).map(cb =>
-	    cb.closest('tr').querySelector('input[type="hidden"]').value
+		cb.closest('tr').querySelector('input[type="hidden"]').value
 	);
 
 	const fetchUrlFn = id => `/api/orders/printsales?${ids.map(id => `id=${id}`).join('&')}`;
