@@ -292,9 +292,10 @@ table {
 .hamburger {
 	display: none;
 }
-	td{white-space: nowrap !important;
-overflow: hidden !important;
-text-overflow: ellipsis !important;}
+th, td{
+justify-content: center !important;
+text-align: center !important;}
+  
 /* 반응형!! */
 @media ( max-width : 768px) {
 	header {
@@ -329,7 +330,7 @@ text-overflow: ellipsis !important;}
 		position: absolute;
 		top: 100px;
 		position: absolute;
-		height:calc(100vh - 115px);
+		height: calc(100vh - 115px);
 		justify-content: flex-start;
 		z-index: 101;
 	}
@@ -369,32 +370,73 @@ text-overflow: ellipsis !important;}
 		flex-direction: column;
 		font-size: 10px !important;
 	}
-	.modal-content input, .modal-content select{
+	.modal-content input, .modal-content select {
 		text-overflow: ellipsis;
-	padding: 5px !important;
-	font-size: 10px !important;}
-	.modal-content .modalForm{gap:10px !important;}
-	.bomTab1{ gap:10px !important;}
-	th, td{
-	padding: 5px !important;}
-	.bomTab2 > div h4 {    font-size:  10px !important;}
-	.shipping-info-form{gap: 10px !important; font-size: 10px !important;}
-	.shipping-info-form input{padding: 5px !important;}
-	.shipping-info-section, .search-action-buttons,.table-view-section{padding: 20px 20px 0 20px !important;}
-	.calendarWrap{display:flex !important; flex-direction:column !important; gap:10px !important;}
-	.addPlanSection{margin-top: 0px !important;}
-	#orderInfoList{flex-direction:column;}
-	
-	#orderInfoList .order-item{font-size: 12px; padding-top: 5px;}
-	#userRole, #userDept, #userPosition{padding: 0 !important;}
-	.table-wrapper>div:nth-child(1){flex-direction: column;}
-	.table-wrapper>div:nth-child(1)>input[type="text"]{width: 100% !important;}
-	.table-wrapper>div:nth-child(1)>div{width: 100% !important; height: 30px;}
-	.table-wrapper>div:nth-child(1)>div{order:3;}
-	.table-wrapper>div:nth-child(1)>.btn-wrap1{order: 2; position: static !important; justify-content: space-between !important;}
-
-	.search-action-buttons button{ padding: 5px !important; white-space: nowrap;}
-
+		padding: 5px !important;
+		font-size: 10px !important;
+	}
+	.modal-content .modalForm {
+		gap: 10px !important;
+	}
+	.bomTab1 {
+		gap: 10px !important;
+	}
+	th, td {
+		padding: 5px !important;
+	}
+	.bomTab2>div h4 {
+		font-size: 10px !important;
+	}
+	.shipping-info-form {
+		gap: 10px !important;
+		font-size: 10px !important;
+	}
+	.shipping-info-form input {
+		padding: 5px !important;
+	}
+	.shipping-info-section, .search-action-buttons, .table-view-section {
+		padding: 20px 20px 0 20px !important;
+	}
+	.calendarWrap {
+		display: flex !important;
+		flex-direction: column !important;
+		gap: 10px !important;
+	}
+	.addPlanSection {
+		margin-top: 0px !important;
+	}
+	#orderInfoList {
+		flex-direction: column;
+	}
+	#orderInfoList .order-item {
+		font-size: 12px;
+		padding-top: 5px;
+	}
+	#userRole, #userDept, #userPosition {
+		padding: 0 !important;
+	}
+	.table-wrapper>div:nth-child(1) {
+		flex-direction: column;
+	}
+	.table-wrapper>div:nth-child(1)>input[type="text"] {
+		width: 100% !important;
+	}
+	.table-wrapper>div:nth-child(1)>div {
+		width: 100% !important;
+		height: 30px;
+	}
+	.table-wrapper>div:nth-child(1)>div {
+		order: 3;
+	}
+	.table-wrapper>div:nth-child(1)>.btn-wrap1 {
+		order: 2;
+		position: static !important;
+		justify-content: space-between !important;
+	}
+	.search-action-buttons button {
+		padding: 5px !important;
+		white-space: nowrap;
+	}
 }
 </style>
 </head>
@@ -421,7 +463,8 @@ text-overflow: ellipsis !important;}
 			<button type="button" class="hamburger" id="hamburger-btn">
 				<span class="material-symbols-outlined"> menu </span>
 			</button>
-			<nav id="main-nav" th:if="${session.loggedInUser != null and session.loggedInUser.userStatus == '01'}">
+			<nav id="main-nav"
+				th:if="${session.loggedInUser != null and session.loggedInUser.userStatus == '01'}">
 
 				<div class="menu-item" onclick="toggleMenu(event, this)"
 					th:if="${{'01','02', '03', '04', '05', '06'}.contains(session.loggedInUser.userRole)}">

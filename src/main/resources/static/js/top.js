@@ -1,3 +1,12 @@
+document.querySelectorAll('.grid-table td').forEach(td => {
+  if (!td.querySelector('.ellipsis')) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ellipsis';
+    wrap.textContent = td.textContent.trim();
+    td.textContent = '';
+    td.appendChild(wrap);
+  }
+});
 
 function toggleMenu(event, el) {
 	event.stopPropagation();//버블링 방지
