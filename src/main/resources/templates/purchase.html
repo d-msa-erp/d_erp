@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8" />
@@ -7,847 +7,178 @@
     <title>발주 관리</title>
     <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
-
-    <style>
-/* 전체 요소에 대한 초기화 */
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-/* body 기본 스타일 */
-body {
-	font-family: sans-serif;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-}
-
-/* 메인 컨테이너 - 수정됨 */
-.main-container {
-	position: relative;
-	display: flex;
-	gap: 20px;
-	align-items: flex-start;
-	padding: 0 20px;
-	justify-content: center;
-	max-width: 1400px; /* 더 넓게 설정 */
-	margin: 0 auto;
-}
-
-/* 적정 재고 미달 품목 박스 - 수정됨 */
-.low-inventory-box-wrapper {
-	position: fixed; /* absolute에서 fixed로 변경 */
-	width: 280px; /* 약간 줄임 */
-	flex-shrink: 0;
-	background-color: #f9f9f9;
-	border: 2px solid #ccc;
-	border-radius: 10px;
-	padding: 15px;
-	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-	display: flex;
-	flex-direction: column;
-	top: 120px; /* 상단에서 120px */
-	left: 20px;
-	z-index: 1000; /* z-index 증가 */
-	height: auto;
-	max-height: 400px; /* 최대 높이 제한 */
-	overflow-y: auto; /* 스크롤 가능 */
-}
-
-.low-inventory-box-wrapper h4 {
-	margin-bottom: 15px;
-	color: #333;
-	font-size: 16px;
-}
-
-#toggleLowStockBtn {
-	margin: 10px;
-	width: 50px;
-	height: 32px;
-	border: 0;
-	border-radius: 5px;
-	align-self: end;
-	background: #007bff;
-	cursor: pointer;
-	color: #fff;
-	font-size: 14px;
-	transition: background-color 0.2s ease;
-}
-
-#toggleLowStockBtn:hover {
-	background-color: #0056b3;
-}
-
-.low-inventory-box {
-	border: 2px solid #dc3545;
-	border-radius: 8px;
-	padding: 15px;
-	color: #dc3545;
-	font-size: 14px;
-	background-color: #fff5f5;
-}
-
-.low-item:hover {
-	text-decoration: underline;
-	cursor: pointer;
-	background: rgba(220, 53, 69, 0.1);
-	border-radius: 4px;
-	padding: 2px 4px;
-}
-
-/* 메인 컨텐츠 래퍼 - 수정됨 */
-.site-Wrapper {
-	width: 100%;
-	padding: 20px;
-	max-width: 1200px; /* sales와 동일하게 */
-	align-self: center;
-	margin-left: 0; /* margin-left 제거 */
-}
-
-/* 데이터셋 (폼 + 테이블) 컨테이너 */
-.site-Dataset {
-    width: 100%;
-    border: 1px solid #777;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-}
-
-/* 섹션 헤더 스타일 */
-.site-Dataset .header {
-	background: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-/* 검색 섹션 */
-.search-section {
-	padding: 20px 25px;
-	border-top: 1px solid #eee;
-	background-color: #fdfdfd;
-}
-
-/* 섹션 타이틀 공통 스타일 */
-.section-title {
-	font-size: 20px;
-	font-weight: bold;
-	color: #333;
-	margin-bottom: 15px;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-/* 섹션 타이틀 아이콘 스타일 */
-.section-title .material-symbols-outlined {
-	font-size: 24px;
-	color: #46a6ff;
-}
-
-/* 검색 폼 레이아웃 */
-.search-form {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-	gap: 20px;
-}
-
-/* 폼 그룹 공통 스타일 */
-.form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 11px;
-}
-
-/* 폼 그룹 라벨 */
-.form-group label {
-	font-weight: 500;
-    color: #666;
-    font-size: 16px;
-    margin: 0 4px;
-    white-space: nowrap;
-}
-
-/* 폼 그룹 입력 및 선택 필드 */
-.form-group input, .form-group select {
-	width: 100%;
-	padding: 10px 12px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	font-size: 15px;
-	transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* 폼 그룹 입력 및 선택 필드 포커스 시 스타일 */
-.form-group input:focus, .form-group select:focus {
-	border-color: #46a6ff;
-	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
-	outline: none;
-}
-
-/* 검색/액션 버튼 영역 */
-.search-action-buttons {
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	padding: 15px 25px 20px 25px;
-	border-top: 1px solid #eee;
-}
-
-/* 검색/액션 버튼 공통 스타일 */
-.search-action-buttons button {
-	padding: 10px 20px;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	font-size: 16px;
-	font-weight: 500;
-	transition: background-color 0.2s ease;
-}
-
-/* 검색 버튼 스타일 */
-.search-action-buttons button.btn-search {
-	background: #007bff;
-	color: white;
-}
-
-.search-action-buttons button.btn-search:hover {
-	background-color: #0056b3;
-}
-
-/* 신규 버튼 스타일 */
-.search-action-buttons button.btn-new {
-	background: #28a745;
-	color: white;
-}
-
-.search-action-buttons button.btn-new:hover {
-	background-color: #218838;
-}
-
-/* 삭제 버튼 스타일 */
-.search-action-buttons button.btn-delete {
-	background: #dc3545;
-	color: white;
-}
-
-.search-action-buttons button.btn-delete:hover {
-	background-color: #c82333;
-}
-
-/* 테이블 섹션 */
-.table-view-section {
-	padding: 20px 25px;
-	position: relative;
-}
-
-/* 테이블 액션 버튼 그룹 */
-.table-actions {
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	margin-bottom: 15px;
-}
-
-/* 테이블 액션 버튼 스타일 */
-.table-actions button {
-	padding: 8px 15px;
-	background: #6c757d;
-	color: white;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	font-size: 15px;
-	transition: background-color 0.2s ease;
-}
-
-.table-actions button:hover {
-	background-color: #5a6268;
-}
-
-.table-actions button .material-symbols-outlined {
-	font-size: 18px;
-}
-
-/* 테이블 스크롤 래퍼 */
-.table-scroll-wrapper {
-	max-height: 400px;
-	overflow-y: auto;
-	border: 1px solid #e0e0e0;
-	border-radius: 8px;
-	background-color: #fff;
-}
-
-/* 그리드 테이블 기본 스타일 */
-table.grid-table {
-	width: 100%;
-	border-collapse: collapse;
-	table-layout: fixed;
-}
-
-/* 그리드 테이블 헤더와 셀 공통 스타일 */
-table.grid-table thead th, table.grid-table tbody td {
-	padding: 12px 10px;
-	border: 1px solid #e0e0e0;
-	text-align: center;
-	vertical-align: middle;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-}
-
-/* 그리드 테이블 헤더 스타일 */
-table.grid-table thead th {
-	background: #f0f4f7;
-	font-weight: bold;
-	color: #444;
-	cursor: pointer;
-	font-size: 14px;
-	position: sticky;
-	top: 0;
-	z-index: 1;
-}
-
-table.grid-table thead th:hover {
-	background-color: #e2e8f0;
-}
-
-/* 그리드 테이블 짝수 행 배경색 */
-table.grid-table tbody tr:nth-child(even) {
-	background: #f9fbfd;
-}
-
-/* 그리드 테이블 행 호버 시 스타일 */
-table.grid-table tbody tr:hover {
-	background: #e6f2ff;
-	cursor: pointer;
-}
-
-table.grid-table tbody tr:hover td {
-	color: #333;
-}
-
-/* 체크박스 컬럼 너비 */
-table.grid-table th:first-child, table.grid-table td:first-child {
-	width: 40px;
-	min-width: 40px;
-	max-width: 40px;
-	flex-shrink: 0;
-}
-
-table.grid-table th:first-child input[type="checkbox"], table.grid-table td:first-child input[type="checkbox"] {
-	margin: 0;
-}
-
-/* nodata 메시지 스타일 */
-.nodata {
-	text-align: center;
-	padding: 30px;
-	color: #666;
-	font-style: italic;
-	background-color: #fdfdfd;
-}
-
-/* 페이지네이션 래퍼 */
-.pagination-wrap {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	padding-top: 20px;
-	gap: 15px;
-	font-size: 15px;
-	color: #555;
-}
-
-.pagination-wrap .page-info {
-	white-space: nowrap;
-}
-
-.pagination-controls {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.pagination-controls button {
-	width: 32px;
-	height: 32px;
-	background: #e0e0e0;
-	color: #555;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	transition: background-color 0.2s ease;
-}
-
-.pagination-controls button:hover:not(:disabled) {
-	background-color: #c0c0c0;
-}
-
-.pagination-controls button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.pagination-controls button .material-symbols-outlined {
-	font-size: 20px;
-}
-
-.pagination-controls input[type="text"] {
-	width: 50px;
-	text-align: center;
-	padding: 6px 8px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	font-size: 15px;
-}
-
-/* 모달 공통 스타일 */
-.modal {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background: rgba(0, 0, 0, 0.5);
-	justify-content: center;
-	align-items: center;
-	backdrop-filter: blur(5px);
-	-webkit-backdrop-filter: blur(5px);
-	z-index: 1000;
-}
-
-.modal-content {
-	background: white;
-	padding: 30px;
-	border-radius: 12px;
-	width: 90%;
-	max-width: 700px;
-	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-	position: relative;
-	animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.modal-content h3 {
-	font-size: 24px;
-	margin-bottom: 25px;
-	color: #333;
-	text-align: center;
-	border-bottom: 1px solid #eee;
-	padding-bottom: 15px;
-}
-
-.modal-content .modalForm {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
-	gap: 20px 30px;
-	margin-bottom: 25px;
-}
-
-.modal-content .modalForm .flex-row {
-	grid-column: span 2;
-	display: grid;
-	grid-template-columns: 1fr 150px 150px;
-	gap: 20px;
-	align-items: end;
-}
-
-.modal-content .modalForm .flex-row > div {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.modal-content .modalForm .flex-row > div:first-child {
-	flex-direction: column;
-}
-
-.modal-content .modalForm .flex-row > div:not(:first-child) {
-	text-align: center;
-	font-size: 14px;
-	color: #666;
-}
-
-.modal-content .modalForm .flex-row > div:not(:first-child) span:first-child {
-	font-weight: 600;
-}
-
-.modal-content .modalForm .full-width {
-	grid-column: span 2;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	gap: 20px;
-}
-
-.modal-content .modalForm > div, .modal-content .modalForm > label {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.modal-content .modalForm .full-width > div {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.modal-content .modalForm > div > span, .modal-content .modalForm > label > span,
-.modal-content .modalForm .full-width > div > span {
-	font-weight: 600;
-	color: #555;
-	font-size: 14px;
-	white-space: nowrap;
-}
-
-.modal-content input:not([type="checkbox"]), .modal-content select, .modal-content textarea {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 15px;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.modal-content input:focus:not([type="checkbox"]), .modal-content select:focus, .modal-content textarea:focus {
-	border-color: #46a6ff;
-	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
-	outline: none;
-}
-
-.modal-content .modal-buttons {
-	grid-column: span 2;
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	padding-top: 15px;
-	border-top: 1px solid #eee;
-}
-
-.modal-content .modal-buttons button {
-	padding: 10px 20px;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	align-items: center;
-	gap: 5px;
-	font-size: 16px;
-	font-weight: 500;
-	transition: background-color 0.2s ease;
-}
-
-.modal-content .modal-buttons button[name="save"] {
-	background: #007bff;
-	color: white;
-}
-
-.modal-content .modal-buttons button[name="save"]:hover {
-	background-color: #0056b3;
-}
-
-.modal-content .modal-buttons button[name="edit"] {
-	background: #28a745;
-	color: white;
-}
-
-.modal-content .modal-buttons button[name="edit"]:hover {
-	background-color: #218838;
-}
-
-.modal-content .modal-buttons button[name="cancel"] {
-	background: #6c757d;
-	color: white;
-}
-
-.modal-content .modal-buttons button[name="cancel"]:hover {
-	background-color: #5a6268;
-}
-
-.modal-content .modal-buttons button .material-symbols-outlined {
-	font-size: 20px;
-}
-
-/* Datalist 입력 필드 스타일 */
-input[list] {
-	background-color: #fbfbfb;
-}
-
-/* 정렬 아이콘 스타일 */
-th a {
-	margin-left: 5px;
-	color: #777;
-	text-decoration: none;
-}
-
-th a.active {
-	color: #000;
-}
-
-/* 반응형 디자인 - 수정됨 */
-@media (max-width: 768px) {
-	.main-container {
-		display: flex;
-		gap: 20px;
-		align-items: flex-start;
-		padding: 20px;
-		flex-direction: column-reverse;
-	}
-	
-	.site-Wrapper {
-		padding: 0;
-		margin-left: 0;
-	}
-	
-	.low-inventory-box-wrapper {
-		position: static;
-		margin-top: 0;
-		width: 100%;
-		max-width: 100%;
-		max-height: 200px;
-		overflow-y: auto;
-	}
-	
-	.search-form {
-		grid-template-columns: 1fr;
-	}
-	
-	.modal-content .modalForm {
-		grid-template-columns: 1fr;
-	}
-	
-	.modal-content .modalForm .flex-row {
-		grid-column: span 1;
-		grid-template-columns: 1fr;
-	}
-	
-	.modal-content .modalForm .full-width {
-		grid-column: span 1;
-		grid-template-columns: 1fr;
-	}
-}
-
-/* 추가: 저재고 알림 박스 숨김/표시 애니메이션 */
-.low-inventory-box-wrapper.hidden {
-	transform: translateX(-100%);
-	opacity: 0;
-	pointer-events: none;
-}
-
-.low-inventory-box-wrapper {
-	transition: transform 0.3s ease, opacity 0.3s ease;
-}
-</style>
-</head>
+    <link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/purchase.css"> </head>
 
 <body>
     <div th:replace="~{/top.html :: top}"></div>
-	<div class="main-container">
-    <div class="low-inventory-box-wrapper">
-        <h4>📦 적정 재고 미달 품목</h4>
-        <button id="toggleLowStockBtn">닫기</button>
-        <div id="lowStockNotice" class="low-inventory-box">
-            <!-- JS로 채워짐 -->
-        </div>
-    </div>
-    <div class="site-Wrapper flx-col">
-        <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
-        <form id="frm" method="get" action="#">
-            <div class="site-Dataset">
-                <div class="header">
-                    <span class="material-symbols-outlined">inventory_2</span>
-                    <h4 style="margin: 0;">발주 관리</h4>
-                </div>
 
-                <div class="search-section">
-					<h4 class="section-title">
-						<span class="material-symbols-outlined">filter_alt</span>
-						발주 정보 검색
-					</h4>
-					<div class="search-form">
-						<div class="form-group">
-                            <label for="searchTransStatus">상태</label>
-                            <select id="searchTransStatus" name="transStatus">
-                                <option value="">전체</option>
-                                <option value="P1">입고대기</option>
-                                <option value="P2">입고완료</option>
-                            </select>
-                        </div>
-						<div class="form-group">
-							<label for="searchInput">검색</label>
-							<input type="text" placeholder="검색어를 입력하세요" id="searchInput" />
-						</div>
-					</div>
-				</div>
+ <div class="low-inventory-box-wrapper initially-minimized" id="lowInventoryBoxWrapper"> <button id="toggleLowStockBtn" class="btn-toggle-stock" title="적정 재고 미달 품목 보기">
+                <span class="material-symbols-outlined">warning</span> </button>
 
-				<div class="search-action-buttons">
-					<button type="button" class="btn-search" onclick="searchItems()">
-						<span class="material-symbols-outlined">search</span> 검색
-					</button>
-					<button type="button" class="btn-new" onclick="openModal()">
-						<span class="material-symbols-outlined">add</span> 신규등록
-					</button>
-					<button type="button" class="btn-delete">
-						<span class="material-symbols-outlined">delete</span> 삭제
-					</button>
-				</div>
-
-				<div class="table-view-section">
-					<h4 class="section-title">
-						<span class="material-symbols-outlined">list_alt</span>
-						발주 목록
-					</h4>
-					<div class="table-actions">
-						<button type="button" onclick="downloadExcel()">
-							<span class="material-symbols-outlined">table_view</span> 엑셀
-						</button>
-						<button type="button" onclick="printSelectedPurchase()">
-							<span class="material-symbols-outlined">print</span> 인쇄
-						</button>
-					</div>
-
-					<div class="table-scroll-wrapper">
-						<table class="grid-table">
-							<thead>
-								<tr>
-									<th><input type="checkbox" id="selectAllCheckbox"/></th>
-									<th onclick="order('itemCode')">자재번호<a>↓</a></th>
-									<th onclick="order('itemName')">자재명<a>↓</a></th>
-						            <th onclick="order('customerName')">발주처<a>↓</a></th>
-						            <th onclick="order('quantity')">수량<a>↓</a></th>
-						            <th onclick="order('orderDate')">발주일<a>↓</a></th>
-						            <th onclick="order('totalPrice')">총액<a>↓</a></th>
-						            <th onclick="order('userName')">발주처 담당자<a>↓</a></th>
-						            <th onclick="order('orderStatus')">상태<a>↓</a></th>
-								</tr>
-							</thead>
-							<tbody id="purchasesTableBody">
-								<tr>
-									<td class="nodata" colspan="9">등록된 데이터가 없습니다.</td>
-								</tr>
-              				</tbody>
-						</table>
-					</div>
-
-					<div class="pagination-wrap">
-					  <span class="page-info" id="paginationInfo">총 0건 1/1페이지</span>
-					  <div class="pagination-controls">
-					    <button type="button" id="btn-prev-page">
-					      <span class="material-symbols-outlined">chevron_left</span>
-					    </button>
-					    <input type="text" id="currentPageInput" value="1">
-					    <button type="button" id="btn-next-page">
-					      <span class="material-symbols-outlined">chevron_right</span>
-					    </button>
-					  </div>
-					</div>
-				</div>
+            <div class="low-inventory-content" style="display: none;"> <div class="low-inventory-header">
+                    <h4>📦 적정 재고 미달 품목</h4>
+                    </div>
+                <div id="lowStockNotice" class="low-inventory-box">
+                    </div>
             </div>
-        </form>
-    </div>
-</div>
+        </div>
 
-    <!--신규 등록 Modal-->
-    <div class="modal" id="modal" onclick="outsideClick(event)">
-        <div class="modal-content" onclick="event.stopPropagation()">
-            <h3 id="modalTitle">신규 등록</h3>
-            <form id="modalForm" class="modalForm">
-                <div>
-                    <span>자재명</span>
-					<input type="text" id="itemName" list="itemList" placeholder="자재명을 입력해주세요" required />
-					<datalist id="itemList"></datalist>
-					<input type="hidden" id="itemIdx">
-					<input type="hidden" id="orderNo" th:value="${orderNo}" />
-					<input type="hidden" th:value="${UserIdx}" id="userIdx"/>
-                </div>
-                <div>
-                    <span>자재번호</span><input type="text" placeholder="자재번호를 입력해주세요" id="itemCode" required />
-                </div>
-                <div>
-                    <span>단가</span><input type="text" placeholder="단가를 입력해주세요" id="unitPrice" required />
-                </div>
-                <div class="flex-row">
-                    <div>
-                        <span>발주 수량</span><input type="text" placeholder="수량을 입력해주세요" id="quantity" required />
+        <div class="site-Wrapper"> <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
+            <form id="frmPurchaseSearch" method="get" action="#"> <div class="site-Dataset">
+                    <div class="header">
+                        <span class="material-symbols-outlined">receipt_long</span> <h4>발주 관리</h4>
                     </div>
 
-                    <div><span id="optimalInventoryText">적정 재고</span><span id="optimalInventory"></span></div>
-                    <div><span id="currentInventoryText">현재 재고</span><span id="currentInventory"></span></div>
-
-                </div>
-
-                <div>
-                    <span>발주처</span>
-                    <input type="text" list="companyList" placeholder="거래처를 검색하세요" id="companySearchInput" required>
-					<datalist id="companyList"></datalist>
-					<input type="hidden" id="selectedCustIdx" name="custIdx">
-                </div>
-                <div>
-					<span>입고 예정 창고</span>
-					<input type="text" list="whList" placeholder="창고를 입력해주세요" id="whSearchInput" required />
-					<datalist id="whList">
-						
-					</datalist>
-					<input type="hidden" id="selectedwhIdx" name="whIdx">
-				</div>
-                <div class="full-width">
-                    <div>
-                        <span>발주일</span>
-                        <input type="date" id="orderDate" readonly/>
+                    <div class="shipping-info-section"> <h4 class="section-title">
+                            <span class="material-symbols-outlined">filter_alt</span>
+                            발주 정보 검색
+                        </h4>
+                        <div class="shipping-info-form purchase-search-form"> <div class="form-group">
+                                <label for="searchTransStatus">상태</label>
+                                <select id="searchTransStatus" name="transStatus">
+                                    <option value="">전체</option>
+                                    <option value="P1">입고대기</option>
+                                    <option value="P2">입고완료</option> </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="searchInput">통합 검색</label> <input type="text" placeholder="검색어를 입력하세요" id="searchInput" />
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <span>납기예정일</span>
-                        <input type="date" id="deliveryDate"/>
-                    </div>
-                    <div>
-						<span>비고</span><input type="text" placeholder="비고를 입력해주세요" id="remark"
-							required />
-					</div>
-                </div>
 
-				<div class="modal-buttons">
-					<button type="button" name="save" style="display: none;" id="saveBtn">
-						<span class="material-symbols-outlined">save</span> 등록
-					</button>
-					<button type="button" name="edit" style="display: block;" id="editBtn">
-						<span class="material-symbols-outlined">edit</span> 수정
-					</button>
-					<button type="button" onclick="closeModal()" name="cancel">
-						<span class="material-symbols-outlined">close</span> 취소
-					</button>
-				</div>
+                    <div class="search-action-buttons">
+                        <button type="button" class="btn-search" onclick="searchItems()"> <span class="material-symbols-outlined">search</span> 검색
+                        </button>
+                        <button type="button" class="btn-new" onclick="openModal()">
+                            <span class="material-symbols-outlined">add</span> 신규등록
+                        </button>
+                        <button type="button" class="btn-delete" id="deletePurchaseBtn"> <span class="material-symbols-outlined">delete</span> 삭제
+                        </button>
+                    </div>
+
+                    <div class="table-view-section">
+                        <h4 class="section-title">
+                            <span class="material-symbols-outlined">list_alt</span>
+                            발주 목록
+                        </h4>
+                        <div class="table-actions">
+                            <button type="button" onclick="downloadExcel()">
+                                <span class="material-symbols-outlined">table_view</span> 엑셀
+                            </button>
+                            <button type="button" onclick="printSelectedPurchase()">
+                                <span class="material-symbols-outlined">print</span> 인쇄
+                            </button>
+                        </div>
+
+                        <div class="table-scroll-wrapper">
+                            <table class="grid-table purchase-main-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px;"><input type="checkbox" id="selectAllCheckbox"/></th>
+                                        <th style="width: 12%;" onclick="order('itemCode')">자재번호<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 18%;" onclick="order('itemName')">자재명<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 15%;" onclick="order('customerName')">발주처<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 8%;" onclick="order('quantity')">수량<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 12%;" onclick="order('orderDate')">발주일<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 12%;" onclick="order('totalPrice')">총액<a class="sort-arrow">↓</a></th>
+                                        <th style="width: 15%;" onclick="order('userName')">발주담당자<a class="sort-arrow">↓</a></th> <th style="width: 8%;" onclick="order('orderStatus')">상태<a class="sort-arrow">↓</a></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="purchasesTableBody">
+                                    <tr id="NoPurchaseRow" style="display: none;"> <td class="nodata" colspan="9">등록된 데이터가 없습니다.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination-wrap">
+                          <span class="page-info" id="paginationInfo">총 0건 1/1페이지</span>
+                          <div class="pagination-controls">
+                            <button type="button" id="btn-first-page" disabled><span class="material-symbols-outlined">first_page</span></button>
+                            <button type="button" id="btn-prev-page" disabled><span class="material-symbols-outlined">chevron_left</span></button>
+                            <input type="number" id="currentPageInput" value="1" min="1"/> <button type="button" id="btn-next-page" disabled><span class="material-symbols-outlined">chevron_right</span></button>
+                            <button type="button" id="btn-last-page" disabled><span class="material-symbols-outlined">last_page</span></button>
+                          </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
-
     </div>
-</body>
+
+    <div class="modal" id="modal" onclick="outsideClick(event)">
+        <div class="modal-content purchase-modal-content"> <h3 id="modalTitle">신규 등록</h3>
+            <form id="modalForm" class="modal-form-stacked"> <input type="hidden" id="orderNo" name="orderCode" /> <input type="hidden" id="itemIdx" name="itemIdx" />
+                <input type="hidden" id="userIdx" name="userIdx" th:value="${UserIdx}"/> <input type="hidden" id="selectedCustIdx" name="custIdx" />
+                <input type="hidden" id="selectedwhIdx" name="expectedWhIdx" /> <input type="hidden" id="currentOrderIdx" name="orderIdx" /> <div class="modal-form-group">
+                    <label for="itemName">자재명<span class="required-asterisk">*</span></label>
+                    <input type="text" id="itemName" list="itemList" placeholder="자재명을 입력하거나 선택하세요" required />
+                    <datalist id="itemList"></datalist>
+                </div>
+                <div class="form-group-inline">
+                    <div class="modal-form-group">
+                        <label for="itemCode">자재번호</label>
+                        <input type="text" id="itemCode" placeholder="자재명 선택 시 자동 입력" readonly />
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="unitPrice">단가</label>
+                        <input type="text" id="unitPrice" placeholder="자재명 선택 시 자동 입력" readonly />
+                    </div>
+                </div>
+
+                <div class="modal-form-group purchase-quantity-details">
+                    <label for="quantity">발주 수량<span class="required-asterisk">*</span></label>
+                    <input type="number" id="quantity" placeholder="수량을 입력해주세요" required min="1" />
+                    <div class="inventory-info">
+                        <span>적정 재고: <span id="optimalInventory">0</span></span>
+                        <span>현재 재고: <span id="currentInventory">0</span></span>
+                    </div>
+                </div>
+
+                <div class="form-group-inline">
+                    <div class="modal-form-group">
+                        <label for="companySearchInput">발주처<span class="required-asterisk">*</span></label>
+                        <input type="text" id="companySearchInput" list="companyList" placeholder="거래처를 검색하거나 선택하세요" required />
+                        <datalist id="companyList"></datalist>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="whSearchInput">입고 예정 창고<span class="required-asterisk">*</span></label>
+                        <input type="text" id="whSearchInput" list="whList" placeholder="창고를 입력하거나 선택하세요" required />
+                        <datalist id="whList"></datalist>
+                    </div>
+                </div>
+                <div class="form-group-inline">
+                    <div class="modal-form-group">
+                        <label for="orderDate">발주일</label>
+                        <input type="date" id="orderDate" readonly/>
+                    </div>
+                    <div class="modal-form-group">
+                        <label for="deliveryDate">납기예정일<span class="required-asterisk">*</span></label>
+                        <input type="date" id="deliveryDate" required/>
+                    </div>
+                </div>
+                <div class="modal-form-group" style="grid-column: span 2;">
+                    <label for="remark">비고</label>
+                    <textarea id="remark" name="remark" placeholder="특이사항을 입력하세요" rows="2"></textarea>
+                </div>
+
+                <div class="modal-buttons">
+                    <button type="button" name="save" class="btn-save" id="saveBtn">
+                        <span class="material-symbols-outlined">save</span> 등록
+                    </button>
+                    <button type="button" name="edit" class="btn-edit" id="editBtn">
+                        <span class="material-symbols-outlined">edit</span> 수정
+                    </button>
+                    <button type="button" name="cancel" class="btn-cancel" onclick="closeModal()">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <style>.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }</style>
+
     <script src="/js/top.js"></script>
     <script src="/js/purchase.js"></script>
-    <script src="/js/salesPrint.js"></script>
+    </body>
 </html>
