@@ -1,6 +1,7 @@
 package kr.co.d_erp.service;
 
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -141,6 +142,41 @@ public class UsermstService {
     }
 
     /**
+     * 퇴사일과 재직상태를 자동으로 처리하는 헬퍼 메서드
+     * 
+     * @param user 처리할 사용자 객체
+     */
+    private void handleRetirementLogic(Usermst user) {
+        LocalDate today = LocalDate.now();
+        
+        // 1. 재직상태가 '02'(퇴사)로 변경되었을 때 퇴사일이 없으면 오늘 날짜로 설정
+        if ("02".equals(user.getUserStatus()) && user.getRetireDt() == null) {
+            user.setRetireDt(today);
+            System.out.println("퇴사 상태 설정 - 퇴사일을 오늘 날짜로 자동 설정: " + user.getRetireDt());
+        }
+        
+        // 2. 퇴사일이 입력되었을 때 오늘이거나 과거일인 경우에만 퇴사로 변경
+        if (user.getRetireDt() != null) {
+            if (user.getRetireDt().isBefore(today) || user.getRetireDt().isEqual(today)) {
+                // 퇴사일이 오늘이거나 과거일 때만 퇴사 상태로 변경
+                if (!"02".equals(user.getUserStatus())) {
+                    user.setUserStatus("02");
+                    System.out.println("퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경");
+                }
+            } else {
+                // 퇴사일이 미래일 때는 상태를 변경하지 않음 (퇴사 예정 상태)
+                System.out.println("퇴사일이 미래 날짜입니다 (" + user.getRetireDt() + "). 퇴사일이 되면 자동으로 퇴사 처리됩니다.");
+            }
+        }
+        
+        // 3. 퇴사일이 삭제되었을 때 재직상태가 퇴사라면 재직중으로 변경
+        if (user.getRetireDt() == null && "02".equals(user.getUserStatus())) {
+            user.setUserStatus("01");
+            System.out.println("퇴사일 삭제 - 재직상태를 재직중으로 자동 변경");
+        }
+    }
+
+    /**
      * 새로운 사용자 추가
      * 
      * @param userMst 추가할 사용자 정보
@@ -177,13 +213,16 @@ public class UsermstService {
             userMst.setUserStatus("01"); // 기본값
         }
 
+        // 퇴사일/재직상태 자동 처리 로직 적용
+        handleRetirementLogic(userMst);
+
         return userMstRepository.save(userMst);
     }
 
     /**
      * 사용자 정보 수정
      * 
-     * @param 수정할 사용자의 고유 번호
+     * @param userIdx 수정할 사용자의 고유 번호
      * @param userDetails 수정할 사용자 정보
      * @return 수정된 사용자 정보
      */
@@ -221,9 +260,14 @@ public class UsermstService {
         existingUser.setUserHp(userDetails.getUserHp());
         existingUser.setUserDept(userDetails.getUserDept());
         existingUser.setUserPosition(userDetails.getUserPosition());
+        
+        // 퇴사일과 재직상태 설정
         existingUser.setRetireDt(userDetails.getRetireDt());
         existingUser.setUserRole(userDetails.getUserRole());
         existingUser.setUserStatus(userDetails.getUserStatus());
+
+        // 퇴사일/재직상태 자동 처리 로직 적용
+        handleRetirementLogic(existingUser);
 
         return userMstRepository.save(existingUser);
     }
@@ -316,6 +360,68 @@ public class UsermstService {
      */
     public boolean verifyPassword(String rawPassword, String encodedPassword) {
         return passwordHandler.matches(rawPassword, encodedPassword);
+    }
+
+    // ===== 퇴사 관련 추가 메서드들 =====
+
+    /**
+     * 퇴사 처리 대상 사용자 조회 (스케줄러에서 사용)
+     * 
+     * @return 퇴사 처리 대상 사용자 목록
+     */
+    @Transactional(readOnly = true)
+    public List<Usermst> getUsersToRetire() {
+        return userMstRepository.findUsersToRetire(LocalDate.now());
+    }
+
+    /**
+     * 특정 날짜에 퇴사 예정인 사용자 조회
+     * 
+     * @param targetDate 조회할 날짜
+     * @return 해당 날짜 퇴사 예정 사용자 목록
+     */
+    @Transactional(readOnly = true)
+    public List<Usermst> getUsersRetireOnDate(LocalDate targetDate) {
+        return userMstRepository.findUsersRetireOnDate(targetDate);
+    }
+
+    /**
+     * 퇴사 예정 사용자 전체 조회
+     * 
+     * @return 퇴사 예정 사용자 목록 (날짜순 정렬)
+     */
+    @Transactional(readOnly = true)
+    public List<Usermst> getPendingRetirements() {
+        return userMstRepository.findPendingRetirements();
+    }
+
+    /**
+     * 특정 기간 내 퇴사 예정 사용자 조회
+     * 
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 해당 기간 내 퇴사 예정 사용자 목록
+     */
+    @Transactional(readOnly = true)
+    public List<Usermst> getUsersRetireBetweenDates(LocalDate startDate, LocalDate endDate) {
+        return userMstRepository.findUsersRetireBetweenDates(startDate, endDate);
+    }
+
+    /**
+     * 퇴사 처리 실행 (스케줄러에서 호출)
+     * 
+     * @return 처리된 사용자 수
+     */
+    @Transactional
+    public int processRetirements() {
+        List<Usermst> usersToRetire = getUsersToRetire();
+        
+        for (Usermst user : usersToRetire) {
+            user.setUserStatus("02"); // 퇴사로 변경
+            userMstRepository.save(user);
+        }
+        
+        return usersToRetire.size();
     }
     
     /**

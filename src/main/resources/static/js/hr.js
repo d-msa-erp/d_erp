@@ -27,6 +27,15 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
+// 현재 날짜를 YYYY-MM-DD 형식으로 반환하는 함수
+function getCurrentDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Modal 닫기 함수 (전역 범위에 정의)
 function closeModal() {
     const modal = document.getElementById('modal');
@@ -383,6 +392,47 @@ function order(thElement) {
     loadUsersTableWithPaging(currentSortBy, currentOrder, currentKeyword);
 }
 
+// 재직상태 변경 시 퇴사일 자동 설정 함수
+function handleStatusChange(statusSelect) {
+    const retireDtInput = document.querySelector('input[name="retireDt"]');
+    if (!retireDtInput) return;
+
+    if (statusSelect.value === '02') { // 퇴사 선택 시
+        if (!retireDtInput.value) { // 퇴사일이 비어있을 때만 자동 설정
+            retireDtInput.value = getCurrentDate();
+            console.log('퇴사 상태 선택 - 오늘 날짜로 퇴사일 자동 설정:', retireDtInput.value);
+        }
+    }
+}
+
+// 퇴사일 변경 시 재직상태 자동 설정 함수
+function handleRetireDateChange(retireDtInput) {
+    const userStatusSelect = document.querySelector('select[name="userStatus"]');
+    if (!userStatusSelect) return;
+
+    if (retireDtInput.value) { // 퇴사일이 입력되었을 때
+        const retireDate = new Date(retireDtInput.value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // 시간 부분 제거하여 날짜만 비교
+        retireDate.setHours(0, 0, 0, 0);
+
+        if (retireDate <= today) { // 퇴사일이 오늘이거나 과거일 때만
+            if (userStatusSelect.value !== '02') { // 현재 상태가 퇴사가 아니라면
+                userStatusSelect.value = '02'; // 퇴사로 변경
+                console.log('퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경');
+            }
+        } else { // 퇴사일이 미래일 때
+            console.log('퇴사일이 미래 날짜입니다. 퇴사일이 되면 자동으로 퇴사 처리됩니다.');
+            // 미래 날짜인 경우 상태를 변경하지 않음 (퇴사 예정 상태 유지)
+        }
+    } else { // 퇴사일이 삭제되었을 때
+        if (userStatusSelect.value === '02') { // 현재 상태가 퇴사라면
+            userStatusSelect.value = '01'; // 재직중으로 변경
+            console.log('퇴사일 삭제 - 재직상태를 재직중으로 자동 변경');
+        }
+    }
+}
+
 // --- 페이지 로드 후 실행될 코드 (하나의 DOMContentLoaded 리스너로 통합) ---
 document.addEventListener('DOMContentLoaded', () => {
     // 초기 로딩 시 사원 목록을 가져옴 (페이징 지원)
@@ -400,6 +450,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
     const selectAllCheckbox = document.querySelector('thead input[type="checkbox"]');
+
+    // 재직상태 및 퇴사일 자동 처리 이벤트 리스너 추가
+    if (modalForm) {
+        const userStatusSelect = modalForm.querySelector('select[name="userStatus"]');
+        const retireDtInput = modalForm.querySelector('input[name="retireDt"]');
+
+        if (userStatusSelect) {
+            userStatusSelect.addEventListener('change', () => {
+                handleStatusChange(userStatusSelect);
+            });
+        }
+
+        if (retireDtInput) {
+            retireDtInput.addEventListener('change', () => {
+                handleRetireDateChange(retireDtInput);
+            });
+        }
+    }
 
     // 전화번호 입력 필드 이벤트 리스너
     if (userTelInput) {
