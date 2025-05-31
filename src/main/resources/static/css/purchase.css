@@ -236,6 +236,8 @@
         margin-bottom: 20px;
         top: auto; left: auto; /* fixed/sticky 관련 속성 해제 */
         max-height: 250px; /* 모바일에서는 높이 제한 더 작게 */
+                border-radius: 0;
+                
     }
     .site-Wrapper {
         max-width: 100%; /* 전체 너비 사용 */
