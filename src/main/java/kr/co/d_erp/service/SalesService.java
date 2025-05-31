@@ -47,21 +47,22 @@ public class SalesService {
 	    return salesRepository.findByOrderType(orderType, pageable);
 	}
     
-	public Page<SalesView> searchItems(String searchTerm, String dateType, String startDateStr, String endDateStr, int page) {
+	public Page<SalesView> searchItems(String searchTerm, String dateType, String startDateStr, String endDateStr, String transStatus, int page) {
 	    Pageable pageable = PageRequest.of(page, 10);
 	    LocalDate startDate = null;
 	    LocalDate endDate = null;
 	    try {
-	        if (startDateStr != null && !startDateStr.isBlank()) {
-	            startDate = LocalDate.parse(startDateStr); // yyyy-MM-dd 형식일 것
-	        }
-	        if (endDateStr != null && !endDateStr.isBlank()) {
-	            endDate = LocalDate.parse(endDateStr);
-	        }
+	        if (startDateStr != null && !startDateStr.isBlank()) startDate = LocalDate.parse(startDateStr);
+	        if (endDateStr != null && !endDateStr.isBlank()) endDate = LocalDate.parse(endDateStr);
 	    } catch (DateTimeParseException e) {
-	        throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다. yyyy-MM-dd 형식이어야 합니다.");
+	        throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다.");
 	    }
-	    return salesRepository.searchWithDate(searchTerm, dateType, startDate, endDate, pageable);
+
+	    if ("orderDate".equals(dateType)) {
+	        return salesRepository.searchByOrderDate(searchTerm, startDate, endDate, transStatus, pageable);
+	    } else {
+	        return salesRepository.searchByDeliveryDate(searchTerm, startDate, endDate, transStatus, pageable);
+	    }
 	}
 	
 	
