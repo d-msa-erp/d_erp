@@ -264,6 +264,7 @@ async function loadUsersTableWithPaging(sortBy, sortDirection, keyword = '') {
                 const checkboxCell = document.createElement('td');
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
+				checkbox.dataset.userIdx = user.userIdx;
                 checkbox.addEventListener('click', (event) => {
                     event.stopPropagation();
                 });

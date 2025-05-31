@@ -36,6 +36,17 @@
 							</button>
 						</div>
 					</div>
+					<div style="padding: 20px 20px 0 20px; display: flex; flex-direction: column;"></div>
+					<div id="table-customer" style="padding: 20px; position: relative;">
+						<div class="print-wrap">
+							<button type="button"
+								onclick="downloadSelectedEmployeeDetailsAsExcel()">
+								<span class="material-symbols-outlined">table_view</span> 엑셀
+							</button>
+							<button type="button" onclick="printSelectedEmployeeDetails()">
+								<span class="material-symbols-outlined">print</span> 인쇄
+							</button>
+						</div>
 					<div></div>
 					<div id="table-customer" style="padding: 20px; position: relative;">
 
@@ -178,10 +189,10 @@
 		</div>
 	</div>
 
-
-
 	<script src="/js/top.js"></script>
 	<script src="/js/hr.js"></script>
+	<script src="/js/hrExcel.js"></script>
+	<script src="/js/hrPrint.js"></script>
 
 </body>
 
