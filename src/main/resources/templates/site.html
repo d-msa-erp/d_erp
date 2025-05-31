@@ -1,192 +1,83 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>사업장 정보</title>
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 <style th:replace="~{/top.html :: topstyle}"></style>
-<style>
-.site-Wrapper {
-	height: auto !important;
-	min-height: 100vh;
-}
-
-.site-Dataset {
-	overflow: visible !important;
-	border: 1px solid #777;
-    border-radius: 10px;
-}
-.header{
-border-radius: 10px 10px 0 0;}
-.form-content {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
-	padding: 20px;
-}
-
-.form-item {
-	width: calc(33.333% - 14px);
-	display: flex;
-	flex-direction: column;
-	margin-bottom: 10px;
-}
-
-.form-item span {
-	font-weight: 500;
-	margin-bottom: 8px;
-	color: #333;
-}
-
-.form-item input {
-	padding: 10px 12px;
-	font-size: 14px;
-	height: 42px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	transition: border-color 0.2s;
-}
-
-.form-item input:focus {
-	border-color: #46a6ff;
-	outline: none;
-}
-
-.form-item.addr {
-	width: 100%;
-	position: relative;
-	display: flex;
-	flex-direction: column;
-}
-
-.form-item.addr input {
-	padding-right: 120px;
-	height: 42px;
-}
-
-.form-item.addr button {
-	position: absolute;
-	right: 0px;
-	top: 72%;
-	transform: translateY(-50%);
-	background: #007bff;
-	color: white;
-	border: none;
-	padding: 0 14px;
-	border-radius: 5px;
-	cursor: pointer;
-	font-size: 0.9rem;
-	white-space: nowrap;
-	height: 42px;
-}
-
-.form-footer {
-	width: 100%;
-	display: flex;
-	justify-content: flex-end;
-	padding: 0 20px 20px 0;
-}
-
-.save_site {
-	background: #007bff;
-	color: white;
-	font-size: 1rem;
-	padding: 0 14px;
-	border: none;
-	border-radius: 6px;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	cursor: pointer;
-	transition: background 0.2s;
-	width: auto;
-	height: 42px;
-}
-
-.save_site:hover {
-	background: #0056b3;
-}
-
-@media ( max-width : 768px) {
-	.form-item {
-		width: 100%;
-	}
-	.form-footer {
-		flex-direction: column;
-        align-items: stretch;
-        padding: 10px;
-	}
-	.save_site {
-		width: 100%;
-		justify-content: center;
-	}
-}
-</style>
-</head>
+<link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/site.css">     </head>
 <body>
 
-	<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
-	<div class="site-Wrapper">
-		<div class="site-Dataset">
-			<div class="header">
-				<span class="material-symbols-outlined">apartment</span> <span>&nbsp;사업장
-					정보</span>
-			</div>
+    <div class="site-Wrapper">
+     <h1 style="font-size: 24px; margin-bottom: 16px;">사업장 관리</h1>
+    
+        <form id="siteForm" method="post"> <div class="site-Dataset">
+                <div class="header">
+                    <span class="material-symbols-outlined">apartment</span>
+                    <h4>사업장 관리</h4> </div>
 
-			<form id="frm" method="get" action="#">
-				<div class="form-content">
-					<input type="hidden" id="custCd"/>
+                <div class="shipping-info-form site-form-content"> <input type="hidden" id="custCd" />
 
-					<div class="form-item">
-						<span>사업장 명</span><input type="text" id="siteNm" required>
-					</div>
-					<div class="form-item">
-						<span>대표자 명</span><input type="text" id="ceoNm" required>
-					</div>
-					<div class="form-item">
-						<span>사업자 번호</span><input type="text" id="bizNo" required>
-					</div>
-					<div class="form-item">
-						<span>사업장 번호</span><input type="text" id="compNo" required>
-					</div>
-					<div class="form-item">
-						<span>법인 번호</span><input type="text" id="corpRegNo" required>
-					</div>
-					<div class="form-item">
-						<span>종목</span><input type="text" id="bizCond" required>
-					</div>
-					<div class="form-item">
-						<span>업태</span><input type="text" id="bizItem" required>
-					</div>
-					<div class="form-item">
-						<span>전화번호</span><input type="text" id="bizTel" required>
-					</div>
-					<div class="form-item">
-						<span>팩스</span><input type="text" id="bizFax" required>
-					</div>
+                    <div class="form-group">
+                        <label for="siteNm">사업장 명</label>
+                        <input type="text" id="siteNm" name="siteNm" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceoNm">대표자 명</label>
+                        <input type="text" id="ceoNm" name="ceoNm" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizNo">사업자 번호</label>
+                        <input type="text" id="bizNo" name="bizNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="compNo">사업장 번호</label>
+                        <input type="text" id="compNo" name="compNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="corpRegNo">법인 번호</label>
+                        <input type="text" id="corpRegNo" name="corpRegNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizCond">종목</label>
+                        <input type="text" id="bizCond" name="bizCond" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizItem">업태</label>
+                        <input type="text" id="bizItem" name="bizItem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizTel">전화번호</label>
+                        <input type="text" id="bizTel" name="bizTel" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizFax">팩스</label>
+                        <input type="text" id="bizFax" name="bizFax" required>
+                    </div>
 
-					<div class="form-item addr">
-						<span>주소</span> <input type="text" id="bizAddr" required>
-						<button type="button" onclick="DaumPostcode(this)"
-							data-target="bizAddr">주소 검색</button>
-					</div>
-				</div>
+                    <div class="form-group addr-group"> <label for="bizAddr">주소</label>
+                        <div class="address-input-wrapper">
+                            <input type="text" id="bizAddr" name="bizAddr" required>
+                            <button type="button" class="btn-address-search" onclick="DaumPostcode(this)" data-target="bizAddr">
+                                <span class="material-symbols-outlined">search</span> 주소 검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-				<div class="form-footer">
-					<button type="submit" class="save_site">
-						<span class="material-symbols-outlined">save</span> 저장
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="form-actions-footer">
+                    <button type="submit" class="btn-save"> <span class="material-symbols-outlined">save</span> 저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-	<script src="/js/top.js"></script>
-	<script
-		src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-	<script src="/js/kakaoApi.js"></script>
-	<script src="/js/site.js"></script>
+    <script src="/js/top.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="/js/kakaoApi.js"></script> <script src="/js/site.js"></script>
 </body>
 </html>

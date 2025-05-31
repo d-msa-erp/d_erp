@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
   <meta charset="UTF-8" />
@@ -8,649 +8,77 @@
 
   <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
   <style th:replace="~{/top.html :: topstyle}"></style>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: sans-serif;
-      display: flex;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .site-Wrapper {
-      width: 100%;
-      max-width: 1200px;
-      padding: 20px;
-      align-self: center;
-    }
-
-    .site-Dataset {
-      width: 100%;
-      border: 1px solid #777;
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .site-Dataset .header {
-      background: #46a6ff;
-      color: white;
-      padding: 10px 20px;
-      font-size: 20px;
-    }
-
-    .site-Dataset .form-content {
-      display: flex;
-      flex-wrap: wrap;
-      padding: 20px;
-      gap: 20px;
-    }
-
-    .form-item {
-      display: flex;
-      align-items: center;
-      width: calc(33.333% - 13.33px);
-    }
-
-    .form-item.addr {
-      width: calc(66.666% - 10px);
-    }
-
-    .form-item span {
-      padding-right: 10px;
-      white-space: nowrap;
-    }
-
-    .form-item input {
-      width: 100%;
-      height: 100%;
-      border-radius: 3px;
-      padding: 5px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-    }
-
-    .form-item input:focus {
-      border: 1px solid #46a6ff;
-      outline: none;
-    }
-
-    .table-wrapper {
-      width: 100%;
-      max-width: 1200px;
-    }
-
-    .table-wrapper>div:nth-child(1) {
-      padding: 20px 20px 0 20px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 20px;
-    }
-
-    .table-wrapper>div:nth-child(1)>input[type="text"] {
-      width: 30%;
-      padding: 5px;
-    }
-
-    .table-wrapper>div:nth-child(1)>div {
-      width: 30%;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .table-wrapper>div:nth-child(1)>div button {
-      width: 30%;
-      background: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-      background: #007bff;
-      color: white;
-    }
-
-    .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-      background: #28a745;
-      color: white;
-    }
-
-    .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-      background: #dc3545;
-      color: white;
-    }
-
-    .table-wrapper>div:nth-child(2) {
-      padding: 20px 20px 0 20px;
-      display: flex;
-    }
-
-    .table-wrapper>div:nth-child(2)>span {
-      width: 30%;
-      padding-right: 10px;
-      text-align: center;
-      cursor: pointer;
-      padding-bottom: 4px;
-    }
-
-    .table-wrapper>div:nth-child(2)>span.active {
-      font-weight: bold;
-      border-bottom: 2px solid #46a6ff;
-    }
-
-    .table-wrapper>div:nth-child(3) {
-      position: relative;
-    }
-
-    .nodata {
-      text-align: center;
-    }
-
-    .print-wrap {
-      position: absolute;
-      top: 0;
-      right: 0;
-      padding: 0 20px;
-      display: flex;
-      gap: 10px;
-      width: 200px;
-    }
-
-    .print-wrap>button {
-      width: 100%;
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      padding: 5px;
-    }
-
-    table.grid-table {
-      width: 100%;
-      border-collapse: collapse;
-      display: grid;
-      grid-template-columns: 1fr 2fr 2fr 3fr 1fr;
-    }
-
-    thead,
-    tbody,
-    tr {
-      display: contents;
-
-    }
-
-    tbody>tr:nth-child(even) td {
-      background: #f9f9f9;
-    }
-
-    tbody>tr:hover td {
-      background: #46a6ff;
-      cursor: pointer;
-    }
-
-    tr th:nth-child(1),
-    tr td:nth-child(1),
-    tr th:nth-last-child(1),
-    tr td:nth-last-child(1) {
-      justify-content: center;
-    }
-
-    th,
-    td {
-      padding: 10px;
-      border: 1px solid #ccc;
-      display: flex;
-      align-items: center;
-    }
-
-    thead th {
-      background: #f0f0f0;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    table input[type="text"] {
-      width: 100%;
-      padding: 5px;
-    }
-
-    .pagination-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      padding-top: 20px;
-    }
-
-    .pagination-wrap>div {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .pagination-wrap>div input[type="text"] {
-      width: 50px;
-      text-align: center;
-    }
-
-    .pagination-wrap>div button {
-      width: 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .table-wrapper button:hover {
-      filter: brightness(0.9);
-    }
-
-    .modal {
-      display: none; /* Hidden by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.4);
-      justify-content: center;
-      align-items: center;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      z-index: 1000; 
-    }
-
-     .modal-content {
-      background: white;
-      padding: 30px; 
-      border-radius: 10px;
-      width: 90%; 
-      max-width: 700px; 
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-
-      min-height: 550px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-	/* === 신규 등록 모달(#modal-new) 크기 확장 (컨테이너) === */
-	#modal-new .modal-content {
-	  max-width: 900px;  /* 기존보다 넓게 (예: 700px -> 900px) */
-	  min-height: 650px; /* 기존보다 높게 (예: 500px -> 650px) */
-	  width: 90%;         /* 화면 너비의 90% 사용 */
-	  max-height: 90vh;   /* 화면 높이를 너무 많이 차지하지 않도록 최대 높이 제한 */
-	  overflow-y: auto;   /* 내용이 모달 높이를 초과할 경우 스크롤 생성 */
-	}
-	
-	/* === 신규 등록 모달(#modal-new) 내부 폼 레이아웃 및 필드 크기 조정 === */
-	#modal-new .modalForm {
-	  display: grid;
-	  /* 컬럼 수를 2개로 줄여 각 필드가 차지하는 너비를 늘립니다. */
-	  grid-template-columns: repeat(2, 1fr); 
-	  gap: 20px 25px; /* 필드 간 간격 (세로 간격, 가로 간격) */
-	  margin-top: 25px; /* 모달 제목과의 간격 */
-	  width: 100%; /* 폼이 modal-content 내부 너비를 채우도록 */
-	}
-	
-	/* #modal-new 내부의 각 필드 그룹 (라벨 + 입력창 div) 스타일 */
-	#modal-new .modalForm > div {
-	  /* 기존 customer.html의 display:flex; align-items:center; width:100% 가 있다면 유지됩니다. */
-	  /* 이 div는 grid의 한 셀을 차지합니다. */
-	}
-	
-	/* #modal-new 내부 라벨 스타일 조정 */
-	#modal-new .modalForm > div > span {
-	  font-size: 15px;      /* 라벨 폰트 크기를 약간 키웁니다. */
-	  padding-right: 12px;  /* 라벨과 입력창 사이 간격을 조정합니다. */
-	  white-space: nowrap;  /* 라벨이 여러 줄로 바뀌는 것을 방지 */
-	  color: #333;         /* 가독성을 위해 약간 더 어두운 색상 */
-	  flex-shrink: 0;       /* 라벨 너비가 줄어들지 않도록 (div가 flex일 경우) */
-	}
-	
-	/* #modal-new 내부 입력 필드(input[type="text"]) 스타일 조정 */
-	#modal-new .modalForm input[type="text"] {
-	  font-size: 15px;         /* 입력 필드 내 텍스트 폰트 크기 증가 */
-	  padding: 12px 10px;      /* 입력 필드 내부 패딩 증가 (상하, 좌우) */
-	  border-radius: 4px;      /* 모서리를 살짝 둥글게 */
-	  border: 1px solid #ababab; /* 테두리 색상을 약간 더 명확하게 */
-	  /* width: 100%; /* 부모 div가 flex일 경우, flex-grow:1 또는 width:100%로 공간 채움 */
-	  flex-grow: 1;          /* 부모 div가 flex일 경우, 남은 공간을 모두 차지 */
-	  height: auto;            /* padding에 따라 높이가 자연스럽게 조절되도록 */
-	}
-	
-	/* 주소 입력 필드처럼 2칸을 차지하는 경우 (HTML에서 style="grid-column: span 2;" 등으로 설정된 경우) */
-	/* #modal-new .modalForm > div[style*="grid-column: span 2"] { */
-	  /* 기본적으로 grid-column 설정은 HTML의 style 속성에서 유지됩니다. */
-	  /* 이 항목에 대한 특별한 스타일 변경은 필요하지 않다면 비워둡니다. */
-	/* } */
-	
-	/* #modal-new 내부 버튼 영역 스타일 (선택 사항) */
-	#modal-new .modal-buttons {
-	    margin-top: auto; /* 폼 내용과 버튼 사이 간격을 최대한 밀어 버튼을 하단에 가깝게 배치 */
-	    padding-top: 25px; /* 버튼 그룹 상단 여백 */
-	    border-top: 1px solid #e0e0e0; /* 구분선 */
-	    /* grid-column: 1 / -1; /* modalForm이 grid일 때 버튼 그룹이 전체 너비 차지하도록 */
-	                           /* #modal-new .modalForm의 자식이 아니므로, #modal-new .modal-content의 자식으로 처리 */
-	}
-	/* modalForm이 grid이고 modal-buttons가 그 자식이라면 아래 주석 해제 */
-	/*
-	#modal-new .modalForm .modal-buttons {
-	    grid-column: 1 / -1; 
-	}
-	*/
-
-#modal-new .modal-buttons button {
-    padding: 12px 22px; /* 버튼 패딩 증가 */
-    font-size: 15px;    /* 버튼 텍스트 크기 증가 */
-}
-    /* Styles for modal-new */
-    #modal-new .modalForm {
-      margin-top: 20px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      justify-items: center;
-      align-items: center;
-    }
-
-    #modal-new .modalForm>div,
-    #modal-new .modalForm>label {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #modal-new .modalForm>div>span,
-    #modal-new .modalForm>label>span {
-      white-space: nowrap;
-      padding-right: 10px;
-    }
-    
-    #modal-new .modalForm input[type="text"] { /* Specific to modal-new's text inputs */
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-    }
-
-
-    #modal-new .modal-buttons { /* Specific to modal-new */
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      width: 100%;
-      grid-column-start: 3; /* Aligns with the 3-column grid of modal-new */
-      margin-top: 10px; /* Added margin for spacing */
-    }
-
-    #modal-new .modal-buttons>button, /* Target buttons directly inside modal-new's buttons div */
-    #modal-new .modal-buttons>input { /* If using input type button/submit */
-      width: 100%; /* Make buttons take available width within their flex item */
-      background: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      padding: 10px 15px; /* Adjusted padding */
-    }
-     #modal-new .modal-buttons button:hover,
-     #modal-new .modal-buttons input:hover {
-        filter: brightness(0.9);
-     }
-
-
-    /* Tab and modal-detail specific styles */
-    .modal-tabs {
-        display: flex;
-        border-bottom: 1px solid #ddd;
-        margin-bottom: 20px;
-        width: 100%; 
-    }
-
-    .tab-button {
-        background-color: #f1f1f1;
-        border: none;
-        outline: none;
-        cursor: pointer;
-        padding: 10px 20px;
-        transition: 0.3s;
-        font-size: 16px;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        margin-right: 5px;
-    }
-
-    .tab-button:hover {
-        background-color: #ddd;
-    }
-
-    .tab-button.active {
-        background-color: #fff;
-        border: 1px solid #ddd;
-        border-bottom: none;
-        font-weight: bold;
-        color: #4CAF50;
-    }
-
-    .tab-content {
-        display: none;
-        padding: 10px 0;
-        width: 100%; 
-    }
-
-    .tab-content.active {
-        display: block;
-    }
-    
-    /* modal-detail form layout */
-    #modal-detail .modalForm { /* Styles for the form within modal-detail */
-        margin-top: 0; 
-        width: 100%;
-        display: flex;
-        flex-direction: column; 
-        gap: 15px; 
-    }
-
-    .warehouse-info-grid { /* Reused from your provided CSS, good for grid layout */
-        display: grid;
-        grid-template-columns: auto 1fr; 
-        gap: 15px 20px; 
-        align-items: center; 
-        width: 100%; 
-    }
-
-    .warehouse-info-grid .input-group {
-        display: contents; /* Allow label and input to align with grid columns directly */
-    }
-
-    .warehouse-info-grid .input-group span { /* Label style */
-        min-width: 90px; 
-        text-align: right;
-        font-weight: bold;
-        color: #555;
-        padding-right: 10px; /* Ensure spacing from input */
-    }
-
-    .warehouse-info-grid .input-group input[type="text"],
-    .warehouse-info-grid .input-group select {
-        width: 100%; /* Make input take full width of its grid cell */
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    
-    /* Buttons for modal-detail */
-    #modal-detail .modal-buttons {
-        margin-top: 20px; 
-        display: flex;
-        justify-content: flex-end; 
-        gap: 10px; 
-        width: 100%; 
-    }
-
-    #modal-detail .modal-buttons button {
-        width: auto; 
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        justify-content: center;
-    }
-
-    #modal-detail .modal-buttons button[name="save"],
-    #modal-detail .modal-buttons button[name="edit"] {
-        background-color: #4CAF50;
-        color: white;
-    }
-    #modal-detail .modal-buttons button[name="save"]:hover,
-    #modal-detail .modal-buttons button[name="edit"]:hover {
-        background-color: #45a049;
-    }
-    
-    /* Generic Cancel Button Style for both modals if desired, or keep specific */
-    .modal-buttons button.cancel-button { /* Add class="cancel-button" to cancel buttons */
-        background-color: #777 !important; 
-        color: white;
-    }
-    .modal-buttons button.cancel-button:hover {
-         filter: brightness(0.9);
-    }
-
-
-    .material-symbols-outlined {
-        font-size: 1.2rem;
-        vertical-align: middle; /* Adjusted for better alignment with text */
-    }
-    
-    input[type="text"].error { /* Style for validation errors */
-        border-color: red !important;
-    }
-    input[type="text"]:focus {
-      border-color: #46a6ff;
-      outline: none;
-    }
-    
-	.grid-table.item-table-in-modal {
-	  display: grid; /* grid-table의 기본 속성 유지 */
-	  width: 100%;   /* grid-table의 기본 속성 유지 */
-	  border-collapse: collapse; /* grid-table의 기본 속성 유지 */
-	  /* 체크박스 열이 사라졌으므로, 품목명과 품목코드 2개의 컬럼만 정의합니다. */
-	  grid-template-columns: 2fr 1.5fr; /* 예시 비율: 품목명, 품목코드 (조정 가능) */
-	}
-	
-	/* 품목 테이블의 헤더(th)와 데이터 셀(td)에 대한 일반적인 스타일은 */
-	/* 기존의 thead th, td 규칙을 따르거나, 필요시 아래처럼 구체적으로 지정할 수 있습니다. */
-	.item-table-in-modal th,
-	.item-table-in-modal td {
-	  padding: 10px;
-	  border: 1px solid #ccc;
-	  display: flex;
-	  align-items: center;
-	  /* justify-content는 ahmad th, td 기본값에 따르거나 여기서 재정의 */
-	}
-	
-	.item-table-in-modal thead th {
-	  background: #f0f0f0;
-	  font-weight: bold;
-	  cursor: pointer; /* 정렬 기능이 있다면 유지 */
-	  justify-content: center; /* 헤더 텍스트 중앙 정렬 */
-	}
-	
-	.bizAddr-wrapper {
-		position: relative;
-	}
-	
-	#bizAddrBtn {
-	    position: absolute;
-	    right: 0;
-	    height: 100%;
-	    background: #007bff;
-	    border: 0;
-	    border-radius: 5px;
-	    color: #fff;
-	    padding: 0 10px;
-	    cursor: pointer;
-	}
-  </style>
-</head>
+  <link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/customer.css"> </head>
 
 <body>
   <div th:replace="~{/top.html :: top}"></div>
-  <div class="site-Wrapper flx-col">
+
+  <div class="site-Wrapper">
     <h1 style="font-size: 24px; margin-bottom: 16px;">거래처 관리</h1>
-    <form id="frm" method="get" action="#">
-      <div class="site-Dataset">
+    <form id="customerSearchForm" method="get" action="#"> <div class="site-Dataset">
         <div class="header">
-          <h4 style="margin: 0;">거래처 관리</h4>
+          <span class="material-symbols-outlined">store</span> <h4>거래처 관리</h4> </div>
+
+        <div class="shipping-info-section">
+          <h4 class="section-title">
+            <span class="material-symbols-outlined">filter_alt</span> 거래처 정보 검색
+          </h4>
+          <div class="shipping-info-form">
+            <div class="form-group">
+              <label for="searchInput">통합 검색</label>
+              <input type="text" id="searchInput" placeholder="거래처명, 담당자명, 연락처, 이메일 검색" />
+            </div>
+            </div>
         </div>
-        <div class="table-wrapper">
-          <div>
-            <input type="text" placeholder="검색" id="searchInput" />
-            <div>
-              <button type="button" id="searchBtn">
-                <span class="material-symbols-outlined">search</span> 검색
-              </button>
-              <button type="button" onclick="openModal(null, window.currentBizFlag)">
-                <span class="material-symbols-outlined">add</span> 신규등록
-              </button>
-              <button type="button" id="deleteSelectedBtn">
-                <span class="material-symbols-outlined">delete</span> 삭제
-              </button>
+
+        <div class="customer-actions-tabs-wrapper">
+            <div class="customer-tabs"> <span class="tab active" data-bizflag="02" onclick="switchTab(this, '02')">거래처</span>
+                <span class="tab" data-bizflag="01" onclick="switchTab(this, '01')">발주처</span>
             </div>
-          </div>
-          <div>
-            <span class="tab active" data-bizflag="02" onclick="switchTab(this, '02')">거래처</span>
-    		<span class="tab" data-bizflag="01" onclick="switchTab(this, '01')">발주처</span>
-          </div>
-          <div id="table-customer" style="padding: 20px; position: relative;">
-            <div class="print-wrap">
-              <button type="button" onclick="downloadExcel()">
-					<span class="material-symbols-outlined">table_view</span> 엑셀
-				</button>
-              <button type="button" onclick="printSelectedCustomerDetails()">
-                <span class="material-symbols-outlined">print</span> 인쇄
-              </button>
+            <div class="search-action-buttons"> <button type="button" class="btn-search" id="searchBtn">
+                    <span class="material-symbols-outlined">search</span> 검색
+                </button>
+                <button type="button" class="btn-new" onclick="openModal(null, window.currentBizFlag)">
+                    <span class="material-symbols-outlined">add</span> 신규등록
+                </button>
+                <button type="button" class="btn-delete" id="deleteSelectedBtn">
+                    <span class="material-symbols-outlined">delete</span> 삭제
+                </button>
             </div>
-            <table class="grid-table">
-              <thead>
+        </div>
+
+
+        <div class="table-view-section">
+          <h4 class="section-title">
+            <span class="material-symbols-outlined">list_alt</span> <span id="tableTitle">거래처 목록</span> </h4>
+          <div class="table-actions">
+            <button type="button" onclick="downloadExcel()">
+              <span class="material-symbols-outlined">table_view</span> 엑셀
+            </button>
+            <button type="button" onclick="printSelectedCustomerDetails()">
+              <span class="material-symbols-outlined">print</span> 인쇄
+            </button>
+          </div>
+          <div class="table-scroll-wrapper">
+            <table class="grid-table" id="customerTable"> <thead>
                 <tr>
                   <th><input type="checkbox" id="selectAllCheckbox"/></th>
-                  <th id="customerNameHeader" onclick="order(this)" data-key="custNm">거래처명<a>↓</a></th>
-                  <th data-key="presidentNm" onclick="order(this)">담당자명<a>↓</a></th>
-				  <th data-key="bizTel" onclick="order(this)">연락처<a>↓</a></th>
-				  <th data-key="custEmail" onclick="order(this)">이메일<a>↓</a></th>
+                  <th id="customerNameHeader" onclick="order(this)" data-key="custNm">거래처명<a class="sort-arrow">↓</a></th>
+                  <th data-key="presidentNm" onclick="order(this)">대표자명<a class="sort-arrow">↓</a></th> <th data-key="bizTel" onclick="order(this)">연락처<a class="sort-arrow">↓</a></th>
+                  <th data-key="custEmail" onclick="order(this)">이메일<a class="sort-arrow">↓</a></th>
                 </tr>
               </thead>
               <tbody id="customerTableBody">
                 </tbody>
             </table>
-            <div class="pagination-wrap">
-			  <span id="paginationInfo">총 0건 1/1페이지</span>
-			  <div class="paigination">
-			    <button type="button" id="btn-prev-page">
-			      <span class="material-symbols-outlined">chevron_left</span>
-			    </button>
-			    <input type="text" id="currentPageInput" value="1">
-			    <button type="button" id="btn-next-page">
-			      <span class="material-symbols-outlined">chevron_right</span>
-			    </button>
-			  </div>
-			</div>
+          </div>
+          <div class="pagination-wrap">
+            <span class="page-info" id="paginationInfo">총 0건 1/1페이지</span>
+            <div class="pagination-controls"> <button type="button" id="btn-first-page" disabled><span class="material-symbols-outlined">first_page</span></button>
+              <button type="button" id="btn-prev-page" disabled><span class="material-symbols-outlined">chevron_left</span></button>
+              <input type="number" id="currentPageInput" value="1" min="1" /> <button type="button" id="btn-next-page" disabled><span class="material-symbols-outlined">chevron_right</span></button>
+              <button type="button" id="btn-last-page" disabled><span class="material-symbols-outlined">last_page</span></button>
+            </div>
           </div>
         </div>
       </div>
@@ -658,47 +86,59 @@
   </div>
 
   <div class="modal" id="modal-new" onclick="outsideClick(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <h3 id="modalTitle">신규 등록</h3> <form id="modalForm" class="modalForm"> <div>
-          <span>회사명</span><input type="text" name="custNm" placeholder="회사명을 입력해주세요" required />
+    <div class="modal-content" onclick="event.stopPropagation()"> <h3 id="modalTitleNew">신규 등록</h3> <form id="modalNewForm" class="modal-form-grid"> <div class="modal-form-group">
+          <label for="newCustNm">회사명<span class="required-asterisk">*</span></label>
+          <input type="text" id="newCustNm" name="custNm" placeholder="회사명을 입력해주세요" required />
         </div>
-        <div>
-          <span>대표자명</span><input type="text" name="presidentNm" placeholder="대표자명 입력해주세요" required />
+        <div class="modal-form-group">
+          <label for="newPresidentNm">대표자명<span class="required-asterisk">*</span></label>
+          <input type="text" id="newPresidentNm" name="presidentNm" placeholder="대표자명 입력해주세요" required />
         </div>
-        <div>
-          <span>사업자번호</span><input type="text" name="bizNo" id="bizNumber" placeholder="사업자번호 입력해주세요" required />
+        <div class="modal-form-group">
+          <label for="newBizNo">사업자번호<span class="required-asterisk">*</span></label>
+          <input type="text" id="newBizNo" name="bizNo" placeholder="사업자번호 입력해주세요" required />
         </div>
-        <div>
-          <span>연락처</span><input type="text" name="bizTel" id="phoneNumber" placeholder="연락처를 입력해주세요" required />
+        <div class="modal-form-group">
+          <label for="newBizTel">연락처<span class="required-asterisk">*</span></label>
+          <input type="text" id="newBizTel" name="bizTel" placeholder="연락처를 입력해주세요" required />
         </div>
-        <div>
-          <span>이메일</span><input type="text" name="custEmail" id="eMail" placeholder="이메일 입력해주세요" /> </div>
-        <div>
-          <span>Fax</span><input type="text" name="bizFax" placeholder="Fax를 입력해주세요" maxlength="13"/>
+        <div class="modal-form-group">
+          <label for="newCustEmail">이메일</label>
+          <input type="text" id="newCustEmail" name="custEmail" placeholder="이메일 입력해주세요" />
         </div>
-        <div>
-          <span>업태</span><input type="text" name="bizCond" placeholder="업태를 입력해주세요" />
+        <div class="modal-form-group">
+          <label for="newBizFax">Fax</label>
+          <input type="text" id="newBizFax" name="bizFax" placeholder="Fax를 입력해주세요" maxlength="13"/>
         </div>
-        <div>
-          <span>종목</span><input type="text" name="bizItem" placeholder="종목을 입력해주세요" />
+        <div class="modal-form-group">
+          <label for="newBizCond">업태</label>
+          <input type="text" id="newBizCond" name="bizCond" placeholder="업태를 입력해주세요" />
         </div>
-        <div>
-          <span>담당자명</span><input type="text" name="compEmpNm" placeholder="담당자명을 입력해주세요" />
+        <div class="modal-form-group">
+          <label for="newBizItem">종목</label>
+          <input type="text" id="newBizItem" name="bizItem" placeholder="종목을 입력해주세요" />
         </div>
-        <div>
-          <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요"/> </div>
-        <div style="grid-column: span 2;" class ="bizAddr-wrapper">
-          <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" id="bizAddr" />
-          <input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="bizAddr" id="bizAddrBtn">
+        <div class="modal-form-group">
+          <label for="newCompEmpNm">담당자명</label>
+          <input type="text" id="newCompEmpNm" name="compEmpNm" placeholder="담당자명을 입력해주세요" />
+        </div>
+        <div class="modal-form-group">
+          <label for="newCompNo">사업장번호</label> <input type="text" id="newCompNo" name="compNo" placeholder="사업장번호를 입력해주세요"/>
+        </div>
+        <div class="modal-form-group" style="grid-column: span 2;">
+          <label for="newBizAddr">주소</label>
+          <div class="address-input-wrapper"> <input type="text" id="newBizAddr" name="bizAddr" placeholder="주소를 입력해주세요" />
+            <button type="button" class="btn-address-search" onclick="DaumPostcode(this)" data-target="newBizAddr">
+                <span class="material-symbols-outlined">search</span> 주소검색
+            </button>
+          </div>
         </div>
         
-        <div class="modal-buttons" style="grid-column: 1 / -1; justify-content: flex-end;"> 
-        <button type="button" name="save" style="display: none;">
-            <span class="material-symbols-outlined">save</span> 등록
+        <div class="modal-buttons"> 
+          <button type="button" name="save" class="btn-save"> <span class="material-symbols-outlined">save</span> 등록
           </button>
-          <button type="button" name="edit" style="display: block;"> <span class="material-symbols-outlined">edit</span> 수정
-          </button>
-          <button type="button" class="cancel-button" onclick="closeModal('modal-new')"> <span class="material-symbols-outlined">close</span> 취소
+          <button type="button" class="btn-cancel" onclick="closeModal('modal-new')">
+            <span class="material-symbols-outlined">close</span> 취소
           </button>
         </div>
       </form>
@@ -706,111 +146,89 @@
   </div>
   
   <div class="modal" id="modal-detail" onclick="outsideClick(event)">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <h3>상세 정보</h3> <form id="modalForm" class="modalForm"> <div class="modal-tabs">
-          <button type="button" class="tab-button active" onclick="switchModalTab('infoTab')">기본 정보</button>
-          <button type="button" class="tab-button" onclick="switchModalTab('extraTab')">추가 정보</button>
-        </div>
+    <div class="modal-content" onclick="event.stopPropagation()"> <h3 id="modalDetailTitle">상세 정보</h3> <form id="modalDetailForm" class="modal-form-stacked"> <div class="modal-tabs"> <button type="button" class="tab-button active" onclick="switchModalTab('infoTab')">기본 정보</button>
+          <button type="button" class="tab-button" onclick="switchModalTab('extraTab')">품목 정보</button> </div>
 
         <div id="infoTab" class="tab-content active">
-          <div class="warehouse-info-grid">
-            <div class="input-group">
-              <span>거래처명</span>
-              <input type="text" name="custNm" required/>
+          <div class="modal-form-group">
+            <label for="detailCustNm">거래처명<span class="required-asterisk">*</span></label>
+            <input type="text" id="detailCustNm" name="custNm" required/>
+          </div>
+          <div class="modal-form-group">
+            <label for="detailPresidentNm">대표자명<span class="required-asterisk">*</span></label>
+            <input type="text" id="detailPresidentNm" name="presidentNm" required/>
+          </div>
+          <div class="form-group-inline"> <div class="modal-form-group">
+                <label for="detailBizNo">사업자번호<span class="required-asterisk">*</span></label>
+                <input type="text" id="detailBizNo" name="bizNo" required/>
             </div>
-            <div class="input-group">
-              <span>대표자명</span> <input type="text" name="presidentNm" />
+            <div class="modal-form-group">
+                <label for="detailBizTel">연락처<span class="required-asterisk">*</span></label>
+                <input type="text" id="detailBizTel" name="bizTel" required/>
             </div>
-            <div class="input-group">
-              <span>사업자번호</span>
-              <input type="text" name="bizNo" id="detailBizNumber" required/>
+          </div>
+          <div class="form-group-inline"> <div class="modal-form-group">
+                <label for="detailCustEmail">이메일</label>
+                <input type="text" id="detailCustEmail" name="custEmail" />
             </div>
-            <div class="input-group">
-              <span>연락처</span>
-              <input type="text" name="bizTel" id="detailPhoneNumber" required/>
+            <div class="modal-form-group">
+                <label for="detailBizFax">팩스번호</label>
+                <input type="text" id="detailBizFax" name="bizFax" />
             </div>
-            <div class="input-group">
-              <span>이메일</span>
-              <input type="text" name="custEmail" id="detailEmail" />
+          </div>
+          <div class="form-group-inline"> <div class="modal-form-group">
+                <label for="detailBizCond">업태</label>
+                <input type="text" id="detailBizCond" name="bizCond" />
             </div>
-            <div class="input-group">
-              <span>팩스번호</span>
-              <input type="text" name="bizFax" />
+            <div class="modal-form-group">
+                <label for="detailBizItem">업종</label> <input type="text" id="detailBizItem" name="bizItem" />
             </div>
-            <div class="input-group">
-              <span>업태</span>
-              <input type="text" name="bizCond" />
-            </div>
-            <div class="input-group">
-              <span>업종</span>
-              <input type="text" name="bizItem" />
-            </div>
-            <div class="input-group"> <span>담당자명</span> 
-              <input type="text" name="compEmpNm" /> </div>
-            <div class="input-group">
-              <span>법인번호</span> <input type="text" name="compNo" id="detailCompNumber" />
-            </div>
-            <div class="input-group" style="grid-column: span 2;"> <span>주소</span>
-                 <input type="text" name="bizAddr" />
+          </div>
+          <div class="form-group-inline"> <div class="modal-form-group">
+                <label for="detailCompEmpNm">담당자명</label> 
+                <input type="text" id="detailCompEmpNm" name="compEmpNm" />
+              </div>
+              <div class="modal-form-group">
+                <label for="detailCompNo">사업장번호</label> <input type="text" id="detailCompNo" name="compNo" />
+              </div>
+          </div>
+          <div class="modal-form-group">
+             <label for="detailBizAddr">주소</label>
+             <div class="address-input-wrapper">
+                <input type="text" id="detailBizAddr" name="bizAddr" />
+                <button type="button" class="btn-address-search" onclick="DaumPostcode(this)" data-target="detailBizAddr">
+                    <span class="material-symbols-outlined">search</span> 주소검색
+                </button>
             </div>
           </div>
         </div>
 
         <div id="extraTab" class="tab-content">
-		  <div class="item-table-container"> 
-		    <table class="grid-table item-table-in-modal"> 
-		      <thead>
-		        <tr>
-		          <th id="modalItemNameHeader">품목명<a>↓</a></th> <th data-item-sort-by="itemCd">품목코드<a>↓</a></th> </tr>
-		      </thead>
-		      <tbody id="itemTableBody">
-		        </tbody>
-		    </table>
-		  </div>
-		</div>
+            <h4 class="section-title sub-section-title">등록된 품목</h4> <div class="table-scroll-wrapper modal-table-maxheight"> <table class="grid-table item-table-in-modal"> 
+                <thead>
+                    <tr>
+                    <th id="modalItemNameHeader" data-item-sort-by="itemNm">품목명<a class="sort-arrow">↓</a></th> <th data-item-sort-by="itemCd">품목코드<a class="sort-arrow">↓</a></th>
+                    </tr>
+                </thead>
+                <tbody id="itemTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
         <div class="modal-buttons">
-          <button type="submit" name="save" style="display: none;"> <span class="material-symbols-outlined">save</span> 등록
+          <button type="button" name="edit" class="btn-edit"> <span class="material-symbols-outlined">edit</span> 수정
           </button>
-          <button type="submit" name="edit" style="display: block;"> <span class="material-symbols-outlined">edit</span> 수정
-          </button>
-          <button type="button" class="cancel-button" onclick="closeModal('modal-detail')"> <span class="material-symbols-outlined">close</span> 취소
+          <button type="button" class="btn-cancel" onclick="closeModal('modal-detail')">
+            <span class="material-symbols-outlined">close</span> 취소
           </button>
         </div>
       </form>
     </div>
   </div>
-
-  <script src="/js/top.js"></script>
+  
+  <style>.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }</style> <script src="/js/top.js"></script>
   <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-  <script src="/js/kakaoApi.js"></script>
-  <script>
-    function switchModalTab(tabId) {
-      const modalDetailContent = document.querySelector('#modal-detail .modal-content');
-      if (!modalDetailContent) return;
-
-      const tabButtons = modalDetailContent.querySelectorAll('.modal-tabs .tab-button');
-      const tabContents = modalDetailContent.querySelectorAll('.tab-content');
-
-      tabButtons.forEach(btn => btn.classList.remove('active'));
-      tabContents.forEach(content => content.classList.remove('active'));
-
-      const buttonToActivate = modalDetailContent.querySelector(`.modal-tabs .tab-button[onclick="switchModalTab('${tabId}')"]`);
-      const contentToActivate = modalDetailContent.querySelector(`.tab-content#${tabId}`);
-
-      if (buttonToActivate) buttonToActivate.classList.add('active');
-      if (contentToActivate) contentToActivate.classList.add('active');
-    }
-
-    function outsideClick(event) {
-      if (event.target === event.currentTarget) {
-        if (typeof closeModal === 'function') {
-            closeModal(event.currentTarget.id);
-        } else { 
-            event.currentTarget.style.display = 'none';
-        }
-      }
-    }
-  </script>
-  <script src="/js/customer.js"></script>
+  <script src="/js/kakaoApi.js"></script> <script src="/js/customer.js"></script>
 </body>
 </html>

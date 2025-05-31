@@ -1,365 +1,142 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>마이페이지</title>
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 <style th:replace="~{/top.html :: topstyle}"></style>
-<style>
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-body {
-	font-family: sans-serif;
-	display: flex;
-	flex-direction: column;
-	min-height: 100vh;
-}
-
-.site-Wrapper {
-	flex-grow: 1;
-	width: 100%;
-	max-width: 1200px;
-	padding: 20px;
-	align-self: center;
-	height: auto !important;
-    min-height: 100vh;
-}
-
-.site-Dataset {
-	width: 100%;
-	border: 1px solid #777;
-	border-radius: 10px;
-	overflow: hidden;
-	background-color: #fff;
-}
-
-.site-Dataset .header {
-	background-color: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
-	font-weight: bold;
-	display: flex;
-	align-items: center;
-	gap: 10px;
-}
-
-.data-Row {
-	display: flex;
-	flex-wrap: wrap;
-	border-bottom: 1px solid #eee;
-	padding: 10px 20px;
-	gap: 20px;
-}
-
-.data-Row:last-child {
-	border-bottom: none;
-}
-
-.data-Label {
-    font-weight: 500;
-    margin-bottom: 8px;
-    color: #333;
-}
-
-.data-Value {
-	flex: 1;
-	display: flex;
-	align-items: center;
-}
-
-.data-Value input[type="text"], .data-Value input[type="email"],
-	.data-Value input[type="tel"] {
-	width: 100%;
-	padding: 10px 12px;
-	font-size: 14px;
-	height: 42px;
-	border: 1px solid #ccc;
-	border-radius: 5px;
-	transition: border-color 0.2s;
-}
-
-.data-Value input:focus {
-	border-color: #46a6ff;
-	outline: none;
-}
-
-.button-Group {
-	width: 100%;
-	display: flex;
-	justify-content: flex-end;
-	padding: 20px;
-	gap: 10px;
-}
-
-.button-Group button {
-	height: 42px;
-	padding: 0 14px;
-	border: none;
-	border-radius: 6px;
-	cursor: pointer;
-	font-size: 1rem;
-	font-weight: bold;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-	transition: background 0.2s;
-}
-
-.update-btn {
-	background-color: #007bff;
-	color: white;
-}
-
-.change-pw-btn {
-	background-color: #6c757d;
-	color: white;
-}
-
-.button-Group button:hover {
-	filter: brightness(0.9);
-}
-
-.modal {
-	display: none;
-	position: fixed;
-	z-index: 1000;
-	left: 0;
-	top: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.4);
-	justify-content: center;
-	align-items: center;
-}
-
-.modal-content {
-	background: white;
-	padding: 20px;
-	border-radius: 10px;
-	width: 100%;
-	max-width: 500px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.modal-content h2 {
-	margin-bottom: 20px;
-	color: #333;
-	text-align: left;
-}
-
-.modal-content input {
-	width: 100%;
-	padding: 10px 12px;
-	margin-bottom: 15px;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-}
-
-.btn-Wrap {
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-}
-
-.modal-content button {
-	height: 42px;
-	padding: 0 14px;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	font-size: 1em;
-	font-weight: bold;
-	display: flex;
-	align-items: center;
-	gap: 6px;
-}
-
-.close-btn {
-	background-color: #dc3545;
-	color: white;
-}
-
-.save-btn {
-	background-color: #28a745;
-	color: white;
-}
-
-#pw-change-msg {
-	color: red;
-	font-weight: bold;
-	margin-top: 10px;
-}
-
-.success-message {
-	color: green;
-	font-weight: bold;
-	margin-bottom: 10px;
-}
-
-.error-message {
-	color: red;
-	font-weight: bold;
-	margin-bottom: 10px;
-}
-
-@media screen and (max-width: 768px) {
-	.data-Row {
-		flex-direction: column;
-		gap: 0;
-	}
-	.button-Group {
-		flex-direction: column;
-		align-items: stretch;
-		padding: 10px;
-	}
-	.button-Group button{justify-content: center;}
-	.btn-Wrap {
-		flex-direction: column;
-		align-items: stretch;
-	}
-}
-</style>
-</head>
+<link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/mypage.css">   </head>
 
 <body>
-	<div th:replace="~{/top.html :: .top-Wrapper}"></div>
+    <div th:replace="~{/top.html :: .top-Wrapper}"></div>
 
-	<div class="site-Wrapper">
-<!-- 		<h1 -->
-<!-- 			style="color: #333; font-size: 24px; margin-bottom: 16px; font-size: 24px; text-align: left">마이페이지</h1> -->
-		<div th:if="${successMessage}" class="success-message"
-			th:text="${successMessage}"></div>
-		<div th:if="${errorMessage}" class="error-message"
-			th:text="${errorMessage}"></div>
+    <div class="site-Wrapper">
+     <h1 style="font-size: 24px; margin-bottom: 16px;">마이페이지</h1>
+    
+        <div th:if="${successMessage}" class="success-message"
+            th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="error-message"
+            th:text="${errorMessage}"></div>
 
-		<form th:action="@{/mypage/update}" method="post">
-			<input type="hidden" name="userIdx" th:value="${user.userIdx}" /> <input
-				type="hidden" name="userId" th:value="${user.userId}" />
+        <form id="mypageForm" th:action="@{/mypage/update}" method="post"> <input type="hidden" name="userIdx" th:value="${user.userIdx}" />
+            <input type="hidden" name="userId" th:value="${user.userId}" />
 
-			<div class="site-Dataset">
-				<div class="header">
-					<span class="material-symbols-outlined"> frame_person </span>마이페이지
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">아이디</div>
-					<div class="data-Value" th:text="${user.userId}"></div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">이름</div>
-					<div class="data-Value">
-						<input type="text" id="userNm" name="userNm"
-							th:value="${user.userNm}" required />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">이메일</div>
-					<div class="data-Value">
-						<input type="email" id="userEMail" name="userEMail"
-							th:value="${user.userEMail}" required />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">전화번호</div>
-					<div class="data-Value">
-						<input type="tel" id="userTel" name="userTel"
-							th:value="${user.userTel}" />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">휴대폰</div>
-					<div class="data-Value">
-						<input type="tel" id="userHp" name="userHp"
-							th:value="${user.userHp}" />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">부서</div>
-					<div class="data-Value">
-						<input type="text" id="userDept" name="userDept"
-							th:value="${user.userDept}" readonly />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">직책</div>
-					<div class="data-Value">
-						<input type="text" id="userPosition" name="userPosition"
-							th:value="${user.userPosition}" readonly />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">입사일</div>
-					<div class="data-Value">
-						<input type="text" id="hireDt" name="hireDt"
-							th:value="${#strings.substring(user.userHireDt, 0, 10)}" readonly />
-					</div>
-				</div>
-				<div class="data-Row">
-					<div class="data-Label">퇴사일</div>
-					<div class="data-Value">
-						<input type="text" id="retireDt" name="retireDt"
-							th:value="${#strings.substring(user.userRetireDt,0,10)}" readonly />
-					</div>
-				</div>
+            <div class="site-Dataset">
+                <div class="header">
+                    <span class="material-symbols-outlined">frame_person</span>
+                    <h4>마이페이지</h4> </div>
+                <div class="mypage-form-content">
+                    <div class="data-Row">
+                        <div class="data-Label">아이디</div>
+                        <div class="data-Value" th:text="${user.userId}"></div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">이름</div>
+                        <div class="data-Value">
+                            <input type="text" id="userNm" name="userNm"
+                                th:value="${user.userNm}" required />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">이메일</div>
+                        <div class="data-Value">
+                            <input type="email" id="userEMail" name="userEMail"
+                                th:value="${user.userEMail}" required />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">전화번호</div>
+                        <div class="data-Value">
+                            <input type="tel" id="userTel" name="userTel"
+                                th:value="${user.userTel}" />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">휴대폰</div>
+                        <div class="data-Value">
+                            <input type="tel" id="userHp" name="userHp"
+                                th:value="${user.userHp}" />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">부서</div>
+                        <div class="data-Value">
+                            <input type="text" id="userDept" name="userDept"
+                                th:value="${user.userDept}" readonly />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">직책</div>
+                        <div class="data-Value">
+                            <input type="text" id="userPosition" name="userPosition"
+                                th:value="${user.userPosition}" readonly />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">입사일</div>
+                        <div class="data-Value">
+                            <input type="text" id="hireDt" name="hireDt"
+                                th:value="${user.userHireDt != null ? #strings.substring(user.userHireDt, 0, 10) : ''}" readonly />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">퇴사일</div>
+                        <div class="data-Value">
+                            <input type="text" id="retireDt" name="retireDt"
+                                th:value="${user.userRetireDt != null ? #strings.substring(user.userRetireDt,0,10) : ''}" readonly />
+                        </div>
+                    </div>
+                    <div class="data-Row">
+                        <div class="data-Label">재직상태</div>
+                        <div class="data-Value" th:switch="${user.userStatus}">
+                            <input type="text" id="userStatusText" name="userStatusText"
+                                th:case="'01'" value="재직중" readonly />
+                            <input type="text" id="userStatusText" name="userStatusText" th:case="'02'" value="퇴사"
+                                readonly />
+                            <input type="text" id="userStatusText" name="userStatusText" th:case="'03'" value="휴직"
+                                readonly />
+                            <input type="text" id="userStatusText" name="userStatusText" th:case="'04'" value="대기"
+                                readonly />
+                            <input type="text" id="userStatusText" name="userStatusText" th:case="'05'" value="정직"
+                                readonly />
+                            <input type="text" id="userStatusText" name="userStatusText" th:case="*" th:value="${user.userStatus}" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="mypage-action-buttons">
+                    <button type="submit" class="btn-save"> <span class="material-symbols-outlined">edit</span>정보 수정
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="openPwChangeModal()"> <span class="material-symbols-outlined">lock</span>비밀번호 변경
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 
-				<div class="data-Row">
-					<div class="data-Label">재직상태</div>
-					<div class="data-Value" th:switch="${user.userStatus}">
-
-						<input type="text" id="userStatus" name="userStatus"
-							th:case="'01'" value="재직중" readonly /> <input type="text"
-							id="userStatus" name="userStatus" th:case="'02'" value="퇴사"
-							readonly /> <input type="text" id="userStatus" name="userStatus"
-							th:case="'03'" value="휴직" readonly /> <input type="text"
-							id="userStatus" name="userStatus" th:case="'04'" value="대기"
-							readonly /> <input type="text" id="userStatus" name="userStatus"
-							th:case="'05'" value="정직" readonly />
-						<!--                         <input type="text" id="userStatus" name="userStatus" th:value="${user.userStatus}" readonly /> -->
-					</div>
-				</div>
-			<div class="button-Group">
-				<button type="submit" class="update-btn">
-					<span class="material-symbols-outlined">edit</span>정보 수정
-				</button>
-				<button type="button" class="change-pw-btn"
-					onclick="openPwChangeModal()">
-					<span class="material-symbols-outlined">lock</span>비밀번호 변경
-				</button>
-
-			</div>
-			</div>
-		</form>
-	</div>
-
-	<div id="pw-change-modal" class="modal">
-		<form th:action="@{/mypage/updatePassword}" method="post"
-			class="modal-content">
-			<h2>비밀번호 변경</h2>
-			<input type="password" id="newPassword" name="newPassword"
-				placeholder="새 비밀번호" required> <input type="password"
-				id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 확인"
-				required>
-			<div id="pw-change-msg"></div>
-			<div class="btn-Wrap">
-				<div>
-					<button type="submit" class="save-btn">
-						<span class="material-symbols-outlined">edit</span>변경
-					</button>
-					<button type="button" class="close-btn"
-						onclick="closePwChangeModal()">
-						<span class="material-symbols-outlined">close</span>취소
-					</button>
-				</div>
-			</div>
-		</form>
-	</div>
-	<script src="/js/top.js"></script>
-	<script>
+    <div id="pw-change-modal" class="modal">
+        <div class="modal-content">
+            <h3>비밀번호 변경</h3> <form id="passwordChangeForm" th:action="@{/mypage/updatePassword}" method="post" class="modal-form-stacked"> <div class="modal-form-group">
+                    <label for="newPassword">새 비밀번호</label>
+                    <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="confirmPassword">새 비밀번호 확인</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 확인" required>
+                </div>
+                <div id="pw-change-msg"></div>
+                <div class="modal-buttons">
+                    <button type="submit" class="btn-save">
+                        <span class="material-symbols-outlined">save</span>변경 </button>
+                    <button type="button" class="btn-cancel" onclick="closePwChangeModal()">
+                        <span class="material-symbols-outlined">close</span>취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/js/top.js"></script>
+    <script>
         function openPwChangeModal() {
             document.getElementById('pw-change-modal').style.display = 'flex';
             document.getElementById('newPassword').value = '';
@@ -371,16 +148,33 @@ body {
             document.getElementById('pw-change-modal').style.display = 'none';
         }
         
-        //modal 닫기
         window.addEventListener('click', function (event) {
             const modal = document.getElementById('pw-change-modal');
-            const content = document.querySelector('#pw-change-modal .modal-content');
-
-            if (event.target === modal) {
+            // 모달 배경 클릭 시 닫기 (컨텐츠 내부 클릭은 제외되도록 modal.contains(event.target) 사용 안 함)
+            if (event.target === modal) { 
                 closePwChangeModal();
             }
         });
+
+        // 비밀번호 변경 폼 제출 시 유효성 검사 (선택 사항)
+        const passwordChangeForm = document.getElementById('passwordChangeForm');
+        if (passwordChangeForm) {
+            passwordChangeForm.addEventListener('submit', function(event) {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const pwChangeMsg = document.getElementById('pw-change-msg');
+                
+                if (newPassword !== confirmPassword) {
+                    event.preventDefault(); // 폼 제출 중단
+                    pwChangeMsg.textContent = '새 비밀번호와 확인 비밀번호가 일치하지 않습니다.';
+                } else if (newPassword.length < 6) { // 예: 최소 길이 검사
+                    event.preventDefault();
+                    pwChangeMsg.textContent = '비밀번호는 최소 6자 이상이어야 합니다.';
+                } else {
+                    pwChangeMsg.textContent = ''; // 오류 메시지 초기화
+                }
+            });
+        }
     </script>
 </body>
-
 </html>

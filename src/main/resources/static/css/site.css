@@ -1,0 +1,113 @@
+/* ==========================================================================
+   사업장 정보 페이지 고유 스타일
+   - outbound.css의 공통 스타일을 기반으로 하며, 필요한 추가/수정 사항만 정의
+   ========================================================================== */
+
+/* site-Wrapper, site-Dataset, header 등은 outbound.css 스타일을 따름 */
+/* .shipping-info-form (폼 레이아웃) 및 .form-group (개별 항목)도 outbound.css 스타일을 따름 */
+.site-Dataset .header h4 {
+	margin: 0;
+	font-weight: 600;
+}
+
+/* 사업장 정보 페이지의 폼 컨텐츠 패딩 (outbound.css .shipping-info-section 참고) */
+.site-form-content {
+	padding: 20px 25px;
+}
+
+/* 주소 입력 그룹 (.addr-group) - 기본 .form-group 스타일을 확장 */
+.form-group.addr-group {
+	grid-column: span 2; /* .shipping-info-form이 2컬럼 이상일 때 두 컬럼 차지 */
+	/* 필요시 추가 스타일 */
+}
+
+.address-input-wrapper {
+	position: relative;
+	display: flex; /* input과 button을 한 줄에 배치 */
+}
+
+.address-input-wrapper input[type="text"] {
+	/* 기본 .form-group input 스타일을 따름 */
+	padding-right: 110px; /* 버튼 공간 확보 (버튼 너비에 따라 조정) */
+}
+
+.btn-address-search {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 105px;
+	background-color: #6c757d;
+	color: white;
+	border: none;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 5px;
+	font-size: 14px;
+	transition: background-color 0.2s ease;
+}
+
+.btn-address-search:hover {
+	background: #0056b3;
+}
+
+.btn-address-search .material-symbols-outlined {
+	font-size: 18px;
+}
+
+.btn-save {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+	color: #fff;
+	background: #007bff;
+}
+/* 폼 하단 버튼 영역 (outbound.css .search-action-buttons 참고) */
+.form-actions-footer {
+	display: flex;
+	justify-content: flex-end;
+	padding: 20px 25px; /* .search-action-buttons 패딩과 유사하게 */
+	border-top: 1px solid #eee;
+}
+/* .form-actions-footer 내부 버튼은 .btn-save 등 표준 클래스 사용 */
+
+/* 반응형 스타일 (site.html 고유 레이아웃 조정) */
+@media ( max-width : 768px) {
+	.site-form-content { /* .shipping-info-form 클래스가 이미 반응형 처리 */
+		gap: 15px; /* 모바일에서 폼 그룹 간 간격 조정 */
+	}
+	.form-group.addr-group {
+		grid-column: span 1; /* 모바일에서는 한 컬럼으로 */
+	}
+	.address-input-wrapper input[type="text"] {
+		padding-right: 0; /* 모바일에서는 주소검색 버튼이 아래로 갈 수 있음 (또는 다른 디자인) */
+	}
+	.btn-address-search {
+		position: absolute;
+		transform: none;
+		/* width: 100%; */
+		/* margin-top: 8px; */
+		height: 42px;
+		border-radius: 5px;
+	}
+	.form-actions-footer {
+		flex-direction: column;
+		align-items: stretch;
+		padding: 15px;
+	}
+	.form-actions-footer .btn-save { /* 저장 버튼 */
+		width: 100%;
+		justify-content: center;
+	}
+}
