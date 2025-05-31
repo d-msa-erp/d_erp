@@ -1,11 +1,20 @@
 package kr.co.d_erp.service;
 
-import kr.co.d_erp.domain.Usermst;
-import kr.co.d_erp.dtos.PageDto;
-import kr.co.d_erp.dtos.UserSelectDto;
-import kr.co.d_erp.models.PasswordHandler;
-import kr.co.d_erp.repository.oracle.UsermstRepository;
-import lombok.RequiredArgsConstructor;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +22,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import kr.co.d_erp.domain.Usermst;
+import kr.co.d_erp.dtos.PageDto;
+import kr.co.d_erp.dtos.UserSelectDto;
+import kr.co.d_erp.models.PasswordHandler;
+import kr.co.d_erp.repository.oracle.UsermstRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자 자동 주입
@@ -304,5 +316,178 @@ public class UsermstService {
      */
     public boolean verifyPassword(String rawPassword, String encodedPassword) {
         return passwordHandler.matches(rawPassword, encodedPassword);
+    }
+    
+    /**
+     * 선택된 사원들의 정보를 Excel 파일로 생성
+     * 
+     * @param userIdxs 사원 ID 목록
+     * @return Excel 파일 바이트 배열
+     */
+    public byte[] generateEmployeeExcel(List<Long> userIdxs) {
+        XSSFWorkbook workbook = null;
+        try {
+            // Apache POI 5.3.0을 사용한 Excel 생성
+            workbook = new XSSFWorkbook();
+            Sheet sheet = workbook.createSheet("사원 정보");
+            
+            // 헤더 스타일 생성
+            CellStyle headerStyle = workbook.createCellStyle();
+            Font headerFont = workbook.createFont();
+            headerFont.setBold(true);
+            headerFont.setFontHeightInPoints((short) 12);
+            headerStyle.setFont(headerFont);
+            headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+            headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            headerStyle.setBorderBottom(BorderStyle.THIN);
+            headerStyle.setBorderTop(BorderStyle.THIN);
+            headerStyle.setBorderRight(BorderStyle.THIN);
+            headerStyle.setBorderLeft(BorderStyle.THIN);
+            
+            // 헤더 생성
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"이름", "ID", "이메일", "직통번호", "휴대폰", "부서", "직책", "권한", "재직상태", "입사일", "퇴사일"};
+            
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+                cell.setCellStyle(headerStyle);
+            }
+            
+            // 데이터 스타일 생성
+            CellStyle dataStyle = workbook.createCellStyle();
+            dataStyle.setBorderBottom(BorderStyle.THIN);
+            dataStyle.setBorderTop(BorderStyle.THIN);
+            dataStyle.setBorderRight(BorderStyle.THIN);
+            dataStyle.setBorderLeft(BorderStyle.THIN);
+            
+            // 날짜 스타일 생성
+            CellStyle dateStyle = workbook.createCellStyle();
+            CreationHelper createHelper = workbook.getCreationHelper();
+            dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd"));
+            dateStyle.setBorderBottom(BorderStyle.THIN);
+            dateStyle.setBorderTop(BorderStyle.THIN);
+            dateStyle.setBorderRight(BorderStyle.THIN);
+            dateStyle.setBorderLeft(BorderStyle.THIN);
+            
+            // 데이터 조회 및 입력
+            List<Usermst> users = userMstRepository.findAllById(userIdxs);
+            
+            int rowNum = 1;
+            for (Usermst user : users) {
+                Row row = sheet.createRow(rowNum++);
+                
+                Cell cell0 = row.createCell(0);
+                cell0.setCellValue(user.getUserNm() != null ? user.getUserNm() : "");
+                cell0.setCellStyle(dataStyle);
+                
+                Cell cell1 = row.createCell(1);
+                cell1.setCellValue(user.getUserId() != null ? user.getUserId() : "");
+                cell1.setCellStyle(dataStyle);
+                
+                Cell cell2 = row.createCell(2);
+                cell2.setCellValue(user.getUserEmail() != null ? user.getUserEmail() : "");
+                cell2.setCellStyle(dataStyle);
+                
+                Cell cell3 = row.createCell(3);
+                cell3.setCellValue(user.getUserTel() != null ? user.getUserTel() : "");
+                cell3.setCellStyle(dataStyle);
+                
+                Cell cell4 = row.createCell(4);
+                cell4.setCellValue(user.getUserHp() != null ? user.getUserHp() : "");
+                cell4.setCellStyle(dataStyle);
+                
+                Cell cell5 = row.createCell(5);
+                cell5.setCellValue(user.getUserDept() != null ? user.getUserDept() : "");
+                cell5.setCellStyle(dataStyle);
+                
+                Cell cell6 = row.createCell(6);
+                cell6.setCellValue(user.getUserPosition() != null ? user.getUserPosition() : "");
+                cell6.setCellStyle(dataStyle);
+                
+                Cell cell7 = row.createCell(7);
+                cell7.setCellValue(getRoleName(user.getUserRole()));
+                cell7.setCellStyle(dataStyle);
+                
+                Cell cell8 = row.createCell(8);
+                cell8.setCellValue(getStatusName(user.getUserStatus()));
+                cell8.setCellStyle(dataStyle);
+                
+                Cell cell9 = row.createCell(9);
+                if (user.getHireDt() != null) {
+                    cell9.setCellValue(java.sql.Date.valueOf(user.getHireDt()));
+                    cell9.setCellStyle(dateStyle);
+                } else {
+                    cell9.setCellValue("");
+                    cell9.setCellStyle(dataStyle);
+                }
+                
+                Cell cell10 = row.createCell(10);
+                if (user.getRetireDt() != null) {
+                    cell10.setCellValue(java.sql.Date.valueOf(user.getRetireDt()));
+                    cell10.setCellStyle(dateStyle);
+                } else {
+                    cell10.setCellValue("");
+                    cell10.setCellStyle(dataStyle);
+                }
+            }
+            
+            // 컬럼 너비 자동 조정
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+            
+            // 바이트 배열로 변환
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            workbook.write(outputStream);
+            
+            return outputStream.toByteArray();
+            
+        } catch (Exception e) {
+            throw new RuntimeException("Excel 파일 생성 중 오류 발생", e);
+        } finally {
+            if (workbook != null) {
+                try {
+                    workbook.close();
+                } catch (Exception e) {
+                    // 로그만 남기고 무시
+                    System.err.println("Excel workbook 닫기 중 오류: " + e.getMessage());
+                }
+            }
+        }
+    }
+    
+    /**
+     * 권한 코드를 한글명으로 변환
+     */
+    private String getRoleName(String roleCode) {
+        if (roleCode == null) return "";
+        
+        switch (roleCode) {
+            case "01": return "시스템관리자";
+            case "02": return "대표";
+            case "03": return "영업 담당자";
+            case "04": return "구매 담당자";
+            case "05": return "생산 관리자";
+            case "06": return "재고 관리자";
+            case "07": return "인사 담당자";
+            default: return roleCode;
+        }
+    }
+    
+    /**
+     * 재직상태 코드를 한글명으로 변환
+     */
+    private String getStatusName(String statusCode) {
+        if (statusCode == null) return "";
+        
+        switch (statusCode) {
+            case "01": return "재직중";
+            case "02": return "퇴사";
+            case "03": return "휴직";
+            case "04": return "대기";
+            case "05": return "정직";
+            default: return statusCode;
+        }
     }
 }
