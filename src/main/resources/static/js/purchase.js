@@ -1,9 +1,10 @@
 let itemList = []; // 품목 리스트를 담을 배열
 const companyCustMap = new Map(); // 거래처명에 따른 idx를 담을 map
 let currentPage = 0;
-let totalPages = 0;
 let sortBy = 'deliveryDate';
 let sortDirection = 'asc';
+
+
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
 	loadPurchases('deliveryDate', 'asc');
@@ -32,18 +33,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	currentPageInput?.addEventListener('keypress', (e) => {
+	document.getElementById("currentPageInput")?.addEventListener('keypress', (e) => {
 		if (e.key === 'Enter') {
-			let page = parseInt(currentPageInput.value);
+			const page = parseInt(e.target.value);
 			if (!isNaN(page) && page >= 1 && page <= totalPages) {
 				currentPage = page - 1;
-				loadPurchases(sortBy, sortDirection);
+				loadSales(currentTh, currentOrder, isDueDate);
 			} else {
 				alert('올바른 페이지 번호를 입력하세요.');
-				currentPageInput.value = currentPage + 1;
+				e.target.value = currentPage + 1;
 			}
 		}
 	});
+
+	document.getElementById('searchTransStatus').addEventListener('change', searchItems);
 
 });
 //옆에 창 토글기능
@@ -80,7 +83,7 @@ async function loadPurchases(sortBy, sortDirection) {
 		console.warn("ID가 'purchasesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
 	}
-	
+
 	const apiUrl = `/api/orders/purchases?sortBy=${sortBy}&sortDirection=${sortDirection}&page=${currentPage}`;
 	try {
 		const response = await fetch(apiUrl);
@@ -116,7 +119,19 @@ async function loadPurchases(sortBy, sortDirection) {
 // 테이블 랜더링
 function renderPurchases(purchases) {
 	purchasesTableBody.innerHTML = '';
-	purchases.forEach(purchase => {
+
+	if (!purchases || purchases.length === 0) {
+		renderNoDataMessage();
+		return;
+	}
+	const onlyPurchase = purchases.filter(purchases => purchases.orderType === 'P');
+	const paginationInfo = document.getElementById("paginationInfo");
+	const perPage = 10;
+	const totalPages = Math.ceil(onlyPurchase.length / perPage);
+	if (paginationInfo) {
+		paginationInfo.textContent = `총 ${onlyPurchase.length}건 ${currentPage + 1}/${totalPages}페이지`;
+	}
+	onlyPurchase.forEach(purchase => {
 		const row = document.createElement('tr');
 		row.dataset.id = purchase.orderCode;
 		row.onclick = () => openPurchasedetail(purchase.orderIdx);
@@ -203,7 +218,7 @@ function renderNoDataMessage() {
 	const noDataCell = document.createElement('td');
 
 	noDataCell.className = 'nodata';
-	noDataCell.colSpan = 5;
+	noDataCell.colSpan = 9;
 	noDataCell.textContent = '등록된 데이터가 없습니다.';
 	noDataCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
 
@@ -219,7 +234,7 @@ function renderErrorMessage(message) {
 	const errorRow = document.createElement('tr');
 	const errorCell = document.createElement('td');
 
-	errorCell.colSpan = 5;
+	errorCell.colSpan = 9;
 	errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
 	errorCell.style.color = 'red';
 	errorCell.setAttribute('style', 'grid-column: span 10; justify-content: center; text-align: center;');
@@ -229,18 +244,40 @@ function renderErrorMessage(message) {
 }
 
 function searchItems() {
-	const searchQuery = document.getElementById('searchInput').value;
-	if (!searchQuery) {
-		alert("검색어를 입력해주세요.");
-		return;
-	}
-	const apiUrl = `/api/orders/search?searchTerm=${searchQuery}`;
+	const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
+	const transStatus = document.getElementById('searchTransStatus').value;
 
-	// Ajax 요청 보내기
+	const queryParams = new URLSearchParams({
+		searchTerm: searchQuery,
+		page: currentPage,
+		transStatus
+	});
+
+	const apiUrl = `/api/orders/search?${queryParams.toString()}`;
+
 	fetch(apiUrl)
 		.then(response => response.json())
 		.then(data => {
-			renderPurchases(data);
+			if (data && data.content) {
+				const onlyPurchases = data.content.filter(p => p.orderType === 'P');
+				renderPurchases(onlyPurchases);
+
+				const paginationInfo = document.getElementById('paginationInfo');
+				if (paginationInfo) {
+					const total = onlyPurchases.length;
+					const perPage = 10;
+					const totalPages = Math.ceil(total / perPage);
+					const currentPageNum = currentPage + 1;
+
+					if (total === 0) {
+						paginationInfo.textContent = '총 0건';
+					} else {
+						paginationInfo.textContent = `총 ${total}건 ${currentPageNum}/${totalPages}페이지`;
+					}
+				}
+			} else {
+				renderNoDataMessage();
+			}
 		})
 		.catch(error => {
 			console.error('검색 오류:', error);
@@ -369,7 +406,7 @@ document.getElementById("itemName").addEventListener("change", async () => {
 		const currentInventoryEl = document.getElementById("currentInventory");
 		currentInventoryEl.style.color = "";
 		currentInventoryEl.style.fontWeight = "";
-		
+
 		return;
 	}
 
