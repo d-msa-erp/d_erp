@@ -19,8 +19,7 @@ import lombok.Setter;
 @Setter
 public class ItemDto {
 	@Id // 기본 키
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_seq") // 시퀀스 사용
-    @SequenceGenerator(name = "item_seq", sequenceName = "ISEQ$$_74438", allocationSize = 1) // Oracle 시퀀스명
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ITEM_IDX")
     private Long itemIdx;
 
