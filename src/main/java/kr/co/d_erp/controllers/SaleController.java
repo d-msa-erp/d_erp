@@ -79,7 +79,7 @@ public class SaleController {
 	@GetMapping("/search")
 	public Page<SalesView> searchSales(
 		    @RequestParam(required = false) String searchTerm,
-		    @RequestParam String dateType,
+		    @RequestParam(required = false) String dateType,
 		    @RequestParam(required = false) String startDate,
 		    @RequestParam(required = false) String endDate,
 		    @RequestParam(required = false) String transStatus,

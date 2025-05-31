@@ -50,7 +50,8 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 	@Query("SELECT s FROM SalesView s WHERE " +
 		       "(:searchTerm IS NULL OR :searchTerm = '' OR s.itemName LIKE %:searchTerm%) AND " +
 		       "(:transStatus IS NULL OR :transStatus = '' OR s.orderStatus = :transStatus) AND " +
-		       "(:startDate IS NULL OR :endDate IS NULL OR s.orderDate BETWEEN :startDate AND :endDate)")
+		       "(:startDate IS NULL OR s.orderDate >= :startDate) AND " +
+		       "(:endDate IS NULL OR s.orderDate <= :endDate)")
 	Page<SalesView> searchByOrderDate(@Param("searchTerm") String searchTerm,
 		                                  @Param("startDate") LocalDate startDate,
 		                                  @Param("endDate") LocalDate endDate,
@@ -60,7 +61,8 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 	@Query("SELECT s FROM SalesView s WHERE " +
 		       "(:searchTerm IS NULL OR :searchTerm = '' OR s.itemName LIKE %:searchTerm%) AND " +
 		       "(:transStatus IS NULL OR :transStatus = '' OR s.orderStatus = :transStatus) AND " +
-		       "(:startDate IS NULL OR :endDate IS NULL OR s.deliveryDate BETWEEN :startDate AND :endDate)")
+		       "(:startDate IS NULL OR s.deliveryDate >= :startDate) AND " +
+		       "(:endDate IS NULL OR s.deliveryDate <= :endDate)")
 	Page<SalesView> searchByDeliveryDate(@Param("searchTerm") String searchTerm,
 		                                     @Param("startDate") LocalDate startDate,
 		                                     @Param("endDate") LocalDate endDate,
