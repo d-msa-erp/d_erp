@@ -227,6 +227,7 @@ document.querySelector('.addPlan').addEventListener('submit', async (e) => {
     console.error(err);
     alert('❌ 재고 반영 중 오류 발생');
   }
+  location.reload();
 });
 
 

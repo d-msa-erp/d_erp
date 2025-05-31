@@ -46,6 +46,29 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 		    Pageable pageable
 		);
 	
+	
+	@Query("SELECT s FROM SalesView s WHERE " +
+		       "(:searchTerm IS NULL OR :searchTerm = '' OR s.itemName LIKE %:searchTerm%) AND " +
+		       "(:transStatus IS NULL OR :transStatus = '' OR s.orderStatus = :transStatus) AND " +
+		       "(:startDate IS NULL OR s.orderDate >= :startDate) AND " +
+		       "(:endDate IS NULL OR s.orderDate <= :endDate)")
+	Page<SalesView> searchByOrderDate(@Param("searchTerm") String searchTerm,
+		                                  @Param("startDate") LocalDate startDate,
+		                                  @Param("endDate") LocalDate endDate,
+		                                  @Param("transStatus") String transStatus,
+		                                  Pageable pageable);
+
+	@Query("SELECT s FROM SalesView s WHERE " +
+		       "(:searchTerm IS NULL OR :searchTerm = '' OR s.itemName LIKE %:searchTerm%) AND " +
+		       "(:transStatus IS NULL OR :transStatus = '' OR s.orderStatus = :transStatus) AND " +
+		       "(:startDate IS NULL OR s.deliveryDate >= :startDate) AND " +
+		       "(:endDate IS NULL OR s.deliveryDate <= :endDate)")
+	Page<SalesView> searchByDeliveryDate(@Param("searchTerm") String searchTerm,
+		                                     @Param("startDate") LocalDate startDate,
+		                                     @Param("endDate") LocalDate endDate,
+		                                     @Param("transStatus") String transStatus,
+		                                     Pageable pageable);
+	
 	@Query("SELECT DISTINCT s FROM SalesView s WHERE s.orderIdx IN :ids")
 	List<SalesView> findByOrderIdxIn(@Param("ids") List<Long> ids);
 

@@ -77,14 +77,14 @@ public class SaleController {
 
 	// 품목 검색 (검색 결과도 많을 수 있으므로 페이징 적용)
 	@GetMapping("/search")
-	public Page<SalesView> searchItems(
-		    @RequestParam String searchTerm,
-		    @RequestParam(defaultValue = "deliveryDate") String dateType,
+	public Page<SalesView> searchSales(
+		    @RequestParam(required = false) String searchTerm,
+		    @RequestParam(required = false) String dateType,
 		    @RequestParam(required = false) String startDate,
 		    @RequestParam(required = false) String endDate,
-		    @RequestParam(defaultValue = "0") int page
-	) {
-	    return salesService.searchItems(searchTerm, dateType, startDate, endDate, page);
+		    @RequestParam(required = false) String transStatus,
+		    @RequestParam(defaultValue = "0") int page) {
+		return salesService.searchItems(searchTerm, dateType, startDate, endDate, transStatus, page);
 	}
     
     

@@ -8,19 +8,20 @@ const startDateInput = document.getElementById('sDate');
 const quantityInput = document.getElementById('quantity');
 const dueDateInput = document.getElementById('dueDate');
 const cycleTimeInput = document.getElementById('itemCycleTime');
+const today = new Date().toISOString().split('T')[0];
 
 let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
 let qtyLowData = [];
-let currentTh = 'orderDate';
-let currentOrder = 'asc';
+let currentTh = 'orderIdx';
+let currentOrder = 'desc';
 let currentPage = 0;
-
+let isDueDate = false;
 
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
-	loadSales('orderDate', 'asc');
+	loadSales('orderIdx', 'desc', isDueDate);
 
 	const selectAllMainCb = document.getElementById('selectAllCheckbox'); // 메인 테이블의 전체 선택 체크박스 ID
 	if (selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
@@ -32,14 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.getElementById("btn-prev-page")?.addEventListener('click', () => {
 		if (currentPage > 0) {
 			currentPage--;
-			loadSales(currentTh, currentOrder);
+			loadSales(currentTh, currentOrder, isDueDate);
 		}
 	});
 
 	document.getElementById("btn-next-page")?.addEventListener('click', () => {
 		if (currentPage < totalPages - 1) {
 			currentPage++;
-			loadSales(currentTh, currentOrder);
+			loadSales(currentTh, currentOrder, isDueDate);
 		}
 	});
 
@@ -48,13 +49,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			const page = parseInt(e.target.value);
 			if (!isNaN(page) && page >= 1 && page <= totalPages) {
 				currentPage = page - 1;
-				loadSales(currentTh, currentOrder);
+				loadSales(currentTh, currentOrder, isDueDate);
 			} else {
 				alert('올바른 페이지 번호를 입력하세요.');
 				e.target.value = currentPage + 1;
 			}
 		}
 	});
+
+	document.getElementById("sDate").addEventListener("change", searchItems);
+	document.getElementById("endDate").addEventListener("change", searchItems);
+	document.getElementById("toggleDateType").addEventListener("change", searchItems);
+	document.getElementById('searchTransStatus').addEventListener('change', searchItems);
+
+	document.getElementById("sDate").setAttribute("min", today);
 });
 function order(sortBy) {
 	const allArrows = document.querySelectorAll("th a");
@@ -85,7 +93,7 @@ function order(sortBy) {
 }
 
 
-async function loadSales(sortBy, sortDirection, isDueDate = false) {
+async function loadSales(sortBy, sortDirection, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');;
 
 	if (!salesTableBody) {
@@ -115,7 +123,7 @@ async function loadSales(sortBy, sortDirection, isDueDate = false) {
 		}
 
 		if (sales && sales.content && sales.content.length > 0) {
-			rendersales(sales.content);
+			rendersales(sales.content, isDueDate);
 		} else {
 			renderNoDataMessage();
 		}
@@ -130,10 +138,21 @@ function rendersales(sales, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');
 	salesTableBody.innerHTML = '';
 
+	if (!sales || sales.length === 0) {
+		renderNoDataMessage();
+		return;
+	}
 
-
-	if (sales && sales.length > 0) {
-		sales.forEach(sale => {
+	// 주문만 추림
+	const onlySales = sales.filter(sale => sale.orderType === 'S');
+	const paginationInfo = document.getElementById("paginationInfo");
+	const perPage = 10;
+	const totalPages = Math.ceil(onlySales.length / perPage);
+	if (paginationInfo) {
+		paginationInfo.textContent = `총 ${onlySales.length}건 ${currentPage + 1}/${totalPages}페이지`;
+	}
+	if (onlySales.length > 0) {
+		onlySales.forEach(sale => {
 			const row = document.createElement('tr');
 			row.dataset.id = sale.orderCode;
 			row.onclick = () => openSalesDetail(sale.orderIdx);
@@ -146,12 +165,9 @@ function rendersales(sales, isDueDate) {
 			checkboxCell.appendChild(checkbox);
 			row.appendChild(checkboxCell);
 
-			// 행 클릭 막기
 			checkbox.addEventListener('click', (event) => {
 				event.stopPropagation();
 			});
-
-			// 체크박스 상태 변경 시 전체선택 동기화
 			checkbox.addEventListener('change', () => {
 				const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
 				const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -189,16 +205,16 @@ function rendersales(sales, isDueDate) {
 			customerNameCell.textContent = sale.customerName || '';
 			row.appendChild(customerNameCell);
 
-			// 납기일
+			// 납기일 또는 착수일
 			const dateCell = document.createElement('td');
 			dateCell.textContent = isDueDate ? sale.deliveryDate : sale.orderDate;
 			row.appendChild(dateCell);
 
+			// 상태
 			const orderStatusCell = document.createElement('td');
 			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
 				sale.orderStatus === 'S2' ? '출고가능' :
 					sale.orderStatus === 'S3' ? '출고완료' : '';
-
 			orderStatusCell.textContent = statusText;
 			row.appendChild(orderStatusCell);
 
@@ -217,7 +233,7 @@ function renderNoDataMessage() {
 	const noDataCell = document.createElement('td');
 
 	noDataCell.className = 'nodata';
-	noDataCell.colSpan = 5;
+	noDataCell.colSpan = 8;
 	noDataCell.textContent = '등록된 데이터가 없습니다.';
 	noDataCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
@@ -233,7 +249,7 @@ function renderErrorMessage(message) {
 	const errorRow = document.createElement('tr');
 	const errorCell = document.createElement('td');
 
-	errorCell.colSpan = 5;
+	errorCell.colSpan = 8;
 	errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
 	errorCell.style.color = 'red';
 	errorCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
@@ -243,26 +259,46 @@ function renderErrorMessage(message) {
 }
 
 function searchItems() {
-	const searchQuery = document.getElementById('searchInput').value.trim();
+	const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
 	const dateType = document.getElementById('toggleDateType').checked ? 'deliveryDate' : 'orderDate';
-	const startDate = document.getElementById('sDate').value;
+	const startDate = document.getElementById('startDate').value;
 	const endDate = document.getElementById('endDate').value;
-	if (!searchQuery && !startDate && !endDate) {
-		alert("검색어를 입력해주세요.");
-		return;
-	}
-	const apiUrl = `/api/orders/search?searchTerm=${encodeURIComponent(searchQuery)}&page=${currentPage}` +
-		`&dateType=${dateType}&startDate=${startDate}&endDate=${endDate}`;
+	const transStatus = document.getElementById('searchTransStatus').value;
 
-	// Ajax 요청 보내기
+	const queryParams = new URLSearchParams({
+		searchTerm: searchQuery,
+		page: currentPage,
+		dateType,
+		startDate,
+		endDate,
+		transStatus
+	});
+
+	const apiUrl = `/api/orders/search?${queryParams.toString()}`;
+	console.log(apiUrl);
 	fetch(apiUrl)
 		.then(response => response.json())
 		.then(data => {
-			if (data && data.content && data.content.length > 0) {
-				rendersales(data.content);
-				const paginationInfo = document.getElementById('paginationInfo');
-				if (paginationInfo) {
-					paginationInfo.textContent = `총 ${data.totalElements}건 ${data.number + 1}/${data.totalPages}페이지`;
+			let onlySales = data.content.filter(p => p.orderType === 'S');
+
+			const selectedStatus = document.getElementById('searchTransStatus')?.value;
+			if (selectedStatus) {
+				onlySales = onlySales.filter(p => p.orderStatus === selectedStatus);
+			}
+
+			rendersales(onlySales, isDueDate);
+
+			const paginationInfo = document.getElementById('paginationInfo');
+			if (paginationInfo) {
+				const total = onlySales.length;
+				const perPage = 10;
+				const totalPages = Math.max(1, Math.ceil(total / perPage));
+				const currentPageNum = currentPage + 1;
+
+				if (total === 0) {
+					paginationInfo.textContent = '총 0건';
+				} else {
+					paginationInfo.textContent = `총 ${total}건 ${currentPageNum}/${totalPages}페이지`;
 				}
 			} else {
 				renderNoDataMessage();
@@ -477,7 +513,7 @@ document.getElementById('selectedCustIdx').addEventListener('input', async funct
 });
 
 // 품목 입력되면 해당 cycleTime, itemCost hidden에 저장
-document.getElementById('itemSearchInput').addEventListener('input', function () {
+document.getElementById('itemSearchInput').addEventListener('input', function() {
 	const selectedItemName = this.value;
 	const itemInfo = itemDataMap[selectedItemName];
 
@@ -618,7 +654,7 @@ async function openSalesDetail(orderIdx) {
 
 function toggleText(checkbox) {
 	const label = document.getElementById('toggleState');
-	const isDueDate = checkbox.checked;
+	isDueDate = checkbox.checked;
 
 	label.textContent = isDueDate ? '납기일' : '착수일';
 
