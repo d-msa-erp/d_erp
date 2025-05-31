@@ -75,6 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 5) 신규 단위 등록 폼 처리
 	const form = modal.querySelector('form');
 	form.addEventListener('submit', e => {
+		console.log('test');
 		e.preventDefault();
 		const input = document.getElementById('new-spec-unit');
 		const nm = input.value.trim();
