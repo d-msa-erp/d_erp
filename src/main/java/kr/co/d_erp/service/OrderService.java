@@ -85,7 +85,14 @@ public class OrderService {
             BigDecimal subStock = inventoryRepository.getTotalStockByItemIdx(bom.getSubItemIdx());
             String itemNm = itemmstRepository.findByItemIdx(bom.getSubItemIdx())
                     .map(Itemmst::getItemNm).orElse("알 수 없음");
+            
+            
+            Itemmst subItem = itemmstRepository.findById(bom.getSubItemIdx())
+                    .orElseThrow(() -> new IllegalArgumentException("품목을 찾을 수 없습니다."));
 
+            Long unitIdx = subItem.getUnitForItemDto().getUnitIdx();
+            
+            
             // 자재 부족 판별
             if (subStock == null || subStock.compareTo(requiredQty) < 0) {
                 hasMaterialShortage = true;
@@ -93,7 +100,7 @@ public class OrderService {
                 Mrp mrp = Mrp.builder()
                         .orderIdx(savedOrder.getOrderIdx())
                         .itemIdx(bom.getSubItemIdx())
-                        .unitIdx(1L)
+                        .unitIdx(unitIdx)
                         .requiredQty(requiredQty)
                         .calculatedCost(cost)
                         .requireDate(savedOrder.getDeliveryDate())
