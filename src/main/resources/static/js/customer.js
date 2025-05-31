@@ -437,23 +437,32 @@ async function editCustomer() {
 	if (!form) return;
 
 	let isValid = true;
+	isValid &= validateInput(form.querySelector('input[name="custNm"]'), /.+/, '회사명은 필수입니다.', true);
+	isValid &= validateInput(form.querySelector('input[name="presidentNm"]'), /.+/, '대표자명은 필수입니다.', true);
+	isValid &= validateInput(form.querySelector('#bizNumber'), /^\d{10}$/, '사업자번호는 10자리 숫자입니다.', true);
+	isValid &= validateInput(form.querySelector('#phoneNumber'), /^\d{9,11}$/, '연락처는 9-11자리 숫자입니다.', true);
 
-	isValid &= validateInput(form.querySelector('input[name="custNm"]'), /.+/, '거래처명은 필수입니다.', true);
-	isValid &= validateInput(form.querySelector('input[name="bizNo"]'), /^\d{10}$/, '사업자번호는 10자리 숫자입니다.', true);
-	isValid &= validateInput(form.querySelector('input[name="bizTel"]'), /^\d{9,11}$/, '연락처는 9-11자리 숫자입니다.', true);
-
-	const emailField = form.querySelector('input[name="custEmail"]');
+	// Optional: 이메일 유효성 검사
+	const emailField = form.querySelector('#eMail');
 	if (emailField.value.trim()) {
 		isValid &= validateInput(emailField, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, '유효한 이메일 주소를 입력해주세요.');
 	}
 
-	const compNoField = form.querySelector('input[name="compNo"]');
+	// Optional: 사업장번호 유효성 검사
+	const compNoField = form.querySelector('#compNumber');
 	if (compNoField.value.trim()) {
-		isValid &= validateInput(compNoField, /^(\d{10}|\d{13})$/, '법인번호/사업장번호는 10자리 또는 13자리 숫자입니다.');
+		isValid &= validateInput(compNoField, /^(\d{10}|\d{13})$/, '사업장번호는 10 또는 13자리 숫자입니다.');
 	}
 
-	['bizNo', 'bizTel', 'compNo'].forEach(name => {
-		const input = form.querySelector(`input[name="${name}"]`);
+	// Optional: Fax 유효성 검사
+	const faxField = form.querySelector('input[name="bizFax"]');
+	if (faxField.value.trim()) {
+		isValid &= validateInput(faxField, /^\d{9,11}$/, 'Fax 번호는 9~11자리 숫자입니다.');
+	}
+
+	// 숫자만 입력 필드 정리
+	['bizNumber', 'phoneNumber', 'compNumber', 'bizFax'].forEach(id => {
+		const input = form.querySelector(`[name="${id}"]`) || form.querySelector(`#${id}`);
 		if (input) input.value = input.value.replace(/\D/g, '');
 	});
 

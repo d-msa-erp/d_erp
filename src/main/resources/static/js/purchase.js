@@ -353,36 +353,63 @@ async function openModal(data = null) {
 	}
 }
 
-document.getElementById("itemName").addEventListener("change", () => {
+document.getElementById("itemName").addEventListener("change", async () => {
 	const selectedItemName = document.getElementById("itemName").value;
-	const matchingItems = itemList.filter(item => item.itemNm === selectedItemName);
 
-	if (matchingItems.length === 0) return;
+	if (!selectedItemName) {
+		// 품목명 지우면 필드 초기화
+		document.getElementById("itemCode").value = '';
+		document.getElementById("unitPrice").value = '';
+		document.getElementById("itemIdx").value = '';
+		document.getElementById("currentInventory").textContent = '0';
+		document.getElementById("optimalInventory").textContent = '0';
+		document.getElementById("companySearchInput").value = '';
+		document.getElementById("selectedCustIdx").value = '';
 
-	// 기본 세팅
-	const firstMatch = matchingItems[0];
-	document.getElementById("itemCode").value = firstMatch.itemCd || '';
-	document.getElementById("unitPrice").value = firstMatch.itemCost || '';
-	document.getElementById("itemIdx").value = firstMatch.itemIdx || '';
-	document.getElementById("currentInventory").textContent = firstMatch.stockQty ?? '0';
-	document.getElementById("optimalInventory").textContent = firstMatch.optimalInv ?? '0';
-
-	const current = Number(firstMatch.stockQty ?? 0);
-	const optimal = Number(firstMatch.optimalInv ?? 0);
-	const currentInventoryEl = document.getElementById("currentInventory");
-
-	if (current < optimal) {
-		currentInventoryEl.style.color = "red";
-		currentInventoryEl.style.fontWeight = "bold";
-	} else {
+		const currentInventoryEl = document.getElementById("currentInventory");
 		currentInventoryEl.style.color = "";
 		currentInventoryEl.style.fontWeight = "";
+		
+		return;
 	}
 
+	const matchingItems = itemList.filter(item => item.itemNm === selectedItemName);
+	if (matchingItems.length === 0) return;
+
+	const firstMatch = matchingItems[0];
+	const itemIdx = firstMatch.itemIdx;
+
+	document.getElementById("itemCode").value = firstMatch.itemCd || '';
+	document.getElementById("unitPrice").value = firstMatch.itemCost || '';
+	document.getElementById("itemIdx").value = itemIdx || '';
+
+	//  재고 총합 
+	try {
+		const response = await fetch(`/api/inventory/total-stock?itemIdx=${itemIdx}`);
+		if (!response.ok) throw new Error('재고 조회 실패');
+		const totalStock = await response.json();
+		document.getElementById("currentInventory").textContent = totalStock ?? '0';
+
+		const optimal = Number(firstMatch.optimalInv ?? 0);
+		const current = Number(totalStock ?? 0);
+		const currentInventoryEl = document.getElementById("currentInventory");
+
+		if (current < optimal) {
+			currentInventoryEl.style.color = "red";
+			currentInventoryEl.style.fontWeight = "bold";
+		} else {
+			currentInventoryEl.style.color = "";
+			currentInventoryEl.style.fontWeight = "";
+		}
+	} catch (err) {
+		console.error("재고 조회 오류:", err);
+		document.getElementById("currentInventory").textContent = "조회 실패";
+	}
+
+	document.getElementById("optimalInventory").textContent = firstMatch.optimalInv ?? '0';
 
 	// 거래처 리스트 생성
 	const companyList = document.getElementById("companyList");
-
 	companyList.innerHTML = "";
 	companyCustMap.clear();
 
@@ -400,11 +427,9 @@ document.getElementById("itemName").addEventListener("change", () => {
 		companyList.appendChild(option);
 	}
 
-	// 거래처 입력값 초기화
 	document.getElementById("companySearchInput").value = '';
 	document.getElementById("selectedCustIdx").value = '';
 });
-
 
 // 거래처 선택시 idx값 들어가게 설정
 document.getElementById("companySearchInput").addEventListener("change", () => {
@@ -584,7 +609,7 @@ async function loadLowInventoryItems() {
 			item.origin = 'lowInventory'; // 추가
 			return `
 		        <div class="low-item" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
-		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.stockQty}, 적정: ${item.optimalInv}
+		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.totalStockQty}, 적정: ${item.optimalInv}
 		        </div>
 		    `;
 		}).join('');

@@ -674,7 +674,7 @@
         <div>
           <span>이메일</span><input type="text" name="custEmail" id="eMail" placeholder="이메일 입력해주세요" /> </div>
         <div>
-          <span>Fax</span><input type="text" name="bizFax" placeholder="Fax를 입력해주세요" />
+          <span>Fax</span><input type="text" name="bizFax" placeholder="Fax를 입력해주세요" maxlength="13"/>
         </div>
         <div>
           <span>업태</span><input type="text" name="bizCond" placeholder="업태를 입력해주세요" />
@@ -686,7 +686,7 @@
           <span>담당자명</span><input type="text" name="compEmpNm" placeholder="담당자명을 입력해주세요" />
         </div>
         <div>
-          <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요" /> </div>
+          <span>사업장번호</span><input type="text" name="compNo" id="compNumber" placeholder="사업장번호를 입력해주세요"/> </div>
         <div style="grid-column: span 2;" class ="bizAddr-wrapper">
           <span>주소</span><input type="text" name="bizAddr" placeholder="주소를 입력해주세요" id="bizAddr" />
           <input type="button" value="주소 찾기" onclick="DaumPostcode(this)" data-target="bizAddr" id="bizAddrBtn">
