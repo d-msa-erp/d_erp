@@ -56,12 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 	});
-	
+
 	document.getElementById("sDate").addEventListener("change", searchItems);
 	document.getElementById("endDate").addEventListener("change", searchItems);
 	document.getElementById("toggleDateType").addEventListener("change", searchItems);
 	document.getElementById('searchTransStatus').addEventListener('change', searchItems);
-	
+
 	document.getElementById("sDate").setAttribute("min", today);
 });
 function order(sortBy) {
@@ -138,9 +138,19 @@ function rendersales(sales, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');
 	salesTableBody.innerHTML = '';
 
+	if (!sales || sales.length === 0) {
+		renderNoDataMessage();
+		return;
+	}
+
 	// 주문만 추림
 	const onlySales = sales.filter(sale => sale.orderType === 'S');
-
+	const paginationInfo = document.getElementById("paginationInfo");
+	const perPage = 10;
+	const totalPages = Math.ceil(onlySales.length / perPage);
+	if (paginationInfo) {
+		paginationInfo.textContent = `총 ${onlySales.length}건 ${currentPage + 1}/${totalPages}페이지`;
+	}
 	if (onlySales.length > 0) {
 		onlySales.forEach(sale => {
 			const row = document.createElement('tr');
@@ -204,7 +214,7 @@ function rendersales(sales, isDueDate) {
 			const orderStatusCell = document.createElement('td');
 			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
 				sale.orderStatus === 'S2' ? '출고가능' :
-				sale.orderStatus === 'S3' ? '출고완료' : '';
+					sale.orderStatus === 'S3' ? '출고완료' : '';
 			orderStatusCell.textContent = statusText;
 			row.appendChild(orderStatusCell);
 
@@ -251,7 +261,7 @@ function renderErrorMessage(message) {
 function searchItems() {
 	const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
 	const dateType = document.getElementById('toggleDateType').checked ? 'deliveryDate' : 'orderDate';
-	const startDate = document.getElementById('sDate').value;
+	const startDate = document.getElementById('startDate').value;
 	const endDate = document.getElementById('endDate').value;
 	const transStatus = document.getElementById('searchTransStatus').value;
 
@@ -265,15 +275,30 @@ function searchItems() {
 	});
 
 	const apiUrl = `/api/orders/search?${queryParams.toString()}`;
-
+	console.log(apiUrl);
 	fetch(apiUrl)
 		.then(response => response.json())
 		.then(data => {
-			if (data && data.content && data.content.length > 0) {
-				rendersales(data.content);
-				const paginationInfo = document.getElementById('paginationInfo');
-				if (paginationInfo) {
-					paginationInfo.textContent = `총 ${data.totalElements}건 ${data.number + 1}/${data.totalPages}페이지`;
+			let onlySales = data.content.filter(p => p.orderType === 'S');
+
+			const selectedStatus = document.getElementById('searchTransStatus')?.value;
+			if (selectedStatus) {
+				onlySales = onlySales.filter(p => p.orderStatus === selectedStatus);
+			}
+
+			rendersales(onlySales, isDueDate);
+
+			const paginationInfo = document.getElementById('paginationInfo');
+			if (paginationInfo) {
+				const total = onlySales.length;
+				const perPage = 10;
+				const totalPages = Math.max(1, Math.ceil(total / perPage));
+				const currentPageNum = currentPage + 1;
+
+				if (total === 0) {
+					paginationInfo.textContent = '총 0건';
+				} else {
+					paginationInfo.textContent = `총 ${total}건 ${currentPageNum}/${totalPages}페이지`;
 				}
 			} else {
 				renderNoDataMessage();
@@ -488,7 +513,7 @@ document.getElementById('selectedCustIdx').addEventListener('input', async funct
 });
 
 // 품목 입력되면 해당 cycleTime, itemCost hidden에 저장
-document.getElementById('itemSearchInput').addEventListener('input', function () {
+document.getElementById('itemSearchInput').addEventListener('input', function() {
 	const selectedItemName = this.value;
 	const itemInfo = itemDataMap[selectedItemName];
 
