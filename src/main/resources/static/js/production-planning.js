@@ -71,109 +71,102 @@ function renderCalendar(year, month) {
 }
 
 function selectDate(dateStr) {
-	selectedDateEl.innerText = dateStr;
+    if (selectedDateEl) {
+        const dateObj = new Date(dateStr);
+        selectedDateEl.innerText = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일`;
+        selectedDateEl.dataset.dateValue = dateStr;
+    }
 
-	// 모든 날짜 셀에서 selected 제거
-	document.querySelectorAll('.days div').forEach(div => {
-		div.classList.remove('selected');
-		if (div.dataset.date === dateStr) {
-			div.classList.add('selected');
-		}
-	});
+    document.querySelectorAll('.days div').forEach(div => {
+        div.classList.remove('selected');
+        if (div.dataset.date === dateStr) {
+            div.classList.add('selected');
+        }
+    });
 
+    const ordersOnSelectedDate = productionOrders.filter(o => o.orderDate === dateStr || o.deliveryDate === dateStr);
+    
+    let receivedCount = 0;
+    let deliveryCount = 0;
+    const uniqueOrderCodes = new Set();
 
-	const ordersOnOrderDate = productionOrders.filter(o => o.orderDate === dateStr);
-	const ordersOnDeliveryDate = productionOrders.filter(o => o.deliveryDate === dateStr);
+    ordersOnSelectedDate.forEach(o => {
+        if (o.orderDate === dateStr && !uniqueOrderCodes.has(o.orderCode + '_received')) {
+            receivedCount++;
+            uniqueOrderCodes.add(o.orderCode + '_received');
+        }
+        if (o.deliveryDate === dateStr && !uniqueOrderCodes.has(o.orderCode + '_delivery')) {
+            deliveryCount++;
+            uniqueOrderCodes.add(o.orderCode + '_delivery');
+        }
+    });
 
-	document.getElementById('order-count').innerText = ordersOnOrderDate.length;
-	document.getElementById('delivery-count').innerText = ordersOnDeliveryDate.length;
+    document.getElementById('order-count').innerText = receivedCount;
+    document.getElementById('delivery-count').innerText = deliveryCount;
 
-	document.getElementById('startDateInput').value = dateStr;
-	document.getElementById('endDateInput').value = dateStr;
+    if (startDateInput) startDateInput.value = dateStr;
+    if (endDateInput) endDateInput.value = dateStr;
 
-	const uniqueCustomers = new Set();
-	const uniqueItems = new Set();
+    const uniqueOrdersMap = new Map();
+    ordersOnSelectedDate.forEach(o => {
+        if (!uniqueOrdersMap.has(o.orderCode)) {
+            uniqueOrdersMap.set(o.orderCode, {
+                ...o,
+                isReceivedToday: o.orderDate === dateStr,
+                isDeliveryToday: o.deliveryDate === dateStr
+            });
+        } else {
+            const existing = uniqueOrdersMap.get(o.orderCode);
+            if (o.orderDate === dateStr) existing.isReceivedToday = true;
+            if (o.deliveryDate === dateStr) existing.isDeliveryToday = true;
+        }
+    });
 
+    const mergedOrders = Array.from(uniqueOrdersMap.values());
+    let needProduceCount = 0;
 
-	const uniqueOrders = {};
-	productionOrders.forEach(o => {
-		if (o.orderDate === dateStr || o.deliveryDate === dateStr) {
-			if (!uniqueOrders[o.orderCode]) {
-				uniqueOrders[o.orderCode] = {
-					...o,
-					isOrderDate: false,
-					isDeliveryDate: false
-				};
-				uniqueCustomers.add(o.custNm);
-				uniqueItems.add(o.itemNm);
-			}
-			if (o.orderDate === dateStr) uniqueOrders[o.orderCode].isOrderDate = true;
-			if (o.deliveryDate === dateStr) uniqueOrders[o.orderCode].isDeliveryDate = true;
-		}
-	});
-	
-	const mergedOrders = Object.values(uniqueOrders);
+    if (orderInfoList) {
+        if (mergedOrders.length > 0) {
+            orderInfoList.innerHTML = `
+                <div style="font-size: 24px;">📦 예정 목록:</div>
+                <ul style="padding-left: 16px; margin-top: 4px; font-size: 20px;">
+                    ${mergedOrders.map(o => {
+                        const labelHTML = o.isReceivedToday && o.isDeliveryToday
+                            ? '<span class="label both">접수+출고</span>'
+                            : o.isReceivedToday
+                            ? '<span class="label received">접수</span>'
+                            : '<span class="label delivery">출고 예정</span>';
 
-	const needProduceSpan = document.getElementById("need-produce");
-	const orderInfoList = document.getElementById('orderInfoList');
+                        const isEnoughStock = (o.stockQty ?? 0) >= o.orderQty;
+                        const status = isEnoughStock
+                            ? '<span style="color: green;">출고 가능</span>'
+                            : '<span style="color: red;">생산 필요</span>';
 
-	let needProduceCount = 0;
-	orderInfoList.innerHTML = `
-	  <div style="font-size: 24px;">📦 예정 목록:</div>
-	  <ul style="padding-left: 16px; margin-top: 4px; font-size: 20px;">
-	    ${mergedOrders.map(o => {
-		let labelHTML = '';
-		if (o.isOrderDate && o.isDeliveryDate) {
-			labelHTML = '<span class="label both">접수+출고</span>';
-		} else if (o.isOrderDate) {
-			labelHTML = '<span class="label received">접수</span>';
-		} else if (o.isDeliveryDate) {
-			labelHTML = '<span class="label delivery">출고 예정</span>';
-		}
+                        if (!isEnoughStock && o.isReceivedToday) needProduceCount++;
 
-		const isEnoughStock = o.stockQty >= o.orderQty;
+                        return `
+                            <li class="order-item ${o.isReceivedToday ? 'order-item-clickable' : ''}"
+                                data-order='${JSON.stringify(o).replace(/'/g, "&apos;")}'
+                                style="cursor:pointer;">
+                              ${labelHTML} [${o.orderCode}] ${o.custNm} / ${o.itemNm} / 주문 수량 ${o.orderQty}개 / 현재 수량 ${(o.stockQty ?? 0)}개
+                              → ${status}
+                            </li>`;
+                    }).join('')}
+                </ul>
+            `;
 
-		const status = isEnoughStock
-		  ? '<span style="color: green;">출고 가능</span>'
-		  : '<span style="color: red;">생산 필요</span>';
+            document.querySelectorAll('.order-item-clickable').forEach(item => {
+                item.addEventListener('click', handleOrderItemClick);
+            });
 
-		if (!isEnoughStock) needProduceCount++;
-		      return `
-		        <li class="order-item" 
-		            data-order='${JSON.stringify(o)}'
-		            style="cursor:pointer;">
-		          ${labelHTML} [${o.orderCode}] ${o.custNm} / ${o.itemNm} / 주문 수량 ${o.orderQty}개 / 현재 수량 ${(o.stockQty ?? 0)}개
-		          → ${status}
-		        </li>
-		      `;
-		    }).join('')}
-	  </ul>
-	`;
-	document.querySelectorAll('.order-item').forEach(item => {
-		item.addEventListener('click', () => {
-			const order = JSON.parse(item.dataset.order);
-			document.getElementById('startDateInput').value = order.orderDate;
-			document.getElementById('endDateInput').value = order.deliveryDate;
+        } else {
+            orderInfoList.innerHTML = '<p style="text-align:center;">선택된 날짜의 주문/출고 예정이 없습니다.</p>';
+        }
+    }
 
-			document.getElementById('customerInput').value = order.custNm;
-			document.getElementById('itemInput').value = order.itemNm;
-			document.getElementById('orderQtyInput').value = order.orderQty;
-
-			// 선택한 주문 강조
-			document.querySelectorAll('.order-item').forEach(el => el.classList.remove('active'));
-			item.classList.add('active');
-
-			const label = item.querySelector('.label');
-			const addPlanBtn = document.getElementById('addPlanBtn');
-			if (label && (label.classList.contains('received') || label.classList.contains('both'))) {
-				addPlanBtn.disabled = false;
-			} else {
-				addPlanBtn.disabled = true;
-			}
-		});
-	});
-	document.getElementById('addPlanBtn').disabled = true;
-	needProduceSpan.textContent = needProduceCount;
+    document.getElementById('need-produce').textContent = needProduceCount;
+    if (addPlanBtn) addPlanBtn.disabled = true;
+    resetAddPlanForm();
 }
 
 
