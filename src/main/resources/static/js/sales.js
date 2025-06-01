@@ -264,7 +264,8 @@ function searchItems() {
 	const startDate = document.getElementById('startDate').value;
 	const endDate = document.getElementById('endDate').value;
 	const transStatus = document.getElementById('searchTransStatus').value;
-
+	
+	
 	const queryParams = new URLSearchParams({
 		searchTerm: searchQuery,
 		page: currentPage,
@@ -283,9 +284,8 @@ function searchItems() {
 
 			const selectedStatus = document.getElementById('searchTransStatus')?.value;
 			if (selectedStatus) {
-				onlySales = onlySales.filter(p => p.orderStatus === selectedStatus);
+				onlySales = onlySales.filter(s => s.orderStatus === selectedStatus);
 			}
-
 			rendersales(onlySales, isDueDate);
 
 			const paginationInfo = document.getElementById('paginationInfo');
@@ -330,6 +330,14 @@ function formatDate(dateStr) {
 	return `${year}-${month}-${day}`;
 }
 
+function setdate() {
+	const today = new Date();
+	const yyyy = today.getFullYear();
+	const mm = String(today.getMonth() + 1).padStart(2, '0');
+	const dd = String(today.getDate()).padStart(2, '0');
+	document.getElementById('sDate').value = `${yyyy}-${mm}-${dd}`;
+};
+
 // 모달 열기
 async function openModal(data = null) {
 	const title = document.getElementById('modalTitle');
@@ -343,23 +351,33 @@ async function openModal(data = null) {
 		title.textContent = '주문 정보';
 		saveBtn.style.display = 'none';
 		editBtn.style.display = 'block';
-		document.querySelector('#modalForm button[name="cancel"]').style.display = 'none';
+		document.getElementById("orderIdx").value = data.orderIdx;
+		document.getElementById("orderNo").value = data.orderCode;
+		document.getElementById("unitPrice").value = data.unitPrice;
+		document.getElementById("itemCycleTime").value = data.cycleTime;
+		document.getElementById("itemIdx").value = data.itemIdx;
 		document.getElementById('orderNo').value = data.orderCode || '';
 		document.getElementById('sDate').value = formatDate(data.orderDate);
 		document.getElementById('dueDate').value = formatDate(data.deliveryDate);
 		document.getElementById('companySearchInput').value = data.customerName || '';
+		document.getElementById('selectedCustIdx').value = data.customerIdx;
 		document.getElementById('itemSearchInput').value = data.itemName || '';
 		document.getElementById('quantity').value = data.orderQty || '';
 		document.getElementById('userName').value = data.managerName || '';
 		document.getElementById('userTel').value = data.managerTel || '';
 		document.getElementById('remark').value = data.remark || '';
 		document.getElementById('whSearchInput').value = data.whNm || '';
+		document.getElementById('selectedwhIdx').value = data.whIdx;
 
 		inputs.forEach(input => {
 			if (input.type !== 'hidden') {
 				input.readOnly = true;
 			}
 		});
+		
+		document.getElementById('quantity').readOnly = false;
+		document.getElementById('whSearchInput').readOnly = false;
+		loadWarehouse();
 	} else {
 		inputs.forEach(input => {
 			if (input.type !== 'hidden') {
@@ -369,6 +387,7 @@ async function openModal(data = null) {
 		fetchOrderNo(); // 주문번호 초기화 (있다면)
 		loadCustomer();
 		loadWarehouse();
+		setdate();
 	}
 }
 
@@ -652,6 +671,41 @@ async function openSalesDetail(orderIdx) {
 	}
 }
 
+document.getElementById("editBtn").addEventListener("click", async () => {
+	const orderCode = document.getElementById("orderNo").value;
+
+	const orderData = {
+		orderIdx: document.getElementById("orderIdx").value,
+		orderCode: orderCode,
+		orderType: 'S',
+		orderDate: document.getElementById("sDate").value,
+		custIdx: document.getElementById("selectedCustIdx").value,
+		itemIdx: document.getElementById("itemIdx").value,
+		orderQty: Number(document.getElementById("quantity").value),
+		unitPrice: Number(document.getElementById("unitPrice").value),
+		deliveryDate: document.getElementById("dueDate").value,
+		userIdx: document.getElementById("userIdx").value,
+		remark: document.getElementById("remark").value,
+		expectedWhIdx: document.getElementById("selectedwhIdx").value
+	};
+
+	try {
+		const response = await fetch('/api/orders/update', {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(orderData)
+		});
+		if (!response.ok) throw new Error('수정 실패');
+
+		alert('수정 완료');
+		closeModal();
+		loadSales('orderIdx', 'desc', isDueDate);
+	} catch (err) {
+		alert('수정 중 오류 발생');
+		console.error(err);
+	}
+});
+
 function toggleText(checkbox) {
 	const label = document.getElementById('toggleState');
 	isDueDate = checkbox.checked;
@@ -685,30 +739,42 @@ function outsideClick(e) {
 }
 
 
-function downloadExcel() {
-	const url = `/api/orders/sale/excel`;
+async function downloadExcel() {
+	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+		cb.closest('tr').querySelector('input[type="hidden"]').value);
+				
+	if (ids.length === 0) {
+		alert('엑셀로 내보낼 항목을 선택해주세요.');
+		return;
+	}
 
-	fetch(url)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error("엑셀 다운로드 실패");
-			}
-			return response.blob();
-		})
-		.then(blob => {
-			const a = document.createElement('a');
-			const url = window.URL.createObjectURL(blob);
-			a.href = url;
-			a.download = 'sales-data.xlsx'; // 저장될 파일명
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-			window.URL.revokeObjectURL(url);
-		})
-		.catch(err => {
-			alert("엑셀 다운로드 중 오류 발생");
-			console.error(err);
-		});
+
+	const url = `/api/orders/sale/excel?${ids.map(id => `id=${id}`).join('&')}`;
+	const response = await fetch(url);
+
+	if (!response.ok) {
+		alert('엑셀 다운로드 실패');
+		return;
+	}
+
+	const blob = await response.blob();
+
+
+	const disposition = response.headers.get('Content-Disposition');
+	let fileName = 'sale.xlsx'; // 기본값
+
+	if (disposition && disposition.includes('filename=')) {
+		const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+		if (matches != null && matches[1]) {
+			fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+		}
+	}
+
+	const a = document.createElement('a');
+	a.href = window.URL.createObjectURL(blob);
+	a.download = fileName;
+	a.click();
 }
 
 function printSelectedSales() {
@@ -731,3 +797,17 @@ function printSelectedSales() {
 
 	printByIds(ids, fetchUrlFn, columns, '주문 인쇄');
 }
+
+document.getElementById('startDate').addEventListener('change', function () {
+	const startDate = this.value;
+	const endDateInput = document.getElementById('endDate');
+
+	if (startDate) {
+		endDateInput.min = startDate;
+		if (endDateInput.value && endDateInput.value < startDate) {
+			endDateInput.value = '';
+		}
+	}
+});
+
+

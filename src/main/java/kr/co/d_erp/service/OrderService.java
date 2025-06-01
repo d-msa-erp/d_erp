@@ -7,11 +7,13 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import kr.co.d_erp.domain.BomDtl;
 import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.domain.Mrp;
 import kr.co.d_erp.domain.Order;
+import kr.co.d_erp.domain.TbInvTrans;
 import kr.co.d_erp.dtos.InvTransactionRequestDto;
 import kr.co.d_erp.dtos.OrderDto;
 import kr.co.d_erp.dtos.OrderResponseDto;
@@ -20,6 +22,7 @@ import kr.co.d_erp.repository.oracle.InventoryRepository;
 import kr.co.d_erp.repository.oracle.ItemmstRepository;
 import kr.co.d_erp.repository.oracle.MrpRepository;
 import kr.co.d_erp.repository.oracle.OrderRepository;
+import kr.co.d_erp.repository.oracle.TbInvTransRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +35,7 @@ public class OrderService {
     private final InventoryRepository inventoryRepository;
     private final ItemmstRepository itemmstRepository;
     private final MrpRepository mrpRepository;
+    private final TbInvTransRepository tbInvTransRepository;
 
     @Transactional
     public OrderResponseDto saveOrder(OrderDto dto) {
@@ -162,5 +166,37 @@ public class OrderService {
         	    hasMaterialShortage,
         	    warnings
         );
+    }
+    
+    @Transactional
+    public void updateOrderAndTransaction(OrderDto dto) {
+        // 1. 주문 수정
+        Order order = orderRepository.findById(dto.getOrderIdx())
+            .orElseThrow(() -> new RuntimeException("주문이 존재하지 않습니다."));
+        
+        order.setOrderQty(dto.getOrderQty());
+        order.setUnitPrice(dto.getUnitPrice());
+        order.setTotalAmount(dto.getOrderQty() * dto.getUnitPrice());
+        order.setDeliveryDate(dto.getDeliveryDate());
+        order.setRemark(dto.getRemark());
+        order.setExpectedWhIdx(dto.getExpectedWhIdx());
+        orderRepository.save(order);
+
+        // 2. 연결된 입출고 수정도 같이 수행
+        TbInvTrans existingInvTransaction = tbInvTransRepository.findById(order.getOrderIdx())
+	            .orElseThrow(() -> new EntityNotFoundException("수정할 거래 정보를 찾을 수 없습니다. ID: " + order.getOrderIdx()));
+
+        InvTransactionRequestDto transDto = new InvTransactionRequestDto();
+        transDto.setTransQty(BigDecimal.valueOf(dto.getOrderQty()));
+        transDto.setUnitPrice(BigDecimal.valueOf(dto.getUnitPrice()));
+        transDto.setTransDate(dto.getOrderDate());
+        transDto.setTransStatus(existingInvTransaction.getTransStatus()); // 기존 상태 유지
+        transDto.setUserIdx(dto.getUserIdx());
+        transDto.setRemark(dto.getRemark());
+        transDto.setWhIdx(dto.getExpectedWhIdx());
+        transDto.setItemIdx(dto.getItemIdx());
+        transDto.setCustIdx(dto.getCustIdx());
+
+        invTransactionService.updateTransaction(existingInvTransaction.getInvTransIdx(), transDto);
     }
 }

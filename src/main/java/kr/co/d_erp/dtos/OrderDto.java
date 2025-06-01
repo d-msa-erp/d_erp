@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class OrderDto {
+	private Long orderIdx;
 	private String orderCode;
     private String orderType;
     private LocalDate orderDate;
