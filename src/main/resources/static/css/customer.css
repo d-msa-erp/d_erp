@@ -162,7 +162,8 @@
     animation: tabFadeIn 0.5s ease-in-out; /* 탭 전환 애니메이션 */
 }
 @keyframes tabFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 
+    .0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
@@ -175,13 +176,15 @@
     padding-bottom: 5px;
     border-bottom: 1px solid #eee;
 }
+#extraTab table.grid-table th:first-child{
+	width: 150px;
+}
+
 .modal-table-maxheight { /* 품목 정보 테이블 스크롤 및 최대 높이 */
     max-height: 250px; /* 테이블 최대 높이 제한 */
     /* .table-scroll-wrapper의 스타일 (border, overflow 등)을 상속/활용 */
 }
-.item-table-in-modal {
-    /* .grid-table의 기본 스타일을 따름 */
-}
+
 .item-table-in-modal th, .item-table-in-modal td {
     padding: 10px 8px; /* 셀 패딩 조정 */
     font-size: 13px;   /* 폰트 크기 조정 */
