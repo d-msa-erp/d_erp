@@ -39,17 +39,6 @@ public class Itemmst {
     @Column(name = "ITEM_SPEC", length = 100)
     private String itemSpec;
 
-	/*
-	 * @ManyToOne(fetch = FetchType.LAZY)
-	 * 
-	 * @JoinColumn(name = "CUST_IDX", nullable = false) private Custmst custmst;
-	 * 
-	 * @Column(name = "ITEM_CAT1") private Long itemCat1;
-	 * 
-	 * @Column(name = "ITEM_CAT2") private Long itemCat2;
-	 * 
-	 * @Column(name = "ITEM_UNIT") private Long itemUnit;
-	 */
     @Column(name = "ITEM_COST", nullable = false) // DDL 기준 NOT NULL
     private Double itemCost; // DDL은 NUMBER. Double 또는 BigDecimal 사용.
 
