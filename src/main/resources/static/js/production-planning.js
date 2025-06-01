@@ -6,7 +6,7 @@ const selectedDateEl = document.getElementById("selected-date");
 const prevBtn = document.getElementById("prev");
 const nextBtn = document.getElementById("next");
 
-// --- 모달 관련 DOM 요소 (openModal 함수에서 사용될 것들) ---
+// --- 모달 관련 DOM 요소 ---
 const startDateInput = document.getElementById('startDateInput');
 const endDateInput = document.getElementById('endDateInput');
 const customerInput = document.getElementById('customerInput');
@@ -14,7 +14,7 @@ const itemInput = document.getElementById('itemInput');
 const orderQtyInput = document.getElementById('orderQtyInput');
 const orderInfoList = document.getElementById('orderInfoList');
 const addPlanBtn = document.getElementById('addPlanBtn');
-const userIdxHiddenInput = document.getElementById('userIdx');
+const userIdxHiddenInput = document.getElementById('userIdx'); // HTML에 name="userIdx" 추가
 
 let today = new Date();
 let currentYear = today.getFullYear();
