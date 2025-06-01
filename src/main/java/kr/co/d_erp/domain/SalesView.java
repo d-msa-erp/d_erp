@@ -37,6 +37,9 @@ public class SalesView {
     @Column(name = "고객사")
     private String customerName;
 
+    @Column(name = "고객사코드")
+    private String customerIdx;
+
     @Column(name = "납기일")
     private LocalDate deliveryDate;
     
@@ -54,4 +57,10 @@ public class SalesView {
     
     @Column(name = "주문구분")
     private String orderType;
+    
+    @Column(name = "창고ID")
+    private Long whIdx;
+    
+    @Column(name = "창고명")
+    private String whNm;
 }

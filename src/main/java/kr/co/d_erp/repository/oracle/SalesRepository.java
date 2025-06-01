@@ -71,5 +71,7 @@ public interface SalesRepository extends JpaRepository<SalesView, String> {
 	
 	@Query("SELECT DISTINCT s FROM SalesView s WHERE s.orderIdx IN :ids")
 	List<SalesView> findByOrderIdxIn(@Param("ids") List<Long> ids);
+	
+	List<SalesView> findByOrderIdxInAndOrderType(List<Long> ids, String orderType);
 
 }
