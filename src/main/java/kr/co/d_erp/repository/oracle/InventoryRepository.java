@@ -14,6 +14,22 @@ import kr.co.d_erp.domain.Inventory;
 import kr.co.d_erp.dtos.StockProjection;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
+	
+	/**
+	 * 품목별 재고량 조회 (품목 IDX 리스트) - 품목 관리에서 일괄 조회용
+	 */
+	@Query("SELECT i.itemIdx, COALESCE(SUM(i.stockQty), 0) " +
+	       "FROM Inventory i " +
+	       "WHERE i.itemIdx IN :itemIds " +
+	       "GROUP BY i.itemIdx")
+	List<Object[]> sumStockQtyByItemIds(@Param("itemIds") List<Long> itemIds);
+
+	/**
+	 * 특정 품목의 재고 목록 조회 - 품목 상세에서 사용
+	 */
+	@Query("SELECT i FROM Inventory i WHERE i.itemIdx = :itemIdx")
+	List<Inventory> findByItemIdx(@Param("itemIdx") Long itemIdx);
+	
 	Optional<Inventory> findByWhIdxAndItemIdx(Long whIdx, Long itemIdx);
 
 	@Query("SELECT COALESCE(SUM(i.stockQty), 0) FROM Inventory i WHERE i.itemIdx = :itemIdx")

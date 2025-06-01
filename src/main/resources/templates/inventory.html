@@ -110,11 +110,11 @@
     <div class="modal" id="itemModal" onclick="outsideClick(event)"> <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalItemForm" class="modal-form-grid"> <input type="hidden" name="item_IDX" id="modalItemIdx" /> <div class="modal-form-group">
-                    <label for="modalItemFlagSelect">자재/품목 분류<span class="required-asterisk">*</span></label>
+                    <label for="modalItemFlagSelect">품목 분류<span class="required-asterisk">*</span></label>
                     <select name="item_FLAG" id="modalItemFlagSelect" required>
-                        <option value="">--분류를 선택해주세요 --</option>
-                        <option value="01">자재</option>
-                        <option value="02">품목</option>
+                        <option value="">-- 분류를 선택해주세요 --</option>
+                        <option value="01">제품</option>
+                        <option value="02">원자재</option>
                     </select>
                 </div>
                 <div class="modal-form-group">
