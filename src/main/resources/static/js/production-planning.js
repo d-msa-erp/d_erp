@@ -142,7 +142,7 @@ function selectDate(dateStr) {
 		        <li class="order-item" 
 		            data-order='${JSON.stringify(o)}'
 		            style="cursor:pointer;">
-		          ${labelHTML} [${o.orderCode}] ${o.custNm} / ${o.itemNm} / 주문 수량 ${o.orderQty}개 / 현재 수량 ${o.stockQty}개
+		          ${labelHTML} [${o.orderCode}] ${o.custNm} / ${o.itemNm} / 주문 수량 ${o.orderQty}개 / 현재 수량 ${(o.stockQty ?? 0)}개
 		          → ${status}
 		        </li>
 		      `;
