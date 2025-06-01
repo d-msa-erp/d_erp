@@ -3,7 +3,7 @@ package kr.co.d_erp.controllers; // 사용자 실제 컨트롤러 패키지 경�
 import kr.co.d_erp.domain.ItemInventoryView;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.service.ItemInventoryService;
-import kr.co.d_erp.service.ItemJpaService; // 새로 만든 JPA 기반 서비스
+import kr.co.d_erp.service.ItemService; // 새로 만든 JPA 기반 서비스
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemController { // 또는 ItemApiController
 
-    private final ItemJpaService itemJpaService; // 새로운 JPA 서비스 주입
+    private final ItemService itemJpaService; // 새로운 JPA 서비스 주입
     private final ItemInventoryService itemInventoryService; // 품목에 따른 재고 조회를 위해 추가 -민섭
     
     
