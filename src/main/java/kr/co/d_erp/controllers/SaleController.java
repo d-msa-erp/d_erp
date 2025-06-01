@@ -1,16 +1,20 @@
 package kr.co.d_erp.controllers;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,23 +59,39 @@ public class SaleController {
 	
 	
 	@GetMapping("/purchase/excel")
-	public ResponseEntity<byte[]> exportPurchaseExcel() throws IOException {
-	    byte[] excelData = salesService.generateExcelforPurchase();
+	public ResponseEntity<byte[]> exportPurchaseExcel(@RequestParam List<Long> id) throws IOException {
+	    byte[] excelData = salesService.generateExcelforPurchase(id);
 
-	    return ResponseEntity.ok()
-	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=purchase-data.xlsx")
-	        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-	        .body(excelData);
+	    String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+	    String fileName = "Purchase_" + timeStamp + ".xlsx";
+	    String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+	                                       .replaceAll("\\+", "%20");
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	    headers.add(HttpHeaders.CONTENT_DISPOSITION,
+	        "attachment; filename=\"" + encodedFilename + "\"; filename*=UTF-8''" + encodedFilename
+	    );
+
+	    return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
 	}
 	
 	@GetMapping("/sale/excel")
-	public ResponseEntity<byte[]> exportSaleExcel() throws IOException {
-		byte[] excelData = salesService.generateExcelforSale();
+	public ResponseEntity<byte[]> exportSaleExcel(@RequestParam List<Long> id) throws IOException {
+		byte[] excelData = salesService.generateExcelforSale(id);
 		
-		return ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=sales-data.xlsx")
-				.contentType(MediaType.APPLICATION_OCTET_STREAM)
-				.body(excelData);
+		String timeStamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+	    String fileName = "Sale_" + timeStamp + ".xlsx";
+	    String encodedFilename = URLEncoder.encode(fileName, StandardCharsets.UTF_8)
+	                                       .replaceAll("\\+", "%20");
+
+	    HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	    headers.add(HttpHeaders.CONTENT_DISPOSITION,
+	        "attachment; filename=\"" + encodedFilename + "\"; filename*=UTF-8''" + encodedFilename
+	    );
+
+	    return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
 	}
 	
 

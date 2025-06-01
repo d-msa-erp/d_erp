@@ -39,6 +39,9 @@ public class OrderDetailView {
     
     @Column(name = "item_cd")
     private String itemCode;
+   
+    @Column(name = "item_idx")
+    private String itemIdx;
     
     @Column(name = "unit_price")
     private Long unitPrice;
@@ -51,6 +54,9 @@ public class OrderDetailView {
 
     @Column(name = "item_name")
     private String itemName;
+    
+    @Column(name = "cycle_time")
+    private String cycleTime;
     
     @Column(name = "wh_nm")
     private String whNm;

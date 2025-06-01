@@ -46,6 +46,7 @@ public class OrderController {
             orderService.updateOrderAndTransaction(dto);
             return ResponseEntity.ok("주문 수정 성공");
         } catch (Exception e) {
+        	e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("주문 수정 실패: " + e.getMessage());
         }
