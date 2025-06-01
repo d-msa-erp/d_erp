@@ -393,9 +393,11 @@ async function openModal(data = null) {
 			loadWarehouse();
 			loadItems();
 			document.getElementById("orderIdx").value = data.orderIdx;
+			document.getElementById("orderNo").value = data.orderCode;
 			document.getElementById('itemCode').value = data.itemCode;
 			document.getElementById('itemCode').readOnly = true;
 			document.getElementById('itemName').value = data.itemName;
+			document.getElementById("itemIdx").value = data.itemIdx;
 			document.getElementById('itemName').readOnly = true;
 			document.getElementById('unitPrice').value = data.unitPrice;
 			document.getElementById('quantity').value = data.orderQty;
