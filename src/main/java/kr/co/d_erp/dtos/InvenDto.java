@@ -9,6 +9,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import kr.co.d_erp.domain.Itemmst;
 import lombok.Getter;
 import lombok.Setter;
 

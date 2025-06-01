@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.dtos.BomSummaryProjection;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
@@ -18,7 +19,6 @@ import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
-import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 
 @Repository
