@@ -22,29 +22,16 @@
                         <span class="material-symbols-outlined">filter_alt</span> 품목 정보 검색
                     </h4>
                     <div class="shipping-info-form inventory-search-form"> <div class="form-group">
-                    		<!-- 
                             <label for="searchCatSelect">검색 분류</label>
-                    		 -->
-                            
-                            <input type="text" id="itemCat1" name="itemCat1Nm" list="searchCat1Datalist"
-                                placeholder="대분류" />
-                            <datalist id="searchCat1Datalist"></datalist>
-                            
-                            <input type="text" id="itemCat2" name="itemCat2Nm" list="searchCat2Datalist"
-                                placeholder="소분류" />
-                            <datalist id="searchCustsDatalist"></datalist>
-                            
-                        </div>
-                        <div class="form-group">
-                        
-                        	<select id="searchCatSelect">
-                                <option value="itemNm">품목명</option> 
-                                <option value="itemCd">품목코드</option>
+                            <select id="searchCatSelect">
+                                <option value="itemNm">품목명</option> <option value="itemCd">품목코드</option>
+                                <option value="itemCat1Nm">대분류</option>
+                                <option value="itemCat2Nm">소분류</option>
                                 <option value="custNm">거래처</option>
                             </select>
-                            <!-- 
+                        </div>
+                        <div class="form-group">
                             <label for="searchItemText">검색어</label>
-                             -->
                             <input type="text" id="searchItemText" placeholder="검색어를 입력하세요" />
                         </div>
                     </div>
@@ -110,11 +97,11 @@
     <div class="modal" id="itemModal" onclick="outsideClick(event)"> <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalItemForm" class="modal-form-grid"> <input type="hidden" name="item_IDX" id="modalItemIdx" /> <div class="modal-form-group">
-                    <label for="modalItemFlagSelect">품목 분류<span class="required-asterisk">*</span></label>
+                    <label for="modalItemFlagSelect">자재/품목 분류<span class="required-asterisk">*</span></label>
                     <select name="item_FLAG" id="modalItemFlagSelect" required>
-                        <option value="">-- 분류를 선택해주세요 --</option>
-                        <option value="01">제품</option>
-                        <option value="02">원자재</option>
+                        <option value="">--분류를 선택해주세요 --</option>
+                        <option value="01">자재</option>
+                        <option value="02">품목</option>
                     </select>
                 </div>
                 <div class="modal-form-group">

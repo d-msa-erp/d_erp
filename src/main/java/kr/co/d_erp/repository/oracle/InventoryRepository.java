@@ -14,22 +14,6 @@ import kr.co.d_erp.domain.Inventory;
 import kr.co.d_erp.dtos.StockProjection;
 
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
-	
-	/**
-	 * 품목별 재고량 조회 (품목 IDX 리스트) - 품목 관리에서 일괄 조회용
-	 */
-	@Query("SELECT i.itemIdx, COALESCE(SUM(i.stockQty), 0) " +
-	       "FROM Inventory i " +
-	       "WHERE i.itemIdx IN :itemIds " +
-	       "GROUP BY i.itemIdx")
-	List<Object[]> sumStockQtyByItemIds(@Param("itemIds") List<Long> itemIds);
-
-	/**
-	 * 특정 품목의 재고 목록 조회 - 품목 상세에서 사용
-	 */
-	@Query("SELECT i FROM Inventory i WHERE i.itemIdx = :itemIdx")
-	List<Inventory> findByItemIdx(@Param("itemIdx") Long itemIdx);
-	
 	Optional<Inventory> findByWhIdxAndItemIdx(Long whIdx, Long itemIdx);
 
 	@Query("SELECT COALESCE(SUM(i.stockQty), 0) FROM Inventory i WHERE i.itemIdx = :itemIdx")
@@ -54,22 +38,25 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             + "userMST.USER_E_MAIL AS userMail, "
             + "item.REMARK AS reMark, "
             + "item.ITEM_UNIT AS unitIdx, "
-            + "item.ITEM_FLAG AS itemFlag "
+            + "item.ITEM_FLAG AS itemFlag,"
+            + "inv.TRANS_TYPE AS transType "
             + "FROM TB_INVENTORY inven "
             + "INNER JOIN TB_ITEMMST item ON item.ITEM_IDX = inven.ITEM_IDX "
             + "INNER JOIN TB_WHMST wh ON inven.WH_IDX = wh.WH_IDX "
             + "LEFT JOIN TB_UNIT_MST unit ON item.ITEM_UNIT = unit.UNIT_IDX "
             + "LEFT JOIN TB_CUSTMST cust ON item.CUST_IDX = cust.CUST_IDX "
             + "LEFT JOIN TB_USERMST userMST ON wh.WH_USER_IDX = userMST.USER_IDX " // 실제 USER PK 확인
+            + "INNER JOIN TB_INV_TRANS inv ON inv.INV_TRANS_IDX = inven.INV_IDX "
             + "WHERE "
-            + "(:itemFlagFilter IS NULL OR item.ITEM_FLAG = :itemFlagFilter) AND "
+            + "(:itemFlagFilter IS NULL OR inv.TRANS_TYPE = :itemFlagFilter) AND "
             + "(:searchKeyword IS NULL OR :searchKeyword = '' OR LOWER(item.ITEM_NM) LIKE ('%' || LOWER(:searchKeyword) || '%'))", // 검색어가 있으면 ITEM_NM만 검색
             countQuery = "SELECT COUNT(inven.ITEM_IDX) "
                     + "FROM TB_INVENTORY inven "
+                    + "INNER JOIN TB_INV_TRANS inv ON inv.INV_TRANS_IDX = inven.INV_IDX "
                     + "INNER JOIN TB_ITEMMST item ON item.ITEM_IDX = inven.ITEM_IDX "
                     + "INNER JOIN TB_WHMST wh ON inven.WH_IDX = wh.WH_IDX "
                     + "WHERE "
-                    + "(:itemFlagFilter IS NULL OR item.ITEM_FLAG = :itemFlagFilter) AND "
+                    + "(:itemFlagFilter IS NULL OR inv.TRANS_TYPE = :itemFlagFilter) AND "
                     + "(:searchKeyword IS NULL OR :searchKeyword = '' OR LOWER(item.ITEM_NM) LIKE ('%' || LOWER(:searchKeyword) || '%'))",
             nativeQuery = true)
     Page<StockProjection> findInventoryDetails(@Param("itemFlagFilter") String itemFlagFilter,
@@ -77,5 +64,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                                                Pageable pageable);
 	
 	void deleteByInvIdxIn(List<Long> invIdxs);
+	
 	
 }

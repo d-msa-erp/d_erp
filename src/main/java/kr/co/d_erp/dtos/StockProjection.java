@@ -19,6 +19,7 @@ public interface StockProjection {
 	    String getUserMail();
 	    String getReMark();         // item.REMARK AS reMark
 	    String getItemFlag();
+	    String getTransType();
 	    
 	    Integer getUnitIdx();
 	    Long getCustIdxForItem();

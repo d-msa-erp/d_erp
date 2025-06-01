@@ -64,12 +64,19 @@ async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = 
 
     let url = `/api/stocks?page=${page - 1}&size=${pageSize}`;
 
-    // if (itemFlag) { // 메인 검색 조건에 itemFlag가 있다면 사용
-    //     url += `&itemFlagFilter=${encodeURIComponent(itemFlag)}`;
-    // }
-    if (keyword && keyword.trim() !== "") {
-        url += `&searchKeyword=${encodeURIComponent(keyword.trim())}`;
-    }
+	const currentItemFlagFromSelect = itemFlagSelect ? itemFlagSelect.value : "";
+	    const flagToUse = itemFlag !== null ? itemFlag : currentItemFlagFromSelect;
+
+		console.log(flagToUse);
+		if (flagToUse && flagToUse !== "") {
+		    // 👇 파라미터 이름을 'itemFlagFilter'으로 변경
+		    url += `&itemFlagFilter=${encodeURIComponent(flagToUse)}`;
+		}
+		
+		const keywordToUse = keyword !== null ? keyword.trim() : currentKeyword;
+		if (keywordToUse && keywordToUse !== "") {
+		    url += `&searchKeyword=${encodeURIComponent(keywordToUse)}`;
+		}
 
     if (sortProperty && sortDirection) {
         url += `&sort=${encodeURIComponent(sortProperty)},${encodeURIComponent(sortDirection)}`;
@@ -509,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	        if (saveButton) saveButton.style.display = 'none';
 	        if (editButton) editButton.style.display = 'block';
 	        if (transTypeSelect) {
-	             // transTypeSelect.value = item.transType === 'R' ? '01' : (item.transType === 'S' ? '02' : ''); // StockDto에 transType이 있다면
+	              transTypeSelect.value = item.transType === 'R' ? '01' : (item.transType === 'S' ? '02' : ''); // StockDto에 transType이 있다면
 	             transTypeSelect.disabled = true; // 재고 수정 시 입출고 유형 변경은 보통 불가
 	        }
 	        if (itemNmSelectInput) itemNmSelectInput.readOnly = true;
@@ -690,7 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	        alert('재고 수정 처리 중 오류가 발생했습니다.');
 	    }
 	}
-	
+	/*
 	async function loadAndSetTransactionDatalist() {
 	    const datalistElement = document.getElementById('itemListDatalist');
 	    const itemNmSelectElement = document.getElementById('item_NM_select'); // 사용자가 텍스트 입력 및 선택하는 input
@@ -729,7 +736,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	        loadedTransactions = [];
 	        itemNmSelectElement.placeholder = "거래 정보 로드 실패";
 	    }
-	}
+	}*/
 	
 	async function openModalWithTransactionDetails(invTransIdx) {
 	    const modal = document.getElementById('modal');

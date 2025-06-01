@@ -1,6 +1,8 @@
 package kr.co.d_erp.repository.oracle;
 
 
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +20,7 @@ public interface MrpDetailViewRepository  extends JpaRepository<MrpDetailView, L
 
     // 기존 메소드: 특정 주문에 대한 모든 MRP 결과(자재 상세) 조회 시 사용 가능
     Page<MrpDetailView> findByOrderIdx(Long orderIdx, Pageable pageable);
+    List<MrpDetailView> findByOrderIdx(Long orderIdx);
 
     // 기존 메소드: MRP_RESULT_DETAILS 뷰에서 자재 레벨로 검색하여 페이징.
     // 만약 /api/mrp/orders 가 고유 주문 목록을 반환해야 한다면, 이 메소드는 더 이상 그 용도로 사용되지 않음.

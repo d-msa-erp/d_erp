@@ -34,6 +34,9 @@ public class MrpDetailView { // 클래스명은 자유롭게 (예: MrpResultView
 
     @Column(name = "ORDER_DATE")
     private LocalDate orderDate; // 뷰의 컬럼 타입과 일치하는 Java 타입 사용
+    
+    @Column(name = "ORDER_QTY")
+    private BigDecimal orderQty;
 
     @Column(name = "ORDER_DELIVERY_DATE")
     private LocalDate orderDeliveryDate;
@@ -49,9 +52,6 @@ public class MrpDetailView { // 클래스명은 자유롭게 (예: MrpResultView
 
     @Column(name = "PRODUCT_ITEM_CD")
     private String productItemCd;
-
-    @Column(name = "PRODUCT_ORDER_QTY")
-    private BigDecimal productOrderQty; // 또는 적절한 타입
     
     @Column(name = "PRODUCT_UNIT_NM")
     private String productUnitNm; // 완제품 단위명
@@ -107,5 +107,8 @@ public class MrpDetailView { // 클래스명은 자유롭게 (예: MrpResultView
     // 뷰에서 CASE 문으로 한글 변환된 주문 상태
     @Column(name = "ORDER_STATUS")
     private String orderStatusOverall; // DTO 필드명과 일치시키기 위해 유지
+    
+    @Column(name = "PROD_CODE")
+    private String prodCd;
     
 }
