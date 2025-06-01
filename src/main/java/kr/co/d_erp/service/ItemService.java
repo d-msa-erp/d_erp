@@ -12,7 +12,7 @@ import java.util.List;
 @Service("itemJpaService") // 기존 ItemService와 빈 이름 충돌을 피하기 위해 이름 지정
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class ItemJpaService { // 클래스 이름을 ItemJpaservice 또는 ItemDataListService 등으로 변경
+public class ItemService { // 클래스 이름을 ItemJpaservice 또는 ItemDataListService 등으로 변경
 
     private final ItemmstRepository itemmstRepository; // JPA 리포지토리 주입
 
