@@ -29,6 +29,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    border-radius: 10px;
 }
 
 /* 섹션 헤더 스타일 */
@@ -40,6 +41,7 @@ body {
     display: flex; /* 아이콘과 텍스트 정렬을 위해 추가 */
     align-items: center; /* 아이콘과 텍스트 정렬을 위해 추가 */
     gap: 10px; /* 아이콘과 텍스트 간격 추가 */
+    border-radius: 10px 10px 0 0;
 }
 
 /* 출고 정보 검색 폼 섹션 (inbound의 shipping-info-section과 유사) */

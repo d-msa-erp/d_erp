@@ -27,10 +27,11 @@
 }
 
 /* --- BOM 메인 모달 고유 레이아웃 스타일 --- */
-/* 메인 BOM 모달의 너비를 outbound.css 기본값보다 넓게 설정 */
-#modal .modal-content { /* #modal로 특정하여 BOM 메인 모달만 */
-    max-width: 1000px; /* 다른 모달보다 넓게, 필요시 조정 */
+/* 메인 BOM 모달(#modal)의 너비는 기존 값 유지 또는 필요시 조정 */
+#modal .modal-content { /* BOM 메인 모달 */
+    max-width: 1000px;
 }
+
 
 .bom-modal-form-custom {
     display: flex;
@@ -155,18 +156,24 @@
 }
 
 
-/* --- 분류/단위 관리 모달 고유 스타일 --- */
-/* 분류/단위 모달의 너비를 outbound.css 기본값(700px)보다 작게 설정 가능 */
-#modal-category .modal-content,
-#modal-spec .modal-content {
-    max-width: 600px; /* 예시, 필요시 조정 */
+/* --- 분류 관리 모달(#modal-category) 크기 조정 --- */
+#modal-category .modal-content {
+    max-width: 1200px; /* 기존 600px에서 더 넓게 조정 (내용에 맞춰 조절) */
+    /* 필요하다면 min-width도 설정 가능 */
+    /* min-width: 700px; */
 }
+
+
 
 .modal-table-wrapper-fixed { /* 분류/단위 관리 모달 내 테이블 (고정 높이) */
     height: 300px; /* 고정 높이 */
     /* .table-scroll-wrapper의 표준 스타일 (border, overflow 등) 적용 */
 }
-
+/* --- 단위 관리 모달(#modal-spec) 크기 조정 --- */
+#modal-spec .modal-content {
+    max-width: 500px; /* 기존 600px에서, 내용이 적으므로 약간 줄이거나 유지 (내용에 맞춰 조절) */
+    /* 단위 관리 모달은 내용이 적을 수 있으므로, 너무 넓지 않게 조정 */
+}
 .category-add-row, .unit-add-row {
     display: flex;
     gap: 10px;
@@ -212,9 +219,49 @@
 #category-table table.grid-table thead th {
     background-color: #f7f9fa;
 }
+.delete-unit-btn, .delete-btn-in-table{
+	width: 100%;
+	height: 100%;
+	background: #dc3545;
+	color: #fff;
+	cursor: pointer;
+	border: 0;
+	border-radius: 5px;
+}
+.delete-unit-btn:hover, delete-btn-in-table:hover {
+	background: #c82333;
+}
 
-/* 스크린 리더 전용 클래스 (HTML 하단 style 태그에서 정의된 것 사용) */
-/* .sr-only { ... } */
+#categoryForm tr th:last-child {
+	width: 55px;
+}
 
-/* 테이블 내 체크박스 컬럼 너비 - outbound.css에서 이미 정의됨 */
-/* table.grid-table th:first-child, table.grid-table td:first-child { width: 40px; ... } */
+#categoryForm  td input {
+	width: 100%;
+}
+
+#categoryForm tr th:first-child {
+	width: 55px;
+}
+
+#category-table tr th:nth-child(2) {
+	width: 73px;
+}
+
+#category-table tr th:nth-child(3) {
+	width: 73px;
+}
+
+#category-table tr th:nth-child(4) {
+	width: 200px;
+}
+
+#category-table tr th:nth-child(5) {
+	width: 200px;
+}
+.subcategory-column * {font-size: 0.6rem !important; }
+.subcategory-column {overflow-x:auto !important;}
+
+.subcategory-column tr th:last-child {
+	width: 55px !important;
+}

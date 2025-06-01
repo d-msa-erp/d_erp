@@ -57,13 +57,11 @@ body {
 }
 
 .low-inventory-box-wrapper h4 {
-	margin-bottom: 15px;
 	color: #333;
 	font-size: 16px;
 }
 
 #toggleLowStockBtn {
-	margin: 10px;
 	width: 50px;
 	height: 32px;
 	border: 0;
@@ -542,12 +540,12 @@ table.grid-table th:first-child input[type="checkbox"], table.grid-table td:firs
 }
 
 .modal-content .modal-buttons {
-	grid-column: span 2;
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	padding-top: 15px;
-	border-top: 1px solid #eee;
+    grid-column: span 2;
+    flex-direction: row !important;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
 }
 
 .modal-content .modal-buttons button {
@@ -611,14 +609,14 @@ th a.active {
 }
 
 /* 반응형 디자인 - 수정됨 */
-@media (max-width: 768px) {
-	.main-container {
-		display: flex;
-		gap: 20px;
-		align-items: flex-start;
-		padding: 20px;
-		flex-direction: column-reverse;
-	}
+@media (max-width:1200px) {
+.main-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        padding: 20px;
+        flex-direction: column;
+    }
 	
 	.site-Wrapper {
 		padding: 0;
@@ -626,7 +624,7 @@ th a.active {
 	}
 	
 	.low-inventory-box-wrapper {
-		position: static;
+		position: inherit;
 		margin-top: 0;
 		width: 100%;
 		max-width: 100%;
@@ -669,13 +667,9 @@ th a.active {
 <body>
     <div th:replace="~{/top.html :: top}"></div>
 	<div class="main-container">
-    <div class="low-inventory-box-wrapper">
-        <h4>📦 적정 재고 미달 품목</h4>
-        <button id="toggleLowStockBtn">닫기</button>
-        <div id="lowStockNotice" class="low-inventory-box">
-            <!-- JS로 채워짐 -->
-        </div>
-    </div>
+	
+ 
+    
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
@@ -768,6 +762,15 @@ th a.active {
 					  </div>
 					</div>
 				</div>
+				   <div class="low-inventory-box-wrapper">
+				   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <h4>📦 적정 재고 미달 품목</h4>
+        <button id="toggleLowStockBtn">닫기</button>
+				   </div>
+        <div id="lowStockNotice" class="low-inventory-box">
+            <!-- JS로 채워짐 -->
+        </div>
+    </div>
             </div>
         </form>
     </div>

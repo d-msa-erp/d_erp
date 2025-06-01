@@ -524,7 +524,10 @@ function closeModal(modalId) {
         }
     }
 }
+function outsideClick(e){
 
+	closeModal(e.target.id);
+}
 // 고객 정보 수정 함수
 async function editCustomer() {
     const form = document.getElementById('modalDetailForm'); // 상세 모달의 폼 ID
