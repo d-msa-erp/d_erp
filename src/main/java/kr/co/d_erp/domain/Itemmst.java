@@ -1,4 +1,4 @@
-package kr.co.d_erp.dtos;
+package kr.co.d_erp.domain;
 
 import java.math.BigDecimal;
 
@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.*;
+import kr.co.d_erp.dtos.CatDto;
+import kr.co.d_erp.dtos.CustomerForItemDto;
+import kr.co.d_erp.dtos.InvenDto;
+import kr.co.d_erp.dtos.UnitForItemDto;
 import lombok.*;
 
 @Entity
