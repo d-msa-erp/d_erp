@@ -22,6 +22,21 @@ public class ItemController { // 또는 ItemApiController
     private final ItemJpaService itemJpaService; // 새로운 JPA 서비스 주입
     private final ItemInventoryService itemInventoryService; // 품목에 따른 재고 조회를 위해 추가 -민섭
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * Datalist용 활성 품목 목록 조회 API입니다.
      * 특정 거래처 ID(custIdx)가 제공되면 해당 거래처의 품목만, 없으면 전체 (활성) 품목을 반환합니다.
@@ -43,17 +58,6 @@ public class ItemController { // 또는 ItemApiController
         return ResponseEntity.ok(items);
     }
 
-    // 만약 이 컨트롤러에서 다른 품목 관련 API (예: CRUD)를 추가하고 싶다면 여기에 메소드를 추가할 수 있습니다.
-    // 그 경우, 해당 기능들이 MyBatis 기반의 기존 ItemService를 사용해야 한다면,
-    // 이 컨트롤러에 기존 ItemService도 함께 주입받도록 설계할 수 있습니다.
-    // 예:
-    // private final ItemService myBatisItemService;
-    // public ItemController(ItemJpaService itemJpaService, ItemService myBatisItemService) {
-    //     this.itemJpaService = itemJpaService;
-    //     this.mybatisItemService = mybatisItemService;
-    // }
-    
-    
     // 발주 품목(원자재)만 조회 -민섭
     @GetMapping("/purchase-itemlist")
     public  ResponseEntity<List<ItemForSelectionDto>> getActiveItemsForPurchase(){
