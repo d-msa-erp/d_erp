@@ -29,7 +29,7 @@ public class OrderDetailView {
     private String orderCode;
 
     @Column(name = "order_date")
-    private LocalDateTime orderDate;
+    private LocalDateTime orderDate; 
 
     @Column(name = "delivery_date")
     private LocalDateTime deliveryDate;
@@ -45,12 +45,18 @@ public class OrderDetailView {
     
     @Column(name = "customer_name")
     private String customerName;
+    
+    @Column(name = "customer_idx")
+    private String customerIdx;
 
     @Column(name = "item_name")
     private String itemName;
     
     @Column(name = "wh_nm")
     private String whNm;
+    
+    @Column(name = "wh_idx")
+    private String whIdx;
     
     @Column(name = "manager_name")
     private String managerName;

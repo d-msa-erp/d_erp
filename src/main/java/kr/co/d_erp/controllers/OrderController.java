@@ -13,6 +13,7 @@ import kr.co.d_erp.service.OrderDetailService;
 import kr.co.d_erp.service.OrderService;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @RestController
@@ -37,6 +38,17 @@ public class OrderController {
     public ResponseEntity<OrderDetailView> getOrder(@PathVariable Long orderIdx) {
         OrderDetailView detail = orderDetailService.getOrderDetail(orderIdx);
         return ResponseEntity.ok(detail);
+    }
+    
+    @PutMapping("/update")
+    public ResponseEntity<String> updateOrder(@RequestBody OrderDto dto) {
+        try {
+            orderService.updateOrderAndTransaction(dto);
+            return ResponseEntity.ok("주문 수정 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                 .body("주문 수정 실패: " + e.getMessage());
+        }
     }
     
 }

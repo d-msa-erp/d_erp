@@ -3,7 +3,7 @@ const companyCustMap = new Map(); // 거래처명에 따른 idx를 담을 map
 let currentPage = 0;
 let sortBy = 'deliveryDate';
 let sortDirection = 'asc';
-
+let currentOrderIdx = null;
 
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
@@ -75,8 +75,21 @@ function setdate() {
 	const yyyy = today.getFullYear();
 	const mm = String(today.getMonth() + 1).padStart(2, '0');
 	const dd = String(today.getDate()).padStart(2, '0');
-	document.getElementById('orderDate').value = `${yyyy}-${mm}-${dd}`;
+	const todayStr = `${yyyy}-${mm}-${dd}`;
+
+	document.getElementById('orderDate').value = todayStr;
+	
+	const deliveryDateInput = document.getElementById('deliveryDate');
+	if (deliveryDateInput) {
+		deliveryDateInput.min = todayStr;
+
+		if (deliveryDateInput.value && deliveryDateInput.value < todayStr) {
+			deliveryDateInput.value = '';
+		}
+	}
 };
+
+
 async function loadPurchases(sortBy, sortDirection) {
 	const purchasesTableBody = document.getElementById('purchasesTableBody');
 	if (!purchasesTableBody) {
@@ -352,7 +365,10 @@ async function openModal(data = null) {
 	document.getElementById('currentInventory').style.display = 'block';
 	document.getElementById('optimalInventoryText').style.display = 'block';
 	document.getElementById('currentInventoryText').style.display = 'block';
-
+	document.getElementById('itemCode').readOnly = false;
+	document.getElementById('itemName').readOnly = false;
+	document.getElementById('unitPrice').readOnly = true;
+	document.getElementById('companySearchInput').readOnly = false;
 
 	if (data) {
 		if (data.origin === 'lowInventory') {
@@ -370,13 +386,26 @@ async function openModal(data = null) {
 			document.getElementById('itemIdx').value = data.itemIdx;
 			document.getElementById('itemName').dispatchEvent(new Event('change')); // 거래처 목록을 받아오기 위한 강제 이벤트 발생
 		} else {
+			console.log("🔍 모달 데이터 구조 확인:", data);
 			title.textContent = '발주 정보';
 			saveBtn.style.display = 'none';
 			editBtn.style.display = 'block';
+			loadWarehouse();
+			loadItems();
+			document.getElementById("orderIdx").value = data.orderIdx;
 			document.getElementById('itemCode').value = data.itemCode;
+			document.getElementById('itemCode').readOnly = true;
 			document.getElementById('itemName').value = data.itemName;
+			document.getElementById('itemName').readOnly = true;
 			document.getElementById('unitPrice').value = data.unitPrice;
 			document.getElementById('quantity').value = data.orderQty;
+			document.getElementById('companySearchInput').value = data.customerName;
+			document.getElementById('companySearchInput').readOnly = true;
+			document.getElementById('selectedCustIdx').value = data.customerIdx;
+			document.getElementById('whSearchInput').value = data.whNm;
+			document.getElementById('selectedwhIdx').value = data.whIdx;
+			document.getElementById('orderDate').value = data.orderDate.substring(0, 10);
+			document.getElementById('deliveryDate').value = data.deliveryDate.substring(0, 10);
 			document.getElementById('optimalInventory').style.display = 'none';
 			document.getElementById('currentInventory').style.display = 'none';
 			document.getElementById('optimalInventoryText').style.display = 'none';
@@ -666,30 +695,78 @@ document.getElementById('lowStockNotice').addEventListener('click', function(e) 
 	}
 });
 
-function downloadExcel() {
-	const url = `/api/orders/purchase/excel`;
+document.getElementById("editBtn").addEventListener("click", async () => {
+	const orderCode = document.getElementById("orderNo").value;
 
-	fetch(url)
-		.then(response => {
-			if (!response.ok) {
-				throw new Error("엑셀 다운로드 실패");
-			}
-			return response.blob();
-		})
-		.then(blob => {
-			const a = document.createElement('a');
-			const url = window.URL.createObjectURL(blob);
-			a.href = url;
-			a.download = 'sales-data.xlsx'; // 저장될 파일명
-			document.body.appendChild(a);
-			a.click();
-			a.remove();
-			window.URL.revokeObjectURL(url);
-		})
-		.catch(err => {
-			alert("엑셀 다운로드 중 오류 발생");
-			console.error(err);
+	const orderData = {
+		orderIdx: document.getElementById("orderIdx").value,
+		orderCode: orderCode,
+		orderType: 'P',
+		orderDate: document.getElementById("orderDate").value,
+		custIdx: document.getElementById("selectedCustIdx").value,
+		itemIdx: document.getElementById("itemIdx").value,
+		orderQty: Number(document.getElementById("quantity").value),
+		unitPrice: Number(document.getElementById("unitPrice").value),
+		deliveryDate: document.getElementById("deliveryDate").value,
+		userIdx: document.getElementById("userIdx").value,
+		remark: document.getElementById("remark").value,
+		expectedWhIdx: document.getElementById("selectedwhIdx").value
+	};
+
+	try {
+		const response = await fetch('/api/orders/update', {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(orderData)
 		});
+		if (!response.ok) throw new Error('수정 실패');
+
+		alert('수정 완료');
+		closeModal();
+		loadPurchases('deliveryDate', 'asc');
+	} catch (err) {
+		alert('수정 중 오류 발생');
+		console.error(err);
+	}
+});
+
+
+async function downloadExcel() {
+	const checked = document.querySelectorAll('#purchasesTableBody input.purchase-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+		cb.closest('tr').querySelector('input[type="hidden"]').value);
+				
+	if (ids.length === 0) {
+		alert('엑셀로 내보낼 항목을 선택해주세요.');
+		return;
+	}
+	
+	
+	const url = `/api/orders/purchase/excel?${ids.map(id => `id=${id}`).join('&')}`;
+	const response = await fetch(url);
+
+	if (!response.ok) {
+		alert('엑셀 다운로드 실패');
+		return;
+	}
+
+	const blob = await response.blob();
+
+
+	const disposition = response.headers.get('Content-Disposition');
+	let fileName = 'purchase.xlsx'; // 기본값
+
+	if (disposition && disposition.includes('filename=')) {
+		const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+		if (matches != null && matches[1]) {
+			fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+		}
+	}
+
+	const a = document.createElement('a');
+	a.href = window.URL.createObjectURL(blob);
+	a.download = fileName;
+	a.click();
 }
 
 function printSelectedPurchase() {
