@@ -21,4 +21,5 @@ public interface MrpFirstDtoProjection {
 	    BigDecimal getProductivity();
 	    String getRemark();
 	    String getOrderStatusOverall();
+	    String getProdCd();
 }

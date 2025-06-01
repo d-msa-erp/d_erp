@@ -231,7 +231,7 @@
     }
     .low-inventory-box-wrapper {
         position: static; /* fixed/sticky 해제 */
-        width: 30%;      /* 전체 너비 사용 */
+        width: 100%;      /* 전체 너비 사용 */
         max-width: 700px; /* 너무 넓어지지 않도록 */
         margin-bottom: 20px;
         top: auto; left: auto; /* fixed/sticky 관련 속성 해제 */

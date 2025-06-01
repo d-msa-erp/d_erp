@@ -85,13 +85,6 @@ public class StockController {
 	        List<CustomerDTO> customers = stockService.getCustomersByBizFlag(bizFlag);
 	        return ResponseEntity.ok(customers);
 	    }
-	 
-		
-		  @PostMapping 
-		  public ResponseEntity<StockDto> createStockItem(@RequestBody StockRequestDto requestDto) { 
-			  StockDto createdStockDto = stockService.createInventoryDirectly(requestDto); 
-			  return ResponseEntity.status(HttpStatus.CREATED).body(createdStockDto); 
-		 }
 		  
 		  @PutMapping("/{invIdx}") // 요청 경로 예: /api/stocks/101 public
 		  ResponseEntity<StockDto> updateStockItem(@PathVariable Long invIdx, // URL 경로에서 itemIdx 값을 추출
@@ -105,19 +98,6 @@ public class StockController {
 	    public ResponseEntity<List<WhmstDto>> getAllWarehousesApi() {
 	        List<WhmstDto> warehouses = stockService.getAllWarehouses();
 	        return ResponseEntity.ok(warehouses);
-	    }
-	 
-	 @DeleteMapping("/delete") // 또는 @PostMapping("/inventories/delete-batch")
-	    public ResponseEntity<String> deleteInventories(@RequestBody List<Long> invIdxs) {
-	        try {
-	            stockService.deleteInventories(invIdxs);
-	            return ResponseEntity.ok(invIdxs.size() + "개의 재고 항목이 삭제되었습니다.");
-	        } catch (IllegalArgumentException e) {
-	            return ResponseEntity.badRequest().body(e.getMessage());
-	        } catch (Exception e) {
-	            // Log aPÍ error
-	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("재고 삭제 중 오류가 발생했습니다.");
-	        }
 	    }
 	 
 	 

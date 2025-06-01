@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.BomDtl;
-import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.dtos.BomDtlRequestDto;
 import kr.co.d_erp.dtos.BomExcelViewProjection;
 import kr.co.d_erp.dtos.BomItemDetailDto;
@@ -39,6 +38,7 @@ import kr.co.d_erp.dtos.BomSummaryProjection;
 import kr.co.d_erp.dtos.BomUpdateRequestDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
+import kr.co.d_erp.dtos.Itemmst; //
 import kr.co.d_erp.repository.oracle.BomDtlRepository; //
 import kr.co.d_erp.repository.oracle.ItemmstRepository; //
 import lombok.RequiredArgsConstructor;

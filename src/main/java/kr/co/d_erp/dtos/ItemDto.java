@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
-//선익 사용중
 @Table(name= "TB_ITEMMST")
 @Getter
 @Setter
