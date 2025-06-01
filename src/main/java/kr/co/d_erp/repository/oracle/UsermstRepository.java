@@ -11,6 +11,7 @@ import kr.co.d_erp.domain.Usermst;
 
 import org.springframework.data.domain.Sort;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,4 +57,40 @@ public interface UsermstRepository extends JpaRepository<Usermst, Long> {
 	// USER_STATUS가 '01'인 사용자만 조회하는 메소드
 	List<Usermst> findByUserStatus(String userStatus);
 
+	/**
+	 * 퇴사일이 오늘이거나 과거이면서 재직상태가 퇴사가 아닌 사원들을 조회
+	 * 스케줄러에서 자동 퇴사 처리를 위해 사용
+	 * 
+	 * @param today 오늘 날짜
+	 * @return 퇴사 처리 대상 사원 목록
+	 */
+	@Query("SELECT u FROM Usermst u WHERE u.retireDt <= :today AND u.userStatus != '02'")
+	List<Usermst> findUsersToRetire(@Param("today") LocalDate today);
+
+	/**
+	 * 특정 날짜에 퇴사 예정인 사원들을 조회 (알림 등에 활용 가능)
+	 * 
+	 * @param targetDate 조회할 날짜
+	 * @return 해당 날짜에 퇴사 예정인 사원 목록
+	 */
+	@Query("SELECT u FROM Usermst u WHERE u.retireDt = :targetDate AND u.userStatus != '02'")
+	List<Usermst> findUsersRetireOnDate(@Param("targetDate") LocalDate targetDate);
+
+	/**
+	 * 퇴사 예정인 사원들을 조회 (퇴사일이 설정되어 있지만 아직 퇴사 처리되지 않은 사원)
+	 * 
+	 * @return 퇴사 예정 사원 목록
+	 */
+	@Query("SELECT u FROM Usermst u WHERE u.retireDt IS NOT NULL AND u.userStatus != '02' ORDER BY u.retireDt ASC")
+	List<Usermst> findPendingRetirements();
+
+	/**
+	 * 특정 기간 내에 퇴사 예정인 사원들을 조회
+	 * 
+	 * @param startDate 시작 날짜
+	 * @param endDate 종료 날짜
+	 * @return 해당 기간 내 퇴사 예정 사원 목록
+	 */
+	@Query("SELECT u FROM Usermst u WHERE u.retireDt BETWEEN :startDate AND :endDate AND u.userStatus != '02' ORDER BY u.retireDt ASC")
+	List<Usermst> findUsersRetireBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 }

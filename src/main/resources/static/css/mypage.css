@@ -1,0 +1,178 @@
+/* ==========================================================================
+   마이페이지 고유 스타일
+   - outbound.css의 공통 스타일을 기반으로, 마이페이지의 특별한 레이아웃이나
+     컴포넌트에 필요한 추가 스타일 또는 미세 조정을 정의합니다.
+   ========================================================================== */
+
+/* site-Wrapper, site-Dataset, header 등은 outbound.css 스타일을 따름 */
+
+.site-Dataset .header h4 { /* 헤더 내 h4 사용 시 outbound.css에 h4 스타일이 없다면 추가 */
+    margin: 0;
+    font-weight: 600; /* outbound.css .header 스타일과 유사하게 */
+}
+
+.mypage-form-content {
+    padding: 20px 25px; /* outbound.css .shipping-info-section 패딩과 유사하게 */
+}
+
+.data-Row {
+    display: flex;
+    flex-wrap: wrap; /* 기본은 가로 배치 */
+    align-items: center; /* 수직 중앙 정렬 */
+    padding: 12px 0;   /* 위아래 패딩 */
+    border-bottom: 1px solid #f0f0f0; /* 구분선 연하게 */
+}
+.data-Row:last-child {
+    border-bottom: none;
+}
+
+.data-Label {
+    width: 150px; /* 라벨 너비 고정 (조정 가능) */
+    font-weight: 600; /* outbound.css .form-group label과 유사하게 */
+    color: #555;      /* outbound.css .form-group label과 유사하게 */
+    font-size: 14px;   /* outbound.css .form-group label과 유사하게 */
+    padding-right: 15px; /* 값과의 간격 */
+    flex-shrink: 0; /* 너비 유지 */
+}
+
+.data-Value {
+    flex: 1; /* 남은 공간 차지 */
+    font-size: 15px; /* outbound.css input/select 폰트 크기와 유사하게 */
+    color: #333;
+}
+/* data-Value 내부 input은 outbound.css의 .form-group input 스타일을 최대한 따르도록 함 */
+.data-Value input[type="text"],
+.data-Value input[type="email"],
+.data-Value input[type="tel"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    background-color: #fff; /* 기본 배경색 */
+}
+.data-Value input:read-only {
+    background-color: #f8f9fa; /* 읽기 전용 필드 배경색 */
+    color: #6c757d;
+    border-color: #e0e0e0;
+    cursor: default;
+}
+.data-Value input:focus:not([readonly]) { /* 읽기 전용이 아닐 때만 포커스 스타일 */
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
+}
+
+
+.mypage-action-buttons { /* outbound.css .search-action-buttons 스타일 활용 */
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px 25px;
+    border-top: 1px solid #eee;
+}
+/* .mypage-action-buttons 내부 버튼은 outbound.css의 .btn-save, .btn-reset 등 표준 클래스 사용 */
+.mypage-action-buttons .btn-secondary { /* 비밀번호 변경 버튼용 (btn-reset과 유사) */
+    background: #6c757d;
+    color: white;
+}
+.mypage-action-buttons .btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+
+/* 비밀번호 변경 모달 내부 폼 스타일 */
+.modal-form-stacked .modal-form-group { /* 모달 내 폼 그룹이 세로로 쌓이도록 */
+    grid-column: span 2; /* modal-form-grid의 두 컬럼을 모두 사용 */
+}
+/* .modal-form-group 내부 라벨, 입력 필드는 outbound.css 스타일 사용 */
+
+#pw-change-msg { /* 비밀번호 변경 모달 내 메시지 */
+    color: red;
+    font-weight: bold;
+    margin-top: 5px; /* 입력 필드와의 간격 */
+    margin-bottom: 15px; /* 버튼과의 간격 */
+    font-size: 13px;
+    min-height: 1.2em; /* 메시지 표시 공간 확보 */
+    text-align: left;
+}
+
+.success-message, .error-message { /* 페이지 상단 성공/실패 메시지 */
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    font-weight: 500;
+    text-align: center;
+}
+.success-message {
+    color: #155724;
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+}
+.mypage-action-buttons .btn-secondary {
+    background-color: #6c757d; 
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.mypage-action-buttons .btn-secondary:hover {
+    background-color: #5a6268; /* .btn-reset:hover 배경색 */
+}
+
+.btn-save {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+	color: #fff;
+	background: #007bff;
+}
+/* 반응형 스타일 (mypage 고유 레이아웃 조정) */
+@media screen and (max-width: 768px) {
+    .data-Row {
+        flex-direction: column; /* 라벨과 값을 세로로 배치 */
+        align-items: flex-start; /* 왼쪽 정렬 */
+        gap: 4px; /* 라벨과 값 사이 간격 줄임 */
+        padding: 10px 0;
+    }
+    .data-Label {
+        width: 100%; /* 라벨 전체 너비 사용 */
+        margin-bottom: 6px; /* 값과의 간격 */
+        padding-right: 0;
+    }
+    .data-Value {
+        width: 100%; /* 값 전체 너비 사용 */
+    }
+
+    .mypage-action-buttons {
+        flex-direction: column; /* 버튼 세로로 쌓기 */
+        align-items: stretch;   /* 버튼 너비 100% */
+        padding: 15px;
+    }
+    .mypage-action-buttons button {
+        justify-content: center; /* 버튼 내 텍스트/아이콘 중앙 정렬 */
+    }
+
+    /* 비밀번호 변경 모달은 outbound.css의 반응형이 적용될 것임 */
+}

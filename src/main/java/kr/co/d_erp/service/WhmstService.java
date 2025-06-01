@@ -224,27 +224,28 @@ public class WhmstService {
 
 	/**
 	 * 모든 창고 목록을 페이징으로 조회합니다. (정렬 및 검색 지원)
+	 * 활성 창고만 조회 (useFlag = 'Y')
 	 * @param page 페이지 번호 (1부터 시작)
 	 * @param size 페이지 크기
 	 * @param sortBy 정렬 기준 컬럼명
 	 * @param sortDirection 정렬 방향 (asc/desc)
 	 * @param keyword 검색어
-	 * @return 페이징된 창고 DTO 목록 (담당자 이름 포함)
+	 * @return 페이징된 활성 창고 DTO 목록 (담당자 이름 포함)
 	 */
 	@Transactional(readOnly = true)
 	public PageDto<WhmstDto> findAllWarehouses(int page, int size, String sortBy, String sortDirection, String keyword) {
-		// 1-based page를 0-based로 변환
-		Pageable pageable = PageRequest.of(page - 1, size, createSort(sortBy, sortDirection));
-
-		// 페이징된 엔티티 조회
-		Page<Whmst> warehousePage = whmstRepository.findAllWarehousesWithUserDetailsPageable(keyword, pageable);
-
-		// 엔티티를 DTO로 변환
-		List<WhmstDto> warehouseDtos = warehousePage.getContent().stream()
-			.map(this::convertToDto)
-			.collect(Collectors.toList());
-
-		return new PageDto<>(warehousePage, warehouseDtos);
+	    // 1-based page를 0-based로 변환
+	    Pageable pageable = PageRequest.of(page - 1, size, createSort(sortBy, sortDirection));
+	    
+	    // 활성 창고만 조회 (useFlag = 'Y')
+	    Page<Whmst> warehousePage = whmstRepository.findActiveWarehousesWithUserDetailsPageable("Y", keyword, pageable);
+	    
+	    // 엔티티를 DTO로 변환
+	    List<WhmstDto> warehouseDtos = warehousePage.getContent().stream()
+	        .map(this::convertToDto)
+	        .collect(Collectors.toList());
+	    
+	    return new PageDto<>(warehousePage, warehouseDtos);
 	}
 
 	/**
@@ -301,7 +302,8 @@ public class WhmstService {
 		existingWhmst.setWhType1(updatedWhmstDto.getWhType1() != null ? updatedWhmstDto.getWhType1() : "N");
 		existingWhmst.setWhType2(updatedWhmstDto.getWhType2() != null ? updatedWhmstDto.getWhType2() : "N");
 		existingWhmst.setWhType3(updatedWhmstDto.getWhType3() != null ? updatedWhmstDto.getWhType3() : "N");
-		existingWhmst.setUseFlag(updatedWhmstDto.getUseFlag() != null ? updatedWhmstDto.getUseFlag() : "Y");
+		existingWhmst.setUseFlag(updatedWhmstDto.getUseFlag() != null ? updatedWhmstDto.getUseFlag() : "N");
+
 		existingWhmst.setWhLocation(updatedWhmstDto.getWhLocation());
 
 		if (updatedWhmstDto.getWhUserIdx() != null) {
@@ -317,12 +319,81 @@ public class WhmstService {
 	}
 
 	/**
-	 * 선택된 창고들을 삭제합니다.
+	 * 선택된 창고들을 논리적으로 삭제합니다 (useFlag를 N으로 변경)
+	 * 재고가 있는 창고는 삭제할 수 없습니다.
 	 * @param whIdxes 삭제할 창고 고유 번호 목록
+	 * @throws RuntimeException 재고가 있는 창고가 포함된 경우
 	 */
 	@Transactional
 	public void deleteWhmsts(List<Long> whIdxes) {
-		whmstRepository.deleteAllById(whIdxes);
+	    if (whIdxes == null || whIdxes.isEmpty()) {
+	        return;
+	    }
+	    
+	    // 삭제하려는 창고들 중 재고가 있는 창고 확인
+	    List<String> warehousesWithStock = new ArrayList<>();
+	    
+	    for (Long whIdx : whIdxes) {
+	        try {
+	            // 해당 창고에 재고 수량 > 0인 항목이 있는지 확인
+	            List<WarehouseInventoryDetailView> allStockItems = warehouseInventoryDetailViewRepository.findByWhIdx(whIdx);
+	            
+	            // null 체크 및 필터링
+	            List<WarehouseInventoryDetailView> stockItems = allStockItems.stream()
+	                .filter(item -> item != null) // null 아이템 필터링
+	                .filter(item -> {
+	                    try {
+	                        BigDecimal stockQty = item.getStockQty();
+	                        return stockQty != null && stockQty.compareTo(BigDecimal.ZERO) > 0;
+	                    } catch (Exception e) {
+	                        // getStockQty() 호출 중 오류 발생 시 로그 남기고 재고 없음으로 처리
+	                        System.err.println("재고 수량 조회 중 오류 발생 - 창고ID: " + whIdx + ", 아이템: " + item + ", 오류: " + e.getMessage());
+	                        return false;
+	                    }
+	                })
+	                .collect(Collectors.toList());
+	            
+	            if (!stockItems.isEmpty()) {
+	                // 창고 정보 조회해서 창고명 추가
+	                try {
+	                    WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+	                    String warehouseName = warehouse != null ? warehouse.getWhNm() : "알 수 없는 창고";
+	                    warehousesWithStock.add(String.format("%s (재고: %d개 품목)", warehouseName, stockItems.size()));
+	                } catch (Exception e) {
+	                    System.err.println("창고 정보 조회 중 오류 발생 - 창고ID: " + whIdx + ", 오류: " + e.getMessage());
+	                    warehousesWithStock.add(String.format("창고ID %d (재고: %d개 품목)", whIdx, stockItems.size()));
+	                }
+	            }
+	            
+	        } catch (Exception e) {
+	            // 창고별 재고 조회 중 오류 발생 시 안전을 위해 삭제 불가로 처리
+	            System.err.println("창고 재고 확인 중 전체 오류 발생 - 창고ID: " + whIdx + ", 오류: " + e.getMessage());
+	            try {
+	                WhmstDto warehouse = whmstRepository.findWarehouseDetailsById(whIdx);
+	                String warehouseName = warehouse != null ? warehouse.getWhNm() : "알 수 없는 창고";
+	                warehousesWithStock.add(String.format("%s (확인 실패 - 안전상 삭제 불가)", warehouseName));
+	            } catch (Exception ex) {
+	                warehousesWithStock.add(String.format("창고ID %d (확인 실패 - 안전상 삭제 불가)", whIdx));
+	            }
+	        }
+	    }
+	    
+	    // 재고가 있는 창고가 하나라도 있으면 삭제 중단
+	    if (!warehousesWithStock.isEmpty()) {
+	        String errorMessage = "다음 창고들은 재고가 있어 삭제할 수 없습니다:\n" + 
+	                            String.join("\n", warehousesWithStock) + 
+	                            "\n\n재고를 모두 이동하거나 삭제한 후 다시 시도해주세요.";
+	        throw new RuntimeException(errorMessage);
+	    }
+	    
+	    // 모든 창고에 재고가 없으면 삭제 진행
+	    try {
+	        whmstRepository.updateUseFlagToN(whIdxes);
+	        System.out.println("창고 삭제 완료: " + whIdxes);
+	    } catch (Exception e) {
+	        System.err.println("창고 삭제 처리 중 오류 발생: " + e.getMessage());
+	        throw new RuntimeException("창고 삭제 처리 중 오류가 발생했습니다: " + e.getMessage());
+	    }
 	}
 
 	/**

@@ -52,7 +52,7 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
 		currentPageSize = pageData.size || 10;
 
 		if (warehouses.length === 0) {
-			tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
+			tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 7; justify-content: center;">등록된 데이터가 없습니다.</td></tr>';
 			updatePaginationControls(); // 페이징 컨트롤 업데이트
 			return;
 		}
@@ -66,7 +66,6 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
                 <td>${warehouse.whCd || ''}</td>
                 <td>${warehouse.whNm || ''}</td>
                 <td>${(warehouse.whType1 === 'Y' ? '자재 ' : '') + (warehouse.whType2 === 'Y' ? '제품 ' : '') + (warehouse.whType3 === 'Y' ? '반품 ' : '').trim() || ''}</td>
-                <td>${warehouse.useFlag === 'Y' ? '사용' : '미사용'}</td>
                 <td>${warehouse.whLocation || ''}</td>
                 <td>${warehouse.remark || ''}</td>
                 <td>${warehouse.whUserNm || '미지정'}</td> `;
@@ -85,7 +84,7 @@ async function loadWarehousesTable(sortBy = currentSortBy, sortDirection = curre
 
 	} catch (error) {
 		console.error('Error loading warehouses:', error);
-		tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 8; justify-content: center; color: red;">데이터 로드 실패</td></tr>';
+		tableBody.innerHTML = '<tr><td class="nodata" style="grid-column: span 7; justify-content: center; color: red;">데이터 로드 실패</td></tr>';
 		updatePaginationControls(); // 에러 시에도 페이징 컨트롤 업데이트
 	}
 }
@@ -332,7 +331,7 @@ async function openTransferModal() {
 		return;
 	}
 
-	// 선택된 재고 정보 수집
+	// 선택된 재고 정보 수집 - 거래처명 추가
 	selectedStockForTransfer = Array.from(selectedCheckboxes).map(checkbox => {
 		const row = checkbox.closest('tr');
 		return {
@@ -342,7 +341,8 @@ async function openTransferModal() {
 			itemCd: row.cells[2].textContent,
 			itemSpec: row.cells[3].textContent,
 			stockQty: parseInt(row.cells[4].textContent) || 0,
-			itemUnitNm: row.cells[5].textContent
+			itemUnitNm: row.cells[5].textContent,
+			itemCustNm: row.cells[6].textContent // 거래처명 추가
 		};
 	});
 
@@ -374,31 +374,34 @@ async function openTransferModal() {
 		}
 	});
 
-	// 이동할 재고 목록 표시
+	// 이동할 재고 목록 표시 - 8개 컬럼으로 수정
 	transferItemsTableBody.innerHTML = '';
 	selectedStockForTransfer.forEach(stock => {
 		const row = document.createElement('tr');
 		row.innerHTML = `
-			<td>${stock.itemNm}</td>
-			<td>${stock.itemCd}</td>
-			<td>${stock.itemSpec}</td>
-			<td>${stock.stockQty}</td>
-			<td>
-				<input type="number" 
-					   min="1" 
-					   max="${stock.stockQty}" 
-					   value="${stock.stockQty}" 
-					   data-inv-idx="${stock.invIdx}"
-					   class="transfer-qty-input"
-					   style="width: 80px;" />
-			</td>
-			<td>${stock.itemUnitNm}</td>
-		`;
+	            <td><input type="checkbox" class="transfer-item-checkbox" checked /></td>
+	            <td>${stock.itemNm}</td>
+	            <td>${stock.itemCd}</td>
+	            <td>${stock.itemSpec}</td>
+	            <td>${stock.stockQty}</td>
+	            <td>
+	                <input type="number" 
+	                       min="1" 
+	                       max="${stock.stockQty}" 
+	                       value="${stock.stockQty}" 
+	                       data-inv-idx="${stock.invIdx}"
+	                       class="transfer-qty-input"
+	                       style="width: 80px;" />
+	            </td>
+	            <td>${stock.itemUnitNm}</td>
+	            <td>${stock.itemCustNm}</td>
+	        `;
 		transferItemsTableBody.appendChild(row);
 	});
 
 	transferModal.style.display = 'flex';
 }
+
 
 // === 현재 창고 정보 조회 함수 ===
 /**
@@ -812,11 +815,12 @@ function displayNoStockMessage(isError = false) {
 	const deleteStockButton = document.getElementById('deleteStockButton');
 
 	const message = isError ? '재고 데이터 로드 실패' : '재고 데이터 없음';
-	const color = isError ? 'red' : 'inherit'; // 오류 시 빨간색 글씨
+	const color = isError ? 'red' : 'inherit';
 
 	warehouseStockTableBody.innerHTML = `<tr style="display: contents;">
-	<td colspan="8" style="grid-column: 1 / -1; text-align: center; color: ${color}; display: block; padding: 20px 0;">
-	${message}</td> </tr>`; // 메시지 표시
+		<td colspan="8" style="grid-column: 1 / -1; text-align: center; color: ${color}; display: block; padding: 20px 0;">
+		${message}</td>
+	</tr>`;
 
 	// 관련 UI 요소 비활성화 및 초기화
 	selectAllStockCheckboxes.disabled = true;
@@ -855,6 +859,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
+	
+	// 창고이동 모달의 전체 선택 체크박스 이벤트 리스너 추가
+	document.addEventListener('change', function(event) {
+		if (event.target.id === 'selectAllTransferCheckboxes') {
+			const transferItemsTableBody = document.getElementById('transferItemsTableBody');
+			transferItemsTableBody.querySelectorAll('.transfer-item-checkbox').forEach(checkbox => {
+				checkbox.checked = event.target.checked;
+			});
+		}
+	});
 
 	// 모달 폼 제출 (창고 등록/수정) 이벤트 리스너
 	document.getElementById('modalForm').addEventListener('submit', async (event) => {
@@ -922,41 +936,51 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	// '선택 삭제' 버튼 클릭 이벤트 리스너
+	// '선택 삭제' 버튼 클릭 이벤트 리스너 수정
 	document.getElementById('deleteButton').addEventListener('click', async () => {
-		const checkedCheckboxes = document.querySelectorAll('#warehouseTableBody input[type="checkbox"]:checked');
-		const whIdxesToDelete = Array.from(checkedCheckboxes).map(cb => cb.dataset.whIdx); // 선택된 창고 ID 목록
+	    const checkedCheckboxes = document.querySelectorAll('#warehouseTableBody input[type="checkbox"]:checked');
+	    const whIdxesToDelete = Array.from(checkedCheckboxes).map(cb => cb.dataset.whIdx);
 
-		if (whIdxesToDelete.length === 0) {
-			alert('삭제할 창고를 선택해주세요.');
-			return;
-		}
-		if (!confirm(`${whIdxesToDelete.length}개의 창고를 정말로 삭제하시겠습니까?`)) {
-			return; // 사용자 취소 시 중단
-		}
+	    if (whIdxesToDelete.length === 0) {
+	        alert('삭제할 창고를 선택해주세요.');
+	        return;
+	    }
+	    
+	    if (!confirm(`${whIdxesToDelete.length}개의 창고를 삭제하시겠습니까?\n※ 재고가 있는 창고는 삭제할 수 없습니다.`)) {
+	        return;
+	    }
 
-		try {
-			const response = await fetch('/api/warehouses', {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(whIdxesToDelete) // 삭제할 ID 목록 전송
-			});
-			if (!response.ok) {
-				const errorText = await response.text();
-				let errorMessage = `HTTP error! Status: ${response.status}, Message: ${errorText}`;
-				try {
-					const errorJson = JSON.parse(errorText);
-					errorMessage = errorJson.message || errorMessage;
-				} catch (e) { /* JSON 파싱 실패 시 기존 메시지 사용 */ }
-				throw new Error(errorMessage);
-			}
-			alert('선택된 창고가 성공적으로 삭제되었습니다.');
-			loadWarehousesTable(); // 테이블 갱신 (현재 페이지 유지)
-		} catch (error) {
-			console.error('Error deleting warehouses:', error);
-			alert(`창고 삭제에 실패했습니다: ${error.message}. (재고를 모두 옮긴 후 다시 시도해주세요.)`);
-		}
+	    try {
+	        const response = await fetch('/api/warehouses', {
+	            method: 'DELETE',
+	            headers: { 'Content-Type': 'application/json' },
+	            body: JSON.stringify(whIdxesToDelete)
+	        });
+	        
+	        if (!response.ok) {
+	            const errorText = await response.text();
+	            let errorMessage = `HTTP error! Status: ${response.status}, Message: ${errorText}`;
+	            try {
+	                const errorJson = JSON.parse(errorText);
+	                errorMessage = errorJson.message || errorMessage;
+	            } catch (e) { /* JSON 파싱 실패 시 기존 메시지 사용 */ }
+	            throw new Error(errorMessage);
+	        }
+	        
+	        alert('선택된 창고가 성공적으로 삭제되었습니다.');
+	        loadWarehousesTable(); // 테이블 갱신
+	        
+	    } catch (error) {
+	        console.error('Error deactivating warehouses:', error);
+	        // 재고가 있는 창고 에러의 경우 상세 메시지 표시
+	        if (error.message.includes('재고가 있어 삭제할 수 없습니다')) {
+	            alert(error.message.replace('HTTP error! Status: 400, Message: ', ''));
+	        } else {
+	            alert(`창고 삭제에 실패했습니다: ${error.message}`);
+	        }
+	    }
 	});
+
 
 	// 메인 테이블 '전체 선택' 체크박스 이벤트 리스너
 	document.getElementById('selectAllCheckboxes').addEventListener('change', function() {

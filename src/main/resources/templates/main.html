@@ -7,94 +7,15 @@
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 <style th:replace="~{/top.html :: topstyle}"></style>
 <style>
-body {
-    font-family: sans-serif;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-}
 
-.site-Wrapper {
-    width: 100%;
-    max-width: 1200px;
-    padding: 20px;
-    align-self: center;
-     height: 80vh;
-    display: grid;
-    grid-template-rows: auto 1fr 1fr;
-    gap: 20px;
-}
-
-.site-Wrapper > div {
-    padding: 0;
-    align-items: flex-start;
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.site-Wrapper > div > .header {
-    background: #46a6ff;
-    color: white;
-    padding: 10px 20px;
-    font-size: 20px;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-    flex-shrink: 0;
-}
-
-.site-Wrapper .notice ul {
-    padding: 15px 20px;
-    list-style: none;
-    overflow-y: auto;
-    width: 100%;
-    margin: 0;
-    flex-grow: 1;
-}
-.site-Wrapper .notice ul li strong:hover {
-    text-decoration: underline;
-}
-
-.site-Wrapper #inv-table-wrapper,
-.site-Wrapper #outbound-table-wrapper {
-    padding: 15px;
-    overflow-y: auto;
-    width: 100%;
-    flex-grow: 1;
-    min-height: 150px;
-}
-
-#inv-table-wrapper table, /* ID 참조로 변경 */
-#outbound-table-wrapper table { /* ID 참조로 변경 */
-    width: 100%;
-    border-collapse: collapse;
-}
-#inv-table-wrapper th, #inv-table-wrapper td,
-#outbound-table-wrapper th, #outbound-table-wrapper td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-#inv-table-wrapper th,
-#outbound-table-wrapper th {
-    background-color: #f2f2f2;
-}
-
-#inv-table-wrapper tr:hover td,
-#outbound-table-wrapper tr:hover td {
-    background: #e6f7ff;
-}
 
 /* ======================================= */
 /* 공지사항 모달을 위한 스타일 추가 */
 /* ======================================= */
+
+/* 수정된 CSS */
 .modal {
-    display: none;
+    display: none; /* !important 제거 */
     position: fixed;
     z-index: 1001;
     left: 0;
@@ -103,63 +24,98 @@ body {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.5);
-    padding-top: 50px;
+    padding-top: 50px; /* 모달 위치 조정을 위해 유지하거나 조정 */
+    align-items: center; /* 추가: 모달 수직 가운데 정렬 */
+    justify-content: center; /* 추가: 모달 수평 가운데 정렬 */
 }
 
+/* modal-content-notice 의 margin: 5% auto; 와 align-items/justify-content: center; 가 중복될 수 있으므로,
+   모달을 화면 중앙에 더 잘 위치시키려면 아래처럼 수정할 수 있습니다. */
 .modal-content-notice {
     background-color: #fefefe;
-    margin: 5% auto;
-    padding: 25px;
+    /* margin: 5% auto; 제거 또는 주석 처리 */
+    padding: 25px !important; /* 패딩은 유지 */
     border: 1px solid #bbb;
-    width: 60%;
-    max-width: 700px;
-    border-radius: 8px;
-    position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    width: 60% !important;
+    max-width: 700px !important;
+    border-radius: 8px !important;
+    position: relative !important; /* 절대 위치 자식(닫기 버튼)을 위해 relative 유지 */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
 }
 
+
 .close-button-notice {
-    color: #aaa;
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-size: 28px;
-    font-weight: bold;
-    line-height: 1;
+    color: #aaa !important;
+    position: absolute !important;
+    top: 15px !important;
+    right: 20px !important;
+    font-size: 28px !important;
+    font-weight: bold !important;
+    line-height: 1 !important;
 }
 
 .close-button-notice:hover,
 .close-button-notice:focus {
-    color: #333;
-    text-decoration: none;
-    cursor: pointer;
+    color: #333 !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
 }
 
 #noticeModalContent {
-    line-height: 1.7;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
-    max-height: 60vh;
-    overflow-y: auto;
-    white-space: pre-wrap;
-}
-#noticeModalTitle {
-    margin-top: 0;
-    margin-bottom: 5px;
-    color: #333;
-}
-#noticeModalDate {
-    font-size: 0.85em;
-    color: #777;
-    margin-bottom: 15px;
+    line-height: 1.7 !important;
+    margin-top: 10px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #eee !important;
+    max-height: 60vh !important;
+    overflow-y: auto !important;
+    white-space: pre-wrap !important;
 }
 
-/* 반응형!! */
-@media ( max-width : 768px) {
-#inv-table-wrapper,#outbound-table-wrapper{
-font-size: 10px;}
+#noticeModalTitle {
+    margin-top: 0 !important;
+    margin-bottom: 5px !important;
+    color: #333 !important;
 }
+
+#noticeModalDate {
+    font-size: 0.85em !important;
+    color: #777 !important;
+    margin-bottom: 15px !important;
+}
+
+/* ======================================= */
+/* 반응형 스타일 */
+/* ======================================= */
+@media (max-width: 768px) {
+    #inv-table-wrapper, #outbound-table-wrapper {
+        font-size: 10px !important;
+    }
+
+    /* 모바일에서 테이블 크기 및 글자 크기 조정 */
+    #inv-table-wrapper table,
+    #outbound-table-wrapper table {
+        font-size: 10px !important;
+    }
+
+    /* 모달 크기 및 내용 조정 */
+    .modal-content-notice {
+        width: 90% !important;
+    }
+
+    #noticeModalTitle {
+        font-size: 1.2rem !important;
+    }
+
+    /* 공지사항의 글자 크기 및 모양 조정 */
+    #noticeModalContent {
+        font-size: 12px !important;
+    }
+
+    .site-Wrapper {
+        padding: 10px !important;
+    }
+}
+
 </style>
 </head>
 <body>
@@ -206,7 +162,7 @@ font-size: 10px;}
 
     <script src="/js/top.js"></script>
     <script>
-    // ========================================================
+ // ========================================================
     // ★ 공지사항 모달 관련 함수 (수정됨: 직접 객체 사용) ★
     // ========================================================
     /**
@@ -222,9 +178,10 @@ font-size: 10px;}
         // 만약 필드명이 다르거나, content가 없다면 이 부분을 수정해야 합니다.
         document.getElementById('noticeModalTitle').textContent = noticeObject.title || "제목 없음";
         document.getElementById('noticeModalDate').textContent = `게시일: ${noticeObject.createdAt?.substring(0, 10) || "날짜 정보 없음"}`;
-        document.getElementById('noticeModalContent').textContent = noticeObject.content || "상세 내용이 없습니다."; // ★ content 필드 사용
+        document.getElementById('noticeModalContent').textContent = noticeObject.content || "상세 내용이 없습니다.";
 
-        document.getElementById('noticeDetailModal').style.display = 'block';
+        // 모달 표시
+        document.getElementById('noticeDetailModal').style.display = 'flex'; // 'block' 대신 'flex'로 설정 (CSS에서 align-items, justify-content 사용 시)
     }
 
     /**
@@ -237,52 +194,65 @@ font-size: 10px;}
     // 모달 바깥 영역 클릭 시 모달 닫기
     window.addEventListener('click', function(event) {
         const noticeModal = document.getElementById('noticeDetailModal');
-        if (event.target == noticeModal) {
+        if (event.target == noticeModal) { // 모달 배경 클릭 시
             closeNoticeDetailModal();
         }
     });
 
     // ========================================================
-    // 기존 JavaScript 코드 (공지사항 목록 로딩 로직 수정)
+    // 공지사항 목록 로딩 로직 수정
     // ========================================================
-
-    //최신 공지사항 1개 가져오기! (모달 열도록 수정)
     document.addEventListener("DOMContentLoaded", function () {
-      fetch("/api/notices")
-        .then((res) => res.json())
-        .then((notices) => {
-          const noticeUl = document.querySelector(".notice ul");
-          noticeUl.innerHTML = '';
+        fetch("/api/notices") // 모든 공지사항을 가져온다고 가정
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`공지사항 API 오류: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then((notices) => {
+                const noticeUl = document.querySelector(".notice ul");
+                noticeUl.innerHTML = ''; // 기존 목록 비우기
 
-          if (!Array.isArray(notices) || notices.length === 0) {
-            noticeUl.innerHTML = `<li>표시할 공지사항이 없습니다.</li>`;
-            return;
-          }
+                if (!Array.isArray(notices) || notices.length === 0) {
+                    noticeUl.innerHTML = `<li>표시할 공지사항이 없습니다.</li>`;
+                    return;
+                }
 
-          const latest = notices.sort((a, b) => b.nidx - a.nidx)[0];
-          const createdDate = latest.createdAt?.substring(0, 10) || "";
+                // 최대 5개의 최신 공지사항만 표시 (예시)
+                const latestNotices = notices
+                                        .sort((a, b) => b.nidx - a.nidx) // nidx 기준으로 내림차순 정렬 (최신순)
+                                        .slice(0, 5); // 상위 5개만 선택
 
-          const li = document.createElement('li');
-          li.innerHTML = `
-              <strong style="cursor: pointer; color: #007bff;">${latest.title}</strong>
-              <span style="margin-left: 10px; color: #666;">(${createdDate})</span>
-          `;
-          // ★ 수정: 클릭 시 openNoticeDetailModal 함수에 'latest' 객체 전체를 전달
-          li.querySelector('strong').addEventListener('click', function() {
-              openNoticeDetailModal(latest); // ★ 'latest' 객체 전달
-          });
+                latestNotices.forEach(notice => {
+                    const createdDate = notice.createdAt?.substring(0, 10) || "날짜 없음";
+                    const li = document.createElement('li');
+                    li.style.marginBottom = "8px"; // 항목 간 간격
+                    li.innerHTML = `
+                        <strong style="cursor: pointer; color: #007bff; font-size: 0.95em;">${notice.title}</strong>
+                        <span style="margin-left: 10px; color: #777; font-size: 0.85em;">(${createdDate})</span>
+                    `;
+                    // 각 공지사항 제목(strong) 클릭 시 해당 공지 내용으로 모달 열기
+                    li.querySelector('strong').addEventListener('click', function() {
+                        openNoticeDetailModal(notice); // 해당 notice 객체 전달
+                    });
+                    noticeUl.appendChild(li);
+                });
+            })
+            .catch((err) => {
+                console.error("공지사항 가져오기 실패:", err);
+                const noticeUl = document.querySelector(".notice ul");
+                noticeUl.innerHTML = `<li>공지사항을 불러오는 데 실패했습니다.</li>`;
+            });
 
-          noticeUl.appendChild(li);
-        })
-        .catch((err) => {
-          console.error("공지사항 가져오기 실패:", err);
-          const noticeUl = document.querySelector(".notice ul");
-          noticeUl.innerHTML = `<li>공지사항을 불러오는 데 실패했습니다.</li>`;
-        });
+        // 입고 및 출고 현황 로딩 로직 (기존과 동일하게 유지)
+        // ... (입고 현황 fetch 코드) ...
+        // ... (출고 현황 fetch 코드) ...
     });
 
-
-    //입고 10개 가져오기...
+    // 입고 10개 가져오기 (DOMContentLoaded 밖으로 빼거나, 위의 DOMContentLoaded와 합치기)
+    // 지금은 원래 코드 구조를 유지하기 위해 별도로 둡니다.
+    // 단, 하나의 DOMContentLoaded로 합치는 것이 더 좋습니다.
     document.addEventListener("DOMContentLoaded", function () {
       fetch("/api/inv-transactions")
         .then((res) => {
@@ -290,12 +260,12 @@ font-size: 10px;}
             return res.json();
         })
         .then((data) => {
-          const content = data.content || [];
+          const content = data.content || []; // API 응답이 페이징된 경우 data.content 사용
           const tableWrapper = document.getElementById("inv-table-wrapper");
           tableWrapper.innerHTML = "";
 
           if (content.length === 0) {
-            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">입고 내역이 없습니다.</p>`;
+            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">최근 입고 내역이 없습니다.</p>`;
             return;
           }
 
@@ -316,11 +286,11 @@ font-size: 10px;}
           table.appendChild(thead);
 
           const tbody = document.createElement("tbody");
-          content.slice(0, 10).forEach((row) => {
+          content.slice(0, 10).forEach((row) => { // 최대 10개
             const tr = document.createElement("tr");
             tr.innerHTML = `
               <td>${row.invTransCode || "-"}</td>
-              <td>${row.transDate || "-"}</td>
+              <td>${row.transDate?.substring(0,10) || "-"}</td>
               <td>${row.itemNm || "-"}</td>
               <td>${row.transQty ?? "-"}</td>
               <td>${row.unitPrice?.toLocaleString() || "-"}</td>
@@ -330,7 +300,7 @@ font-size: 10px;}
             `;
             tr.style.cursor = "pointer";
             tr.addEventListener("click", () => {
-              location.href = "/inbound";
+              location.href = "/inbound"; // 입고 관리 페이지로 이동
             });
             tbody.appendChild(tr);
           });
@@ -344,20 +314,20 @@ font-size: 10px;}
         });
     });
 
-    //출고 10개 가져오기
+    // 출고 10개 가져오기 (DOMContentLoaded 밖으로 빼거나, 위의 DOMContentLoaded와 합치기)
     document.addEventListener("DOMContentLoaded", function () {
-      fetch("/api/inv-transactions?transType=S")
+      fetch("/api/inv-transactions?transType=S") // 출고 데이터는 transType=S 파라미터로 구분한다고 가정
         .then((res) => {
             if (!res.ok) throw new Error('Network response was not ok for outbound data');
             return res.json();
         })
         .then((data) => {
-          const content = data.content || [];
+          const content = data.content || []; // API 응답이 페이징된 경우 data.content 사용
           const tableWrapper = document.getElementById("outbound-table-wrapper");
           tableWrapper.innerHTML = "";
 
           if (content.length === 0) {
-            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">출고 내역이 없습니다.</p>`;
+            tableWrapper.innerHTML = `<p style="text-align:center; padding-top:20px;">최근 출고 내역이 없습니다.</p>`;
             return;
           }
 
@@ -378,11 +348,11 @@ font-size: 10px;}
           table.appendChild(thead);
 
           const tbody = document.createElement("tbody");
-          content.slice(0, 10).forEach((row) => {
+          content.slice(0, 10).forEach((row) => { // 최대 10개
             const tr = document.createElement("tr");
             tr.innerHTML = `
               <td>${row.invTransCode || "-"}</td>
-              <td>${row.transDate || "-"}</td>
+              <td>${row.transDate?.substring(0,10) || "-"}</td>
               <td>${row.itemNm || "-"}</td>
               <td>${row.transQty ?? "-"}</td>
               <td>${row.unitPrice?.toLocaleString() || "-"}</td>
@@ -392,7 +362,7 @@ font-size: 10px;}
             `;
             tr.style.cursor = "pointer";
             tr.addEventListener("click", () => {
-              location.href = "/outbound";
+              location.href = "/outbound"; // 출고 관리 페이지로 이동
             });
             tbody.appendChild(tr);
           });

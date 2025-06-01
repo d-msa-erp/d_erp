@@ -1,13 +1,25 @@
 package kr.co.d_erp.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
 import java.math.BigDecimal; // BigDecimal 사용
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedDate;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 //수정했음 오류 발생시 문의 부탁 -나영
 
@@ -25,7 +37,7 @@ import org.springframework.data.annotation.CreatedDate;
 public class Inventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    @SequenceGenerator(name = "inventory_seq", sequenceName = "INVENTORY_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)     
     @Column(name = "INV_IDX", nullable = false)
     private Long invIdx;
 

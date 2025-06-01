@@ -81,7 +81,45 @@ public class SiteServiceImpl implements SiteService {
 
             return updatedDto;
         } else {
-            throw new RuntimeException("Site with custCd " + siteDto.getCustCd() + " not found for update.");
+            throw new RuntimeException(" " + siteDto.getCustCd() + " custCd를 찾을 수 없음.");
         }
     }
+    @Override
+    @Transactional
+    public SiteDto createSite(SiteDto siteDto) {
+    	Site site = new Site();
+
+    	// 기본값 세팅
+    	site.setCustCd(siteDto.getCustCd()); 
+    	site.setCustNm(siteDto.getSiteNm());
+    	site.setPresidentNm(siteDto.getCeoNm());
+    	site.setBizNo(siteDto.getBizNo());
+    	site.setCompNo(siteDto.getCompNo());
+    	site.setCorpRegNo(siteDto.getCorpRegNo());
+    	site.setBizCond(siteDto.getBizCond());
+    	site.setBizItem(siteDto.getBizItem());
+    	site.setBizTel(siteDto.getBizTel());
+    	site.setBizFax(siteDto.getBizFax());
+    	site.setBizAddr(siteDto.getBizAddr());
+    	site.setBizFlag("03"); // 신규는 항상 bizFlag 03
+    	site.setCustEmail("AA");
+
+    	Site saved = siteRepository.save(site);
+
+    	// DTO로 변환
+    	SiteDto result = new SiteDto();
+    	result.setCustCd(saved.getCustCd());
+    	result.setSiteNm(saved.getCustNm());
+    	result.setCeoNm(saved.getPresidentNm());
+    	result.setBizNo(saved.getBizNo());
+    	result.setCompNo(saved.getCompNo());
+    	result.setCorpRegNo(saved.getCorpRegNo());
+    	result.setBizCond(saved.getBizCond());
+    	result.setBizItem(saved.getBizItem());
+    	result.setBizTel(saved.getBizTel());
+    	result.setBizFax(saved.getBizFax());
+    	result.setBizAddr(saved.getBizAddr());
+    	return result;
+    }
+    
 }

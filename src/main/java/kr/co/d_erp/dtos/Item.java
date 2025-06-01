@@ -73,6 +73,7 @@ public class Item {
 
         private Long itemUnitId;
         private String unitNm;     // 단위명
+        private BigDecimal cycleTime; // cycleTime 필드 추가
     }
 
 	private Long ITEM_IDX, ITEM_CAT1, ITEM_CAT2, ITEM_UNIT, OPTIMAL_INV, QTY;

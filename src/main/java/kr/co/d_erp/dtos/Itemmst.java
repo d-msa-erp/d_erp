@@ -21,8 +21,7 @@ import lombok.*;
 public class Itemmst {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_seq") // 시퀀스 사용
-    @SequenceGenerator(name = "item_seq", sequenceName = "ISEQ$$_74438", allocationSize = 1) // Oracle 시퀀스명
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   
     @Column(name = "ITEM_IDX", nullable = false)
     private Long itemIdx;
 
@@ -64,14 +63,13 @@ public class Itemmst {
 	    @JoinColumn(name = "ITEM_CAT2", referencedColumnName = "CAT_IDX") // 소분류 엔티티
 	    private CatDto CatDto2; // ItemCategory 엔티티
 	    
-
 	    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY) // OneToOne >> OneToMany 변경 -민섭
 	    // private InvenDto InvenDto // 원래 코드
 	    private List<InvenDto> InvenDto;// Inventory 엔티티 (아래에 정의 필요) 
-
-    
+/*
 	    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY) // OneToOne -> OneToMany
 	    private List<InvenDto> invenDtos = new ArrayList<>();
+	    */
     //추가 선익
     @Column(name = "CYCLE_TIME", precision = 10, scale = 4)
     private BigDecimal cycleTime; 

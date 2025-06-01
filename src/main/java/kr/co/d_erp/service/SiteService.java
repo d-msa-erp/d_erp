@@ -8,4 +8,5 @@ public interface SiteService {
     List<SiteDto> findSitesByBizFlag(String bizFlag);
 
     SiteDto updateSite(SiteDto siteDto);
+    SiteDto createSite(SiteDto siteDto);
 }

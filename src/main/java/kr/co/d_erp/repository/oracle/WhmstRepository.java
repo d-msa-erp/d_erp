@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,44 +19,59 @@ import java.util.Optional;
 public interface WhmstRepository extends JpaRepository<Whmst, Long>, JpaSpecificationExecutor<Whmst> {
 
     Optional<Whmst> findByWhCd(String whCd);
-
+    
     /**
-     * 창고 목록을 페이징하여 조회합니다 (검색 기능 포함)
-     * 서비스에서 호출하는 findAllWarehousesWithUserDetailsPageable 메서드
-     * @param keyword 검색어
-     * @param pageable 페이징 정보 (정렬 포함)
-     * @return 페이징된 창고 엔티티 목록
+     * 사용여부로 창고를 조회하고 창고명으로 정렬합니다
+     * @param useFlag 사용 여부 ('Y' 또는 'N')
+     * @return 정렬된 창고 목록
      */
-    @Query("SELECT w FROM Whmst w " +
-           "LEFT JOIN FETCH w.whUser wu " +
-           "WHERE (:keyword IS NULL OR :keyword = '' OR " +
-           "  LOWER(w.whNm) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(w.whCd) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(w.whLocation) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(wu.userNm) LIKE '%' || LOWER(:keyword) || '%')")
-    Page<Whmst> findAllWarehousesWithUserDetailsPageable(@Param("keyword") String keyword, Pageable pageable);
+    List<Whmst> findByUseFlagOrderByWhNmAsc(String useFlag);
 
     /**
-     * 창고 목록을 조회합니다 (검색 및 정렬 기능 포함) - 기존 메서드 개선
-     * @param keyword 검색어
+     * 활성 창고 목록을 DTO로 조회합니다 (드롭다운/선택용)
+     * @param useFlag 사용 여부 ('Y')
      * @param sort 정렬 정보
-     * @return 창고 DTO 목록
+     * @return 활성 창고 DTO 목록
      */
     @Query("SELECT new kr.co.d_erp.dtos.WhmstDto(" +
            "w.whIdx, w.whCd, w.whNm, w.remark, w.whType1, w.whType2, w.whType3, " +
            "w.useFlag, w.whLocation, " +
-           "w.whUser.userIdx, " +
-           "w.whUser.userNm, " +
-           "w.whUser.userId) " +
+           "CASE WHEN w.whUser IS NOT NULL THEN w.whUser.userIdx ELSE NULL END, " +
+           "CASE WHEN w.whUser IS NOT NULL THEN w.whUser.userNm ELSE NULL END, " +
+           "CASE WHEN w.whUser IS NOT NULL THEN w.whUser.userId ELSE NULL END) " +
            "FROM Whmst w " +
-           "LEFT JOIN w.whUser wu " +
-           "WHERE (:keyword IS NULL OR :keyword = '' OR " +
-           "  LOWER(w.whNm) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(w.whCd) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(w.whLocation) LIKE '%' || LOWER(:keyword) || '%' OR " +
-           "  LOWER(wu.userNm) LIKE '%' || LOWER(:keyword) || '%')")
-    List<WhmstDto> findAllWarehousesWithUserDetails(@Param("keyword") String keyword, Sort sort);
+           "WHERE w.useFlag = :useFlag")
+    List<WhmstDto> findActiveWarehouseDtosByUseFlag(@Param("useFlag") String useFlag, Sort sort);
 
+    
+    /**
+     * 선택된 창고들의 사용여부를 N으로 변경합니다 (논리적 삭제)
+     * @param whIdxes 삭제할 창고 ID 목록
+     */
+    @Query("UPDATE Whmst w SET w.useFlag = 'N' WHERE w.whIdx IN :whIdxes")
+    @Modifying
+    void updateUseFlagToN(@Param("whIdxes") List<Long> whIdxes);
+
+    /**
+     * 활성 창고만 페이징으로 조회합니다 (useFlag = 'Y')
+     * @param useFlag 사용 여부 ('Y')
+     * @param keyword 검색어
+     * @param pageable 페이징 정보
+     * @return 활성 창고 페이지
+     */
+    @Query("SELECT w FROM Whmst w LEFT JOIN FETCH w.whUser u " +
+           "WHERE w.useFlag = :useFlag " +
+           "AND (:keyword IS NULL OR " +
+           "w.whCd LIKE %:keyword% OR " +
+           "w.whNm LIKE %:keyword% OR " +
+           "w.whLocation LIKE %:keyword% OR " +
+           "w.remark LIKE %:keyword% OR " +
+           "u.userNm LIKE %:keyword%)")
+    Page<Whmst> findActiveWarehousesWithUserDetailsPageable(
+        @Param("useFlag") String useFlag,
+        @Param("keyword") String keyword, 
+        Pageable pageable);
+    
     /**
      * 특정 창고의 상세 정보를 조회합니다
      * @param whIdx 창고 고유 번호
@@ -72,22 +88,4 @@ public interface WhmstRepository extends JpaRepository<Whmst, Long>, JpaSpecific
            "WHERE w.whIdx = :whIdx")
     WhmstDto findWarehouseDetailsById(@Param("whIdx") Long whIdx);
 
-    /**
-     * 사용 중인(useFlag='Y') 창고 목록을 DTO 형태로 조회합니다.
-     * Datalist용 활성 창고 목록 조회에 사용됩니다.
-     * @param useFlag 조회할 사용 플래그 (예: "Y")
-     * @param sort 정렬 정보
-     * @return 정렬된 WhmstDto 리스트
-     */
-    @Query("SELECT new kr.co.d_erp.dtos.WhmstDto(" +
-           "w.whIdx, w.whCd, w.whNm, w.remark, w.whType1, w.whType2, w.whType3, " +
-           "w.useFlag, w.whLocation, " +
-           "wu.userIdx, " +
-           "wu.userNm, " +
-           "wu.userId) " +
-           "FROM Whmst w LEFT JOIN w.whUser wu " +
-           "WHERE w.useFlag = :useFlag")
-    List<WhmstDto> findActiveWarehouseDtosByUseFlag(@Param("useFlag") String useFlag, Sort sort);
-    
-    List<Whmst> findByUseFlagOrderByWhNmAsc(String useFlag);
 }

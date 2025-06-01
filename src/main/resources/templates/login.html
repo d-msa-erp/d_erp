@@ -1,203 +1,142 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>스마트 제조 로그인</title>
   <style>
     * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      margin: 0; padding: 0; box-sizing: border-box;
       font-family: 'Segoe UI', sans-serif;
     }
 
     body {
       height: 100vh;
-      background: radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1), transparent 70%),
-                  linear-gradient(135deg, #0d47a1, #1976d2, #64b5f6);
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1), transparent 70%),
+        linear-gradient(135deg, #0d47a1, #1976d2, #64b5f6);
       background-size: 400% 400%;
       animation: backgroundShift 12s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
+      position: relative;
     }
 
     @keyframes backgroundShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
 
-    .sun-glow {
-      position: absolute;
-      top: -100px;
-      left: -100px;
-      width: 400px;
-      height: 400px;
-      background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 60%);
-      filter: blur(80px);
-      z-index: 0;
-      pointer-events: none;
-    }
-
+    /* login container: glassmorphism */
     .login-Wrapper {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      padding: 40px;
+      position: relative;
       width: 350px;
+      padding: 40px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
       text-align: center;
-      box-shadow: 0 0 40px rgba(0, 123, 255, 0.3);
-      z-index: 1;
+      color: #eef5ff;
     }
 
     .login-Wrapper h1 {
-      color: #e3f2fd;
       font-size: 24px;
       margin-bottom: 25px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
     }
+
+    .message {
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+    .message.error   { color: #ff6b6b; }
+    .message.success { color: #7efc8d; }
 
     .login-Datas {
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-
     .login-Datas input {
-      padding: 12px;
-      border: 1px solid #90caf9;
-      border-radius: 8px;
-      background: rgba(255,255,255,0.1);
-      color: #fff;
-    }
-
-    .login-Datas input::placeholder {
-      color: #bbdefb;
-    }
-
-    #loginBtn {
-      margin-top: 20px;
       padding: 12px;
       border: none;
       border-radius: 8px;
-      background: linear-gradient(90deg, #42a5f5, #1e88e5, #42a5f5);
-      background-size: 200% auto;
-      color: white;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .login-Datas input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+    .login-Datas input:focus {
+      background: rgba(255,255,255,0.3);
+      outline: none;
+    }
+
+    /* glass-style button */
+    #loginBtn {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.25);
+      color: #0d47a1;
       font-weight: bold;
+      font-size: 1rem;
       cursor: pointer;
-      transition: transform 0.3s ease;
-      animation: shine 4s linear infinite;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-
     #loginBtn:hover {
-      transform: scale(1.05);
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.03);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
     }
 
-    @keyframes shine {
-      0% { background-position: 0% center; }
-      100% { background-position: -200% center; }
-    }
-
-    .fadeout-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 50, 0.85);
-      opacity: 0;
+    /* subtle light glow */
+    .sun-glow {
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 60%);
+      filter: blur(80px);
       pointer-events: none;
-      transition: opacity 1s ease;
-      z-index: 1000;
-    }
-
-    .spinner {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 60px;
-      height: 60px;
-      border: 6px solid rgba(255,255,255,0.2);
-      border-top: 6px solid #90caf9;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      opacity: 0;
-      z-index: 1001;
-      transition: opacity 0.5s ease;
-    }
-
-    @keyframes spin {
-      to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-
-    .loading-text {
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translateX(-50%);
-      color: #bbdefb;
-      font-size: 18px;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      width: 0;
-      border-right: 2px solid #bbdefb;
-      animation: typing 1.3s steps(20) forwards, blink 0.6s step-end infinite;
-      z-index: 1002;
-      opacity: 0;
-    }
-
-    @keyframes typing {
-      to {
-        width: 160px;
-        opacity: 1;
-      }
-    }
-
-    @keyframes blink {
-      50% { border-color: transparent; }
     }
   </style>
 </head>
 <body>
 
   <div class="sun-glow"></div>
-  <div class="fadeout-overlay" id="overlay"></div>
-  <div class="spinner" id="spinner"></div>
-  <div class="loading-text" id="loadingText">환영합니다...</div>
 
   <div class="login-Wrapper">
     <h1>스마트 제조 시스템</h1>
-    <form id="frm" action="/loginchk" method="post">
+
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="message error">
+      <p th:text="${errorMessage}"></p>
+    </div>
+    <!-- 로그아웃 성공 메시지 -->
+    <div th:if="${logoutMessage}" class="message success">
+      <p th:text="${logoutMessage}"></p>
+    </div>
+
+    <form action="/loginchk" method="post">
       <div class="login-Datas">
-        <input type="text" name="uId" placeholder="아이디" required />
-        <input type="password" name="uPw" placeholder="패스워드" required />
+        <input type="text" name="uId" placeholder="아이디" required/>
+        <!-- 비밀번호 입력 -->
+        <input type="password" name="uPw" placeholder="패스워드" required/>
       </div>
       <button type="submit" id="loginBtn">로그인</button>
     </form>
   </div>
-
-  <script>
-    document.getElementById('frm').addEventListener('submit', function (e) {
-      e.preventDefault();
-
-      const overlay = document.getElementById('overlay');
-      const spinner = document.getElementById('spinner');
-      const loadingText = document.getElementById('loadingText');
-      const btn = document.getElementById('loginBtn');
-
-      overlay.style.opacity = '1';
-      spinner.style.opacity = '1';
-      loadingText.style.opacity = '1';
-
-      btn.textContent = '로딩 중...';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        this.submit();
-      }, 1600);
-    });
-  </script>
 
 </body>
 </html>

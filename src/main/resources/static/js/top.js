@@ -68,4 +68,3 @@ window.addEventListener('resize', function () {
 		nav.style.display = 'none'; // 추가 필요
 	}
 });
-

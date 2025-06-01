@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping; 
 import org.springframework.web.bind.annotation.RequestBody; 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,19 @@ public class SiteController {
 			return ResponseEntity.ok(updatedSite);
 		} catch (RuntimeException e) {
 			// 예외 메시지를 포함하여 NOT_FOUND (404) 응답 반환
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage(), e);
+			   throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "사업장 수정 중 오류 발생", e);
 		}
 	}
+	@PostMapping("/create")// 사업장 신규등록 api
+	public ResponseEntity<SiteDto> createSite(@RequestBody SiteDto siteDto){
+		try {
+			SiteDto createSite = siteService.createSite(siteDto);
+			return ResponseEntity.ok(createSite);
+		} catch (Exception e) {
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "사업장 등록 중 오류 발생", e);
+		}
+	}
+	
+	
+	
 }
