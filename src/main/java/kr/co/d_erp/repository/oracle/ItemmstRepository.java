@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import kr.co.d_erp.domain.Itemmst;
 import kr.co.d_erp.dtos.BomSummaryProjection;
 import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
@@ -18,11 +19,100 @@ import kr.co.d_erp.dtos.ItemDto;
 import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionDto;
 import kr.co.d_erp.dtos.ItemSelectionProjection;
-import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 
 @Repository
 public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
+	
+	/**
+	 * 소분류 조회 (부모 카테고리 ID 기준)
+	 */
+	@Query("SELECT c FROM CatDto c WHERE c.parentIdx = :parentIdx ORDER BY c.catIdx")
+	List<CatDto> findChildCategoriesByParentIdx(@Param("parentIdx") Long parentIdx);
+
+	/**
+	 * 검색 조건을 포함한 개선된 품목 조회 쿼리 (기존 ItemDto 구조에 맞게 수정)
+	 */
+	@Query("SELECT DISTINCT i FROM Itemmst i " +
+	       "LEFT JOIN FETCH i.CustomerForItemDto c " +
+	       "LEFT JOIN FETCH i.CatDto1 c1 " +
+	       "LEFT JOIN FETCH i.CatDto2 c2 " +
+	       "LEFT JOIN FETCH i.UnitForItemDto u " +
+	       "LEFT JOIN FETCH i.InvenDto inv " +
+	       "WHERE " +
+	       "(:searchItem IS NULL OR :searchItem = '' OR " +
+	       "  (:searchCat = 'ItemName' AND UPPER(i.itemNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemCd' AND UPPER(i.itemCd) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'custNm' AND UPPER(c.custNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemBigCat' AND UPPER(c1.catNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemSmallCat' AND UPPER(c2.catNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (COALESCE(:searchCat, '') = '' AND (" +
+	       "    UPPER(i.itemNm) LIKE UPPER(CONCAT('%', :searchItem, '%')) OR " +
+	       "    UPPER(i.itemCd) LIKE UPPER(CONCAT('%', :searchItem, '%'))" +
+	       "  ))" +
+	       ") " +
+	       "AND (:itemCat1 IS NULL OR :itemCat1 = '' OR UPPER(c1.catNm) LIKE UPPER(CONCAT('%', :itemCat1, '%'))) " +
+	       "AND (:itemCat2 IS NULL OR :itemCat2 = '' OR UPPER(c2.catNm) LIKE UPPER(CONCAT('%', :itemCat2, '%')))")
+	Page<Itemmst> findWithJoinsAndSearchImproved(
+	        @Param("searchCat") String searchCat,
+	        @Param("searchItem") String searchItem,
+	        @Param("itemCat1") String itemCat1,
+	        @Param("itemCat2") String itemCat2,
+	        Pageable pageable
+	);
+
+	/**
+	 * 검색 조건을 포함한 전체 데이터 조회 (엑셀 다운로드용) - 기존 ItemDto 구조 반영
+	 */
+	@Query("SELECT i FROM Itemmst i " +
+	       "LEFT JOIN FETCH i.CustomerForItemDto c " +
+	       "LEFT JOIN FETCH i.CatDto1 c1 " +
+	       "LEFT JOIN FETCH i.CatDto2 c2 " +
+	       "LEFT JOIN FETCH i.UnitForItemDto u " +
+	       "LEFT JOIN FETCH i.InvenDto inv " +
+	       "WHERE " +
+	       "(:searchItem IS NULL OR :searchItem = '' OR " +
+	       "  (:searchCat = 'ItemName' AND UPPER(i.itemNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemCd' AND UPPER(i.itemCd) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'custNm' AND UPPER(c.custNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemBigCat' AND UPPER(c1.catNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (:searchCat = 'itemSmallCat' AND UPPER(c2.catNm) LIKE UPPER(CONCAT('%', :searchItem, '%'))) OR " +
+	       "  (COALESCE(:searchCat, '') = '' AND (" +
+	       "    UPPER(i.itemNm) LIKE UPPER(CONCAT('%', :searchItem, '%')) OR " +
+	       "    UPPER(i.itemCd) LIKE UPPER(CONCAT('%', :searchItem, '%'))" +
+	       "  ))" +
+	       ") " +
+	       "AND (:itemCat1 IS NULL OR :itemCat1 = '' OR UPPER(c1.catNm) LIKE UPPER(CONCAT('%', :itemCat1, '%'))) " +
+	       "AND (:itemCat2 IS NULL OR :itemCat2 = '' OR UPPER(c2.catNm) LIKE UPPER(CONCAT('%', :itemCat2, '%')))")
+	List<Itemmst> findForExcelImproved(
+	        @Param("searchCat") String searchCat,
+	        @Param("searchItem") String searchItem,
+	        @Param("itemCat1") String itemCat1,
+	        @Param("itemCat2") String itemCat2
+	);
+
+	/**
+	 * 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함) - 기존 ItemDto 구조 반영
+	 */
+	@Query("SELECT DISTINCT i FROM Itemmst i " +
+	       "LEFT JOIN FETCH i.CustomerForItemDto " +
+	       "LEFT JOIN FETCH i.CatDto1 " +
+	       "LEFT JOIN FETCH i.CatDto2 " +
+	       "LEFT JOIN FETCH i.UnitForItemDto " +
+	       "LEFT JOIN FETCH i.InvenDto")
+	Page<Itemmst> findAllWithJoinsImproved(Pageable pageable);
+
+	/**
+	 * 단일 품목 조회 (모든 연관관계 포함) - 기존 ItemDto 구조 반영
+	 */
+	@Query("SELECT i FROM Itemmst i " +
+	       "LEFT JOIN FETCH i.CustomerForItemDto " +
+	       "LEFT JOIN FETCH i.CatDto1 " +
+	       "LEFT JOIN FETCH i.CatDto2 " +
+	       "LEFT JOIN FETCH i.UnitForItemDto " +
+	       "LEFT JOIN FETCH i.InvenDto " +
+	       "WHERE i.itemIdx = :itemIdx")
+	Optional<Itemmst> findByItemIdxWithJoins(@Param("itemIdx") Long itemIdx);
 
     /**
      * Datalist에 사용할 모든 (또는 활성) 품목 정보를 DTO로 조회합니다.

@@ -82,6 +82,48 @@ const modalHiddenWhIdxInput = document.getElementById('modalHiddenWhIdx');
 const modalUserNmInput = document.getElementById('modalUserNm');
 const modalHiddenUserIdxInput = document.getElementById('modalHiddenUserIdx');
 
+// === 날짜 범위 검증 함수 ===
+function setupDateRangeValidation() {
+    if (!searchTransDateFromInput || !searchTransDateToInput) {
+        console.warn('날짜 입력 필드를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 시작 날짜 변경 시 종료 날짜의 최소값 설정
+    searchTransDateFromInput.addEventListener('change', function() {
+        const fromDate = this.value;
+        if (fromDate) {
+            // 종료 날짜의 최소값을 시작 날짜로 설정
+            searchTransDateToInput.min = fromDate;
+            
+            // 만약 현재 종료 날짜가 시작 날짜보다 이전이라면 초기화
+            if (searchTransDateToInput.value && searchTransDateToInput.value < fromDate) {
+                searchTransDateToInput.value = '';
+            }
+        } else {
+            // 시작 날짜가 비어있으면 종료 날짜의 최소값 제한 해제
+            searchTransDateToInput.removeAttribute('min');
+        }
+    });
+
+    // 종료 날짜 변경 시 시작 날짜의 최대값 설정
+    searchTransDateToInput.addEventListener('change', function() {
+        const toDate = this.value;
+        if (toDate) {
+            // 시작 날짜의 최대값을 종료 날짜로 설정
+            searchTransDateFromInput.max = toDate;
+            
+            // 만약 현재 시작 날짜가 종료 날짜보다 이후라면 초기화
+            if (searchTransDateFromInput.value && searchTransDateFromInput.value > toDate) {
+                searchTransDateFromInput.value = '';
+            }
+        } else {
+            // 종료 날짜가 비어있으면 시작 날짜의 최대값 제한 해제
+            searchTransDateFromInput.removeAttribute('max');
+        }
+    });
+}
+
 // === 테이블 데이터 로드 함수 ===
 async function loadOutboundTable(page = currentPage, sortBy = currentSortBy, sortDirection = currentOrder, filters = searchFilters) {
 	currentPage = page;
@@ -582,6 +624,9 @@ function getTransStatusText(statusCode) {
 
 // DOMContentLoaded 이벤트: 페이지 로드가 완료되면 실행
 document.addEventListener('DOMContentLoaded', () => {
+	// 날짜 범위 검증 기능 초기화
+	setupDateRangeValidation();
+
 	// 검색용 데이터리스트 로드 및 관련 입력 필드 리스너 설정
 	loadSearchDatalistData().then(() => {
 		setupDatalistInputListener('searchItemNm', 'searchHiddenItemIdx', 'itemNm', 'itemCd', 'itemIdx');
@@ -668,6 +713,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
 			}
 		});
+		
+		// 날짜 범위 제한 초기화
+		searchTransDateFromInput.removeAttribute('max');
+		searchTransDateToInput.removeAttribute('min');
+		
 		loadSearchItemsDatalist(); // 품목 데이터리스트 전체로 리셋
 		loadOutboundTable(1, currentSortBy, currentOrder, searchFilters);
 	});

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
   <meta charset="UTF-8">
@@ -8,302 +8,73 @@
 
   <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
   <style th:replace="~{/top.html :: topstyle}"></style>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-	ol,ul,li{
-    	list-style: none;
-	}
-    body {
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .calendar,
-    .planner {
-      width: 100%;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    .planner {
-      display: flex;
-	  flex-direction: column;
-	  gap: 10px;
-	  height: 100%;
-    }
-
-    .planner>span {
-      padding-left: 10px;
-    }
-
-    .calendar .calTitle,
-    .planTitle {
-      background: #46a6ff;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      font-size: 20px;
-    }
-
-    .calendar .calTitle button {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      cursor: pointer;
-      filter: brightness(0.9);
-    }
-
-    .weekdays,
-    .days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      padding: 10px;
-    }
-
-    .weekdays {
-      background: #f0f0f0;
-      font-weight: bold;
-    }
-
-    .days div {
-      padding: 10px 0;
-      margin: 2px 0;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .days div:hover {
-      background: #e0f3ff;
-    }
-
-    .today {
-      background: #46a6ff;
-      color: white;
-    }
-    .days div.selected {
-	  border: 2px solid #46a6ff;
-	  background-color: #d8f0ff;
-	}
-
-    .calendarWrap {
-      display: grid;
-      grid-template-columns: 3fr 1fr;
-      gap: 20px;
-      padding: 20px;
-    }
-
-    .planner>ul {
-      list-style: none;
-
-    }
-
-    .planner>ul>li {
-      padding-left: 10px;
-    }
-
-
-
-    .site-Wrapper {
-      width: 100%;
-      max-width: 1200px;
-      align-self: center;
-      padding: 20px;
-    }
-
-    .site-Dataset {
-      width: 100%;
-      border: 1px solid #777;
-      border-radius: 10px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .site-Dataset .header {
-      background: #46a6ff;
-      color: white;
-      padding: 10px 20px;
-      font-size: 20px;
-    }
-
-    .addPlan {
-      display: flex;
-	  flex-direction: column;
-	  justify-content: space-between;
-	  gap: 10px;
-	  padding: 10px;
-	  border: 1px solid #333;
-	  border-radius: 10px;
-	  font-size: 12px;
-	  height: 100%;
-    }
-
-    .addPlan div{display: flex; gap: 10px;}
-    .addPlan span{white-space: nowrap;}
-    .addPlan input{width: 100%;}
-    .addPlan button{
-    background: #28a745;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-
-    }
-    .addPlanSection {
-	  margin-top: 20px;
-	  height: 100%; /* 필요시 고정 크기나 min-height */
-	  padding: 20px;
-	}
-	.order-item.active {
-	  background-color: #d8f0ff;
-	  border-left: 4px solid #46a6ff;
-	  font-weight: bold;
-	}
-	
-
-	#orderInfoList .label {
-	  display: inline-block;
-	  padding: 2px 6px;
-	  border-radius: 6px;
-	  font-size: 12px;
-	  font-weight: bold;
-	  color: #fff;
-	  margin-right: 6px;
-	}
-	
-	.label.received {
-	  background-color: #28a745;
-	}
-	
-	.label.delivery {
-	  background-color: #dc3545;
-	}
-	
-	.label.both {
-	  background-color: #6f42c1;
-	}
-	
-	.marker-container {
-	  margin-top: 4px;
-	  display: flex;
-	  justify-content: center;
-	  gap: 4px;
-	}
-	
-	.dot {
-	  display: inline-block;
-	  width: 8px;
-	  height: 8px;
-	  border-radius: 50%;
-	}
-	
-	.dot.received {
-	  background-color: #28a745;
-	}
-	
-	.dot.delivery {
-	  background-color: #dc3545;
-	}
-	
-	.dot.both {
-	  background-color: #6f42c1;
-	}
-	button:disabled,
-	button[disabled] {
-	  background-color: #ccc;
-	  color: #666;
-	  cursor: not-allowed;
-	  opacity: 0.8;
-	}
-  </style>
-</head>
+  <link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/production-planning.css"> </head>
 
 <body>
   <div th:replace="~{/top.html :: top}"></div>
+
   <div class="site-Wrapper">
     <h1 style="font-size: 24px; margin-bottom: 16px;">생산 계획</h1>
     <div class="site-Dataset">
       <div class="header">
-        <h4 style="margin: 0;">생산 계획</h4>
+        <span class="material-symbols-outlined">event_note</span> <h4>생산 계획</h4>
       </div>
 
-      <div class="calendarWrap">
-        <div class="calendar">
+      <div class="calendarWrap"> <div class="calendar">
           <div class="calTitle">
-            <button id="prev">&lt;</button>
-            <div id="month-year">2025년 5월</div>
-            <button id="next">&gt;</button>
+            <button id="prev" class="btn-icon"><span class="material-symbols-outlined">chevron_left</span></button> <div id="month-year">2025년 5월</div>
+            <button id="next" class="btn-icon"><span class="material-symbols-outlined">chevron_right</span></button>
           </div>
           <div class="weekdays">
-            <div>일</div>
-            <div>월</div>
-            <div>화</div>
-            <div>수</div>
-            <div>목</div>
-            <div>금</div>
-            <div>토</div>
+            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
           </div>
           <div class="days" id="days"></div>
         </div>
-        <div class="planner">
-		  <div class="planTitle" id="selected-date"></div><!--선택 날짜 들어오는 공간-->
-		  <span>✔ 접수 <span id="order-count">0</span> 건</span>
-		  <span>✔ 생산필요 <span id="need-produce">0</span> 건</span>
-		  <span>✔ 출고 예정 <span id="delivery-count">0</span> 건</span>
-		  <div>	    
-		  </div>
-		</div>
+        <div class="planner"> <div class="planTitle" id="selected-date"></div>
+          <ul class="planner-summary"> <li>✔ 접수 <span id="order-count">0</span> 건</li>
+            <li>✔ 생산필요 <span id="need-produce">0</span> 건</li>
+            <li>✔ 출고 예정 <span id="delivery-count">0</span> 건</li>
+          </ul>
+          </div>
       </div>
-			<div class="addPlanSection">
-				<form class="addPlan">
-					<div>
-						<span>착수일</span> <input type="date" id="startDateInput" required>
-					</div>
-					<div>
-						<span>납기일</span><input type="date" id="endDateInput" required>
-					</div>
-					<div>
-						<span for="customerInput">거래처</span>
-						<input type="text" id="customerInput" readonly>
-					</div>
-					<div>
-						<span for="itemInput">품목</span>
-						<input type="text" id="itemInput" readonly>
-					</div>
-					<div>
-						<span>수량</span> <input type="text" id="orderQtyInput" required>
-					</div>
-					<div id="orderInfoList"
-						style="margin-top: 10px; font-size: 12px; color: #333;">
-						<!-- JS로 채움 -->
-					</div>
-					<button type="submit" id="addPlanBtn" disabled>생산 지시</button>
-					<input type="hidden" th:value=${UserIdx} id="userIdx">
-				</form>
-			</div>
-		</div>
+
+      <div class="addPlanSection"> <h4 class="section-title"> <span class="material-symbols-outlined">playlist_add_check</span> 생산 지시 추가
+        </h4>
+        <form id="addPlanForm" class="addPlan modal-form-stacked"> <input type="hidden" th:value="${UserIdx}" id="userIdx" name="userIdx">
+            
+            <div class="form-group-inline"> <div class="modal-form-group"> <label for="startDateInput">착수일<span class="required-asterisk">*</span></label>
+                    <input type="date" id="startDateInput" name="startDate" required>
+                </div>
+                <div class="modal-form-group">
+                    <label for="endDateInput">납기일<span class="required-asterisk">*</span></label>
+                    <input type="date" id="endDateInput" name="endDate" required>
+                </div>
+            </div>
+            <div class="form-group-inline">
+                <div class="modal-form-group">
+                    <label for="customerInput">거래처</label>
+                    <input type="text" id="customerInput" name="customerName" readonly>
+                </div>
+                <div class="modal-form-group">
+                    <label for="itemInput">품목</label>
+                    <input type="text" id="itemInput" name="itemName" readonly>
+                </div>
+            </div>
+            <div class="modal-form-group">
+                <label for="orderQtyInput">생산 수량<span class="required-asterisk">*</span></label> <input type="number" id="orderQtyInput" name="quantity" required min="1"> </div>
+            
+            <div id="orderInfoList" class="order-info-display"> </div>
+            
+            <div class="modal-buttons form-actions-footer"> <button type="submit" id="addPlanBtn" class="btn-save" disabled> <span class="material-symbols-outlined">add_task</span> 생산 지시
+                </button>
+            </div>
+        </form>
+      </div>
+    </div>
   </div>
 
-
-
+  <style>.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }</style>
   <script src="/js/top.js"></script>
   <script src="/js/production-planning.js"></script>
-  <!-- todo : 공휴일 붙이기 ~  -->
-	
+</body>
 </html>
