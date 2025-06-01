@@ -1,11 +1,24 @@
 package kr.co.d_erp.service;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import kr.co.d_erp.domain.MrpDetailView;
+import kr.co.d_erp.domain.SalesView;
 import kr.co.d_erp.dtos.BomItemDetailDto;
 import kr.co.d_erp.dtos.MrpFirstDto;
 import kr.co.d_erp.dtos.MrpFirstDtoProjection;
@@ -14,7 +27,13 @@ import kr.co.d_erp.repository.oracle.MrpDetailViewRepository;
 
 
 import lombok.RequiredArgsConstructor;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 
 @Service
@@ -45,6 +64,7 @@ public class MrpServiceImpl implements MrpService {
         return MrpFirstDto.builder()
                 .orderIdx(projection.getOrderIdx())
                 .orderCode(projection.getOrderCode())
+                .prodCd(projection.getProdCd())
                 .orderType(projection.getOrderType())
                 .orderDate(projection.getOrderDate())
                 .orderDeliveryDate(projection.getOrderDeliveryDate())
@@ -92,11 +112,9 @@ public class MrpServiceImpl implements MrpService {
         dto.setProductPrimaryItemIdx(viewdto.getProductPrimaryItemIdx());
         dto.setProductItemCd(viewdto.getProductItemCd());
         dto.setProductItemNm(viewdto.getProductItemNm());
-        dto.setOrderQty(viewdto.getProductOrderQty()); // 완제품 총 생산 수량 (MrpDetailView에 이 필드가 있어야 함)
+        dto.setOrderQty(viewdto.getOrderQty()); // 완제품 총 생산 수량 (MrpDetailView에 이 필드가 있어야 함)
 
         dto.setProductUnitNm(viewdto.getProductUnitNm());
-        dto.setProductCurrentStock(viewdto.getProductCurrentStock());
-        dto.setLossRate(viewdto.getLossRt());
         // MrpDetailView 엔티티에 getProductionCode(), getProductivity()가 있다면 매핑 가능
         // dto.setProductionCode(viewdto.getProductionCode()); 
         // dto.setProductivity(viewdto.getProductivity());   
@@ -116,6 +134,7 @@ public class MrpServiceImpl implements MrpService {
         dto.setMrpUpdatedDate(viewdto.getMrpUpdatedDate());
         dto.setOrderStatusOverall(viewdto.getOrderStatusOverall());
         dto.setExpectedInputQty(viewdto.getRequiredQty());
+        dto.setProdCd(viewdto.getProdCd());
         return dto;
     }
 
@@ -123,4 +142,5 @@ public class MrpServiceImpl implements MrpService {
     public BomItemDetailDto getBomDetailsForMrp(Long parentItemId) {
         return bomService.getBomDetails(parentItemId);
     }
+    
 }

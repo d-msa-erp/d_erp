@@ -88,4 +88,6 @@ public interface WhmstRepository extends JpaRepository<Whmst, Long>, JpaSpecific
            "FROM Whmst w LEFT JOIN w.whUser wu " +
            "WHERE w.useFlag = :useFlag")
     List<WhmstDto> findActiveWarehouseDtosByUseFlag(@Param("useFlag") String useFlag, Sort sort);
+    
+    List<Whmst> findByUseFlagOrderByWhNmAsc(String useFlag);
 }
