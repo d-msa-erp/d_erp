@@ -36,6 +36,16 @@ function getCurrentDate() {
     return `${year}-${month}-${day}`;
 }
 
+// 내일 날짜를 YYYY-MM-DD 형식으로 반환하는 함수
+function getTomorrowDate() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
 // Modal 닫기 함수 (전역 범위에 정의)
 function closeModal() {
     const modal = document.getElementById('modal');
@@ -57,6 +67,29 @@ function outsideClick(e) {
     const modal = document.getElementById('modal');
     if (e.target === modal) {
         closeModal();
+    }
+}
+
+// 입사일 변경 시 퇴사일 최소값 설정 함수
+function updateRetireDateMin() {
+    const hireDtInput = document.querySelector('input[name="hireDt"]');
+    const retireDtInput = document.querySelector('input[name="retireDt"]');
+    
+    if (hireDtInput && retireDtInput && hireDtInput.value) {
+        // 입사일 다음날을 퇴사일 최소값으로 설정
+        const hireDate = new Date(hireDtInput.value);
+        hireDate.setDate(hireDate.getDate() + 1);
+        
+        const minRetireDate = hireDate.toISOString().split('T')[0];
+        retireDtInput.min = minRetireDate;
+        
+        // 현재 퇴사일이 입사일보다 이전이면 초기화
+        if (retireDtInput.value && retireDtInput.value <= hireDtInput.value) {
+            retireDtInput.value = '';
+            console.log('퇴사일이 입사일보다 이전이므로 초기화되었습니다.');
+        }
+        
+        console.log('퇴사일 최소값 설정:', minRetireDate);
     }
 }
 
@@ -129,6 +162,9 @@ async function openSharedModal(mode, userIdx = null) {
             if (userPositionSelect && userData.userPosition) userPositionSelect.value = userData.userPosition;
             const userStatusSelect = modalForm.querySelector('select[name="userStatus"]');
             if (userData.userStatus) userStatusSelect.value = userData.userStatus;
+
+            // 데이터 로드 후 퇴사일 최소값 설정
+            updateRetireDateMin();
 
         } catch (error) {
             console.error('사용자 상세 정보를 불러오는 중 오류 발생:', error);
@@ -405,7 +441,7 @@ function handleStatusChange(statusSelect) {
     }
 }
 
-// 퇴사일 변경 시 재직상태 자동 설정 함수
+// 퇴사일 변경 시 재직상태 자동 설정 함수 (수정됨)
 function handleRetireDateChange(retireDtInput) {
     const userStatusSelect = document.querySelector('select[name="userStatus"]');
     if (!userStatusSelect) return;
@@ -413,17 +449,24 @@ function handleRetireDateChange(retireDtInput) {
     if (retireDtInput.value) { // 퇴사일이 입력되었을 때
         const retireDate = new Date(retireDtInput.value);
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // 시간 부분 제거하여 날짜만 비교
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+        
+        // 시간 부분 제거하여 날짜만 비교
+        today.setHours(0, 0, 0, 0);
+        tomorrow.setHours(0, 0, 0, 0);
         retireDate.setHours(0, 0, 0, 0);
 
-        if (retireDate <= today) { // 퇴사일이 오늘이거나 과거일 때만
+        if (retireDate <= today) { // 퇴사일이 오늘이거나 과거일 때
             if (userStatusSelect.value !== '02') { // 현재 상태가 퇴사가 아니라면
                 userStatusSelect.value = '02'; // 퇴사로 변경
                 console.log('퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경');
             }
-        } else { // 퇴사일이 미래일 때
-            console.log('퇴사일이 미래 날짜입니다. 퇴사일이 되면 자동으로 퇴사 처리됩니다.');
-            // 미래 날짜인 경우 상태를 변경하지 않음 (퇴사 예정 상태 유지)
+        } else if (retireDate >= tomorrow) { // 퇴사일이 내일 이후일 때
+            if (userStatusSelect.value === '02') { // 현재 상태가 퇴사라면
+                userStatusSelect.value = '01'; // 재직중으로 변경
+                console.log('퇴사일이 내일 이후 - 재직상태를 재직중으로 자동 변경');
+            }
         }
     } else { // 퇴사일이 삭제되었을 때
         if (userStatusSelect.value === '02') { // 현재 상태가 퇴사라면
@@ -455,6 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalForm) {
         const userStatusSelect = modalForm.querySelector('select[name="userStatus"]');
         const retireDtInput = modalForm.querySelector('input[name="retireDt"]');
+        const hireDtInput = modalForm.querySelector('input[name="hireDt"]');
 
         if (userStatusSelect) {
             userStatusSelect.addEventListener('change', () => {
@@ -465,6 +509,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (retireDtInput) {
             retireDtInput.addEventListener('change', () => {
                 handleRetireDateChange(retireDtInput);
+            });
+        }
+
+        // 입사일 변경 이벤트 리스너 추가
+        if (hireDtInput) {
+            hireDtInput.addEventListener('change', () => {
+                updateRetireDateMin();
             });
         }
     }
@@ -529,6 +580,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
             }
+
+            // 퇴사일 유효성 검사 추가
+            if (userData.hireDt && userData.retireDt) {
+                const hireDate = new Date(userData.hireDt);
+                const retireDate = new Date(userData.retireDt);
+                
+                if (retireDate <= hireDate) {
+                    alert('퇴사일은 입사일 이후여야 합니다.');
+                    modalForm.querySelector('input[name="retireDt"]').focus();
+                    return;
+                }
+            }
+
             // 신규 등록 시 비밀번호 필수 검사
             const isNewUser = !userData.userIdx;
             if (isNewUser && (!userData.userPswd || userData.userPswd.trim() === '')) {
