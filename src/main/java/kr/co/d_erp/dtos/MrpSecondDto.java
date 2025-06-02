@@ -26,6 +26,7 @@ public class MrpSecondDto {
     private BigDecimal lossRate;            // 로스율 (JavaScript에서 order.lossRate 등으로 사용 기대, view의 lossRt에서 매핑)
     // private String productionCode;      // 뷰에 없으므로 주석 처리
     // private BigDecimal productivity;      // 뷰에 없으므로 주석 처리
+    private String prodCd;
 
 
     // --- 자재 관련 정보 (기존 필드 유지) ---

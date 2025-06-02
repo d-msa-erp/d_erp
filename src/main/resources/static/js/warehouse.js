@@ -818,8 +818,9 @@ function displayNoStockMessage(isError = false) {
 	const color = isError ? 'red' : 'inherit';
 
 	warehouseStockTableBody.innerHTML = `<tr style="display: contents;">
-		<td colspan="8" style="grid-column: 1 / -1; text-align: center; color: ${color}; display: block; padding: 20px 0;">
-		${message}</td>
+	<td colspan="8" style="text-align: center; color: ${color}; padding: 20px 0;">
+				${message}
+			</td>
 	</tr>`;
 
 	// 관련 UI 요소 비활성화 및 초기화

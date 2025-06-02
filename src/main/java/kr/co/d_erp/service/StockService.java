@@ -30,15 +30,10 @@ public interface StockService {
     
     // 신규 등록 모달의 품목 선택 datalist용 (품목 마스터 정보 기반)
     List<StockInvRequestDto> getAllItemsForStockRegistration();
-    
-    // 신규 재고 직접 등록 (TB_INVENTORY에만)
-    StockDto createInventoryDirectly(StockRequestDto requestDto);
+
 
     // 재고 정보 수정 (TB_INVENTORY 직접 수정, 필요시 TB_ITEMMST도)
     StockDto updateStockItem(Long invIdx, StockRequestDto requestDto); // 식별자를 invIdx로 사용
-
-    // 재고 직접 삭제 (TB_INVENTORY에서만)
-    void deleteInventoriesByInvIdxs(List<Long> invIdxs); // invIdx 리스트로 삭제
 
     byte[] createExcelFile(String itemFlagFilter, String searchKeyword) throws IOException;
 }

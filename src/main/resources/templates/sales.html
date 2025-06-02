@@ -537,6 +537,7 @@ table.grid-table th:first-child input[type="checkbox"], table.grid-table td:firs
 .modal-content .modal-buttons {
 	grid-column: span 2;
 	display: flex;
+	flex-direction: row !important;
 	justify-content: flex-end;
 	gap: 10px;
 	padding-top: 15px;
@@ -688,7 +689,7 @@ th a.active {
                             <select id="searchTransStatus" name="transStatus">
                                 <option value="">전체</option>
                                 <option value="S1">출고대기</option>
-                                <option value="S2">출고완료</option>
+                                <option value="S3">출고완료</option>
                             </select>
                         </div>
 						<div class="form-group">
@@ -706,7 +707,7 @@ th a.active {
 					<button type="button" class="btn-new" onclick="openModal()">
 						<span class="material-symbols-outlined">add</span> 신규등록
 					</button>
-					<button type="button" class="btn-delete" id="deleteSelectedBtn">
+					<button type="button" class="btn-delete" id="deleteSelectedBtn" style="display:none;">
 						<span class="material-symbols-outlined">delete</span> 삭제
 					</button>
 				</div>
@@ -768,6 +769,8 @@ th a.active {
 	<div class="modal" id="modal" onclick="outsideClick(event)">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 id="modalTitle">신규 등록</h3>
+			<input type="hidden" id="orderIdx">
+			<input type="hidden" id="unitPrice">
 			<form id="modalForm" class="modalForm">
 				<div>
 					<span>착수일</span><input type="date" id="sDate" required />
@@ -823,8 +826,8 @@ th a.active {
 					<button type="button" name="save" style="display: none;" id="saveBtn">
 						<span class="material-symbols-outlined">save</span> 등록
 					</button>
-					<button type="button" name="edit" id="editBtn" onclick="closeModal()">
-						<span class="material-symbols-outlined">edit</span> 확인
+					<button type="button" name="edit" id="editBtn">
+						<span class="material-symbols-outlined">edit</span> 수정
 					</button>
 					<button type="button" onclick="closeModal()" name="cancel">
 						<span class="material-symbols-outlined">close</span> 취소

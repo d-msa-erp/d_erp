@@ -134,7 +134,7 @@ public class StockServiceImpl implements StockService{
                 .userNm(p.getUserNm())
                 .userTel(p.getUserTel())
                 .userMail(p.getUserMail())
-
+                .transType(p.getTransType())
                 .invIdx(p.getInvIdx())
                 .reMark(p.getReMark()) // Projection과 DTO 필드명 일치 (reMark vs remark)
 
@@ -227,54 +227,6 @@ public class StockServiceImpl implements StockService{
 	                // .transDate(null)           // Itemmst 정보만으로는 알 수 없음
 	                .build();
 	    }).collect(Collectors.toList());
-	}
-	
-	@Transactional
-	@Override
-	public StockDto createInventoryDirectly(StockRequestDto requestDto) {
-		System.out.println("StockServiceImpl - createInventoryDirectly 호출됨. DTO: " + requestDto);
-
-		Long itemIdx = requestDto.getItemIdx();
-        Long whIdx = requestDto.getWhIdx();
-        BigDecimal qty = requestDto.getQty();
-
-        if (itemIdx == null || whIdx == null || qty == null) {
-            throw new IllegalArgumentException("품목 ID, 창고 ID, 수량은 필수입니다.");
-        }
-        if (qty.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("수량은 0보다 커야 합니다.");
-        }
-
-        Long currentUserId = null; // TODO: 실제 사용자 ID 로직 추가
-        
-
-        this.inventoryService.increaseStock(whIdx, itemIdx, qty, currentUserId);
-        
-        System.out.println("inventoryService.increaseStock 호출 완료: whIdx=" + whIdx + ", itemIdx=" + itemIdx + ", qty=" + qty);
-
-        StockDto resultDto = new StockDto();
-        resultDto.setItemIdx(itemIdx);
-        resultDto.setWhIdx(whIdx);
-        
-        Optional<Inventory> updatedInventoryOpt = invenRepository.findByWhIdxAndItemIdx(whIdx, itemIdx);
-        if (updatedInventoryOpt.isPresent()) {
-            Inventory updatedInventory = updatedInventoryOpt.get();
-            resultDto.setQty(updatedInventory.getStockQty());   // 실제 DB에 저장된 최신 수량
-            resultDto.setInvIdx(updatedInventory.getInvIdx()); // TB_INVENTORY의 PK
-        } else {
-            // 이 경우는 발생하면 안되지만, 예외 처리 또는 기본값 설정
-            System.err.println("createInventoryDirectly: 재고 증가 후 해당 재고를 찾을 수 없습니다! whIdx=" + whIdx + ", itemIdx=" + itemIdx);
-            resultDto.setQty(qty); // 임시로 요청 수량 사용
-        }      
-        
-        System.out.println("재고 직접 등록 처리 완료, 임시 StockDto 반환.");
-        return resultDto;
-    }
-	
-	@Override
-	public void deleteInventoriesByInvIdxs(List<Long> invIdxs) {
-		// TODO Auto-generated method stub
-		
 	}
     
 	public StockDto updateStockItem(Long invIdx, StockRequestDto requestDto) {

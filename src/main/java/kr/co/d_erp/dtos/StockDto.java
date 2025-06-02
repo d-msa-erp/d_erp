@@ -30,6 +30,7 @@ public class StockDto {
     private String userMail;
     private String reMark;
     private String itemFlag;
+    private String transType;
     
     private Long custIdxForItem;
     private Integer unitIdx;

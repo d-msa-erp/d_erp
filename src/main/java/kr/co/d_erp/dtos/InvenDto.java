@@ -21,15 +21,11 @@ public class InvenDto {
     @Column(name = "INV_IDX")
     private Integer invIdx;
 
+
     @ManyToOne // Inventory가 Item을 참조하고, Item의 PK가 Inventory의 PK로 사용될 경우 @MapsId 사용 OneToOne > ManyToOne 변경 -민섭
     @JoinColumn(name = "ITEM_IDX", referencedColumnName = "ITEM_IDX")
-    private Itemmst item;
 
-    /*
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ITEM_IDX", nullable = false)
     private Itemmst item;
-    */
     
     @Column(name = "STOCK_QTY")
     private Long stockQty;

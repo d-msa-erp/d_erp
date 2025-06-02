@@ -66,47 +66,48 @@ public class SalesService {
 	}
 	
 	
-	 public byte[] generateExcelforPurchase() throws IOException {
-		 	List<SalesView> salesList = salesRepository.findByOrderType("P");
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-	        try (Workbook workbook = new XSSFWorkbook()) {
-	            Sheet sheet = workbook.createSheet("주문목록");
+	public byte[] generateExcelforPurchase(List<Long> ids) throws IOException {
+	    List<SalesView> purchaseList = salesRepository.findByOrderIdxInAndOrderType(ids, "P");
 
-	            // 헤더 작성
-	            Row header = sheet.createRow(0);
-	            header.createCell(0).setCellValue("주문번호");
-	            header.createCell(1).setCellValue("품목코드");
-	            header.createCell(2).setCellValue("품목명");
-	            header.createCell(3).setCellValue("거래처");
-	            header.createCell(4).setCellValue("수량");
-	            header.createCell(5).setCellValue("총액");
-	            header.createCell(6).setCellValue("발주일");
-	            header.createCell(7).setCellValue("납기일");
+	    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-	            // 데이터 작성
-	            int rowIdx = 1;
-	            for (SalesView sale : salesList) {
-	                Row row = sheet.createRow(rowIdx++);
-	                row.createCell(0).setCellValue(sale.getOrderCode());
-	                row.createCell(1).setCellValue(sale.getItemCode());
-	                row.createCell(2).setCellValue(sale.getItemName());
-	                row.createCell(3).setCellValue(sale.getCustomerName());
-	                row.createCell(4).setCellValue(sale.getQuantity().toString());
-	                row.createCell(5).setCellValue(sale.getTotalPrice());
-	                row.createCell(6).setCellValue(sale.getOrderDate().format(formatter));
-	                row.createCell(7).setCellValue(sale.getDeliveryDate().format(formatter));
-	            }
+	    try (Workbook workbook = new XSSFWorkbook()) {
+	        Sheet sheet = workbook.createSheet("발주 목록");
 
-	            // 엑셀 데이터를 바이트 배열로 반환
-	            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-	                workbook.write(out);
-	                return out.toByteArray();
-	            }
+	        // 헤더
+	        Row header = sheet.createRow(0);
+	        header.createCell(0).setCellValue("주문번호");
+	        header.createCell(1).setCellValue("품목코드");
+	        header.createCell(2).setCellValue("품목명");
+	        header.createCell(3).setCellValue("거래처");
+	        header.createCell(4).setCellValue("수량");
+	        header.createCell(5).setCellValue("총액");
+	        header.createCell(6).setCellValue("발주일");
+	        header.createCell(7).setCellValue("납기일");
+
+	        // 컬럼
+	        int rowIdx = 1;
+	        for (SalesView sale : purchaseList) {
+	            Row row = sheet.createRow(rowIdx++);
+	            row.createCell(0).setCellValue(sale.getOrderCode());
+	            row.createCell(1).setCellValue(sale.getItemCode());
+	            row.createCell(2).setCellValue(sale.getItemName());
+	            row.createCell(3).setCellValue(sale.getCustomerName());
+	            row.createCell(4).setCellValue(String.valueOf(sale.getQuantity()));
+	            row.createCell(5).setCellValue(String.valueOf(sale.getTotalPrice()));
+	            row.createCell(6).setCellValue(sale.getOrderDate().format(formatter));
+	            row.createCell(7).setCellValue(sale.getDeliveryDate().format(formatter));
+	        }
+
+	        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+	            workbook.write(out);
+	            return out.toByteArray();
 	        }
 	    }
+	}
 	 
-	 public byte[] generateExcelforSale() throws IOException {
-			List<SalesView> salesList = salesRepository.findByOrderType("S");
+	 public byte[] generateExcelforSale(List<Long> ids) throws IOException {
+		 List<SalesView> salesList = salesRepository.findByOrderIdxInAndOrderType(ids, "S");
 	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 	        try (Workbook workbook = new XSSFWorkbook()) {
 	            Sheet sheet = workbook.createSheet("주문목록");

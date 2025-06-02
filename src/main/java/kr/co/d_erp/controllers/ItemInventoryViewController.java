@@ -33,7 +33,7 @@ public class ItemInventoryViewController {
 	}
 	
 	@GetMapping("/total-stock")
-    public ResponseEntity<Long> getTotalStock(@RequestParam Long itemIdx) {
+    public ResponseEntity<Long> getTotalStock(@RequestParam("itemIdx") Long itemIdx) {
         Long totalStock = service.getTotalStockQty(itemIdx);
         return ResponseEntity.ok(totalStock);
     }
