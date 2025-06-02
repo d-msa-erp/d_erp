@@ -124,6 +124,15 @@ function setupDateRangeValidation() {
     });
 }
 
+// === 계산된 필드 정렬을 위한 함수 ===
+function sortTableByTotalAmount(data, order) {
+    return data.sort((a, b) => {
+        const totalA = (parseFloat(a.transQty) || 0) * (parseFloat(a.unitPrice) || 0);
+        const totalB = (parseFloat(b.transQty) || 0) * (parseFloat(b.unitPrice) || 0);
+        return order === 'asc' ? totalA - totalB : totalB - totalA;
+    });
+}
+
 // === 테이블 데이터 로드 함수 ===
 async function loadReceivingTable(page = currentPage, sortBy = currentSortBy, sortDirection = currentOrder, filters = searchFilters) {
     currentPage = page;
@@ -132,12 +141,24 @@ async function loadReceivingTable(page = currentPage, sortBy = currentSortBy, so
     searchFilters = filters;
     receivingTableBody.innerHTML = ''; // 테이블 내용 초기화
 
+    // 총액 정렬인 경우 서버에서 정렬하지 않고 클라이언트에서 처리
+    let serverSortBy = sortBy;
+    let serverSortDirection = sortDirection;
+    let isClientSideSort = false;
+    
+    if (sortBy === 'totalAmount') {
+        // 총액 정렬은 클라이언트에서 처리하므로 서버에는 기본 정렬로 요청
+        serverSortBy = 'invTransIdx';
+        serverSortDirection = 'desc';
+        isClientSideSort = true;
+    }
+
     // API 요청을 위한 쿼리 파라미터 구성
     const queryParams = new URLSearchParams({
         page: currentPage,
         size: pageSize,
-        sortBy,
-        sortDirection,
+        sortBy: serverSortBy,
+        sortDirection: serverSortDirection,
         ...(filters.transDateFrom && { transDateFrom: filters.transDateFrom }),
         ...(filters.transDateTo && { transDateTo: filters.transDateTo }),
         ...(filters.itemIdx && { itemIdx: filters.itemIdx }),
@@ -155,9 +176,14 @@ async function loadReceivingTable(page = currentPage, sortBy = currentSortBy, so
             throw new Error(`HTTP 오류! 상태: ${response.status}, 메시지: ${errorText}`);
         }
         const responseData = await response.json();
-        const invTransactions = responseData.content || []; // 입고 거래 목록
+        let invTransactions = responseData.content || []; // 입고 거래 목록
         totalPages = responseData.totalPages || 1; // 전체 페이지 수 업데이트
         const totalElements = responseData.totalElements || 0; // 전체 항목 수 업데이트
+
+        // 클라이언트 사이드 정렬 (총액)
+        if (isClientSideSort && invTransactions.length > 0) {
+            invTransactions = sortTableByTotalAmount(invTransactions, sortDirection);
+        }
 
         // 페이지네이션 정보 업데이트
         totalRecordsSpan.textContent = totalElements;
@@ -201,9 +227,29 @@ async function loadReceivingTable(page = currentPage, sortBy = currentSortBy, so
             });
             receivingTableBody.appendChild(row);
         });
+
+        // 정렬 화살표 업데이트
+        updateSortArrows(sortBy, sortDirection);
+
     } catch (error) {
         console.error('입고 데이터 로드 중 오류:', error);
         displayNoDataMessage(receivingTableBody, 11, true); // 오류 메시지 표시
+    }
+}
+
+// 정렬 화살표 업데이트 함수
+function updateSortArrows(sortBy, sortDirection) {
+    // 모든 정렬 화살표 초기화
+    document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
+        arrow.textContent = '↓';
+        arrow.classList.remove('active');
+    });
+
+    // 현재 정렬 컬럼의 화살표 활성화
+    const currentThArrow = document.querySelector(`#receivingTable thead th[data-sort-by="${sortBy}"] .sort-arrow`);
+    if (currentThArrow) {
+        currentThArrow.textContent = sortDirection === 'asc' ? '↑' : '↓';
+        currentThArrow.classList.add('active');
     }
 }
 
@@ -222,12 +268,6 @@ function order(thElement) {
     const newSortBy = thElement.dataset.sortBy;
     if (!newSortBy) return; // 정렬 기준 컬럼이 없으면 중단
 
-    // 모든 정렬 화살표 초기화
-    document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
-        arrow.textContent = '↓';
-        arrow.classList.remove('active');
-    });
-
     if (currentSortBy === newSortBy) {
         currentOrder = currentOrder === 'asc' ? 'desc' : 'asc'; // 정렬 순서 변경
     } else {
@@ -235,11 +275,6 @@ function order(thElement) {
         currentOrder = 'asc'; // 기본 오름차순
     }
 
-    const currentThArrow = thElement.querySelector('.sort-arrow');
-    if (currentThArrow) {
-        currentThArrow.textContent = currentOrder === 'asc' ? '↑' : '↓'; // 현재 정렬 화살표 표시
-        currentThArrow.classList.add('active');
-    }
     loadReceivingTable(1, currentSortBy, currentOrder, searchFilters); // 변경된 정렬 기준으로 테이블 다시 로드
 }
 
@@ -718,15 +753,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOrder = 'desc';       // 정렬 순서 초기화
 
         // 정렬 화살표 초기화
-        document.querySelectorAll('#receivingTable thead th .sort-arrow').forEach(arrow => {
-            arrow.textContent = '↓';
-            arrow.classList.remove('active');
-            const th = arrow.closest('th');
-            if (th && th.dataset.sortBy === currentSortBy) { // 기본 정렬 컬럼에 active 및 화살표 표시
-                arrow.classList.add('active');
-                arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
-            }
-        });
+        updateSortArrows(currentSortBy, currentOrder);
         
         // 날짜 범위 제한 초기화
         searchTransDateFromInput.removeAttribute('max');
