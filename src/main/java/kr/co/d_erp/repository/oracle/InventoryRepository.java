@@ -62,8 +62,8 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
     Page<StockProjection> findInventoryDetails(@Param("itemFlagFilter") String itemFlagFilter,
                                                @Param("searchKeyword") String searchKeyword,
                                                Pageable pageable);
-	
 	void deleteByInvIdxIn(List<Long> invIdxs);
+
 	
 	
 }
