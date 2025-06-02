@@ -424,7 +424,7 @@ public class InvTransactionService {
 
 	    // 연결된 내부 주문 삭제
 	    Order linkedOrder = transaction.getTbOrder();
-	    if (linkedOrder != null && ("I".equals(linkedOrder.getOrderType()) || "O".equals(linkedOrder.getOrderType()))) {
+	    if (linkedOrder != null ) {
 	        orderRepository.delete(linkedOrder);
 	    }
 
