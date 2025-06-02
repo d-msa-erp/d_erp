@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	document.getElementById('searchTransStatus').addEventListener('change', searchItems);
 
 	document.getElementById("sDate").setAttribute("min", today);
+	applyDueDateMin();
 });
 function order(sortBy) {
 	const allArrows = document.querySelectorAll("th a");
@@ -264,8 +265,12 @@ function searchItems() {
 	const startDate = document.getElementById('startDate').value;
 	const endDate = document.getElementById('endDate').value;
 	const transStatus = document.getElementById('searchTransStatus').value;
-	
-	
+
+	if (searchQuery == "" && transStatus == "") {
+		loadSales('orderIdx', 'desc', isDueDate);
+		return;
+	}
+
 	const queryParams = new URLSearchParams({
 		searchTerm: searchQuery,
 		page: currentPage,
@@ -374,7 +379,7 @@ async function openModal(data = null) {
 				input.readOnly = true;
 			}
 		});
-		
+
 		document.getElementById('quantity').readOnly = false;
 		document.getElementById('whSearchInput').readOnly = false;
 		loadWarehouse();
@@ -647,7 +652,7 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 		alert(message); // 최종 메시지 출력
 
 		closeModal();
-		loadSales('deliveryDate', 'asc');
+		loadSales('orderIdx', 'desc', isDueDate);
 	} catch (err) {
 		alert('저장 중 오류가 발생했습니다.');
 		console.error(err);
@@ -743,7 +748,7 @@ async function downloadExcel() {
 	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
 	const ids = Array.from(checked).map(cb =>
 		cb.closest('tr').querySelector('input[type="hidden"]').value);
-				
+
 	if (ids.length === 0) {
 		alert('엑셀로 내보낼 항목을 선택해주세요.');
 		return;
@@ -798,7 +803,7 @@ function printSelectedSales() {
 	printByIds(ids, fetchUrlFn, columns, '주문 인쇄');
 }
 
-document.getElementById('startDate').addEventListener('change', function () {
+document.getElementById('startDate').addEventListener('change', function() {
 	const startDate = this.value;
 	const endDateInput = document.getElementById('endDate');
 
@@ -810,4 +815,63 @@ document.getElementById('startDate').addEventListener('change', function () {
 	}
 });
 
+function applyDueDateMin() {
+	const sDateInput = document.getElementById('sDate');
+	const dueDateInput = document.getElementById('dueDate');
+	const sDate = sDateInput.value;
 
+	if (sDate) {
+		dueDateInput.min = sDate;
+
+		if (dueDateInput.value && dueDateInput.value < sDate) {
+			dueDateInput.value = '';
+		}
+	}
+}
+
+async function deleteOrder() {
+	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+		cb.closest('tr').querySelector('input[type="hidden"]').value
+	);
+
+	if (ids.length === 0) {
+		alert("삭제할 항목을 선택해주세요.");
+		return;
+	}
+
+	const confirmed = confirm("선택한 주문을 삭제하시겠습니까?");
+	if (!confirmed) return;
+
+	try {
+		const response = await fetch('/api/orders/delete', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(ids)
+		});
+
+		if (response.ok) {
+			alert("삭제가 완료되었습니다.");
+		} else {
+			alert("삭제 실패");
+		}
+		loadSales(currentTh, currentOrder, isDueDate);
+	} catch (error) {
+		console.error("삭제 오류:", error);
+		alert("삭제 중 오류 발생");
+	}
+}
+
+// 착수일 변경 시
+document.getElementById('sDate').addEventListener('change', applyDueDateMin);
+
+// 납기일 선택 시 잘못된 값이면 막기
+document.getElementById('dueDate').addEventListener('change', function() {
+	const sDate = document.getElementById('sDate').value;
+	if (sDate && this.value < sDate) {
+		alert('납기일은 착수일 이후로 설정해야 합니다.');
+		this.value = '';
+	}
+});
