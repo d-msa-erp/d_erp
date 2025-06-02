@@ -54,7 +54,7 @@ public class OrderService {
 		order.setExpectedWhIdx(dto.getExpectedWhIdx());
 		order.setUserIdx(dto.getUserIdx());
 		order.setRemark(dto.getRemark());
-
+		
 		if (dto.getOrderQty() == null || dto.getUnitPrice() == null) {
 			throw new IllegalArgumentException("단가 또는 수량이 null입니다.");
 		}
