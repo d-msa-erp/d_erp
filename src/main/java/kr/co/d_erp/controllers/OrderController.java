@@ -12,6 +12,8 @@ import kr.co.d_erp.service.InvTransactionService;
 import kr.co.d_erp.service.OrderDetailService;
 import kr.co.d_erp.service.OrderService;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +52,12 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                                  .body("주문 수정 실패: " + e.getMessage());
         }
+    }
+    
+    @DeleteMapping("/delete")
+    public ResponseEntity<Void> deleteOrder(@RequestBody List<Long> orderIdxList) {
+        orderService.deleteOrderAndRelatedData(orderIdxList);
+        return ResponseEntity.ok().build();
     }
     
 }
