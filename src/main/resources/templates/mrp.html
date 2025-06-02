@@ -207,7 +207,7 @@
             width: 100%;
 			border-collapse: collapse;
 			display: grid;
-			grid-template-columns: 1fr 1.5fr 2fr 1.3fr 1fr 1fr 2fr;
+			grid-template-columns: 1fr 1.5fr 4fr 1.3fr 1fr 1fr 2fr 1fr;
         }
 		thead,
 		tbody,
@@ -510,7 +510,7 @@
 							<button type="button" onclick="mrpexceldownload()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button" onclick="printMrpData()">
+							<button type="button" onclick="mrpexceldownload()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
@@ -551,6 +551,7 @@
 									<th onclick="order(this)">소요량</th>
 									<th onclick="order(this)">단위</th>
 									<th onclick="order(this)">투입예상량</th>
+                                    <th onclick="order(this)">가능여부</th>
 								</tr>
 							</thead>
 							<tbody id="materialbody">
