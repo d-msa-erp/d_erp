@@ -1,193 +1,317 @@
 /* hr.css */
 
 /* body, .site-Wrapper, .site-Dataset, .header 등은 outbound.css 스타일을 기본으로 함 */
-.site-Dataset .header h4 { margin: 0; font-weight: 600; }
+.site-Dataset .header h4 {
+	margin: 0;
+	font-weight: 600;
+}
 
 /* 검색/액션 버튼 영역: HTML의 기존 .table-wrapper > div:nth-child(1) 구조 유지 */
-.hr-search-actions-wrapper { /* HTML에 추가한 새 클래스 (기존 .table-wrapper > div:nth-child(1)) */
-    padding: 20px 25px;
-    display: flex;
-    justify-content: space-between; /* 검색창과 버튼 그룹 양쪽 정렬 */
-    align-items: center;
-    gap: 20px;
-    border-bottom: 1px solid #eee;
-    background-color: #fdfdfd; /* outbound.css .shipping-info-section 배경 참고 */
+.hr-search-actions-wrapper {
+	padding: 20px 25px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 20px;
+	border-bottom: 1px solid #eee;
+	background-color: #fdfdfd;
 }
+
 .hr-search-actions-wrapper input[type="text"]#searchInput {
-    flex-grow: 1;
-    max-width: 50%; /* 검색창 너비 조정 */
-    padding: 10px 12px; /* outbound.css .form-group input */
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 15px;
+	flex-grow: 1;
+	max-width: 50%; /* 검색창 너비 조정 */
+	padding: 10px 12px; /* outbound.css .form-group input */
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-size: 15px;
 }
+
 .hr-search-actions-wrapper input[type="text"]#searchInput:focus {
-    border-color: #46a6ff; /* outbound.css 포커스 */
-    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
-    outline: none;
+	border-color: #46a6ff; /* outbound.css 포커스 */
+	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+	outline: none;
 }
-.hr-search-actions-wrapper .hr-action-buttons { /* HTML에 추가한 새 클래스 */
-    display: flex;
-    gap: 10px;
+
+.hr-search-actions-wrapper .hr-action-buttons {
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+	border: 0;
 }
+
+.hr-search-actions-wrapper .hr-action-buttons  button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+	color: white;
+}
+
+.hr-search-actions-wrapper  .btn-search {
+	background: #007bff;
+}
+
+.hr-search-actions-wrapper  .btn-new {
+	background: #28a745;
+}
+
+.hr-search-actions-wrapper  .btn-delete {
+	background: #dc3545;
+}
+.hr-search-actions-wrapper  .btn-search:hover {
+	background: #0056b3;
+}
+
+.hr-search-actions-wrapper  .btn-new:hover {
+	background: #218838;
+}
+
+.hr-search-actions-wrapper  .btn-delete:hover {
+	background: #c82333;
+}
+
+
 /* 버튼들은 HTML에서 .btn-search, .btn-new, .btn-delete 클래스를 사용하므로 outbound.css 스타일 적용됨 */
 
 /* 테이블 영역: HTML의 기존 .table-wrapper > div#table-customer 구조 유지 */
-.table-wrapper > div#table-customer { /* ID 선택자 유지 */
-    padding: 20px 25px; /* outbound.css .table-view-section 패딩 참고 */
-    position: relative;
+.table-wrapper>div#table-customer { /* ID 선택자 유지 */
+	padding: 20px 25px; /* outbound.css .table-view-section 패딩 참고 */
+	position: relative;
 }
+
 .print-wrap {
-    position: absolute;
-    top: 20px; right: 25px;
-    display: flex; gap: 10px;
+	position: absolute;
+	top: 20px;
+	right: 25px;
+	display: flex;
+	gap: 10px;
 }
-.print-wrap > button { /* outbound.css .table-actions button 모방 */
-    padding: 8px 15px; background: #6c757d; color: white;
-    border: none; border-radius: 5px; cursor: pointer;
-    display: inline-flex; align-items: center; gap: 5px;
-    font-size: 15px; white-space: nowrap; transition: background-color 0.2s ease;
+
+.print-wrap>button { /* outbound.css .table-actions button 모방 */
+	padding: 8px 15px;
+	background: #6c757d;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 15px;
+	white-space: nowrap;
+	transition: background-color 0.2s ease;
 }
-.print-wrap > button:hover { background-color: #5a6268; }
-.print-wrap > button .material-symbols-outlined { font-size: 18px; }
+
+.print-wrap>button:hover {
+	background-color: #5a6268;
+}
+
+.print-wrap>button .material-symbols-outlined {
+	font-size: 18px;
+}
 
 /* 메인 테이블 (.grid-table.hr-main-table) */
 table.grid-table.hr-main-table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed; /* 테이블 끊어짐 방지 */
-    /* display: grid;  제거! 표준 테이블로 */
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed; /* 테이블 끊어짐 방지 */
+	/* display: grid;  제거! 표준 테이블로 */
 }
 /* thead, tbody, tr { display: contents; } 제거! */
-
 table.grid-table.hr-main-table thead th {
-    background: #f0f4f7; /* outbound.css thead 배경 */
-    font-weight: bold; color: #444; cursor: pointer; font-size: 14px;
-    padding: 12px 10px; border: 1px solid #e0e0e0;
-    text-align: center; vertical-align: middle;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    position: sticky; top: 0; z-index: 1; /* 헤더 고정 (z-index 조정) */
+	background: #f0f4f7; /* outbound.css thead 배경 */
+	font-weight: bold;
+	color: #444;
+	cursor: pointer;
+	font-size: 14px;
+	padding: 12px 10px;
+	border: 1px solid #e0e0e0;
+	text-align: center;
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	position: sticky;
+	top: 0;
+	z-index: 1; /* 헤더 고정 (z-index 조정) */
 }
+
 table.grid-table.hr-main-table tbody td {
-    padding: 12px 10px; border: 1px solid #e0e0e0;
-    text-align: center; vertical-align: middle;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+	padding: 12px 10px;
+	border: 1px solid #e0e0e0;
+	text-align: center;
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 /* 짝수행, 호버 효과는 outbound.css .grid-table 규칙 따름 */
 /* 컬럼 너비는 HTML의 th style 속성으로 제어 */
 th a.sort-arrow { /* outbound.css 스타일 따름 */
-    margin-left: 5px; color: #777; text-decoration: none;
-    opacity: 0.3; transition: opacity 0.2s;
+	margin-left: 5px;
+	color: #777;
+	text-decoration: none;
+	opacity: 0.3;
+	transition: opacity 0.2s;
 }
-th a.sort-arrow.active { color: #000; opacity: 1; }
+
+th a.sort-arrow.active {
+	color: #000;
+	opacity: 1;
+}
 
 /* 페이지네이션: outbound.css 스타일 따름 */
-.pagination-controls input[type="number"] { /* HTML이 number 타입으로 변경되었다고 가정 */
-    width: 50px; text-align: center; padding: 6px 8px;
-    border: 1px solid #ddd; border-radius: 5px; font-size: 15px;
+.pagination-controls input[type="number"] {
+	/* HTML이 number 타입으로 변경되었다고 가정 */
+	width: 50px;
+	text-align: center;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-size: 15px;
 }
 
 /* 모달: outbound.css 스타일 사용. hr 페이지 모달 크기만 여기서 조정 */
 #modal .modal-content.hr-modal-content {
-    max-width: 850px; /* 기존 700px에서 넓힘 */
-    max-height: 90vh;
+	max-width: 850px; /* 기존 700px에서 넓힘 */
+	max-height: 90vh;
 	overflow-y: auto;
 }
 
 /* 모달 내부 폼 (.modalForm -> hr-modal-form-layout) */
 #modal .modalForm.hr-modal-form-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* 기본 2컬럼 */
-    gap: 15px 25px; /* 행간격, 열간격 */
-    margin-bottom: 20px;
+	display: grid;
+	grid-template-columns: 1fr 1fr; /* 기본 2컬럼 */
+	gap: 15px 25px; /* 행간격, 열간격 */
+	margin-bottom: 20px;
 }
 /* 각 입력 그룹 (HTML에서는 div 바로 안에 span과 input/select) */
 /* .form-group-hr 클래스를 HTML에 추가하여 표준 .modal-form-group 스타일 적용 */
 .form-group-hr {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
 }
-.form-group-hr > span:first-child { /* 라벨 역할 */
-    font-weight: 600; color: #555; font-size: 14px; white-space: nowrap;
+
+.form-group-hr>span:first-child { /* 라벨 역할 */
+	font-weight: 600;
+	color: #555;
+	font-size: 14px;
+	white-space: nowrap;
 }
-.form-group-hr input[type="text"],
-.form-group-hr input[type="password"],
-.form-group-hr input[type="date"],
-.form-group-hr select {
-    width: 100%; padding: 10px 12px; border: 1px solid #ddd;
-    border-radius: 5px; font-size: 15px;
+
+.form-group-hr input[type="text"], .form-group-hr input[type="password"],
+	.form-group-hr input[type="date"], .form-group-hr select {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-size: 15px;
 }
-.form-group-hr input:focus,
-.form-group-hr select:focus {
-    border-color: #46a6ff;
-    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
-    outline: none;
+
+.form-group-hr input:focus, .form-group-hr select:focus {
+	border-color: #46a6ff;
+	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+	outline: none;
 }
 
 /* 권한/부서/직책 그룹 */
 .hr-select-group {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 15px 25px; /* 내부 간격 조정 */
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 15px 25px; /* 내부 간격 조정 */
 }
-.hr-select-group .form-group-hr select { width: 100%; }
+
+.hr-select-group .form-group-hr select {
+	width: 100%;
+}
 
 /* 입사일/퇴사일 그룹 */
 .hr-date-group {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px 25px;
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 15px 25px;
 }
 
 /* 재직상태 select 너비 조정 */
-#modalUserStatus { max-width: 250px; } /* HTML에서 style="width: 30%;" 대신 사용 */
+#modalUserStatus {
+	max-width: 250px;
+} /* HTML에서 style="width: 30%;" 대신 사용 */
 
 /* 모달 버튼: HTML의 .modal-buttons-wrapper > .modal-buttons 구조 유지 */
 .modal-buttons-wrapper {
-    grid-column: span 2; /* 폼 그리드 내에서 전체 너비 */
+	grid-column: span 2; /* 폼 그리드 내에서 전체 너비 */
 }
 /* .modal-buttons 및 내부 .btn-* 은 outbound.css 스타일 적용 */
-.modal-buttons button.cancel-button { /* HTML의 .cancel-button 클래스에 스타일 적용 */
-    background-color: #6c757d; color: white;
-}
-.modal-buttons button.cancel-button:hover {
-    background-color: #5a6268;
+.modal-buttons button.cancel-button {
+	/* HTML의 .cancel-button 클래스에 스타일 적용 */
+	background-color: #6c757d;
+	color: white;
 }
 
-.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }
-.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
+.modal-buttons button.cancel-button:hover {
+	background-color: #5a6268;
+}
+
+.required-asterisk {
+	color: red;
+	margin-left: 2px;
+	font-weight: bold;
+}
+
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border-width: 0;
+}
 
 /* 반응형 스타일 */
-@media (max-width: 768px) {
-    .hr-search-actions-wrapper { /* HTML 클래스명 변경 */
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .hr-search-actions-wrapper input[type="text"]#searchInput,
-    .hr-search-actions-wrapper .hr-action-buttons { /* HTML 클래스명 변경 */
-        width: 100%;
-    }
-    .hr-search-actions-wrapper .hr-action-buttons button { /* HTML 클래스명 변경 */
-        flex-grow: 1;
-        justify-content: center;
-    }
-
-    #modal .modalForm.hr-modal-form-layout,
-    .hr-select-group,
-    .hr-date-group {
-        grid-template-columns: 1fr; /* 모바일에서 모든 것을 1컬럼으로 */
-    }
-    #modal .modalForm.hr-modal-form-layout > div,
-    .hr-select-group > .form-group-hr,
-    .hr-date-group > .form-group-hr {
-        grid-column: span 1 !important;
-    }
-    #modalUserStatus { max-width: 100%; }
-
-    #modal .modal-content.hr-modal-content {
-        max-width: 95%;
-    }
+@media ( max-width : 768px) {
+	.hr-search-actions-wrapper { /* HTML 클래스명 변경 */
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.hr-search-actions-wrapper input[type="text"]#searchInput,
+		.hr-search-actions-wrapper .hr-action-buttons { /* HTML 클래스명 변경 */
+		width: 100%;
+	}
+	.hr-search-actions-wrapper .hr-action-buttons button {
+		/* HTML 클래스명 변경 */
+		flex-grow: 1;
+		justify-content: center;
+	}
+	#modal .modalForm.hr-modal-form-layout, .hr-select-group, .hr-date-group
+		{
+		grid-template-columns: 1fr; /* 모바일에서 모든 것을 1컬럼으로 */
+	}
+	#modal .modalForm.hr-modal-form-layout>div, .hr-select-group>.form-group-hr,
+		.hr-date-group>.form-group-hr {
+		grid-column: span 1 !important;
+	}
+	#modalUserStatus {
+		max-width: 100%;
+	}
+	#modal .modal-content.hr-modal-content {
+		max-width: 95%;
+	}
 }
