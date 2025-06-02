@@ -16,7 +16,19 @@
         <form id="frm" method="get" action="#"> <div class="site-Dataset"> <div class="header"> <span class="material-symbols-outlined">groups</span>
                     <h4 style="margin: 0;">사원 관리</h4>
                 </div>
-                <div class="hr-search-actions-wrapper"> <input type="text" id="searchInput" placeholder="이름, ID, 부서, 직책으로 검색" />
+                
+                
+                <div class="shipping-info-section"> <h4 class="section-title">
+                        <span class="material-symbols-outlined">filter_alt</span> 사원 정보 검색
+                    </h4>
+                    <div class="shipping-info-form">
+                        <div class="form-group">
+                            <label for="mainSearchInput">통합 검색</label>
+                             <input type="text" id="searchInput" placeholder="이름, ID, 부서, 직책으로 검색" />
+                        </div>
+                    </div>
+                </div>
+                <div class="hr-search-actions-wrapper">
                     <div class="hr-action-buttons">
                         <button type="button" id="searchButton" class="btn-search"> <span class="material-symbols-outlined">search</span> 검색
                         </button>
