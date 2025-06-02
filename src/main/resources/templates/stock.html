@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>재고 관리</title>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
     
@@ -395,8 +396,8 @@
                             <span>분류</span>
 		                    <select id="itemFlagSelect">
 		                        <option value="">--</option>
-		                        <option value="R">입고</option>
-		                        <option value="S">출고</option>
+		                        <option value="01">품목</option>
+		                        <option value="02">원자재</option>
 		                    </select>
                         </div>
                         <input type="text" id="searchItemText" placeholder="검색" />
@@ -415,7 +416,7 @@
                     <div></div>
                     <div id="table-customer" style="padding: 20px; position: relative;">
                         <div class="print-wrap">
-                            <button type="button" id="excelBtn" onclick="downloadStockasExcel()">
+                            <button type="button" onclick="downloadStockAsExcel()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
 							<button type="button" onclick="printStockData()">
@@ -468,14 +469,6 @@
             <h3 id="modalTitle">신규 등록</h3>
             <form id="modalForm" class="modalForm">
     <div>
-    	<span>입/출고 분류</span>
-    	<select name="transType" required>
-    		<option value="">--분류를 선택해주세요 --</option>
-       		<option value="01">입고</option>
-            <option value="02">출고</option>
-    	</select>
-    </div>
-    <div>
         <span>자재/품목코드</span><input type="text" name="item_CD_display" placeholder="자동으로 코드가 입력됩니다." required readonly /> <input type="hidden" name="item_CD" /> </div>
     <div>
         <span>자재/품목명(선택)</span>
@@ -508,7 +501,6 @@
     </div>
     <div>
         <span>담당자</span><input type="text" name="user_NM" placeholder="담당자를 입력해주세요" /> </div>
-
     <div>
         <span>비고</span><input type="text" name="remark" placeholder="비고를 입력해주세요" />
     </div>
