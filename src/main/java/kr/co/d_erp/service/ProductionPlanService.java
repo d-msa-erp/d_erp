@@ -36,7 +36,7 @@ public class ProductionPlanService {
 		production.setOrderIdx(req.getOrderIdx()); // null 허용
 		production.setProdQty(req.getQuantity());
 		production.setProdDate(LocalDate.now());
-		production.setProdStatus("02"); // 생산전
+		production.setProdStatus("02");
 		production.setTargetWhIdx(req.getWhIdx()); // 입고될 창고
 		production.setUserIdx(req.getUserIdx());
 
