@@ -55,6 +55,171 @@ function unformatCurrencyKR(formattedValue) {
     const numValue = parseFloat(numericString);
     return isNaN(numValue) ? null : numValue;
 }
+
+function downloadStockAsExcel() {
+    console.log("[ExcelDownload] 함수 시작");
+
+    const itemTableBody = document.getElementById('itembody');
+    if (!itemTableBody) {
+        alert("재고 목록 테이블을 찾을 수 없습니다.");
+        console.error("[ExcelDownload] itembody 요소를 찾을 수 없습니다!");
+        return;
+    }
+    console.log("[ExcelDownload] itemTableBody 찾음:", itemTableBody);
+
+    const selectedStockRowsData = [];
+    const allStockRows = itemTableBody.querySelectorAll('tr');
+    let hasActualDataRow = false;
+    let programmaticallyCheckedCount = 0; // 스크립트가 'checked'로 인식한 체크박스 수
+
+    console.log(`[ExcelDownload] itemTableBody 내 총 ${allStockRows.length}개의 행을 찾았습니다.`);
+
+    allStockRows.forEach((row, rowIndex) => {
+        // '데이터 없음' 메시지 행인지 확인 (<tr><td class="nodata">...</td></tr> 구조)
+        const firstCell = row.cells[0];
+        if (firstCell && firstCell.classList.contains('nodata') && row.cells.length === 1) {
+            console.log(`[ExcelDownload] ${rowIndex}번 행: 'nodata' 행이므로 건너뜁니다.`);
+            return;
+        }
+        hasActualDataRow = true;
+
+        // 각 행의 체크박스 (class="item-checkbox" 사용)
+        const checkbox = row.querySelector('input.item-checkbox');
+
+        if (!checkbox) {
+            // 'nodata' 행이 아닌데 체크박스가 없는 경우는 HTML 구조 문제일 수 있습니다.
+            // fetchItems 함수에서 각 데이터 행의 첫 번째 셀에 .item-checkbox를 추가하는지 확인하세요.
+            console.warn(`[ExcelDownload] ${rowIndex}번 행: 데이터 행으로 보이지만 'input.item-checkbox' 선택자로 체크박스를 찾을 수 없습니다. HTML 구조 및 fetchItems 함수를 확인해주세요.`);
+        } else {
+            console.log(`[ExcelDownload] ${rowIndex}번 행: 체크박스 찾음 (element: ${checkbox}). 현재 checked 상태: ${checkbox.checked}`);
+            if (checkbox.checked === true) { // 명시적으로 true와 비교
+                programmaticallyCheckedCount++;
+                const rowData = [];
+                const cells = row.cells;
+                // 첫 번째 셀(체크박스 셀)을 제외하고 데이터를 추출 (i=1부터 시작)
+                for (let i = 1; i < cells.length; i++) {
+                    rowData.push(cells[i].textContent);
+                }
+                selectedStockRowsData.push(rowData);
+                console.log(`[ExcelDownload] ${rowIndex}번 행: 체크된 것으로 처리됨. rowData 추가됨. 현재 selectedStockRowsData 개수: ${selectedStockRowsData.length}`);
+            }
+        }
+    });
+
+    console.log(`[ExcelDownload] 모든 행 처리 완료. hasActualDataRow: ${hasActualDataRow}, selectedStockRowsData 개수: ${selectedStockRowsData.length}, 스크립트가 인식한 체크된 박스 수: ${programmaticallyCheckedCount}`);
+
+    // 유효성 검사 1: 실제 데이터 행이 없는 경우
+    if (!hasActualDataRow) {
+        alert("재고 목록이 비어있습니다. 엑셀로 내보낼 데이터가 없습니다.");
+        console.log("[ExcelDownload] 알림: 재고 목록이 비어있습니다 (실제 데이터 행 없음).");
+        return;
+    }
+
+    // 유효성 검사 2: 데이터 행은 있으나, 선택된 항목이 없는 경우
+    if (selectedStockRowsData.length === 0) {
+        alert("재고 목록에서 내보낼 항목을 하나 이상 선택(체크)해주세요.");
+        console.log("[ExcelDownload] 알림: 내보낼 항목을 하나 이상 선택(체크)해주세요 (selectedStockRowsData가 비어있음).");
+        return;
+    }
+    
+    console.log("[ExcelDownload] 유효성 검사 통과. 선택된 데이터로 엑셀 생성을 진행합니다:", selectedStockRowsData);
+
+    try {
+        // --- 1. 재고 목록 데이터 준비 ---
+        const stockDataForExcel = [];
+        stockDataForExcel.push(["■ 재고 현황"]); 
+
+        const stockTableHeaders = [];
+        const thead = itemTableBody.previousElementSibling;
+        if (thead && thead.tagName === 'THEAD' && thead.rows.length > 0) {
+            const headerCells = thead.rows[0].cells;
+            for (let i = 1; i < headerCells.length; i++) { 
+                stockTableHeaders.push(headerCells[i].textContent.replace(/[↓↑]/g, '').trim());
+            }
+            stockDataForExcel.push(stockTableHeaders);
+        } else {
+            stockDataForExcel.push(["자재/품목코드", "자재/품목명", "수량", "적정재고", "창고명", "단위"]);
+            console.warn("[ExcelDownload] 재고 목록 테이블의 THEAD를 찾지 못해 기본 헤더를 사용합니다.");
+        }
+
+        selectedStockRowsData.forEach(rowData => {
+            stockDataForExcel.push(rowData);
+        });
+
+        // --- 2. 워크시트 생성 및 스타일 적용 ---
+        const ws = XLSX.utils.aoa_to_sheet(stockDataForExcel);
+
+        const headerCellStyle = {
+            fill: { fgColor: { rgb: "E0E0E0" } },
+            font: { bold: true, sz: 11, name: "맑은 고딕" },
+            alignment: { horizontal: "center", vertical: "center" },
+            border: {
+                top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } }
+            }
+        };
+        const sectionTitleStyle = {
+            font: { bold: true, sz: 13, name: "맑은 고딕" },
+            alignment: { vertical: "center" }
+        };
+
+        function applyStyleToCell(rowIndex, colIndex, style, cellValue) {
+            const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+            if (!ws[cellAddress]) ws[cellAddress] = { v: cellValue };
+            else ws[cellAddress].v = cellValue;
+            ws[cellAddress].s = style;
+        }
+
+        function applyStyleToRow(rowIndex, style) {
+            if (stockDataForExcel[rowIndex]) {
+                stockDataForExcel[rowIndex].forEach((cellValue, colIndex) => {
+                    applyStyleToCell(rowIndex, colIndex, style, cellValue);
+                });
+            }
+        }
+
+        const titleRowIndex = 0;
+        applyStyleToCell(titleRowIndex, 0, sectionTitleStyle, stockDataForExcel[titleRowIndex][0]);
+        const headerColumnCount = (stockDataForExcel[titleRowIndex + 1] || []).length;
+        if (!ws['!merges']) ws['!merges'] = [];
+        if (headerColumnCount > 0) {
+            ws['!merges'].push({ s: { r: titleRowIndex, c: 0 }, e: { r: titleRowIndex, c: headerColumnCount - 1 } });
+        }
+
+        const stockHeaderRowIndex = 1;
+        applyStyleToRow(stockHeaderRowIndex, headerCellStyle);
+
+        const colsWidth = [];
+        stockDataForExcel.forEach(dataRow => {
+            dataRow.forEach((cell, colIndex) => {
+                let cellLength = 10;
+                if (cell) {
+                    const koreanRegex = /[ㄱ-ㅎㅏ-ㅣ가-힣]/g;
+                    const koreanChars = (String(cell).match(koreanRegex) || []).length;
+                    const otherChars = String(cell).length - koreanChars;
+                    cellLength = koreanChars * 2 + otherChars + 3;
+                }
+                if (!colsWidth[colIndex] || colsWidth[colIndex].wch < cellLength) {
+                    colsWidth[colIndex] = { wch: cellLength };
+                }
+            });
+        });
+        ws['!cols'] = colsWidth;
+
+        // --- 3. 워크북 생성 및 다운로드 ---
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "재고 현황");
+        const today = new Date();
+        const dateString = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, '0')}${String(today.getDate()).padStart(2, '0')}`;
+        const fileName = `재고현황_${dateString}.xlsx`;
+        XLSX.writeFile(wb, fileName);
+        console.log("[ExcelDownload] 엑셀 파일 생성 및 다운로드 완료:", fileName);
+
+    } catch (error) {
+        console.error("[ExcelDownload] 클라이언트 사이드 엑셀 생성 중 오류 발생:", error);
+        alert("엑셀 파일을 생성하는 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+    }
+}
 	
 // --- 데이터 로딩 및 테이블 렌더링 ---
 async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = null, sortDirection = null) {
