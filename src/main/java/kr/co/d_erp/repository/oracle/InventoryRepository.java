@@ -63,8 +63,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                                                @Param("searchKeyword") String searchKeyword,
                                                Pageable pageable);
 	void deleteByInvIdxIn(List<Long> invIdxs);
-	
-	void deleteByInvIdxIn(List<Long> invIdxs);
+
 	
 	
 }
