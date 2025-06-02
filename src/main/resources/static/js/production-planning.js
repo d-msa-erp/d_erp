@@ -230,7 +230,7 @@ if (addPlanForm) {
       return;
     }
     try {
-      const res = await fetch('/api/production/plan/add', {
+      const res = await fetch('/api/production/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -238,7 +238,9 @@ if (addPlanForm) {
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ message: "생산 지시 추가 실패" }));
         throw new Error(errorData.message);
-      }
+      } else{
+		location.reload();
+	  }
       const result = await res.json();
       alert(result.message || '✅ 생산 지시가 추가되었습니다.');
       resetAddPlanForm();
