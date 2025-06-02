@@ -1,117 +1,142 @@
 <!DOCTYPE html>
 <html lang="ko">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>로그인 페이지</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>스마트 제조 로그인</title>
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-        .login-Background {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-        }
+    body {
+      height: 100vh;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1), transparent 70%),
+        linear-gradient(135deg, #0d47a1, #1976d2, #64b5f6);
+      background-size: 400% 400%;
+      animation: backgroundShift 12s ease infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-        .login-Wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            height: 25%;
-            width: 40%;
-            max-width: 400px;
-            min-width: 320px;
-            max-height: 400px;
-            min-height: 320px;
-            margin-top: 10%;
-        }
+    @keyframes backgroundShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
 
-        .login-Wrapper form {
-            display: flex;
-            flex-direction: column;
-            padding-top: 20px;
-            height: 100%;
-            width: 100%;
-            justify-content: space-around;
+    /* login container: glassmorphism */
+    .login-Wrapper {
+      position: relative;
+      width: 350px;
+      padding: 40px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.4);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      text-align: center;
+      color: #eef5ff;
+    }
 
-        }
+    .login-Wrapper h1 {
+      font-size: 24px;
+      margin-bottom: 25px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
 
-        .login-Wrapper form .login-Datas {
-            display: flex;
-            flex-direction: column;
-            height: 40%;
-            width: 100%;
-            gap: 20px;
-        }
+    .message {
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+    .message.error   { color: #ff6b6b; }
+    .message.success { color: #7efc8d; }
 
-        .login-Wrapper form .login-Datas input {
-            border-radius: 3px;
-            height: 40%;
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
+    .login-Datas {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .login-Datas input {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1rem;
+      transition: background 0.3s;
+    }
+    .login-Datas input::placeholder {
+      color: rgba(255,255,255,0.7);
+    }
+    .login-Datas input:focus {
+      background: rgba(255,255,255,0.3);
+      outline: none;
+    }
 
-        .login-Wrapper form .login-Datas label {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
+    /* glass-style button */
+    #loginBtn {
+      margin-top: 20px;
+      padding: 12px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.6);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.25);
+      color: #0d47a1;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    #loginBtn:hover {
+      background: rgba(255,255,255,0.4);
+      transform: scale(1.03);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
 
-        .login-Wrapper form .login-Datas label input {
-            border-radius: 3px;
-            height: 100%;
-            border: 1px solid #ccc;
-            margin-right: 10px;
-        }
-
-        .login-Wrapper form button {
-            background: #46a6ff;
-            color: #fff;
-            border: 1px solid #ccc;
-            cursor: pointer;
-            height: 15%;
-            border-radius: 3px;
-            font-weight: bold;
-        }
-        .login-Wrapper form button:hover {filter: brightness(0.9);}
-    </style>
+    /* subtle light glow */
+    .sun-glow {
+      position: absolute;
+      top: -100px; left: -100px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.6), transparent 60%);
+      filter: blur(80px);
+      pointer-events: none;
+    }
+  </style>
 </head>
-
 <body>
-    <div class="login-Background">
 
-        <div class="login-Wrapper">
-            <h1>스마트 제조 시스템</h1>
-            <form action="/loginchk" method="POST" id="frm">
-                <div class="login-Datas">
-                    <input type="text" id="uId" name="uId" placeholder="아이디" required>
-                    <input type="password" id="iPw" name="uPw" placeholder="패스워드" required>
-<!--                     <label> <input type="checkbox" id="remember">아이디 저장</label> -->
-                </div>
+  <div class="sun-glow"></div>
 
-                <button type="submit">로그인</button>
-            </form>
-        </div>
+  <div class="login-Wrapper">
+    <h1>스마트 제조 시스템</h1>
+
+    <!-- 에러 메시지 -->
+    <div th:if="${errorMessage}" class="message error">
+      <p th:text="${errorMessage}"></p>
     </div>
+    <!-- 로그아웃 성공 메시지 -->
+    <div th:if="${logoutMessage}" class="message success">
+      <p th:text="${logoutMessage}"></p>
+    </div>
+
+    <form action="/loginchk" method="post">
+      <div class="login-Datas">
+        <input type="text" name="uId" placeholder="아이디" required/>
+        <!-- 비밀번호 입력 -->
+        <input type="password" name="uPw" placeholder="패스워드" required/>
+      </div>
+      <button type="submit" id="loginBtn">로그인</button>
+    </form>
+  </div>
+
 </body>
-<script>
-
-
-</script>
-
 </html>

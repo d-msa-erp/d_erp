@@ -2,364 +2,305 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>BOM 관리</title>
-<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-<style th:replace="~{/top.html :: topstyle}"></style>
-<link rel="stylesheet" href="/css/bom.css">
-<style>
-/* 정렬 화살표 스타일 */
-thead th a {
-	text-decoration: none;
-	color: inherit;
-	margin-left: 5px;
-	opacity: 0.3; /* 기본적으로 흐리게 */
-	transition: opacity 0.2s;
-}
-
-thead th[data-column] a.active {
-	opacity: 1; /* 활성 상태일 때 진하게 */
-}
-/* 페이지네이션 버튼 비활성화 스타일 */
-.pagination button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-/* 페이지 입력란 스타일 */
-.pagination input {
-	width: 40px;
-	text-align: center;
-	border: 1px solid #ccc;
-	border-radius: 4px;
-	margin: 0 5px;
-}
-</style>
-</head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BOM 관리</title>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+    <style th:replace="~{/top.html :: topstyle}"></style>
+    <link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/bom.css">     </head>
 
 <body>
-	<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
-	<div class="site-Wrapper">
-		<h1 style="font-size: 24px; margin-bottom: 16px;">BOM 관리</h1>
-		<form id="frm" method="get" action="#">
-			<div class="site-Dataset">
-				<div class="header">
-					<h4 style="margin: 0;">BOM 관리</h4>
-				</div>
-				<div class="table-wrapper">
-					<div>
-						<div class="btn-wrap1">
-							<button type="button" onclick="openCategoryModal()">
-								<span class="material-symbols-outlined">category</span> 분류관리
-							</button>
-							<button type="button" onclick="openSpecModal()">
-								<span class="material-symbols-outlined">straighten</span> 단위관리
-							</button>
-						</div>
-						<input type="text" placeholder="검색" id="mainSearchInput" />
-						<div>
-							<button type="button" id="mainSearchButton">
-								<span class="material-symbols-outlined">search</span> 검색
-							</button>
-							<button type="button" onclick="openModal()">
-								<span class="material-symbols-outlined">add</span> 신규등록
-							</button>
-						</div>
-					</div>
-					<div></div>
-					<div id="table-customer" style="padding: 20px; position: relative;">
-						<div class="print-wrap">
-							<button type="button" onclick="downloadSelectedBOMDetailsAsExcel()">
-								<span class="material-symbols-outlined">table_view</span> 엑셀
-							</button>
-							<button type="button" onclick="printSelectedBOMDetails()">
-								<span class="material-symbols-outlined">print</span> 인쇄
-							</button>
-						</div>
-						<table class="grid-table">
-							<thead>
-								<tr>
-									<th> <input type="checkbox" id="selectAllBOMCheckbox" /></th>
-									<th onclick="order(this)" data-column="pitemCd">품목코드<a>↓</a></th>
-									<th onclick="order(this)" data-column="pitemNm">품목명<a>↓</a></th>
-									<th onclick="order(this)" data-column="catNm">대분류<a>↓</a></th>
-									<th onclick="order(this)" data-column="punitNm">단위<a>↓</a></th>
-									<th onclick="order(this)" data-column="ptotalRawMaterialCost">단가<a>↓</a></th>
-								</tr>
-							</thead>
-							<tbody id="bomTbody">
-								<tr>
-									<td colspan="6" class="nodata">로딩 중...</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="pagination-wrap">
-							<span id="paginationInfo">총 n건 1/n페이지</span>
-							<div class="pagination">
-								<button type="button" id="btn-prev-page">
-									<span class="material-symbols-outlined">chevron_left</span>
-								</button>
-								<input type="text" value="1" id="pageInput" />
-								<button type="button" id="btn-next-page">
-									<span class="material-symbols-outlined">chevron_right</span>
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>
+    <div class="site-Wrapper">
+        <h1 style="font-size: 24px; margin-bottom: 16px;">BOM 관리</h1>
 
-	<div class="modal" id="modal" onclick="outsideClick(event,'modal')">
-		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3 id="modalTitle">신규 BOM 등록</h3>
-			<form id="modalForm" class="modalForm">
-				<div class="bomTab1">
-					<div class="bomTab2">
-						<div>
-							<h4>품목 (상위)</h4>
-							<div>
-								<input id="searchParentInput" placeholder="품목 검색" />
-								<table class="grid-table">
-									<thead>
-										<tr>
-											<th>No</th>
-											<th>품목코드</th>
-											<th>품목명</th>
-											<th>규격</th>
-											<th>단위</th>
-											<th>선택</th>
-										</tr>
-									</thead>
-									<tbody id="productSelectionTbody">
-										<tr>
-											<td colspan="6" class="nodata">로딩 중...</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-							<h4>원자재 (하위)</h4>
-							<div>
-								<input id="searchRawInput" placeholder="원자재 검색" />
-								<table class="grid-table">
-									<thead>
-										<tr>
-											<th>No</th>
-											<th>자재코드</th>
-											<th>자재명</th>
-											<th>규격</th>
-											<th>단위</th>
-											<th>선택</th>
-										</tr>
-									</thead>
-									<tbody id="rawMaterialSelectionTbody">
-										<tr>
-											<td colspan="6" class="nodata">로딩 중...</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-					</div>
-					<div class="bomTab3">
-						<h4>상위 품목 정보</h4>
-						<div class="flex-row">
-							<div>
-								<span>품목코드</span><input type="text" id="modalParentItemCd"
-									readonly />
-							</div>
-							<div>
-								<span>품목명</span><input type="text" id="modalParentItemNm"
-									readonly />
-							</div>
-						</div>
-						<div>
-							<span>생산성</span><input type="text" id="modalParentCycleTime"
-								required />
-						</div>
-						<div>
-							<span>비고(상위)</span><input type="text" id="modalParentRemark" />
-						</div>
-						<hr style="width: 100%; margin: 15px 0;">
-						<h4>하위 품목 상세/편집</h4>
-						<div class="flex-row">
-							<div>
-								<span>하위품목코드</span><input type="text" id="componentItemCd"
-									readonly />
-							</div>
-							<div>
-								<span>하위품목명</span><input type="text" id="componentItemNm"
-									readonly />
-							</div>
-						</div>
-						<div class="flex-row">
-							<div>
-								<span>소요량</span><input type="number" id="componentUseQty"
-									step="any" />
-							</div>
-							<div>
-								<span>단위</span><input type="text" id="componentUnitNm" readonly />
-							</div>
-						</div>
-						<div class="flex-row">
-							<div>
-								<span>단가</span><input type="number" id="componentItemPrice"
-									readonly step="any" />
-							</div>
-							<div>
-								<span>로스율(%)</span><input type="number" id="componentLossRt"
-									step="any" value="0" />
-							</div>
-						</div>
-						<div>
-							<span>비고(하위)</span><input type="text" id="componentRemark" />
-						</div>
-						<input type="hidden" id="editingComponentBomIdx" /> <input
-							type="hidden" id="editingComponentSubItemIdx" />
-					</div>
-				</div>
-				<h4>하위 품목 구성</h4>
-				<div class="bomTab5">
-					<table class="grid-table">
-						<thead>
-							<tr>
-								<th></th>
-								<th>No</th>
-								<th>품목명</th>
-								<th>원자재명</th>
-								<th>소요량</th>
-								<th>로스율</th>
-								<th>단가</th>
-								<th>비고</th>
-							</tr>
-						</thead>
-						<tbody id="bomDetailTbody">
-							<tr>
-								<td class="nodata"
-									style="grid-column: span 8; justify-content: center;">
-									데이터를 선택하세요.</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" name="save" style="display: none;">
-							<span class="material-symbols-outlined">save</span> 등록
-						</button>
-						<button type="button" name="edit" style="display: block;">
-							<span class="material-symbols-outlined">edit</span> 수정
-						</button>
-						<button type="button" onclick="closeModal('modal')">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+        <form id="bomForm" method="get" action="#">
+            <div class="site-Dataset">
+                <div class="header">
+                    <span class="material-symbols-outlined">assignment</span>
+                    <h4>BOM 목록 조회</h4>
+                </div>
 
-	<div class="modal" id="modal-category"
-		onclick="outsideClick(event, 'modal-category')">
-		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3>분류 관리</h3>
-			<form class="modalForm">
-				<div>
-					<table class="grid-table" id="category-table">
-						<thead>
-							<tr>
-								<th>선택</th>
-								<th>대분류명</th>
-								<th>분류코드</th>
-								<th>비고</th>
-								<th>소분류</th>
-								<th>삭제</th>
-							</tr>
-						</thead>
-						<tbody id="MainCatBody">
-							<tr>
-								<td colspan="6" class="no-data">카테고리 정보를 불러오는 중...</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div class="category-add-row">
-					<input type="text" id="new-category-name" placeholder="대분류명"
-						required /> <input type="text" id="new-category-code"
-						placeholder="대분류코드" required /> <input type="text"
-						id="new-category-memo" placeholder="비고" />
-					<button type="button" onclick="addCategoryRow()">
-						<span class="material-symbols-outlined">add</span> 대분류 추가
-					</button>
-				</div>
-				<div class="category-add-row">
-					<input type="text" id="new-subcategory-name" placeholder="소분류명" />
-					<input type="text" id="new-subcategory-code" placeholder="소분류코드" />
-					<input type="text" id="new-subcategory-memo" placeholder="비고" />
-					<button type="button" onclick="addSubCategoryToChecked()">
-						<span class="material-symbols-outlined">add</span> 소분류 추가
-					</button>
-				</div>
-				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" onclick="closeModal('modal-category')"
-							style="background: #777;">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="shipping-info-section"> <h4 class="section-title">
+                        <span class="material-symbols-outlined">filter_alt</span> BOM 정보 검색
+                    </h4>
+                    <div class="shipping-info-form">
+                        <div class="form-group">
+                            <label for="mainSearchInput">통합 검색</label>
+                            <input type="text" id="mainSearchInput" name="mainSearchTerm"
+                                placeholder="품목코드, 품목명 등 검색" />
+                        </div>
+                    </div>
+                </div>
 
-	<div class="modal" id="modal-spec"
-		onclick="outsideClick(event, 'modal-spec')">
-		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3>단위 관리</h3>
-			<form class="modalForm" id="unitForm">
-				<div>
-					<table class="grid-table stretable" id="spec-table">
-						<thead>
-							<tr>
-								<th>No</th>
-								<th>규격명</th>
-								<th>삭제</th>
-							</tr>
-						</thead>
-						<tbody id="UnitBody">
-							<tr>
-								<td colspan="3" class="nodata">로딩 중...</td>
-							</tr>
-						</tbody>
-					</table>
-				</div>
-				<div
-					style="display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 10px;">
-					<div style="grid-column: span 2;">
-						<input type="text" id="new-spec-unit" placeholder="단위명을 입력하세요"
-							style="flex: 1;" required />
-					</div>
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" id="addUnitButton">
-							<span class="material-symbols-outlined">add</span> 단위 추가
-						</button>
-						<button type="button" style="background: #777;"
-							onclick="closeModal('modal-spec')">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="search-action-buttons">
+                    <button type="button" class="btn-search" id="mainSearchButton">
+                        <span class="material-symbols-outlined">search</span> 검색
+                    </button>
+                    <button type="button" class="btn-new" onclick="openModal()">
+                        <span class="material-symbols-outlined">add</span> BOM 신규등록
+                    </button>
+                    <button type="button" class="btn-admin btn-gray" onclick="openCategoryModal()">
+                        <span class="material-symbols-outlined">category</span> 분류관리
+                    </button>
+                    <button type="button" class="btn-admin btn-gray" onclick="openSpecModal()">
+                        <span class="material-symbols-outlined">straighten</span> 단위관리
+                    </button>
+                </div>
 
-	<script src="/js/top.js"></script>
-	<script src="/js/bom.js"></script>
-	<script src="/js/bomCategory.js"></script>
-	<script src="/js/bomUnit.js"></script>
-	<script src="/js/bomPrint.js"></script>
-	<script src="/js/bomExcel.js"></script>
+                <div class="table-view-section">
+                    <h4 class="section-title">
+                        <span class="material-symbols-outlined">list_alt</span> BOM 목록
+                    </h4>
+                    <div class="table-actions">
+                        <button type="button" id="excelExportButton" onclick="downloadSelectedBOMDetailsAsExcel()">
+                            <span class="material-symbols-outlined">table_view</span> 엑셀
+                        </button>
+                        <button type="button" id="printButton" onclick="printSelectedBOMDetails()">
+                            <span class="material-symbols-outlined">print</span> 인쇄
+                        </button>
+                    </div>
+
+                    <div class="table-scroll-wrapper">
+                        <table class="grid-table" id="bomTable">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAllBOMCheckbox" /></th>
+                                    <th data-sort-by="pitemCd" onclick="order(this)">품목코드<a class="sort-arrow">↓</a></th>
+                                    <th data-sort-by="pitemNm" onclick="order(this)">품목명<a class="sort-arrow">↓</a></th>
+                                    <th data-sort-by="catNm" onclick="order(this)">대분류<a class="sort-arrow">↓</a></th>
+                                    <th data-sort-by="punitNm" onclick="order(this)">단위<a class="sort-arrow">↓</a></th>
+                                    <th data-sort-by="ptotalRawMaterialCost" onclick="order(this)">단가<a class="sort-arrow">↓</a></th>
+                                </tr>
+                            </thead>
+                            <tbody id="bomTbody">
+                                <tr>
+                                    <td colspan="6" class="nodata">로딩 중...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination-wrap">
+                        <span class="page-info" id="paginationInfo">총 0건 1/1페이지</span>
+                        <div class="pagination-controls">
+                             <button type="button" id="btn-first-page" disabled><span class="material-symbols-outlined">first_page</span></button>
+                             <button type="button" id="btn-prev-page" disabled><span class="material-symbols-outlined">chevron_left</span></button>
+                             <input type="number" id="pageInput" value="1" min="1" />
+                             <button type="button" id="btn-next-page" disabled><span class="material-symbols-outlined">chevron_right</span></button>
+                             <button type="button" id="btn-last-page" disabled><span class="material-symbols-outlined">last_page</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="modal" id="modal" onclick="outsideClick(event,'modal')">
+        <div class="modal-content" onclick="event.stopPropagation()"> <h3 id="modalTitle">신규 BOM 등록</h3>
+            <form id="modalForm" class="bom-modal-form-custom">
+                <div class="bomTab1">
+                    <div class="bomTab2">
+                        <div class="modal-form-group">
+                            <label for="searchParentInput">품목 (상위)</label>
+                            <input type="text" id="searchParentInput" placeholder="품목 검색" />
+                            <div class="table-scroll-wrapper modal-table-wrapper">
+                                <table class="grid-table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th><th>품목코드</th><th>품목명</th><th>규격</th><th>단위</th><th>선택</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="productSelectionTbody">
+                                        <tr><td colspan="6" class="nodata">로딩 중...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="searchRawInput">원자재 (하위)</label>
+                            <input type="text" id="searchRawInput" placeholder="원자재 검색" />
+                             <div class="table-scroll-wrapper modal-table-wrapper">
+                                <table class="grid-table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th><th>자재코드</th><th>자재명</th><th>규격</th><th>단위</th><th>선택</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rawMaterialSelectionTbody">
+                                        <tr><td colspan="6" class="nodata">로딩 중...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bomTab3">
+                        <h4>상위 품목 정보</h4>
+                         <div class="modal-form-group">
+                            <label for="modalParentItemCd">품목코드</label>
+                            <input type="text" id="modalParentItemCd" readonly />
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="modalParentItemNm">품목명</label>
+                            <input type="text" id="modalParentItemNm" readonly />
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="modalParentCycleTime">생산성<span class="required-asterisk">*</span></label>
+                            <input type="text" id="modalParentCycleTime" required />
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="modalParentRemark">비고(상위)</label>
+                            <input type="text" id="modalParentRemark" />
+                        </div>
+                        <hr style="width: 100%; margin: 15px 0; border-color: #eee;">
+                        <h4>하위 품목 상세/편집</h4>
+                        <div class="modal-form-group">
+                            <label for="componentItemCd">하위품목코드</label>
+                            <input type="text" id="componentItemCd" readonly />
+                        </div>
+                         <div class="modal-form-group">
+                            <label for="componentItemNm">하위품목명</label>
+                            <input type="text" id="componentItemNm"readonly />
+                        </div>
+                        <div class="form-group-inline">
+                           <div class="modal-form-group">
+                                <label for="componentUseQty">소요량</label>
+                                <input type="number" id="componentUseQty" step="any" />
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="componentUnitNm">단위</label>
+                                <input type="text" id="componentUnitNm" readonly />
+                            </div>
+                        </div>
+                         <div class="form-group-inline">
+                            <div class="modal-form-group">
+                                <label for="componentItemPrice">단가</label>
+                                <input type="number" id="componentItemPrice" readonly step="any" />
+                            </div>
+                            <div class="modal-form-group">
+                                <label for="componentLossRt">로스율(%)</label>
+                                <input type="number" id="componentLossRt" step="any" value="0" />
+                            </div>
+                        </div>
+                        <div class="modal-form-group">
+                            <label for="componentRemark">비고(하위)</label>
+                            <input type="text" id="componentRemark" />
+                        </div>
+                        <input type="hidden" id="editingComponentBomIdx" />
+                        <input type="hidden" id="editingComponentSubItemIdx" />
+                    </div>
+                </div>
+                <h4>하위 품목 구성</h4>
+                <div class="bomTab5">
+                    <div class="table-scroll-wrapper modal-table-wrapper">
+                        <table class="grid-table">
+                            <thead>
+                                <tr>
+                                    <th><span class="material-symbols-outlined" style="font-size:18px; cursor:default;">drag_indicator</span></th>
+                                    <th>No</th>
+                                    <th>품목명</th>
+                                    <th>원자재명</th>
+                                    <th>소요량</th>
+                                    <th>로스율</th>
+                                    <th>단가</th>
+                                    <th>비고</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bomDetailTbody">
+                                <tr><td class="nodata" colspan="8">데이터를 선택하세요.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" name="save" class="btn-save" style="display: none;">
+                        <span class="material-symbols-outlined">save</span> 등록
+                    </button>
+                    <button type="button" name="edit" class="btn-edit" style="display: block;">
+                        <span class="material-symbols-outlined">edit</span> 수정
+                    </button>
+                    <button type="button" onclick="closeModal('modal')" class="btn-cancel">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-category" onclick="outsideClick(event, 'modal-category')">
+        <div class="modal-content" onclick="event.stopPropagation()"> <h3>분류 관리</h3>
+            <form id="categoryForm" class="modal-form-grid"> <div class="table-scroll-wrapper modal-table-wrapper-fixed" style="grid-column: span 2;">
+                    <table class="grid-table" id="category-table">
+                        <thead>
+                            <tr>
+                                <th>선택</th><th>대분류명</th><th>분류코드</th><th>비고</th><th>소분류</th><th>삭제</th>
+                            </tr>
+                        </thead>
+                        <tbody id="MainCatBody">
+                            <tr><td colspan="6" class="nodata">카테고리 정보를 불러오는 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-form-group category-add-row"> <input type="text" id="new-category-name" placeholder="대분류명" required />
+                    <input type="text" id="new-category-code" placeholder="대분류코드" required />
+                    <input type="text" id="new-category-memo" placeholder="비고" />
+                    <button type="button" class="btn-add-inline" onclick="addCategoryRow()">
+                        <span class="material-symbols-outlined">add</span> 대분류 추가
+                    </button>
+                </div>
+                <div class="modal-form-group category-add-row">
+                    <input type="text" id="new-subcategory-name" placeholder="소분류명" />
+                    <input type="text" id="new-subcategory-code" placeholder="소분류코드" />
+                    <input type="text" id="new-subcategory-memo" placeholder="비고" />
+                    <button type="button" class="btn-add-inline" onclick="addSubCategoryToChecked()">
+                        <span class="material-symbols-outlined">add</span> 소분류 추가
+                    </button>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" onclick="saveCategories()" class="btn-save">
+                        <span class="material-symbols-outlined">save</span> 저장
+                    </button>
+                    <button type="button" onclick="closeModal('modal-category')" class="btn-cancel">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modal-spec" onclick="outsideClick(event, 'modal-spec')">
+        <div class="modal-content" onclick="event.stopPropagation()"> <h3>단위 관리</h3>
+            <form id="unitForm" class="modal-form-grid"> <div class="table-scroll-wrapper modal-table-wrapper-fixed"style="grid-column: span 2;">
+                    <table class="grid-table" id="spec-table">
+                        <thead>
+                            <tr><th>No</th><th>규격명</th><th>삭제</th></tr>
+                        </thead>
+                        <tbody id="UnitBody">
+                            <tr><td colspan="3" class="nodata">로딩 중...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-form-group unit-add-row" style="grid-column: span 2;"> <label for="new-spec-unit" class="sr-only">단위명</label> <input type="text" id="new-spec-unit" placeholder="단위명을 입력하세요" required />
+                     </div>
+                <div class="modal-buttons"> <button type="submit" id="addUnitButton" class="btn-save">
+                        <span class="material-symbols-outlined">add</span> 단위 추가 및 저장
+                    </button>
+                    <button type="button" onclick="closeModal('modal-spec')" class="btn-cancel">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <style>.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }</style>
+
+    <script src="/js/top.js"></script>
+    <script src="/js/bom.js"></script>
+    <script src="/js/bomCategory.js"></script>
+    <script src="/js/bomUnit.js"></script>
+    <script src="/js/bomPrint.js"></script>
+    <script src="/js/bomExcel.js"></script>
 </body>
 </html>

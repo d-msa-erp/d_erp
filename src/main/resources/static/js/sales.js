@@ -4,55 +4,98 @@ const selectedCustIdx = document.getElementById('selectedCustIdx');
 const itemCycleTime = document.getElementById('itemCycleTime');
 const itemList = document.getElementById('itemList');
 
-const startDateInput = document.getElementById('startDate');
+const startDateInput = document.getElementById('sDate');
 const quantityInput = document.getElementById('quantity');
 const dueDateInput = document.getElementById('dueDate');
 const cycleTimeInput = document.getElementById('itemCycleTime');
+const today = new Date().toISOString().split('T')[0];
 
 let itemDataMap = {};
 let originalCustomerOptions = [];
 let warehouseOptions = [];
 let qtyLowData = [];
-let currentTh = null;
-let currentOrder = 'asc';
+let currentTh = 'orderIdx';
+let currentOrder = 'desc';
 let currentPage = 0;
-
+let isDueDate = false;
 
 document.addEventListener('DOMContentLoaded', () => {
 	// 탭 로딩
-	loadSales('orderDate', 'asc');
-	
+	loadSales('orderIdx', 'desc', isDueDate);
+
 	const selectAllMainCb = document.getElementById('selectAllCheckbox'); // 메인 테이블의 전체 선택 체크박스 ID
-	if(selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
-	    document.querySelectorAll('#salesTableBody .sales-checkbox').forEach(cb => {
-	        cb.checked = this.checked;
-	    });
+	if (selectAllMainCb) selectAllMainCb.addEventListener('change', function() {
+		document.querySelectorAll('#salesTableBody .sales-checkbox').forEach(cb => {
+			cb.checked = this.checked;
+		});
 	});
+
+	document.getElementById("btn-prev-page")?.addEventListener('click', () => {
+		if (currentPage > 0) {
+			currentPage--;
+			loadSales(currentTh, currentOrder, isDueDate);
+		}
+	});
+
+	document.getElementById("btn-next-page")?.addEventListener('click', () => {
+		if (currentPage < totalPages - 1) {
+			currentPage++;
+			loadSales(currentTh, currentOrder, isDueDate);
+		}
+	});
+
+	document.getElementById("currentPageInput")?.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') {
+			const page = parseInt(e.target.value);
+			if (!isNaN(page) && page >= 1 && page <= totalPages) {
+				currentPage = page - 1;
+				loadSales(currentTh, currentOrder, isDueDate);
+			} else {
+				alert('올바른 페이지 번호를 입력하세요.');
+				e.target.value = currentPage + 1;
+			}
+		}
+	});
+
+	document.getElementById("sDate").addEventListener("change", searchItems);
+	document.getElementById("endDate").addEventListener("change", searchItems);
+	document.getElementById("toggleDateType").addEventListener("change", searchItems);
+	document.getElementById('searchTransStatus').addEventListener('change', searchItems);
+
+	document.getElementById("sDate").setAttribute("min", today);
 });
-
-function order(sortBy) {//정렬
+function order(sortBy) {
 	const allArrows = document.querySelectorAll("th a");
-	allArrows.forEach(a => a.textContent = '↓');
-
+	allArrows.forEach(a => {
+		a.textContent = '↓';
+		a.style.color = '#000';
+		a.style.opacity = '0.3';
+	});
 
 	if (currentTh === sortBy) {
 		currentOrder = currentOrder === 'desc' ? 'asc' : 'desc';
 	} else {
-		currentOrder = 'asc';
 		currentTh = sortBy;
+		currentOrder = 'asc';
 	}
 
+	currentPage = 0; // 🔥 정렬 시 페이지 초기화
+
+	// 화살표 UI 업데이트
+	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
+	if (arrow) {
+		arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
+		arrow.style.color = '#000';
+		arrow.style.opacity = '1';
+	}
 
 	loadSales(sortBy, currentOrder);
-
-
-	const arrow = document.querySelector(`th[onclick="order('${sortBy}')"] a`);
-	arrow.textContent = currentOrder === 'asc' ? '↑' : '↓';
 }
 
-async function loadSales(sortBy, sortDirection, isDueDate = false) {
+
+async function loadSales(sortBy, sortDirection, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');;
-	
+
 	if (!salesTableBody) {
 		console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
@@ -67,7 +110,7 @@ async function loadSales(sortBy, sortDirection, isDueDate = false) {
 
 		const sales = await response.json();
 		salesTableBody.innerHTML = '';
-
+		totalPages = sales.totalPages;
 		const paginationInfo = document.getElementById("paginationInfo");
 		if (paginationInfo) {
 			paginationInfo.textContent = `총 ${sales.totalElements}건 ${sales.number + 1}/${sales.totalPages}페이지`;
@@ -79,37 +122,8 @@ async function loadSales(sortBy, sortDirection, isDueDate = false) {
 			currentPageInput.value = sales.number + 1;
 		}
 
-		// 이전 버튼
-		document.getElementById("btn-prev-page")?.addEventListener('click', () => {
-			if (currentPage > 0) {
-				currentPage--;
-				loadSales(sortBy, sortDirection, isDueDate);
-			}
-		});
-
-		// 다음 버튼
-		document.getElementById("btn-next-page")?.addEventListener('click', () => {
-			if (currentPage < sales.totalPages - 1) {
-				currentPage++;
-				loadSales(sortBy, sortDirection, isDueDate);
-			}
-		});
-
-		currentPageInput?.addEventListener('keypress', (e) => {
-			if (e.key === 'Enter') {
-				let page = parseInt(currentPageInput.value);
-				if (!isNaN(page) && page >= 1 && page <= sales.totalPages) {
-					currentPage = page - 1;
-					loadSales(sortBy, sortDirection, isDueDate);
-				} else {
-					alert('올바른 페이지 번호를 입력하세요.');
-					currentPageInput.value = data.number + 1;
-				}
-			}
-		});
-
 		if (sales && sales.content && sales.content.length > 0) {
-			rendersales(sales.content);
+			rendersales(sales.content, isDueDate);
 		} else {
 			renderNoDataMessage();
 		}
@@ -124,10 +138,21 @@ function rendersales(sales, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');
 	salesTableBody.innerHTML = '';
 
+	if (!sales || sales.length === 0) {
+		renderNoDataMessage();
+		return;
+	}
 
-
-	if (sales && sales.length > 0) {
-		sales.forEach(sale => {
+	// 주문만 추림
+	const onlySales = sales.filter(sale => sale.orderType === 'S');
+	const paginationInfo = document.getElementById("paginationInfo");
+	const perPage = 10;
+	const totalPages = Math.ceil(onlySales.length / perPage);
+	if (paginationInfo) {
+		paginationInfo.textContent = `총 ${onlySales.length}건 ${currentPage + 1}/${totalPages}페이지`;
+	}
+	if (onlySales.length > 0) {
+		onlySales.forEach(sale => {
 			const row = document.createElement('tr');
 			row.dataset.id = sale.orderCode;
 			row.onclick = () => openSalesDetail(sale.orderIdx);
@@ -140,12 +165,9 @@ function rendersales(sales, isDueDate) {
 			checkboxCell.appendChild(checkbox);
 			row.appendChild(checkboxCell);
 
-			// 행 클릭 막기
 			checkbox.addEventListener('click', (event) => {
 				event.stopPropagation();
 			});
-
-			// 체크박스 상태 변경 시 전체선택 동기화
 			checkbox.addEventListener('change', () => {
 				const checkboxes = document.querySelectorAll('#salesTableBody input[type="checkbox"]');
 				const allChecked = Array.from(checkboxes).every(cb => cb.checked);
@@ -183,16 +205,16 @@ function rendersales(sales, isDueDate) {
 			customerNameCell.textContent = sale.customerName || '';
 			row.appendChild(customerNameCell);
 
-			// 납기일
+			// 납기일 또는 착수일
 			const dateCell = document.createElement('td');
 			dateCell.textContent = isDueDate ? sale.deliveryDate : sale.orderDate;
 			row.appendChild(dateCell);
 
+			// 상태
 			const orderStatusCell = document.createElement('td');
 			const statusText = sale.orderStatus === 'S1' ? '출고대기' :
-							   sale.orderStatus === 'S2' ? '부분출고' :
-							   sale.orderStatus === 'S3' ? '출고완료' : '';
-
+				sale.orderStatus === 'S2' ? '출고가능' :
+					sale.orderStatus === 'S3' ? '출고완료' : '';
 			orderStatusCell.textContent = statusText;
 			row.appendChild(orderStatusCell);
 
@@ -211,7 +233,7 @@ function renderNoDataMessage() {
 	const noDataCell = document.createElement('td');
 
 	noDataCell.className = 'nodata';
-	noDataCell.colSpan = 5;
+	noDataCell.colSpan = 8;
 	noDataCell.textContent = '등록된 데이터가 없습니다.';
 	noDataCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
 
@@ -227,7 +249,7 @@ function renderErrorMessage(message) {
 	const errorRow = document.createElement('tr');
 	const errorCell = document.createElement('td');
 
-	errorCell.colSpan = 5;
+	errorCell.colSpan = 8;
 	errorCell.textContent = message || '데이터 로딩 중 오류가 발생했습니다.';
 	errorCell.style.color = 'red';
 	errorCell.setAttribute('style', 'grid-column: span 8; justify-content: center; text-align: center;');
@@ -237,26 +259,46 @@ function renderErrorMessage(message) {
 }
 
 function searchItems() {
-	const searchQuery = document.getElementById('searchInput').value.trim();
+	const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
 	const dateType = document.getElementById('toggleDateType').checked ? 'deliveryDate' : 'orderDate';
 	const startDate = document.getElementById('startDate').value;
 	const endDate = document.getElementById('endDate').value;
-	if (!searchQuery && !startDate && !endDate) {
-		alert("검색어를 입력해주세요.");
-		return;
-	}
-	const apiUrl = `/api/orders/search?searchTerm=${encodeURIComponent(searchQuery)}&page=${currentPage}` +
-			`&dateType=${dateType}&startDate=${startDate}&endDate=${endDate}`;
+	const transStatus = document.getElementById('searchTransStatus').value;
+	
+	
+	const queryParams = new URLSearchParams({
+		searchTerm: searchQuery,
+		page: currentPage,
+		dateType,
+		startDate,
+		endDate,
+		transStatus
+	});
 
-	// Ajax 요청 보내기
+	const apiUrl = `/api/orders/search?${queryParams.toString()}`;
+	console.log(apiUrl);
 	fetch(apiUrl)
 		.then(response => response.json())
 		.then(data => {
-			if (data && data.content && data.content.length > 0) {
-				rendersales(data.content);
-				const paginationInfo = document.getElementById('paginationInfo');
-				if (paginationInfo) {
-					paginationInfo.textContent = `총 ${data.totalElements}건 ${data.number + 1}/${data.totalPages}페이지`;
+			let onlySales = data.content.filter(p => p.orderType === 'S');
+
+			const selectedStatus = document.getElementById('searchTransStatus')?.value;
+			if (selectedStatus) {
+				onlySales = onlySales.filter(s => s.orderStatus === selectedStatus);
+			}
+			rendersales(onlySales, isDueDate);
+
+			const paginationInfo = document.getElementById('paginationInfo');
+			if (paginationInfo) {
+				const total = onlySales.length;
+				const perPage = 10;
+				const totalPages = Math.max(1, Math.ceil(total / perPage));
+				const currentPageNum = currentPage + 1;
+
+				if (total === 0) {
+					paginationInfo.textContent = '총 0건';
+				} else {
+					paginationInfo.textContent = `총 ${total}건 ${currentPageNum}/${totalPages}페이지`;
 				}
 			} else {
 				renderNoDataMessage();
@@ -288,6 +330,14 @@ function formatDate(dateStr) {
 	return `${year}-${month}-${day}`;
 }
 
+function setdate() {
+	const today = new Date();
+	const yyyy = today.getFullYear();
+	const mm = String(today.getMonth() + 1).padStart(2, '0');
+	const dd = String(today.getDate()).padStart(2, '0');
+	document.getElementById('sDate').value = `${yyyy}-${mm}-${dd}`;
+};
+
 // 모달 열기
 async function openModal(data = null) {
 	const title = document.getElementById('modalTitle');
@@ -301,23 +351,33 @@ async function openModal(data = null) {
 		title.textContent = '주문 정보';
 		saveBtn.style.display = 'none';
 		editBtn.style.display = 'block';
-		document.querySelector('#modalForm button[name="cancel"]').style.display = 'none';
+		document.getElementById("orderIdx").value = data.orderIdx;
+		document.getElementById("orderNo").value = data.orderCode;
+		document.getElementById("unitPrice").value = data.unitPrice;
+		document.getElementById("itemCycleTime").value = data.cycleTime;
+		document.getElementById("itemIdx").value = data.itemIdx;
 		document.getElementById('orderNo').value = data.orderCode || '';
 		document.getElementById('sDate').value = formatDate(data.orderDate);
 		document.getElementById('dueDate').value = formatDate(data.deliveryDate);
 		document.getElementById('companySearchInput').value = data.customerName || '';
+		document.getElementById('selectedCustIdx').value = data.customerIdx;
 		document.getElementById('itemSearchInput').value = data.itemName || '';
 		document.getElementById('quantity').value = data.orderQty || '';
 		document.getElementById('userName').value = data.managerName || '';
 		document.getElementById('userTel').value = data.managerTel || '';
 		document.getElementById('remark').value = data.remark || '';
 		document.getElementById('whSearchInput').value = data.whNm || '';
+		document.getElementById('selectedwhIdx').value = data.whIdx;
 
 		inputs.forEach(input => {
 			if (input.type !== 'hidden') {
 				input.readOnly = true;
 			}
 		});
+		
+		document.getElementById('quantity').readOnly = false;
+		document.getElementById('whSearchInput').readOnly = false;
+		loadWarehouse();
 	} else {
 		inputs.forEach(input => {
 			if (input.type !== 'hidden') {
@@ -327,6 +387,7 @@ async function openModal(data = null) {
 		fetchOrderNo(); // 주문번호 초기화 (있다면)
 		loadCustomer();
 		loadWarehouse();
+		setdate();
 	}
 }
 
@@ -357,15 +418,27 @@ async function loadCustomer() {
 // 창고 목록 불러오기
 async function loadWarehouse() {
 	try {
-		const response = await fetch('/api/inventory/qty-low');
+		const response = await fetch('/api/warehouses');
 		if (!response.ok) throw new Error('창고 데이터 요청 실패');
 
-		qtyLowData = await response.json(); // 전역에 저장만 하고 표시 X
+		const warehouses = await response.json();
+		const warehousesContent = warehouses.content;
+		const warehouseList = document.getElementById("whList");
+
+		warehouseList.innerHTML = '';
+		warehouseOptions = [];
+
+		warehousesContent.forEach(wh => {
+			const option = document.createElement('option');
+			option.value = wh.whNm;
+			option.dataset.idx = wh.whIdx;
+			warehouseList.appendChild(option);
+			warehouseOptions.push(option);
+		});
 	} catch (err) {
 		console.error("창고 로드 오류:", err);
 	}
 }
-
 document.getElementById('whSearchInput').addEventListener('input', function() {
 	const keyword = this.value.toLowerCase();
 	const dataList = document.getElementById('whList');
@@ -463,33 +536,26 @@ document.getElementById('itemSearchInput').addEventListener('input', function() 
 	const selectedItemName = this.value;
 	const itemInfo = itemDataMap[selectedItemName];
 
-	const warehouseList = document.getElementById('whList');
-	warehouseList.innerHTML = '';
-	warehouseOptions = [];
-
 	if (itemInfo) {
-		const itemIdx = itemInfo.itemIdx;
-
 		document.getElementById('itemCycleTime').value = itemInfo.cycleTime || '';
 		document.getElementById('itemPrice').value = itemInfo.itemCost || '';
 		document.getElementById('itemIdx').value = itemInfo.itemIdx || '';
 
-		const matchedWarehouses = qtyLowData.filter(item => item.itemIdx == itemIdx);
-
-		matchedWarehouses.forEach(wh => {
-			const option = document.createElement('option');
-			option.value = wh.whNm;
-			option.dataset.idx = wh.whIdx;
-			warehouseList.appendChild(option);
-			warehouseOptions.push(option);
+		const warehouseList = document.getElementById('whList');
+		warehouseList.innerHTML = '';
+		warehouseOptions.forEach(option => {
+			warehouseList.appendChild(option.cloneNode(true));
 		});
 	} else {
 		document.getElementById('itemCycleTime').value = '';
 		document.getElementById('itemPrice').value = '';
 		document.getElementById('itemIdx').value = '';
+
+		// ❗ 품목이 잘못 입력됐을 때만 창고 초기화
+		const warehouseList = document.getElementById('whList');
+		warehouseList.innerHTML = '';
 	}
 });
-
 // 납기일 계산
 function calculateDueDate() {
 	const startDateStr = startDateInput.value;
@@ -525,7 +591,7 @@ quantityInput.addEventListener('input', calculateDueDate);
 // 신규등록 DB저장
 document.querySelector('button[name="save"]').addEventListener('click', async () => {
 
-	if (!document.getElementById("startDate").value) {
+	if (!document.getElementById("sDate").value) {
 		alert('착수일을 입력해주세요.');
 		return;
 	} else if (!document.getElementById("quantity").value) {
@@ -542,7 +608,7 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 	const orderData = {
 		orderCode: document.getElementById("orderNo").value,
 		orderType: 'S',
-		orderDate: document.getElementById("startDate").value,
+		orderDate: document.getElementById("sDate").value,
 		custIdx: document.getElementById("selectedCustIdx").value,
 		itemIdx: document.getElementById("itemIdx").value,
 		orderQty: Number(document.getElementById("quantity").value),
@@ -568,8 +634,14 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 		let message = '✅ 주문이 등록되었습니다.';
 
 		// 자재 부족 경고가 있으면 메시지에 추가
+		if (result.productShortage) {
+			message += '\n⚠ [주의] 완제품 재고 부족. \n제품 생산이 필요합니다';
+		}
+		if (result.materialShortage) {
+			message += '\n⚠ [주의] 원자재가 부족하여 생산이 불가능합니다.';
+		}
 		if (result.warnings && result.warnings.length > 0) {
-			message += '\n⚠ 자재 부족:\n' + result.warnings.join('\n');
+			message += '\n\n📦 부족 자재 목록:\n' + result.warnings.join('\n');
 		}
 
 		alert(message); // 최종 메시지 출력
@@ -599,9 +671,44 @@ async function openSalesDetail(orderIdx) {
 	}
 }
 
+document.getElementById("editBtn").addEventListener("click", async () => {
+	const orderCode = document.getElementById("orderNo").value;
+
+	const orderData = {
+		orderIdx: document.getElementById("orderIdx").value,
+		orderCode: orderCode,
+		orderType: 'S',
+		orderDate: document.getElementById("sDate").value,
+		custIdx: document.getElementById("selectedCustIdx").value,
+		itemIdx: document.getElementById("itemIdx").value,
+		orderQty: Number(document.getElementById("quantity").value),
+		unitPrice: Number(document.getElementById("unitPrice").value),
+		deliveryDate: document.getElementById("dueDate").value,
+		userIdx: document.getElementById("userIdx").value,
+		remark: document.getElementById("remark").value,
+		expectedWhIdx: document.getElementById("selectedwhIdx").value
+	};
+
+	try {
+		const response = await fetch('/api/orders/update', {
+			method: 'PUT',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(orderData)
+		});
+		if (!response.ok) throw new Error('수정 실패');
+
+		alert('수정 완료');
+		closeModal();
+		loadSales('orderIdx', 'desc', isDueDate);
+	} catch (err) {
+		alert('수정 중 오류 발생');
+		console.error(err);
+	}
+});
+
 function toggleText(checkbox) {
 	const label = document.getElementById('toggleState');
-	const isDueDate = checkbox.checked;
+	isDueDate = checkbox.checked;
 
 	label.textContent = isDueDate ? '납기일' : '착수일';
 
@@ -632,36 +739,48 @@ function outsideClick(e) {
 }
 
 
-function downloadExcel() {
-    const url = `/api/orders/sale/excel`;
+async function downloadExcel() {
+	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+		cb.closest('tr').querySelector('input[type="hidden"]').value);
+				
+	if (ids.length === 0) {
+		alert('엑셀로 내보낼 항목을 선택해주세요.');
+		return;
+	}
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("엑셀 다운로드 실패");
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const a = document.createElement('a');
-            const url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = 'sales-data.xlsx'; // 저장될 파일명
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(err => {
-            alert("엑셀 다운로드 중 오류 발생");
-            console.error(err);
-        });
+
+	const url = `/api/orders/sale/excel?${ids.map(id => `id=${id}`).join('&')}`;
+	const response = await fetch(url);
+
+	if (!response.ok) {
+		alert('엑셀 다운로드 실패');
+		return;
+	}
+
+	const blob = await response.blob();
+
+
+	const disposition = response.headers.get('Content-Disposition');
+	let fileName = 'sale.xlsx'; // 기본값
+
+	if (disposition && disposition.includes('filename=')) {
+		const matches = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+		if (matches != null && matches[1]) {
+			fileName = decodeURIComponent(matches[1].replace(/['"]/g, ''));
+		}
+	}
+
+	const a = document.createElement('a');
+	a.href = window.URL.createObjectURL(blob);
+	a.download = fileName;
+	a.click();
 }
 
 function printSelectedSales() {
 	const checked = document.querySelectorAll('#salesTableBody input.sales-checkbox:checked');
 	const ids = Array.from(checked).map(cb =>
-	    cb.closest('tr').querySelector('input[type="hidden"]').value
+		cb.closest('tr').querySelector('input[type="hidden"]').value
 	);
 
 	const fetchUrlFn = id => `/api/orders/printsales?${ids.map(id => `id=${id}`).join('&')}`;
@@ -676,5 +795,19 @@ function printSelectedSales() {
 		{ key: 'userName', label: '담당자' }
 	];
 
-	printByIds(ids, fetchUrlFn, columns, '발주 인쇄');
+	printByIds(ids, fetchUrlFn, columns, '주문 인쇄');
 }
+
+document.getElementById('startDate').addEventListener('change', function () {
+	const startDate = this.value;
+	const endDateInput = document.getElementById('endDate');
+
+	if (startDate) {
+		endDateInput.min = startDate;
+		if (endDateInput.value && endDateInput.value < startDate) {
+			endDateInput.value = '';
+		}
+	}
+});
+
+

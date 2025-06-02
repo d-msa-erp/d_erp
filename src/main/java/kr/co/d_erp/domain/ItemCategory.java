@@ -41,4 +41,7 @@ public class ItemCategory {
      this.childCategories.add(child);
      child.setParentCategory(this); // 자식에게 부모 설정
  }
+ public void setParentCategory(ItemCategory parentCategory) {
+	    this.parentCategory = parentCategory;
+	}
 }

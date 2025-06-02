@@ -29,6 +29,7 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    border-radius: 10px;
 }
 
 /* 섹션 헤더 스타일 */
@@ -40,14 +41,8 @@ body {
     display: flex; /* 아이콘과 텍스트 정렬을 위해 추가 */
     align-items: center; /* 아이콘과 텍스트 정렬을 위해 추가 */
     gap: 10px; /* 아이콘과 텍스트 간격 추가 */
+    border-radius: 10px 10px 0 0;
 }
-
-/* .site-Dataset .header .material-symbols-outlined 주석 처리됨 (inbound.css와 동일) */
-/*
-.site-Dataset .header .material-symbols-outlined {
-    font-size: 28px;
-}
-*/
 
 /* 출고 정보 검색 폼 섹션 (inbound의 shipping-info-section과 유사) */
 .shipping-info-section {
@@ -86,24 +81,65 @@ body {
     flex-direction: column;
     gap: 8px;
 }
-
-/* 날짜 범위 폼 그룹 */
+/* 날짜 범위 폼 그룹 - 개선된 버전 */
 .shipping-info-form .form-group.date-range {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-/* 날짜 범위 입력 필드 그룹 */
-.shipping-info-form .form-group.date-range>div {
-	display: flex;
-	align-items: center;
-	gap: 10px;
+/* 날짜 범위 입력 필드 그룹 - 개선된 레이아웃 */
+.shipping-info-form .form-group.date-range > div {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap; /* 작은 화면에서 줄바꿈 허용 */
 }
 
-/* 날짜 범위 입력 필드 */
-.shipping-info-form .form-group.date-range>div input {
-	flex-grow: 1;
+/* 날짜 범위 입력 필드 - 개선된 스타일 */
+.shipping-info-form .form-group.date-range > div input[type="date"] {
+    flex: 1;
+    min-width: 140px; /* 최소 너비 설정 */
+    max-width: 200px; /* 최대 너비 제한 */
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* 날짜 범위 구분자 (~) 스타일 */
+.shipping-info-form .form-group.date-range > div span {
+    font-weight: 500;
+    color: #666;
+    font-size: 16px;
+    margin: 0 4px;
+    white-space: nowrap;
+}
+
+/* 날짜 입력 필드 포커스 시 스타일 */
+.shipping-info-form .form-group.date-range > div input[type="date"]:focus {
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
+}
+
+/* 반응형 디자인 - 작은 화면에서 세로 정렬 */
+@media (max-width: 480px) {
+    .shipping-info-form .form-group.date-range > div {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .shipping-info-form .form-group.date-range > div span {
+        text-align: center;
+        margin: 0;
+    }
+    
+    .shipping-info-form .form-group.date-range > div input[type="date"] {
+        max-width: none;
+    }
 }
 
 /* 폼 그룹 라벨 */
@@ -346,7 +382,7 @@ th a {
 
 /* 활성 정렬 아이콘 스타일 */
 th a.active {
-    color: #007bff;
+    color: #000;
 }
 
 /* 페이지네이션 */

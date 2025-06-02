@@ -1,6 +1,9 @@
 package kr.co.d_erp.dtos;
 
 import java.math.BigDecimal;
+
+import java.util.ArrayList;
+
 import java.util.List;
 
 import jakarta.persistence.*;
@@ -18,8 +21,7 @@ import lombok.*;
 public class Itemmst {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "item_seq") // 시퀀스 사용
-    @SequenceGenerator(name = "item_seq", sequenceName = "ISEQ$$_74438", allocationSize = 1) // Oracle 시퀀스명
+    @GeneratedValue(strategy = GenerationType.IDENTITY)   
     @Column(name = "ITEM_IDX", nullable = false)
     private Long itemIdx;
 
@@ -36,17 +38,6 @@ public class Itemmst {
     @Column(name = "ITEM_SPEC", length = 100)
     private String itemSpec;
 
-	/*
-	 * @ManyToOne(fetch = FetchType.LAZY)
-	 * 
-	 * @JoinColumn(name = "CUST_IDX", nullable = false) private Custmst custmst;
-	 * 
-	 * @Column(name = "ITEM_CAT1") private Long itemCat1;
-	 * 
-	 * @Column(name = "ITEM_CAT2") private Long itemCat2;
-	 * 
-	 * @Column(name = "ITEM_UNIT") private Long itemUnit;
-	 */
     @Column(name = "ITEM_COST", nullable = false) // DDL 기준 NOT NULL
     private Double itemCost; // DDL은 NUMBER. Double 또는 BigDecimal 사용.
 
@@ -75,7 +66,10 @@ public class Itemmst {
 	    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY) // OneToOne >> OneToMany 변경 -민섭
 	    // private InvenDto InvenDto // 원래 코드
 	    private List<InvenDto> InvenDto;// Inventory 엔티티 (아래에 정의 필요) 
-    
+/*
+	    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY) // OneToOne -> OneToMany
+	    private List<InvenDto> invenDtos = new ArrayList<>();
+	    */
     //추가 선익
     @Column(name = "CYCLE_TIME", precision = 10, scale = 4)
     private BigDecimal cycleTime; 

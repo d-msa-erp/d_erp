@@ -5,516 +5,783 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>발주 관리</title>
+    <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
     <style th:replace="~{/top.html :: topstyle}"></style>
 
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+/* 전체 요소에 대한 초기화 */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-        }
+/* body 기본 스타일 */
+body {
+	font-family: sans-serif;
+	display: flex;
+	justify-content: center;
+	flex-direction: column;
+}
 
-        .site-Wrapper {
-            width: 100%;
-            align-self: center;
-            max-width: 1200px;
-            padding: 20px
-        }
+/* 메인 컨테이너 - 수정됨 */
+.main-container {
+	position: relative;
+	display: flex;
+	gap: 20px;
+	align-items: flex-start;
+	padding: 0 20px;
+	justify-content: center;
+	max-width: 1400px; /* 더 넓게 설정 */
+	margin: 0 auto;
+}
 
-        .site-Dataset {
-            width: 100%;
-            border: 1px solid #777;
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
+/* 적정 재고 미달 품목 박스 - 수정됨 */
+.low-inventory-box-wrapper {
+	position: fixed; /* absolute에서 fixed로 변경 */
+	width: 280px; /* 약간 줄임 */
+	flex-shrink: 0;
+	background-color: #f9f9f9;
+	border: 2px solid #ccc;
+	border-radius: 10px;
+	padding: 15px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+	display: flex;
+	flex-direction: column;
+	top: 120px; /* 상단에서 120px */
+	left: 20px;
+	z-index: 1000; /* z-index 증가 */
+	height: auto;
+	max-height: 400px; /* 최대 높이 제한 */
+	overflow-y: auto; /* 스크롤 가능 */
+}
 
-        .site-Dataset .header {
-            background: #46a6ff;
-            color: white;
-            padding: 10px 20px;
-            font-size: 20px;
-        }
+.low-inventory-box-wrapper h4 {
+	color: #333;
+	font-size: 16px;
+}
 
-        .site-Dataset .form-content {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 20px;
-            gap: 20px;
-        }
+#toggleLowStockBtn {
+	width: 50px;
+	height: 32px;
+	border: 0;
+	border-radius: 5px;
+	align-self: end;
+	background: #007bff;
+	cursor: pointer;
+	color: #fff;
+	font-size: 14px;
+	transition: background-color 0.2s ease;
+}
 
-        .form-item {
-            display: flex;
-            align-items: center;
-            width: calc(33.333% - 13.33px);
-        }
+#toggleLowStockBtn:hover {
+	background-color: #0056b3;
+}
 
-        .form-item.addr {
-            width: calc(66.666% - 10px);
-        }
+.low-inventory-box {
+	border: 2px solid #dc3545;
+	border-radius: 8px;
+	padding: 15px;
+	color: #dc3545;
+	font-size: 14px;
+	background-color: #fff5f5;
+}
 
-        .form-item span {
-            padding-right: 10px;
-            white-space: nowrap;
-        }
+.low-item:hover {
+	text-decoration: underline;
+	cursor: pointer;
+	background: rgba(220, 53, 69, 0.1);
+	border-radius: 4px;
+	padding: 2px 4px;
+}
 
-        .form-item input {
-            width: 100%;
-            height: 100%;
-            border-radius: 3px;
-            padding: 5px;
-            font-size: 14px;
-            border: 1px solid #ccc;
-        }
+/* 메인 컨텐츠 래퍼 - 수정됨 */
+.site-Wrapper {
+	width: 100%;
+	padding: 20px;
+	max-width: 1200px; /* sales와 동일하게 */
+	align-self: center;
+	margin-left: 0; /* margin-left 제거 */
+}
 
-        .form-item input:focus {
-            border: 1px solid #46a6ff;
-            outline: none;
-        }
+/* 데이터셋 (폼 + 테이블) 컨테이너 */
+.site-Dataset {
+    width: 100%;
+    border: 1px solid #777;
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
 
-        .table-wrapper {
-            width: 100%;
-            max-width: 1200px;
-        }
+/* 섹션 헤더 스타일 */
+.site-Dataset .header {
+	background: #46a6ff;
+	color: white;
+	padding: 10px 20px;
+	font-size: 20px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
 
-        .table-wrapper>div:nth-child(1) {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 20px;
-            position: relative;
-        }
+/* 검색 섹션 */
+.search-section {
+	padding: 20px 25px;
+	border-top: 1px solid #eee;
+	background-color: #fdfdfd;
+}
 
-        .table-wrapper>div:nth-child(1)>input[type="text"] {
-            width: 30%;
-            padding: 5px;
-        }
+/* 섹션 타이틀 공통 스타일 */
+.section-title {
+	font-size: 20px;
+	font-weight: bold;
+	color: #333;
+	margin-bottom: 15px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
 
-        .table-wrapper>div:nth-child(1)>div {
-            width: 30%;
-            display: flex;
-            justify-content: space-between;
-        }
+/* 섹션 타이틀 아이콘 스타일 */
+.section-title .material-symbols-outlined {
+	font-size: 24px;
+	color: #46a6ff;
+}
 
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 {
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            position: absolute;
-            left: 20px;
-            display: flex;
-            justify-content: flex-start;
-            gap: 10px;
-        }
+/* 검색 폼 레이아웃 */
+.search-form {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 20px;
+}
 
-        .table-wrapper>div:nth-child(1)>div button {
-            width: 30%;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* 폼 그룹 공통 스타일 */
+.form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+}
 
-        .table-wrapper>div:nth-child(1)>.btn-wrap1 input[type="button"] {
-            padding: 5px;
-            gap: 10px;
-            background: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* 폼 그룹 라벨 */
+.form-group label {
+	font-weight: 500;
+    color: #666;
+    font-size: 16px;
+    margin: 0 4px;
+    white-space: nowrap;
+}
 
-        .table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-            background: #007bff;
-            color: white;
-        }
+/* 폼 그룹 입력 및 선택 필드 */
+.form-group input, .form-group select {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-size: 15px;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
 
-        .table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-            background: #28a745;
-            color: white;
-        }
+/* 폼 그룹 입력 및 선택 필드 포커스 시 스타일 */
+.form-group input:focus, .form-group select:focus {
+	border-color: #46a6ff;
+	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+	outline: none;
+}
 
-        .table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-            background: #dc3545;
-            color: white;
-        }
+/* 검색/액션 버튼 영역 */
+.search-action-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	padding: 15px 25px 20px 25px;
+	border-top: 1px solid #eee;
+}
 
-        .table-wrapper>div:nth-child(2) {
-            padding: 20px 20px 0 20px;
-            display: flex;
-            flex-direction: column;
-        }
+/* 검색/액션 버튼 공통 스타일 */
+.search-action-buttons button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+}
 
-        .table-wrapper>div:nth-child(2)>span {
-            width: 30%;
-            padding-right: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
+/* 검색 버튼 스타일 */
+.search-action-buttons button.btn-search {
+	background: #007bff;
+	color: white;
+}
 
-        .table-wrapper>div:nth-child(2)>span.active {
-            font-weight: bold;
-            text-decoration: underline;
-        }
+.search-action-buttons button.btn-search:hover {
+	background-color: #0056b3;
+}
 
-        .table-wrapper>div:nth-child(3) {
-            position: relative;
-        }
+/* 신규 버튼 스타일 */
+.search-action-buttons button.btn-new {
+	background: #28a745;
+	color: white;
+}
 
-        .nodata {
-            text-align: center;
-        }
+.search-action-buttons button.btn-new:hover {
+	background-color: #218838;
+}
 
-        .print-wrap {
-            position: absolute;
-            top: 0;
-            right: 0;
-            padding: 0 20px;
-            display: flex;
-            gap: 10px;
-            width: 200px;
-        }
+/* 삭제 버튼 스타일 */
+.search-action-buttons button.btn-delete {
+	background: #dc3545;
+	color: white;
+}
 
-        .print-wrap>button {
-            width: 100%;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 5px;
-        }
+.search-action-buttons button.btn-delete:hover {
+	background-color: #c82333;
+}
 
-        table.grid-table {
-            width: 100%;
-            border-collapse: collapse;
-            display: grid;
-            grid-template-columns: 1fr 1.4fr 3fr 3fr 1fr 2fr 1fr 2fr 1.2fr;
-        }
+/* 테이블 섹션 */
+.table-view-section {
+	padding: 20px 25px;
+	position: relative;
+}
 
-        thead,
-        tbody,
-        tr {
-            display: contents;
+/* 테이블 액션 버튼 그룹 */
+.table-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-bottom: 15px;
+}
 
-        }
+/* 테이블 액션 버튼 스타일 */
+.table-actions button {
+	padding: 8px 15px;
+	background: #6c757d;
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 15px;
+	transition: background-color 0.2s ease;
+}
 
-        tbody>tr:nth-child(even) td {
-            background: #f9f9f9;
-        }
+.table-actions button:hover {
+	background-color: #5a6268;
+}
 
-        tbody>tr:hover td {
-            background: #46a6ff;
-            cursor: pointer;
-        }
+.table-actions button .material-symbols-outlined {
+	font-size: 18px;
+}
 
-        tr th:nth-child(1),
-        tr td:nth-child(1),
-        tr th:nth-last-child(1) {
-            justify-content: center;
-        }
+/* 테이블 스크롤 래퍼 */
+.table-scroll-wrapper {
+	max-height: 400px;
+	overflow-y: auto;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	background-color: #fff;
+}
 
-        tr td:nth-last-child(1) {
-            justify-content: right;
-        }
+/* 그리드 테이블 기본 스타일 */
+table.grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	table-layout: fixed;
+}
 
-        th,
-        td {
-            padding: 10px;
-            border: 1px solid #ccc;
-            display: flex;
-            align-items: center;
-        }
+/* 그리드 테이블 헤더와 셀 공통 스타일 */
+table.grid-table thead th, table.grid-table tbody td {
+	padding: 12px 10px;
+	border: 1px solid #e0e0e0;
+	text-align: center;
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
 
-        thead th {
-            background: #f0f0f0;
-            font-weight: bold;
-            cursor: pointer;
-        }
+/* 그리드 테이블 헤더 스타일 */
+table.grid-table thead th {
+	background: #f0f4f7;
+	font-weight: bold;
+	color: #444;
+	cursor: pointer;
+	font-size: 14px;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
 
-        table input[type="text"] {
-            width: 100%;
-            padding: 5px;
-        }
+table.grid-table thead th:hover {
+	background-color: #e2e8f0;
+}
 
-        .pagination-wrap {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            padding-top: 20px;
-        }
+/* 그리드 테이블 짝수 행 배경색 */
+table.grid-table tbody tr:nth-child(even) {
+	background: #f9fbfd;
+}
 
-        .pagination-wrap>div {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+/* 그리드 테이블 행 호버 시 스타일 */
+table.grid-table tbody tr:hover {
+	background: #e6f2ff;
+	cursor: pointer;
+}
 
-        .pagination-wrap>div input[type="text"] {
-            width: 50px;
-            text-align: center;
-        }
+table.grid-table tbody tr:hover td {
+	color: #333;
+}
 
-        .pagination-wrap>div button {
-            width: 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+/* 체크박스 컬럼 너비 */
+table.grid-table th:first-child, table.grid-table td:first-child {
+	width: 40px;
+	min-width: 40px;
+	max-width: 40px;
+	flex-shrink: 0;
+}
 
-        .table-wrapper button:hover {
-            filter: brightness(0.9);
-        }
+table.grid-table th:first-child input[type="checkbox"], table.grid-table td:first-child input[type="checkbox"] {
+	margin: 0;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.4);
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-        }
+/* nodata 메시지 스타일 */
+.nodata {
+	text-align: center;
+	padding: 30px;
+	color: #666;
+	font-style: italic;
+	background-color: #fdfdfd;
+}
 
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            width: 80%;
-            position: relative;
-        }
+/* 페이지네이션 래퍼 */
+.pagination-wrap {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	padding-top: 20px;
+	gap: 15px;
+	font-size: 15px;
+	color: #555;
+}
 
-        .modal-content .modalForm {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            justify-items: center;
-            align-items: center;
-        }
+.pagination-wrap .page-info {
+	white-space: nowrap;
+}
 
-        .modal-content .modalForm>div,
-        .modal-content .modalForm>label {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+.pagination-controls {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
 
-        .modal-content .modalForm>div>span,
-        .modal-content .modalForm>label>span {
-            white-space: nowrap;
-            padding-right: 10px;
-        }
+.pagination-controls button {
+	width: 32px;
+	height: 32px;
+	background: #e0e0e0;
+	color: #555;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	transition: background-color 0.2s ease;
+}
 
-        .modal-content input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+.pagination-controls button:hover:not(:disabled) {
+	background-color: #c0c0c0;
+}
 
-        .modal-content select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-        }
+.pagination-controls button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
 
-        .modal-content input[type="color"] {
-            width: 100%;
-            height: 40px;
-            border: none;
-            margin-top: 10px;
-        }
+.pagination-controls button .material-symbols-outlined {
+	font-size: 20px;
+}
 
-        .modal-content .modal-buttons {
-            margin-top: 15px;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            width: 100%;
-            grid-column-start: 3;
-        }
+.pagination-controls input[type="text"] {
+	width: 50px;
+	text-align: center;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 5px;
+	font-size: 15px;
+}
 
-        .modal-content .modal-buttons>button:hover {
-            filter: brightness(0.9);
-        }
+/* 모달 공통 스타일 */
+.modal {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.5);
+	justify-content: center;
+	align-items: center;
+	backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
+	z-index: 1000;
+}
 
-        .modal-content .modal-buttons>button {
-            width: 100%;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            padding: 5px;
-        }
+.modal-content {
+	background: white;
+	padding: 30px;
+	border-radius: 12px;
+	width: 90%;
+	max-width: 700px;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+	position: relative;
+	animation: fadeIn 0.3s ease-out;
+}
 
-        .modal-content .modal-buttons>:nth-child(3)[type="button"] {
-            background: #777;
-        }
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
-        .flex-row {
-            display: flex;
-            gap: 10px;
-        }
+.modal-content h3 {
+	font-size: 24px;
+	margin-bottom: 25px;
+	color: #333;
+	text-align: center;
+	border-bottom: 1px solid #eee;
+	padding-bottom: 15px;
+}
 
-        .flex-row>div {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+.modal-content .modalForm {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px 30px;
+	margin-bottom: 25px;
+}
 
-        .flex-row>div>span {
-            white-space: nowrap;
-        }
+.modal-content .modalForm .flex-row {
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: 1fr 150px 150px;
+	gap: 20px;
+	align-items: end;
+}
 
-        .low-inventory-box-wrapper {
-            min-width: 300px;
-            max-width: 350px;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-        }
+.modal-content .modalForm .flex-row > div {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
 
-        .low-inventory-box {
-            border: 2px solid red;
-            border-radius: 10px;
-            padding: 15px;
-            color: red;
-            font-size: 14px;
-            background-color: #fff0f0;
-        }
-        .main-container {
-		    display: flex;
-		    gap: 20px;
-		    align-items: flex-start; /* 높이 정렬은 필요 시 조정 */
-		    padding: 20px;
-		}
-		.low-inventory-box-wrapper {
-		    width: 300px;
-		    flex-shrink: 0;
-		    height: 100%; /* 오른쪽에 맞춰 늘어나게 */
-		    background-color: #f9f9f9;
-		    border: 2px solid #ccc;
-		    border-radius: 10px;
-		    padding: 10px;
-		    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
-		    display: flex;
-		    flex-direction: column;
-		    margin-top: 70px;
-		}
-		
-		/* 오른쪽 박스 */
-		.site-Wrapper {
-		    flex: 1;
-		    display: flex;
-		    flex-direction: column;
-		}
-    </style>
+.modal-content .modalForm .flex-row > div:first-child {
+	flex-direction: column;
+}
+
+.modal-content .modalForm .flex-row > div:not(:first-child) {
+	text-align: center;
+	font-size: 14px;
+	color: #666;
+}
+
+.modal-content .modalForm .flex-row > div:not(:first-child) span:first-child {
+	font-weight: 600;
+}
+
+.modal-content .modalForm .full-width {
+	grid-column: span 2;
+	display: grid;
+	grid-template-columns: 1fr 1fr 1fr;
+	gap: 20px;
+}
+
+.modal-content .modalForm > div, .modal-content .modalForm > label {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.modal-content .modalForm .full-width > div {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.modal-content .modalForm > div > span, .modal-content .modalForm > label > span,
+.modal-content .modalForm .full-width > div > span {
+	font-weight: 600;
+	color: #555;
+	font-size: 14px;
+	white-space: nowrap;
+}
+
+.modal-content input:not([type="checkbox"]), .modal-content select, .modal-content textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-content input:focus:not([type="checkbox"]), .modal-content select:focus, .modal-content textarea:focus {
+	border-color: #46a6ff;
+	box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+	outline: none;
+}
+
+.modal-content .modal-buttons {
+    grid-column: span 2;
+    flex-direction: row !important;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.modal-content .modal-buttons button {
+	padding: 10px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 16px;
+	font-weight: 500;
+	transition: background-color 0.2s ease;
+}
+
+.modal-content .modal-buttons button[name="save"] {
+	background: #007bff;
+	color: white;
+}
+
+.modal-content .modal-buttons button[name="save"]:hover {
+	background-color: #0056b3;
+}
+
+.modal-content .modal-buttons button[name="edit"] {
+	background: #28a745;
+	color: white;
+}
+
+.modal-content .modal-buttons button[name="edit"]:hover {
+	background-color: #218838;
+}
+
+.modal-content .modal-buttons button[name="cancel"] {
+	background: #6c757d;
+	color: white;
+}
+
+.modal-content .modal-buttons button[name="cancel"]:hover {
+	background-color: #5a6268;
+}
+
+.modal-content .modal-buttons button .material-symbols-outlined {
+	font-size: 20px;
+}
+
+/* Datalist 입력 필드 스타일 */
+input[list] {
+	background-color: #fbfbfb;
+}
+
+/* 정렬 아이콘 스타일 */
+th a {
+	margin-left: 5px;
+	color: #777;
+	text-decoration: none;
+}
+
+th a.active {
+	color: #000;
+}
+
+/* 반응형 디자인 - 수정됨 */
+@media (max-width:1200px) {
+.main-container {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        padding: 20px;
+        flex-direction: column;
+    }
+	
+	.site-Wrapper {
+		padding: 0;
+		margin-left: 0;
+	}
+	
+	.low-inventory-box-wrapper {
+		position: inherit;
+		margin-top: 0;
+		width: 100%;
+		max-width: 100%;
+		max-height: 200px;
+		overflow-y: auto;
+	}
+	
+	.search-form {
+		grid-template-columns: 1fr;
+	}
+	
+	.modal-content .modalForm {
+		grid-template-columns: 1fr;
+	}
+	
+	.modal-content .modalForm .flex-row {
+		grid-column: span 1;
+		grid-template-columns: 1fr;
+	}
+	
+	.modal-content .modalForm .full-width {
+		grid-column: span 1;
+		grid-template-columns: 1fr;
+	}
+}
+
+/* 추가: 저재고 알림 박스 숨김/표시 애니메이션 */
+.low-inventory-box-wrapper.hidden {
+	transform: translateX(-100%);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.low-inventory-box-wrapper {
+	transition: transform 0.3s ease, opacity 0.3s ease;
+}
+</style>
 </head>
 
 <body>
     <div th:replace="~{/top.html :: top}"></div>
 	<div class="main-container">
-    <div class="low-inventory-box-wrapper">
-        <h4 style="margin-bottom: 10px;">📦 적정 재고 미달 품목</h4>
-        <div id="lowStockNotice" class="low-inventory-box">
-            <!-- JS로 채워짐 -->
-        </div>
-    </div>
+	
+ 
+    
     <div class="site-Wrapper flx-col">
         <h1 style="font-size: 24px; margin-bottom: 16px;">발주 관리</h1>
         <form id="frm" method="get" action="#">
             <div class="site-Dataset">
                 <div class="header">
+                    <span class="material-symbols-outlined">inventory_2</span>
                     <h4 style="margin: 0;">발주 관리</h4>
                 </div>
-                               
-                
-                
-                <div class="table-wrapper">
-                    <div>
-                        <input type="text" placeholder="검색" id="searchInput"/>
-                        <div>
-                            <button type="button" onclick="searchItems()">
-								<span class="material-symbols-outlined">search</span> 검색
-							</button>
-							<button type="button" onclick="openModal()">
-								<span class="material-symbols-outlined">add</span> 신규등록
-							</button>
-							<button type="button" >
-								<span class="material-symbols-outlined">delete</span> 삭제
-							</button>
+
+                <div class="search-section">
+					<h4 class="section-title">
+						<span class="material-symbols-outlined">filter_alt</span>
+						발주 정보 검색
+					</h4>
+					<div class="search-form">
+						<div class="form-group">
+                            <label for="searchTransStatus">상태</label>
+                            <select id="searchTransStatus" name="transStatus">
+                                <option value="">전체</option>
+                                <option value="P1">입고대기</option>
+                                <option value="P3">입고완료</option>
+                            </select>
                         </div>
-                    </div>
-                    <div></div>
-                    <div id="table-customer" style="padding: 20px; position: relative;">
-                        <div class="print-wrap">
-                            <button type="button" onclick="downloadExcel()">
-								<span class="material-symbols-outlined">table_view</span> 엑셀
-							</button>
-							<button type="button" onclick="printSelectedPurchase()">
-								<span class="material-symbols-outlined">print</span> 인쇄
-							</button>
-                        </div>
-                        <table class="grid-table">
-                            <thead>
-                                <tr>
-                                    <th><input type="checkbox" id="selectAllCheckbox"/></th>
-                                    <th onclick="order('itemCode')">자재번호<a>↓</a></th>
-                                    <th onclick="order('itemName')">자재명<a>↓</a></th>
+						<div class="form-group">
+							<label for="searchInput">검색</label>
+							<input type="text" placeholder="검색어를 입력하세요" id="searchInput" />
+						</div>
+					</div>
+				</div>
+
+				<div class="search-action-buttons">
+					<button type="button" class="btn-search" onclick="searchItems()">
+						<span class="material-symbols-outlined">search</span> 검색
+					</button>
+					<button type="button" class="btn-new" onclick="openModal()">
+						<span class="material-symbols-outlined">add</span> 신규등록
+					</button>
+					<button type="button" class="btn-delete" style="display:none;">
+						<span class="material-symbols-outlined">delete</span> 삭제
+					</button>
+				</div>
+
+				<div class="table-view-section">
+					<h4 class="section-title">
+						<span class="material-symbols-outlined">list_alt</span>
+						발주 목록
+					</h4>
+					<div class="table-actions">
+						<button type="button" onclick="downloadExcel()">
+							<span class="material-symbols-outlined">table_view</span> 엑셀
+						</button>
+						<button type="button" onclick="printSelectedPurchase()">
+							<span class="material-symbols-outlined">print</span> 인쇄
+						</button>
+					</div>
+
+					<div class="table-scroll-wrapper">
+						<table class="grid-table">
+							<thead>
+								<tr>
+									<th><input type="checkbox" id="selectAllCheckbox"/></th>
+									<th onclick="order('itemCode')">자재번호<a>↓</a></th>
+									<th onclick="order('itemName')">자재명<a>↓</a></th>
 						            <th onclick="order('customerName')">발주처<a>↓</a></th>
 						            <th onclick="order('quantity')">수량<a>↓</a></th>
 						            <th onclick="order('orderDate')">발주일<a>↓</a></th>
 						            <th onclick="order('totalPrice')">총액<a>↓</a></th>
 						            <th onclick="order('userName')">발주처 담당자<a>↓</a></th>
 						            <th onclick="order('orderStatus')">상태<a>↓</a></th>
-                                </tr>
-                            </thead>
-                            <tbody id="purchasesTableBody">
-
+								</tr>
+							</thead>
+							<tbody id="purchasesTableBody">
+								<tr>
+									<td class="nodata" colspan="9">등록된 데이터가 없습니다.</td>
+								</tr>
               				</tbody>
-                        </table>
-                   		<div class="pagination-wrap">
-						  <span id="paginationInfo">총 0건 1/1페이지</span>
-						  <div class="paigination">
-						    <button type="button" id="btn-prev-page">
-						      <span class="material-symbols-outlined">chevron_left</span>
-						    </button>
-						    <input type="text" id="currentPageInput" value="1">
-						    <button type="button" id="btn-next-page">
-						      <span class="material-symbols-outlined">chevron_right</span>
-						    </button>
-						  </div>
-						</div>
+						</table>
+					</div>
 
+					<div class="pagination-wrap">
+					  <span class="page-info" id="paginationInfo">총 0건 1/1페이지</span>
+					  <div class="pagination-controls">
+					    <button type="button" id="btn-prev-page">
+					      <span class="material-symbols-outlined">chevron_left</span>
+					    </button>
+					    <input type="text" id="currentPageInput" value="1">
+					    <button type="button" id="btn-next-page">
+					      <span class="material-symbols-outlined">chevron_right</span>
+					    </button>
+					  </div>
+					</div>
 				</div>
+				   <div class="low-inventory-box-wrapper">
+				   <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <h4>📦 적정 재고 미달 품목</h4>
+        <button id="toggleLowStockBtn">닫기</button>
+				   </div>
+        <div id="lowStockNotice" class="low-inventory-box">
+            <!-- JS로 채워짐 -->
+        </div>
+    </div>
             </div>
         </form>
     </div>
 </div>
+
     <!--신규 등록 Modal-->
     <div class="modal" id="modal" onclick="outsideClick(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h3 id="modalTitle">신규 등록</h3>
-            <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
             <form id="modalForm" class="modalForm">
+            <input type="hidden" id="orderIdx">
                 <div>
                     <span>자재명</span>
 					<input type="text" id="itemName" list="itemList" placeholder="자재명을 입력해주세요" required />
@@ -531,11 +798,11 @@
                 </div>
                 <div class="flex-row">
                     <div>
-                        <span>발주 수량 : </span><input type="text" placeholder="수량을 입력해주세요" id="quantity" required />
+                        <span>발주 수량</span><input type="text" placeholder="수량을 입력해주세요" id="quantity" required />
                     </div>
 
-                    <div><span id="optimalInventoryText">적정 재고 :</span><span id="optimalInventory"></span></div>
-                    <div><span id="currentInventoryText">현재 재고 :</span><span id="currentInventory"></span></div>
+                    <div><span id="optimalInventoryText">적정 재고</span><span id="optimalInventory"></span></div>
+                    <div><span id="currentInventoryText">현재 재고</span><span id="currentInventory"></span></div>
 
                 </div>
 
@@ -553,7 +820,7 @@
 					</datalist>
 					<input type="hidden" id="selectedwhIdx" name="whIdx">
 				</div>
-                <div>
+                <div class="full-width">
                     <div>
                         <span>발주일</span>
                         <input type="date" id="orderDate" readonly/>
@@ -567,39 +834,24 @@
 							required />
 					</div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
 
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="button" name="save" style="display: none;" id="saveBtn">
-							<span class="material-symbols-outlined">save</span> 등록
-						</button>
-						<button type="button" name="edit" style="display: block;" id="editBtn">
-							<span class="material-symbols-outlined">edit</span> 수정
-						</button>
-						<button type="button" onclick="closeModal()">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
+				<div class="modal-buttons">
+					<button type="button" name="save" style="display: none;" id="saveBtn">
+						<span class="material-symbols-outlined">save</span> 등록
+					</button>
+					<button type="button" name="edit" style="display: block;" id="editBtn">
+						<span class="material-symbols-outlined">edit</span> 수정
+					</button>
+					<button type="button" onclick="closeModal()" name="cancel">
+						<span class="material-symbols-outlined">close</span> 취소
+					</button>
 				</div>
             </form>
         </div>
 
     </div>
-	
-
+</body>
     <script src="/js/top.js"></script>
     <script src="/js/purchase.js"></script>
     <script src="/js/salesPrint.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('table').forEach(table => {
-                const firstCells = table.querySelectorAll('tbody tr td:first-child');
-                firstCells.forEach(td => {
-                    td.setAttribute('onclick', 'event.stopPropagation()');
-                });
-            });
-        });
-    </script>
-</body>
-
 </html>

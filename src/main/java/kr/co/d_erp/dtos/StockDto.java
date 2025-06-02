@@ -2,6 +2,7 @@ package kr.co.d_erp.dtos;
 
 import java.math.BigDecimal;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class StockDto {
     private String userMail;
     private String reMark;
     private String itemFlag;
+    private String transType;
     
     private Long custIdxForItem;
     private Integer unitIdx;

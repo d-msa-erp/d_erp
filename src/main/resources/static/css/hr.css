@@ -1,495 +1,193 @@
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
+/* hr.css */
 
-body {
-	font-family: sans-serif;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
+/* body, .site-Wrapper, .site-Dataset, .header 등은 outbound.css 스타일을 기본으로 함 */
+.site-Dataset .header h4 { margin: 0; font-weight: 600; }
 
-.site-Wrapper {
-	width: 100%;
-	max-width: 1200px;
-	align-self: center;
-	padding: 20px;
+/* 검색/액션 버튼 영역: HTML의 기존 .table-wrapper > div:nth-child(1) 구조 유지 */
+.hr-search-actions-wrapper { /* HTML에 추가한 새 클래스 (기존 .table-wrapper > div:nth-child(1)) */
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between; /* 검색창과 버튼 그룹 양쪽 정렬 */
+    align-items: center;
+    gap: 20px;
+    border-bottom: 1px solid #eee;
+    background-color: #fdfdfd; /* outbound.css .shipping-info-section 배경 참고 */
 }
-
-.site-Dataset {
-	width: 100%;
-	border: 1px solid #777;
-	border-radius: 10px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
+.hr-search-actions-wrapper input[type="text"]#searchInput {
+    flex-grow: 1;
+    max-width: 50%; /* 검색창 너비 조정 */
+    padding: 10px 12px; /* outbound.css .form-group input */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
 }
-
-.site-Dataset .header {
-	background: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
+.hr-search-actions-wrapper input[type="text"]#searchInput:focus {
+    border-color: #46a6ff; /* outbound.css 포커스 */
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
 }
-
-.site-Dataset .form-content {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 20px;
-	gap: 20px;
+.hr-search-actions-wrapper .hr-action-buttons { /* HTML에 추가한 새 클래스 */
+    display: flex;
+    gap: 10px;
 }
+/* 버튼들은 HTML에서 .btn-search, .btn-new, .btn-delete 클래스를 사용하므로 outbound.css 스타일 적용됨 */
 
-.form-item {
-	display: flex;
-	align-items: center;
-	width: calc(33.333% - 13.33px);
+/* 테이블 영역: HTML의 기존 .table-wrapper > div#table-customer 구조 유지 */
+.table-wrapper > div#table-customer { /* ID 선택자 유지 */
+    padding: 20px 25px; /* outbound.css .table-view-section 패딩 참고 */
+    position: relative;
 }
-
-.form-item.addr {
-	width: calc(66.666% - 10px);
-}
-
-.form-item span {
-	padding-right: 10px;
-	white-space: nowrap;
-}
-
-.form-item input {
-	width: 100%;
-	height: 100%;
-	border-radius: 3px;
-	padding: 5px;
-	font-size: 14px;
-	border: 1px solid #ccc;
-}
-
-.form-item input:focus {
-	border: 1px solid #46a6ff;
-	outline: none;
-}
-
-.table-wrapper {
-	width: 100%;
-	max-width: 1200px;
-}
-
-.table-wrapper>div:nth-child(1) {
-	padding: 20px 20px 0 20px;
-	display: flex;
-	justify-content: flex-end;
-	gap: 20px;
-	position: relative;
-}
-
-.table-wrapper>div:nth-child(1)>input[type="text"] {
-	width: 30%;
-	padding: 5px;
-}
-
-.table-wrapper>div:nth-child(1)>div {
-	width: 30%;
-	display: flex;
-	justify-content: space-between;
-}
-
-.table-wrapper>div:nth-child(1)>.btn-wrap1 {
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	position: absolute;
-	left: 20px;
-	display: flex;
-	justify-content: flex-start;
-	gap: 10px;
-}
-
-.table-wrapper>div:nth-child(1)>div button {
-	width: 30%;
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	white-space: nowrap;
-}
-
-.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
-	padding: 5px;
-	gap: 10px;
-	background: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	white-space: nowrap;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-	background: #007bff;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-	background: #28a745;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-	background: #dc3545;
-	color: white;
-}
-
-.table-wrapper>div:nth-child(2) {
-	padding: 20px 20px 0 20px;
-	display: flex;
-	flex-direction: column;
-}
-
-.table-wrapper>div:nth-child(2)>span {
-	width: 30%;
-	padding-right: 10px;
-	text-align: center;
-	cursor: pointer;
-}
-
-.table-wrapper>div:nth-child(2)>span.active {
-	font-weight: bold;
-	text-decoration: underline;
-}
-
-.table-wrapper>div:nth-child(3) {
-	position: relative;
-}
-
-.nodata {
-	text-align: center;
-}
-
 .print-wrap {
-	position: absolute;
-	top: 0;
-	right: 0;
-	padding: 0 20px;
-	display: flex;
-	gap: 10px;
-	width: 200px;
+    position: absolute;
+    top: 20px; right: 25px;
+    display: flex; gap: 10px;
+}
+.print-wrap > button { /* outbound.css .table-actions button 모방 */
+    padding: 8px 15px; background: #6c757d; color: white;
+    border: none; border-radius: 5px; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 15px; white-space: nowrap; transition: background-color 0.2s ease;
+}
+.print-wrap > button:hover { background-color: #5a6268; }
+.print-wrap > button .material-symbols-outlined { font-size: 18px; }
+
+/* 메인 테이블 (.grid-table.hr-main-table) */
+table.grid-table.hr-main-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed; /* 테이블 끊어짐 방지 */
+    /* display: grid;  제거! 표준 테이블로 */
+}
+/* thead, tbody, tr { display: contents; } 제거! */
+
+table.grid-table.hr-main-table thead th {
+    background: #f0f4f7; /* outbound.css thead 배경 */
+    font-weight: bold; color: #444; cursor: pointer; font-size: 14px;
+    padding: 12px 10px; border: 1px solid #e0e0e0;
+    text-align: center; vertical-align: middle;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    position: sticky; top: 0; z-index: 1; /* 헤더 고정 (z-index 조정) */
+}
+table.grid-table.hr-main-table tbody td {
+    padding: 12px 10px; border: 1px solid #e0e0e0;
+    text-align: center; vertical-align: middle;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* 짝수행, 호버 효과는 outbound.css .grid-table 규칙 따름 */
+/* 컬럼 너비는 HTML의 th style 속성으로 제어 */
+th a.sort-arrow { /* outbound.css 스타일 따름 */
+    margin-left: 5px; color: #777; text-decoration: none;
+    opacity: 0.3; transition: opacity 0.2s;
+}
+th a.sort-arrow.active { color: #000; opacity: 1; }
+
+/* 페이지네이션: outbound.css 스타일 따름 */
+.pagination-controls input[type="number"] { /* HTML이 number 타입으로 변경되었다고 가정 */
+    width: 50px; text-align: center; padding: 6px 8px;
+    border: 1px solid #ddd; border-radius: 5px; font-size: 15px;
 }
 
-.print-wrap>button {
-	width: 100%;
-	background: #007bff;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	padding: 5px;
-}
-
-table.grid-table {
-	width: 100%;
-	border-collapse: collapse;
-	display: grid;
-	grid-template-columns: 1fr 1fr 1fr 2fr 1fr 1fr 1fr 1fr;
-}
-
-thead, tbody, tr {
-	display: contents;
-}
-
-tbody>tr:nth-child(even) td {
-	background: #f9f9f9;
-}
-
-tbody>tr:hover td {
-	background: #46a6ff;
-	cursor: pointer;
-}
-
-tr th:nth-child(1), tr td:nth-child(1), tr th:nth-last-child(1) {
-	justify-content: center;
-}
-
-th, td {
-	padding: 10px;
-	border: 1px solid #ccc;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-thead th {
-	background: #f0f0f0;
-	font-weight: bold;
-	cursor: pointer;
-}
-
-table input[type="text"] {
-	width: 100%;
-	padding: 5px;
-}
-
-/* --- Start of Pagination Styles (Copied from inbound.css) --- */
-/* 페이지네이션 래퍼 */
-.pagination-wrap {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	padding-top: 20px;
-	gap: 15px;
-	font-size: 15px;
-	color: #555;
-}
-
-/* 페이지 정보 텍스트 */
-.pagination-wrap .page-info {
-	white-space: nowrap;
-}
-
-/* 페이지네이션 컨트롤 그룹 */
-.pagination-controls {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-/* 페이지네이션 컨트롤 버튼 */
-.pagination-controls button {
-	width: 32px;
-	height: 32px;
-	background: #e0e0e0;
-	color: #555;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	transition: background-color 0.2s ease;
-}
-
-/* 페이지네이션 컨트롤 버튼 호버 시 스타일 */
-.pagination-controls button:hover:not(:disabled) {
-	background-color: #c0c0c0;
-}
-
-/* 페이지네이션 컨트롤 비활성화 버튼 */
-.pagination-controls button:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-/* 페이지네이션 컨트롤 버튼 아이콘 */
-.pagination-controls button .material-symbols-outlined {
-	font-size: 20px;
-}
-
-/* 페이지네이션 숫자 입력 필드 */
-.pagination-controls input[type="number"] {
-	width: 50px;
-	text-align: center;
-	padding: 6px 8px;
-	border: 1px solid #ddd;
-	border-radius: 5px;
-	font-size: 15px;
-}
-/* --- End of Pagination Styles --- */
-
-.table-wrapper button:hover {
-	filter: brightness(0.9);
-}
-
-.modal {
-	display: none;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100vw;
-	height: 100vh;
-	background: rgba(0, 0, 0, 0.4);
-	justify-content: center;
-	align-items: center;
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-}
-
-.modal-content {
-	background: white;
-	padding: 20px;
-	border-radius: 10px;
-	max-width: 700px;
-	position: relative;
-	max-height: 800px;
-	overflow: auto;
-}
-
-.modal-content .modalForm {
-	margin-top: 20px;
-	display: flex;
-	flex-direction: column;
-	gap: 20px;
-	justify-items: center;
-	align-items: center;
-}
-
-.modal-content .modalForm>div, .modal-content .modalForm>label {
-	width: 100%;
-	display: flex;
-	gap: 10px;
-	justify-content: flex-start;
-	align-items: center;
-}
-
-.modal-content .modalForm>div>span, .modal-content .modalForm>label>span
-	{
-	white-space: nowrap;
-	padding-right: 10px;
-}
-
-.modal-content input {
-	width: 100%;
-	padding: 10px;
-	border: 1px solid #ccc;
-}
-
-.modal-content input[type="color"] {
-	width: 100%;
-	height: 40px;
-	border: none;
-	margin-top: 10px;
-}
-
-.modal-content .modal-buttons {
-	margin-top: 15px;
-	display: flex;
-	justify-content: flex-end;
-	gap: 10px;
-	width: 100%;
-	grid-column-start: 3;
-}
-
-.modal-content .modal-buttons>button:hover {
-	filter: brightness(0.9);
-}
-
-.modal-content .modal-buttons>button {
-	width: 100%;
-	background: #007bff;
-	color: #fff;
-	border: none;
-	border-radius: 5px;
-	cursor: pointer;
-	padding: 5px;
-}
-
-.modal-buttons button:nth-of-type(3) {
-	background: #777 !important;
-}
-
-.modal-content .modalForm th, .modal-content .modalForm td {
-	margin: 0 !important;
-	padding: 0 !important;
-	width: 100% !important;
-	height: 100% !important;
-}
-
-.modal-content .bomTab1 select {
-	height: 100%;
-	width: 100%;
-}
-
-.modal-content .grid-table {
-	width: 100%;
-	height: 100%;
-	border-collapse: collapse;
-	display: grid;
-	grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
-	padding: 0;
-}
-
-.bomTab1 {
-	display: grid !important;
-	grid-template-columns: 1fr 1fr;
-	gap: 10px;
-}
-
-.bomTab1 input {
-	height: 100%;
-	width: 100%;
-	padding: 5px;
-}
-
-.bomTab1>div {
-	height: 100%;
-	align-self: stretch;
-}
-
-.bomTab2 {
-	display: grid;
-	grid-template-columns: 2.7fr 1fr;
-	gap: 10px;
-}
-
-.bomTab2>div {
-	display: flex;
-	flex-direction: column;
-	gap: 10px !important;
-	justify-content: space-between;
+/* 모달: outbound.css 스타일 사용. hr 페이지 모달 크기만 여기서 조정 */
+#modal .modal-content.hr-modal-content {
+    max-width: 850px; /* 기존 700px에서 넓힘 */
+    max-height: 90vh;
 	overflow-y: auto;
 }
 
-.bomTab2>div>div {
-	height: 100%;
+/* 모달 내부 폼 (.modalForm -> hr-modal-form-layout) */
+#modal .modalForm.hr-modal-form-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 기본 2컬럼 */
+    gap: 15px 25px; /* 행간격, 열간격 */
+    margin-bottom: 20px;
+}
+/* 각 입력 그룹 (HTML에서는 div 바로 안에 span과 input/select) */
+/* .form-group-hr 클래스를 HTML에 추가하여 표준 .modal-form-group 스타일 적용 */
+.form-group-hr {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-group-hr > span:first-child { /* 라벨 역할 */
+    font-weight: 600; color: #555; font-size: 14px; white-space: nowrap;
+}
+.form-group-hr input[type="text"],
+.form-group-hr input[type="password"],
+.form-group-hr input[type="date"],
+.form-group-hr select {
+    width: 100%; padding: 10px 12px; border: 1px solid #ddd;
+    border-radius: 5px; font-size: 15px;
+}
+.form-group-hr input:focus,
+.form-group-hr select:focus {
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 3px rgba(70, 166, 255, 0.2);
+    outline: none;
 }
 
-.bomTab2>div>ul {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
+/* 권한/부서/직책 그룹 */
+.hr-select-group {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px 25px; /* 내부 간격 조정 */
+}
+.hr-select-group .form-group-hr select { width: 100%; }
+
+/* 입사일/퇴사일 그룹 */
+.hr-date-group {
+    grid-column: span 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 25px;
 }
 
-.bomTab2>div>ul>li {
-	padding-left: 10px;
+/* 재직상태 select 너비 조정 */
+#modalUserStatus { max-width: 250px; } /* HTML에서 style="width: 30%;" 대신 사용 */
+
+/* 모달 버튼: HTML의 .modal-buttons-wrapper > .modal-buttons 구조 유지 */
+.modal-buttons-wrapper {
+    grid-column: span 2; /* 폼 그리드 내에서 전체 너비 */
+}
+/* .modal-buttons 및 내부 .btn-* 은 outbound.css 스타일 적용 */
+.modal-buttons button.cancel-button { /* HTML의 .cancel-button 클래스에 스타일 적용 */
+    background-color: #6c757d; color: white;
+}
+.modal-buttons button.cancel-button:hover {
+    background-color: #5a6268;
 }
 
-.bomTab3 {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
+.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }
 
-.bomTab3>div {
-	display: flex;
-	white-space: nowrap;
-	gap: 10px;
-	align-items: center;
-}
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .hr-search-actions-wrapper { /* HTML 클래스명 변경 */
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .hr-search-actions-wrapper input[type="text"]#searchInput,
+    .hr-search-actions-wrapper .hr-action-buttons { /* HTML 클래스명 변경 */
+        width: 100%;
+    }
+    .hr-search-actions-wrapper .hr-action-buttons button { /* HTML 클래스명 변경 */
+        flex-grow: 1;
+        justify-content: center;
+    }
 
-.bomTab3 .flex-row {
-	display: flex;
-	gap: 10px;
-	width: 100%;
-}
+    #modal .modalForm.hr-modal-form-layout,
+    .hr-select-group,
+    .hr-date-group {
+        grid-template-columns: 1fr; /* 모바일에서 모든 것을 1컬럼으로 */
+    }
+    #modal .modalForm.hr-modal-form-layout > div,
+    .hr-select-group > .form-group-hr,
+    .hr-date-group > .form-group-hr {
+        grid-column: span 1 !important;
+    }
+    #modalUserStatus { max-width: 100%; }
 
-.bomTab3 .flex-row>div {
-	flex: 1;
-	display: flex;
-	align-items: center;
-}
-
-.bomTab3 .flex-row>div span {
-	white-space: nowrap;
-	padding-right: 10px;
-}
-
-.bomTab3 .flex-row>div input {
-	width: 100%;
-}
-
-.bomTab5 {
-	max-height: 300px;
-	overflow-y: auto;
-}
-
-.bomTab5 .grid-table {
-	grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
+    #modal .modal-content.hr-modal-content {
+        max-width: 95%;
+    }
 }

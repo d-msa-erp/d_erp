@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
 <head>
 <meta charset="UTF-8" />
@@ -7,182 +7,162 @@
 <title>사원 관리</title>
 <th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 <style th:replace="~{/top.html :: topstyle}"></style>
-<link rel="stylesheet" href="/css/hr.css">
-</head>
+<link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/hr.css">     </head>
 
 <body>
-	<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
-	<div class="site-Wrapper">
-		<h1 style="font-size: 24px; margin-bottom: 16px;">사원 관리</h1>
-		<form id="frm" method="get" action="#">
-			<div class="site-Dataset">
-				<div class="header">
-					<h4 style="margin: 0;">사원 관리</h4>
-				</div>
-				<div class="table-wrapper">
-					<div>
-						<input type="text" id="searchInput"
-							placeholder="이름, ID, 부서, 직책으로 검색" />
-						<div>
-							<button type="button" id="searchButton">
-								<span class="material-symbols-outlined">search</span> 검색
-							</button>
-							<button type="button" onclick="openSharedModal('new')">
-								<span class="material-symbols-outlined">add</span> 신규등록
-							</button>
-							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 삭제
-							</button>
-						</div>
-					</div>
-					<div></div>
-					<div id="table-customer" style="padding: 20px; position: relative;">
+    <div class="site-Wrapper"> <h1 style="font-size: 24px; margin-bottom: 16px;">사원 관리</h1>
+        <form id="frm" method="get" action="#"> <div class="site-Dataset"> <div class="header"> <span class="material-symbols-outlined">groups</span>
+                    <h4 style="margin: 0;">사원 관리</h4>
+                </div>
+                <div class="hr-search-actions-wrapper"> <input type="text" id="searchInput" placeholder="이름, ID, 부서, 직책으로 검색" />
+                    <div class="hr-action-buttons">
+                        <button type="button" id="searchButton" class="btn-search"> <span class="material-symbols-outlined">search</span> 검색
+                        </button>
+                        <button type="button" class="btn-new" onclick="openSharedModal('new')"> <span class="material-symbols-outlined">add</span> 신규등록
+                        </button>
+                        <button type="button" class="btn-delete" id="deleteButtonFromHr"> <span class="material-symbols-outlined">delete</span> 삭제
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-view-section"> <h4 class="section-title">
+                        <span class="material-symbols-outlined">list_alt</span> 사원 목록
+                    </h4>
+                    <div class="table-actions">
+                        <button type="button" onclick="downloadSelectedEmployeeDetailsAsExcel()">
+                            <span class="material-symbols-outlined">table_view</span> 엑셀
+                        </button>
+                        <button type="button" onclick="printSelectedEmployeeDetails()">
+                            <span class="material-symbols-outlined">print</span> 인쇄
+                        </button>
+                    </div>
 
-						<table class="grid-table">
-							<thead>
-								<tr>
-									<th><input type="checkbox" /></th>
-									<th onclick="order(this)" data-sort-by="userNm">이름 <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userId">ID <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userTel">직통번호 <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userHp">H.P <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userDept">부서 <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userPosition">직책 <a
-										href="#" style="visibility: hidden;">↓</a></th>
-									<th onclick="order(this)" data-sort-by="userStatus">재직상태 <a
-										href="#" style="visibility: visible;">↓</a></th>
-								</tr>
-							</thead>
-							<tbody id="userTableBody">
-							</tbody>
-						</table>
+                    <div class="table-scroll-wrapper">
+                        <table class="grid-table hr-main-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px;"><input type="checkbox" id="selectAllCheckboxesInHrPage" /></th> <th style="width: 12%;" onclick="order(this)" data-sort-by="userNm">이름 <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 12%;" onclick="order(this)" data-sort-by="userId">ID <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 13%;" onclick="order(this)" data-sort-by="userTel">직통번호 <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 13%;" onclick="order(this)" data-sort-by="userHp">H.P <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 15%;" onclick="order(this)" data-sort-by="userDept">부서 <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 15%;" onclick="order(this)" data-sort-by="userPosition">직책 <a class="sort-arrow">↓</a></th>
+                                    <th style="width: 10%;" onclick="order(this)" data-sort-by="userStatus">재직상태 <a class="sort-arrow">↓</a></th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                </tbody>
+                        </table>
+                    </div>
 
-						<div class="pagination-wrap">
-							<span class="page-info">총 <span id="totalRecords">0</span>건 <span id="currentPageDisplay">1</span>/<span id="totalPagesDisplay">1</span>페이지</span>
-							<div class="pagination-controls">
-								<button type="button" id="btn-first-page"><span class="material-symbols-outlined">first_page</span></button>
-								<button type="button" id="btn-prev-page"><span class="material-symbols-outlined">chevron_left</span></button>
-								<input type="number" id="pageNumberInput" value="1" min="1" />
-								<button type="button" id="btn-next-page"><span class="material-symbols-outlined">chevron_right</span></button>
-								<button type="button" id="btn-last-page"><span class="material-symbols-outlined">last_page</span></button>
-							</div>
-						</div>
-						
-					</div>
-				</div>
-			</div>
-		</form>
-	</div>
+                    <div class="pagination-wrap"> <span class="page-info">총 <span id="totalRecords">0</span>건 <span id="currentPageDisplay">1</span>/<span id="totalPagesDisplay">1</span>페이지</span>
+                        <div class="pagination-controls"> <button type="button" id="btn-first-page"><span class="material-symbols-outlined">first_page</span></button>
+                            <button type="button" id="btn-prev-page"><span class="material-symbols-outlined">chevron_left</span></button>
+                            <input type="number" id="pageNumberInput" value="1" min="1" /> <button type="button" id="btn-next-page"><span class="material-symbols-outlined">chevron_right</span></button>
+                            <button type="button" id="btn-last-page"><span class="material-symbols-outlined">last_page</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
-	<div class="modal" id="modal" onclick="outsideClick(event)">
-		<div class="modal-content" onclick="event.stopPropagation()">
-			<h3 id="modalTitle"></h3>
-			<form id="modalForm" class="modalForm">
-				<input type="hidden" name="userIdx" id="editingUserIdx">
+    <div class="modal" id="modal" onclick="outsideClick(event)">
+        <div class="modal-content hr-modal-content"> <h3 id="modalTitle"></h3>
+            <form id="modalForm" class="modalForm hr-modal-form-layout"> <input type="hidden" name="userIdx" id="editingUserIdx">
 
-				<div>
-					<span>ID</span><input type="text" name="userId" required />
-				</div>
-				<div>
-					<span>비밀번호</span><input type="password" name="userPswd" required />
-				</div>
-				<div>
-					<span>이름</span><input type="text" name="userNm" required />
-				</div>
-				<div>
-					<span>이메일</span><input type="text" id="userEmailInput"
-						name="userEmail" required />
-				</div>
-				<div>
-					<span>직통번호</span><input type="text" id="userTelInput"
-						name="userTel" placeholder="- 를 제외하고 입력해주세요" maxlength="11"
-						required />
-				</div>
-				<div>
-					<span>H.P</span><input type="text" id="userHpInput" name="userHp"
-						placeholder="- 를 제외하고 입력해주세요" maxlength="11" required />
-				</div>
-				<div>
-					<span>권한</span> <select name="userRole" required
-						style="width: 100%; padding: 10px;">
-						<option value="">권한을 선택해주세요</option>
-						<option value="01">시스템관리자</option>
-						<option value="02">대표</option>
-						<option value="03">영업 담당자</option>
-						<option value="04">구매 담당자</option>
-						<option value="05">생산 관리자</option>
-						<option value="06">재고 관리자</option>
-						<option value="07">인사 담당자</option>
-					</select> <span>부서</span> <select name="userDept" required
-						style="width: 100%; padding: 10px;">
-						<option value="">부서를 선택해주세요</option>
-						<option value="영업부">영업부</option>
-						<option value="개발부">개발부</option>
-						<option value="생산부">생산부</option>
-						<option value="관리부">관리부</option>
-						<option value="구매부">구매부</option>
-					</select> <span>직책</span> <select name="userPosition" required
-						style="width: 100%; padding: 10px;">
-						<option value="">직책을 선택해주세요</option>
-						<option value="사원">사원</option>
-						<option value="대리">대리</option>
-						<option value="과장">과장</option>
-						<option value="차장">차장</option>
-						<option value="부장">부장</option>
-					</select>
-				</div>
+                <div class="form-group-hr"> <span>ID<span class="required-asterisk">*</span></span>
+                    <input type="text" id="modalUserId" name="userId" required /> </div>
+                <div class="form-group-hr">
+                    <span>비밀번호<span class="required-asterisk" id="passwordRequiredAsterisk">*</span></span>
+                    <input type="password" id="modalUserPswd" name="userPswd" />
+                </div>
+                <div class="form-group-hr">
+                    <span>이름<span class="required-asterisk">*</span></span>
+                    <input type="text" id="modalUserNm" name="userNm" required />
+                </div>
+                <div class="form-group-hr">
+                    <span>이메일<span class="required-asterisk">*</span></span>
+                    <input type="text" id="userEmailInputInModal" name="userEmail" required /> </div>
+                <div class="form-group-hr">
+                    <span>직통번호<span class="required-asterisk">*</span></span>
+                    <input type="text" id="userTelInputInModal" name="userTel" placeholder="- 를 제외하고 입력해주세요" maxlength="11" required />
+                </div>
+                <div class="form-group-hr">
+                    <span>H.P<span class="required-asterisk">*</span></span>
+                    <input type="text" id="userHpInputInModal" name="userHp" placeholder="- 를 제외하고 입력해주세요" maxlength="11" required />
+                </div>
 
-				<div
-					style="display: flex; justify-content: space-between; width: 100%;">
-					<div style="display: flex; gap: 10px; width: 100%;">
-						<span style="white-space: nowrap;">입사일</span><input type="date"
-							name="hireDt" required style="width: 100%;">
-					</div>
-					<div style="display: flex; gap: 10px; width: 100%;">
-						<span style="white-space: nowrap;">퇴사일</span><input type="date"
-							name="retireDt" style="width: 100%;">
-					</div>
-				</div>
-				<div>
-					<span>재직상태</span> <select name="userStatus" required
-						style="width: 30%; padding: 10px;">
-						<option value="">재직상태를 선택해주세요</option>
-						<option value="01">재직중</option>
-						<option value="02">퇴사</option>
-						<option value="03">휴직</option>
-						<option value="04">대기</option>
-						<option value="05">정직</option>
-					</select>
-				</div>
+                <div class="hr-select-group" style="grid-column: span 2;">
+                    <div class="form-group-hr">
+                        <span>권한<span class="required-asterisk">*</span></span>
+                        <select id="modalUserRole" name="userRole" required>
+                            <option value="">권한을 선택해주세요</option>
+                            <option value="01">시스템관리자</option><option value="02">대표</option>
+                            <option value="03">영업 담당자</option><option value="04">구매 담당자</option>
+                            <option value="05">생산 관리자</option><option value="06">재고 관리자</option>
+                            <option value="07">인사 담당자</option>
+                        </select>
+                    </div>
+                    <div class="form-group-hr">
+                        <span>부서<span class="required-asterisk">*</span></span>
+                        <select id="modalUserDept" name="userDept" required>
+                            <option value="">부서를 선택해주세요</option>
+                            <option value="영업부">영업부</option><option value="개발부">개발부</option>
+                            <option value="생산부">생산부</option><option value="관리부">관리부</option>
+                            <option value="구매부">구매부</option>
+                        </select>
+                    </div>
+                    <div class="form-group-hr">
+                        <span>직책<span class="required-asterisk">*</span></span>
+                        <select id="modalUserPosition" name="userPosition" required>
+                            <option value="">직책을 선택해주세요</option>
+                            <option value="사원">사원</option><option value="대리">대리</option>
+                            <option value="과장">과장</option><option value="차장">차장</option>
+                            <option value="부장">부장</option>
+                        </select>
+                    </div>
+                </div>
 
-				<div style="display: grid; grid-template-columns: 1fr 1fr 1fr;">
-					<div class="modal-buttons" style="grid-column-start: 3;">
-						<button type="submit" name="save" style="display: block;">
-							<span class="material-symbols-outlined">save</span> 등록
-						</button>
-						<button type="submit" name="edit" style="display: none;">
-							<span class="material-symbols-outlined">edit</span> 수정
-						</button>
-						<button type="button" class="cancel-button" onclick="closeModal()">
-							<span class="material-symbols-outlined">close</span> 취소
-						</button>
-					</div>
-				</div>
-			</form>
-		</div>
-	</div>
+                <div class="hr-date-group" style="grid-column: span 2;">
+                    <div class="form-group-hr">
+                        <span>입사일<span class="required-asterisk">*</span></span>
+                        <input type="date" id="modalHireDt" name="hireDt" required />
+                    </div>
+                    <div class="form-group-hr">
+                        <span>퇴사일</span>
+                        <input type="date" id="modalRetireDt" name="retireDt" />
+                    </div>
+                </div>
+                <div class="form-group-hr" style="grid-column: span 2;"> <span>재직상태<span class="required-asterisk">*</span></span>
+                    <select id="modalUserStatus" name="userStatus" required style="max-width: 250px;"> <option value="">재직상태를 선택해주세요</option>
+                        <option value="01">재직중</option><option value="02">퇴사</option>
+                        <option value="03">휴직</option><option value="04">대기</option>
+                        <option value="05">정직</option>
+                    </select>
+                </div>
 
+                <div class="modal-buttons-wrapper" style="grid-column: span 2;"> <div class="modal-buttons"> <button type="submit" name="save" class="btn-save" style="display: block;">
+                            <span class="material-symbols-outlined">save</span> 등록
+                        </button>
+                        <button type="submit" name="edit" class="btn-edit" style="display: none;">
+                            <span class="material-symbols-outlined">edit</span> 수정
+                        </button>
+                        <button type="button" class="btn-cancel cancel-button" onclick="closeModal()">
+                            <span class="material-symbols-outlined">close</span> 취소
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <style>.required-asterisk { color: red; margin-left: 2px; font-weight: bold; } .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border-width: 0; }</style>
 
-
-	<script src="/js/top.js"></script>
-	<script src="/js/hr.js"></script>
-
+    <script src="/js/top.js"></script>
+    <script src="/js/hr.js"></script>
+    <script src="/js/hrExcel.js"></script>
+    <script src="/js/hrPrint.js"></script>
 </body>
-
 </html>

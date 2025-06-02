@@ -1,13 +1,17 @@
 package kr.co.d_erp.service;
 
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import kr.co.d_erp.dtos.CustomerDTO;
 import kr.co.d_erp.dtos.StockDto;
 import kr.co.d_erp.dtos.StockForResponseDto;
+import kr.co.d_erp.dtos.StockInvRequestDto;
 import kr.co.d_erp.dtos.StockRequestDto;
 import kr.co.d_erp.dtos.UnitDto;
 import kr.co.d_erp.dtos.WhmstDto;
@@ -19,14 +23,17 @@ public interface StockService {
 	
 	void deleteInventories(List<Long> invIdxs);
 	
-    // 단위 목록 조회 메소드 추가
+    // 드롭다운 조회용
     List<UnitDto> getAllUnits();
-    
-    // bizFlag에 따른 거래처 목록 조회 메소드 추가
     List<CustomerDTO> getCustomersByBizFlag(String bizFlag);
-    
     List<WhmstDto> getAllWarehouses();
     
-    StockDto createStockItem(StockRequestDto requestDto);
-    StockDto updateStockItem(Long itemIdx, StockRequestDto requestDto);
+    // 신규 등록 모달의 품목 선택 datalist용 (품목 마스터 정보 기반)
+    List<StockInvRequestDto> getAllItemsForStockRegistration();
+
+
+    // 재고 정보 수정 (TB_INVENTORY 직접 수정, 필요시 TB_ITEMMST도)
+    StockDto updateStockItem(Long invIdx, StockRequestDto requestDto); // 식별자를 invIdx로 사용
+
+    byte[] createExcelFile(String itemFlagFilter, String searchKeyword) throws IOException;
 }

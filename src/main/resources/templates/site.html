@@ -1,243 +1,83 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>사업장 정보</title>
-	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
-  <style th:replace="~{/top.html :: topstyle}"></style>
-  
-  <style>
-* {
-	margin: 0;
-	padding: 0;
-	box-sizing: border-box;
-}
-
-body {
-	font-family: sans-serif;
-	display: flex;
-	justify-content: center;
-	flex-direction: column;
-}
-
-.site-Wrapper {
-	padding: 20px;
-	width: 100%;
-	max-width: 1200px;
-	align-self: center;
-}
-
-.site-Dataset {
-	width: 100%;
-	border: 1px solid #777;
-	border-radius: 10px;
-	overflow: hidden;
-	display: flex;
-	flex-direction: column;
-}
-
-.site-Dataset .header {
-	background: #46a6ff;
-	color: white;
-	padding: 10px 20px;
-	font-size: 20px;
-}
-
-.site-Dataset .form-content {
-	display: flex;
-	flex-wrap: wrap;
-	padding: 20px;
-	gap: 20px;
-}
-
-.form-item {
-	display: flex;
-	align-items: center;
-	width: calc(33.333% - 13.33px);
-}
-
-.form-item.addr {
-	width: calc(66.666% - 10px);
-}
-
-.form-item span {
-	padding-right: 10px;
-	white-space: nowrap;
-}
-
-.form-item input {
-	width: 100%;
-	height: 100%;
-	border-radius: 3px;
-	padding: 5px;
-	font-size: 14px;
-	border: 1px solid #ccc;
-}
-
-.form-item input:focus {
-	border: 1px solid #46a6ff;
-	outline: none;
-}
-
-.save_site {
-	width: 100%;
-	border:0;
-	background: #007bff;
-    color: white;
-	border-radius: 3px;
-	font-size: 1.1rem;
-	cursor: pointer;
-	align-items: center;
-	display: flex;
-	justify-content: center;
-	height: 100%;
-}
-
-.save_site:hover {
-	    filter: brightness(0.9);
-}
-
-.save_site:active {
-	background: #46a6ff;
-	color: #fff;
-	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-</style>
-</head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사업장 정보</title>
+<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
+<style th:replace="~{/top.html :: topstyle}"></style>
+<link rel="stylesheet" href="/css/outbound.css"> <link rel="stylesheet" href="/css/site.css">     </head>
 <body>
 
-<div th:replace="~{/top.html :: top}"></div>
+    <div th:replace="~{/top.html :: top}"></div>
 
-  <div class="site-Wrapper flx-col">
-    <h1 style="font-size: 24px; margin-bottom: 16px;">사업장 관리</h1>
-    <form id="frm" method="get" action="#">
-      <div class="site-Dataset">
-        <div class="header">
-          <h4 style="margin: 0;">사업장 정보</h4>
+    <div class="site-Wrapper">
+     <h1 style="font-size: 24px; margin-bottom: 16px;">사업장 관리</h1>
+    
+        <form id="siteForm" method="post"> <div class="site-Dataset">
+                <div class="header">
+                    <span class="material-symbols-outlined">apartment</span>
+                    <h4>사업장 관리</h4> </div>
+
+                <div class="shipping-info-form site-form-content"> <input type="hidden" id="custCd" />
+
+                    <div class="form-group">
+                        <label for="siteNm">사업장 명</label>
+                        <input type="text" id="siteNm" name="siteNm" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceoNm">대표자 명</label>
+                        <input type="text" id="ceoNm" name="ceoNm" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizNo">사업자 번호</label>
+                        <input type="text" id="bizNo" name="bizNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="compNo">사업장 번호</label>
+                        <input type="text" id="compNo" name="compNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="corpRegNo">법인 번호</label>
+                        <input type="text" id="corpRegNo" name="corpRegNo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizCond">종목</label>
+                        <input type="text" id="bizCond" name="bizCond" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizItem">업태</label>
+                        <input type="text" id="bizItem" name="bizItem" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizTel">전화번호</label>
+                        <input type="text" id="bizTel" name="bizTel" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bizFax">팩스</label>
+                        <input type="text" id="bizFax" name="bizFax" required>
+                    </div>
+
+                    <div class="form-group addr-group"> <label for="bizAddr">주소</label>
+                        <div class="address-input-wrapper">
+                            <input type="text" id="bizAddr" name="bizAddr" required>
+                            <button type="button" class="btn-address-search" onclick="DaumPostcode(this)" data-target="bizAddr">
+                                <span class="material-symbols-outlined">search</span> 주소 검색
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions-footer">
+                    <button type="submit" class="btn-save"> <span class="material-symbols-outlined">save</span> 저장
+                    </button>
+                </div>
+            </form>
         </div>
-        <div class="form-content">
-        <input type="hidden" id="custCd" value="B01" />
-          <div class="form-item"><span>사업장 명</span><input type="text" id="siteNm" required oninvalid="this.setCustomValidity('사업장 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>대표자 명</span><input type="text" id="ceoNm" required oninvalid="this.setCustomValidity('대표자 명을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>사업자 번호</span><input type="text" id="bizNo" required oninvalid="this.setCustomValidity('사업자 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>사업장 번호</span><input type="text" id="compNo" required oninvalid="this.setCustomValidity('사업장 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>법인 번호</span><input type="text" id="corpRegNo" required oninvalid="this.setCustomValidity('법인 번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>종목</span><input type="text" id="bizCond" required oninvalid="this.setCustomValidity('종목을 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>업태</span><input type="text" id="bizItem" required oninvalid="this.setCustomValidity('업태를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>전화번호</span><input type="text" id="bizTel" required oninvalid="this.setCustomValidity('전화번호를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item"><span>팩스</span><input type="text" id="bizFax" required oninvalid="this.setCustomValidity('팩스를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-          <div class="form-item addr"><span>주소</span><input type="text" id="bizAddr" required class="addrinput" oninvalid="this.setCustomValidity('주소를 입력하세요.')" oninput="this.setCustomValidity('')"></div>
-       <div class="form-item">
-        <button class="save_site">
-       <span class="material-symbols-outlined">edit</span>
-       저장
-        </button>
-       </div>
-       
-       
-        </div>
-      </div>
-    </form>
-  </div>
+    </div>
+
+    <script src="/js/top.js"></script>
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="/js/kakaoApi.js"></script> <script src="/js/site.js"></script>
 </body>
-<script src="/js/top.js"></script>
-<script>
-//사업장 리스트 출력
-document.addEventListener('DOMContentLoaded', function() {
-    fetch('/api/site/details')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('네트워크 응답이 올바르지 않습니다.');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // 데이터가 배열로 오고, 그 안에 객체가 하나 있다고 가정합니다.
-            if (data && data.length > 0) {
-                const site = data[0]; // 첫 번째 사업장 정보를 가져옵니다.
-
-                // 각 input 필드에 데이터를 채워 넣습니다.
-                document.getElementById('siteNm').value = site.siteNm || '';
-                document.getElementById('ceoNm').value = site.ceoNm || '';
-                document.getElementById('bizNo').value = site.bizNo || '';
-                document.getElementById('compNo').value = site.compNo || '';
-                document.getElementById('corpRegNo').value = site.corpRegNo || '';
-                document.getElementById('bizCond').value = site.bizCond || '';
-                document.getElementById('bizItem').value = site.bizItem || '';
-                document.getElementById('bizTel').value = site.bizTel || '';
-                document.getElementById('bizFax').value = site.bizFax || ''; // null 가능
-                document.getElementById('bizAddr').value = site.bizAddr || '';
-            } else {
-                console.log('API에서 사업장 정보가 없습니다.');
-                // 여기에 초기화 또는 메시지 표시 로직을 추가할 수 있습니다.
-            }
-        })
-        .catch(error => {
-            console.error('사업장 정보를 불러오는 데 실패했습니다:', error);
-            // 사용자에게 에러 메시지를 표시할 수 있습니다.
-        });
-//사업장 업데이트
- // 2. 폼 제출 이벤트 리스너 추가 (업데이트 로직)
-    document.getElementById('frm').addEventListener('submit', function(event) {
-        event.preventDefault(); // 폼 기본 제출 동작 방지
-
-        // 필수 필드 유효성 검사 (HTML required 속성이 있지만, JS에서도 한번 더)
-        const requiredInputs = document.querySelectorAll('#frm input[required]');
-        for (const input of requiredInputs) {
-            if (!input.value.trim()) {
-                alert(input.placeholder || input.previousElementSibling.textContent + '을(를) 입력하세요.');
-                input.focus();
-                return; // 유효성 검사 실패 시 함수 종료
-            }
-        }
-
-        // DTO에 담을 데이터 객체 생성
-        const siteData = {
-            custCd: document.getElementById('custCd').value, // 숨겨진 custCd 필드의 값 사용
-            siteNm: document.getElementById('siteNm').value,
-            ceoNm: document.getElementById('ceoNm').value,
-            bizNo: document.getElementById('bizNo').value,
-            compNo: document.getElementById('compNo').value,
-            corpRegNo: document.getElementById('corpRegNo').value,
-            bizCond: document.getElementById('bizCond').value,
-            bizItem: document.getElementById('bizItem').value,
-            bizTel: document.getElementById('bizTel').value,
-            bizFax: document.getElementById('bizFax').value,
-            bizAddr: document.getElementById('bizAddr').value
-        };
-
-        // PUT 요청 보내기
-        fetch('/api/site/update', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(siteData) // JSON 문자열로 변환하여 전송
-        })
-        .then(response => {
-            if (response.ok) { // 상태 코드가 200-299 범위인 경우
-                return response.json(); // 성공 시 응답 JSON 파싱
-            } else if (response.status === 404) {
-                 return response.json().then(err => { throw new Error(err.message || '업데이트할 사업장을 찾을 수 없습니다.'); });
-            } else {
-                // 다른 HTTP 오류 처리
-                return response.text().then(text => { // 오류 응답 본문을 텍스트로 읽음
-                    throw new Error(`업데이트 실패: ${response.status} ${response.statusText} - ${text}`);
-                });
-            }
-        })
-        .then(updatedSite => {
-            console.log('사업장 정보가 성공적으로 업데이트되었습니다:', updatedSite);
-            alert('사업장 정보가 성공적으로 업데이트되었습니다.');
-            // 성공적으로 업데이트되면 페이지 새로고침 또는 UI 업데이트
-            // location.reload(); // 필요하다면 페이지를 새로고침하여 최신 데이터를 다시 로드
-        })
-        .catch(error => {
-            console.error('사업장 정보 업데이트 실패:', error);
-            alert('사업장 정보 업데이트 중 오류가 발생했습니다: ' + error.message);
-        });
-    });
-});
-</script>
 </html>

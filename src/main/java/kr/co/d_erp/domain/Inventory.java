@@ -1,9 +1,25 @@
 package kr.co.d_erp.domain;
 
-import jakarta.persistence.*;
-import lombok.*;
 import java.math.BigDecimal; // BigDecimal 사용
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 //수정했음 오류 발생시 문의 부탁 -나영
 
@@ -21,7 +37,7 @@ import java.time.LocalDateTime;
 public class Inventory {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    @SequenceGenerator(name = "inventory_seq", sequenceName = "INVENTORY_SEQ", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)     
     @Column(name = "INV_IDX", nullable = false)
     private Long invIdx;
 
@@ -34,9 +50,11 @@ public class Inventory {
     @Column(name = "STOCK_QTY", nullable = false, precision = 12, scale = 2) // DDL의 NUMBER(12,2) 반영
     private BigDecimal stockQty; // Double에서 BigDecimal로 변경
 
+    @CreationTimestamp
     @Column(name = "CREATED_DATE", nullable = false, updatable = false)
     private LocalDateTime createdDate;
 
+    @UpdateTimestamp
     @Column(name = "UPDATED_DATE")
     private LocalDateTime updatedDate; // Long에서 LocalDateTime으로 타입 변경
 

@@ -19,7 +19,6 @@ repositories {
 
 dependencies {
 
-
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-web-services'
@@ -85,6 +84,10 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-tasks.withType(JavaCompile) {
-    options.compilerArgs.add('-parameters')
+tasks.named('compileJava', JavaCompile) {
+     options.compilerArgs.add('-parameters')
+
+    doLast {
+        println "compileJava 작업의 컴파일러 인자: ${options.compilerArgs}"
+    }
 }

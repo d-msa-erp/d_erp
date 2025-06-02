@@ -1,574 +1,176 @@
-/*
- * 전역 스타일 초기화
- * 모든 요소의 기본 마진, 패딩을 제거하고 box-sizing을 border-box로 설정합니다.
- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* warehouse.css */
+
+/* 검색 영역: outbound.html 스타일을 따르도록 HTML 구조 변경 */
+/* .warehouse-search-actions 와 그 하위 요소는 outbound.css의 .shipping-info-section, .form-group, .search-action-buttons 등 활용 */
+/* 따라서 warehouse.css에서 별도 스타일 최소화 또는 제거 */
+.warehouse-search-actions { /* 이전 답변의 이 클래스는 HTML에서 shipping-info-section, search-action-buttons로 대체됨 */
+    /* 만약 HTML에서 warehouse-search-actions 클래스를 그대로 사용한다면, outbound.css 스타일을 참고하여 여기에 정의 */
 }
 
-/*
- * Body 기본 스타일
- * 폰트, 디스플레이 방식을 설정하여 페이지 중앙 정렬을 돕습니다.
- */
-body {
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-/*
- * 메인 컨텐츠 래퍼
- * 페이지의 주요 내용을 감싸는 요소의 너비와 패딩을 정의합니다.
- */
-.site-Wrapper {
+/* 메인 창고 목록 테이블: display:grid 대신 표준 테이블 스타일 사용 */
+table.grid-table.warehouse-main-table {
     width: 100%;
-    max-width: 1200px;
-    align-self: center;
-    padding: 20px;
+    /* table-layout: fixed; /* outbound.css 에서 이 스타일을 기본으로 제공할 것으로 예상 */
+    /* display: grid; /* 제거 */
+    /* grid-template-columns: ...; /* 제거 */
 }
+/* thead, tbody, tr { display: contents; } /* 제거 */
 
+/* thead th, tbody td 는 outbound.css의 .grid-table 스타일을 따름. */
+/* 특정 컬럼 너비는 HTML의 th style 속성으로 직접 지정함. */
+/* 또는 아래와 같이 warehouse.css에서 지정 가능 (HTML의 style 속성 제거 후) */
 /*
- * 데이터셋 컨테이너 (폼 + 테이블)
- * 데이터 조회 및 관리에 사용되는 섹션의 기본 틀을 잡습니다.
- */
-.site-Dataset {
-    width: 100%;
-    border: 1px solid #777;
-    border-radius: 10px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+.warehouse-main-table th:nth-child(1), .warehouse-main-table td:nth-child(1) { width: 40px; }
+.warehouse-main-table th:nth-child(2), .warehouse-main-table td:nth-child(2) { width: 12%; }
+.warehouse-main-table th:nth-child(3), .warehouse-main-table td:nth-child(3) { width: 18%; }
+.warehouse-main-table th:nth-child(4), .warehouse-main-table td:nth-child(4) { width: 12%; }
+.warehouse-main-table th:nth-child(5), .warehouse-main-table td:nth-child(5) { width: 28%; white-space: normal; text-align: left; justify-content: flex-start; }
+.warehouse-main-table th:nth-child(6), .warehouse-main-table td:nth-child(6) { width: 18%; white-space: normal; text-align: left; justify-content: flex-start; }
+.warehouse-main-table th:nth-child(7), .warehouse-main-table td:nth-child(7) { width: 12%; }
+*/
+
+/* 주소, 비고 컬럼의 white-space, text-align 은 outbound.css 기본 td 스타일을 따르거나,
+   필요시 위처럼 warehouse.css 에서 구체적으로 지정 */
+
+
+/* --- 모달 고유 스타일 --- */
+#modal .modal-content.warehouse-modal-content {
+    max-width: 1000px;
+}
+#transferModal .modal-content.transfer-modal-content {
+    max-width: 950px;
 }
 
-/*
- * 섹션 헤더 스타일
- * 데이터셋의 각 섹션 상단에 표시되는 제목 영역의 스타일입니다.
- */
-.site-Dataset .header {
-    background: #46a6ff;
-    color: white;
-    padding: 10px 20px;
-    font-size: 20px;
-}
-
-/* ============================================================ */
-/* 테이블 및 검색/액션 버튼 관련 스타일 */
-/* ============================================================ */
-
-/* 테이블 래퍼 */
-.table-wrapper {
-    width: 100%;
-    max-width: 1200px;
-}
-
-/* 테이블 상단 검색 및 액션 버튼 영역 */
-.table-wrapper>div:nth-child(1) {
-    padding: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 20px;
-    position: relative;
-}
-
-/* 테이블 상단 검색 입력 필드 */
-.table-wrapper>div:nth-child(1)>input[type="text"] {
-    width: 30%;
-    padding: 5px;
-}
-
-/* 테이블 상단 버튼 그룹 */
-.table-wrapper>div:nth-child(1)>div {
-    width: 30%;
-    display: flex;
-    justify-content: space-between;
-}
-
-/*
- * 검색, 신규등록, 삭제 버튼 공통 스타일
- * 버튼의 색상과 정렬을 정의합니다.
- */
-.table-wrapper>div:nth-child(1)>div button {
-    width: 30%;
-    background: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-}
-
-/* 검색 버튼 */
-.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-    background: #007bff;
-    color: white;
-}
-
-/* 신규등록 버튼 */
-.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-    background: #28a745;
-    color: white;
-}
-
-/* 삭제 버튼 */
-.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-    background: #dc3545;
-    color: white;
-}
-
-/* ============================================================ */
-/* 그리드 테이블 관련 스타일 */
-/* ============================================================ */
-
-/* 그리드 테이블 공통 스타일 */
-table.grid-table {
-    width: 100%;
-    border-collapse: collapse;
-    display: grid;
-    /* 예시: 8개 컬럼의 너비 비율 조정 */
-    grid-template-columns: 0.5fr 1.5fr 1.5fr 1.5fr 1fr 2fr 2.5fr 1.5fr;
-}
-
-/* 테이블 헤더, 바디, 행의 디스플레이 설정 */
-thead, tbody, tr {
-    display: contents;
-    white-space: nowrap;
-}
-
-/* 테이블 짝수 행 배경색 */
-tbody>tr:nth-child(even) td {
-    background: #f9f9f9;
-}
-
-/* 테이블 행 호버 시 배경색 */
-tbody>tr:hover td {
-    background: #46a6ff;
-    cursor: pointer;
-}
-
-/* 테이블 헤더 및 셀 공통 스타일 */
-th, td {
-    padding: 10px;
-    border: 1px solid #ccc;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start; /* 기본 좌측 정렬 */
-}
-
-/* 테이블 헤더 스타일 */
-thead th {
-    background: #f0f0f0;
-    font-weight: bold;
-    cursor: pointer;
-    justify-content: center; /* 헤더 텍스트 중앙 정렬 */
-}
-
-/* ============================================================ */
-/* 페이지네이션 스타일 */
-/* ============================================================ */
-
-/* 페이지네이션 래퍼 */
-.pagination-wrap {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    padding-top: 20px;
-    gap: 15px;
-    font-size: 15px;
-    color: #555;
-}
-
-/* 페이지 정보 텍스트 (예: "총 n건 1/n페이지") */
-.pagination-wrap > *:first-child:not(div) {
-    white-space: nowrap;
-}
-
-/* 페이지네이션 컨트롤 버튼 그룹 */
-.paigination, .pagination-controls {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* 페이지네이션 컨트롤 버튼 */
-.paigination button, .pagination-controls button {
-    width: 32px;
-    height: 32px;
-    background: #e0e0e0;
-    color: #555;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background-color 0.2s ease;
-}
-
-/* 페이지네이션 컨트롤 버튼 호버 시 스타일 */
-.paigination button:hover:not(:disabled), .pagination-controls button:hover:not(:disabled) {
-    background-color: #c0c0c0;
-}
-
-/* 페이지네이션 컨트롤 비활성화 버튼 */
-.paigination button:disabled, .pagination-controls button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* 페이지네이션 컨트롤 버튼 아이콘 */
-.paigination button .material-symbols-outlined, .pagination-controls button .material-symbols-outlined {
-    font-size: 20px;
-}
-
-/* 페이지네이션 숫자 입력 필드 */
-.paigination input[type="number"],
-.paigination input[type="text"],
-.pagination-controls input[type="number"],
-.pagination-controls input[type="text"] {
-    width: 50px;
-    text-align: center;
-    padding: 6px 8px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 15px;
-}
-
-/* ============================================================ */
-/* 모달 관련 스타일 */
-/* ============================================================ */
-
-/* 모달 오버레이 */
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    z-index: 1000;
-}
-
-/* 모달 콘텐츠 박스 */
-.modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 700px;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* 모달 탭 메뉴 */
 .modal-tabs {
     display: flex;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #007bff;
     margin-bottom: 20px;
     width: 100%;
 }
-
-/* 탭 버튼 */
-.tab-button {
-    background-color: #f1f1f1;
+.modal-tabs .tab-button {
+    background-color: transparent;
     border: none;
+    border-bottom: 2px solid transparent;
     outline: none;
     cursor: pointer;
     padding: 10px 20px;
-    transition: 0.3s;
+    transition: color 0.3s ease, border-color 0.3s ease;
     font-size: 16px;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    margin-right: 5px;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: -2px;
+}
+.modal-tabs .tab-button:hover { color: #0056b3; }
+.modal-tabs .tab-button.active {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+.tab-content { display: none; padding: 20px 0 10px 0; width: 100%; }
+.tab-content.active { display: block; animation: tabFadeInWAWarehouseFix 0.4s ease-out; }
+@keyframes tabFadeInWAWarehouseFix { /* 이전 애니메이션 이름과 겹치지 않도록 수정 */
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* 활성 탭 버튼 */
-.tab-button.active {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-bottom: none;
-    font-weight: bold;
-    color: #4CAF50;
+.sub-section-title {
+    font-size: 16px; font-weight: 600; color: #33475b;
+    margin-top: 10px; margin-bottom: 15px;
+    padding-bottom: 8px; border-bottom: 1px solid #e0e0e0;
 }
 
-/* 탭 콘텐츠 */
-.tab-content {
-    display: none;
-    padding: 10px 0;
+/* 모달 내 테이블 (재고 현황, 창고이동) : display:grid 대신 표준 테이블로 */
+table.grid-table.stock-table-in-modal,
+table.grid-table.transfer-items-table {
     width: 100%;
+    /* table-layout: fixed; /* outbound.css 스타일 따름 */
+    /* display: grid; /* 제거 */
+    /* grid-template-columns: ...; /* 제거 */
+    font-size: 13px;
 }
-
-/* 활성 탭 콘텐츠 */
-.tab-content.active {
-    display: block;
+.stock-table-in-modal th, .stock-table-in-modal td,
+.transfer-items-table th, .transfer-items-table td {
+    padding: 10px 8px;
+    /* border, text-align 등은 outbound.css .grid-table 스타일 따름 */
 }
+/* 모달 내 테이블 컬럼 너비는 HTML의 th style 또는 아래 CSS로 지정 */
+.stock-table-in-modal th:nth-child(1), .stock-table-in-modal td:nth-child(1) { width: 40px; }
+/* 나머지 .stock-table-in-modal 컬럼 너비들... */
+.transfer-items-table th:nth-child(1), .transfer-items-table td:nth-child(1) { width: 40px; }
+/* 나머지 .transfer-items-table 컬럼 너비들... */
 
-/* 모달 폼 그리드 레이아웃 */
-.warehouse-info-grid {
+
+.modal-table-maxheight { max-height: 280px; /* .table-scroll-wrapper 스타일 상속 */ }
+
+.stock-tab-buttons { justify-content: space-between !important; width: 100%;}
+.btn-action.btn-green { background-color: #28a745; color: white; }
+.btn-action.btn-green:hover { background-color: #218838; }
+.btn-action.btn-red { background-color: #dc3545; color: white; }
+.btn-action.btn-red:hover { background-color: #c82333; }
+
+form.warehouse-modal-form { width: 100%; }
+.warehouse-info-custom-grid { /* 정보 수정 탭의 폼 레이아웃 */
     display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 15px 20px;
-    align-items: center;
-    width: 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 25px; /* outbound.css .modal-form-grid과 유사하게 */
 }
 
-/* 모달 폼 입력 그룹 */
-.warehouse-info-grid .input-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    grid-column: span 2;
+.warehouse-info-custom-grid .wh-type-group .checkbox-group {
+    display: flex; flex-wrap: wrap; gap: 10px 20px; padding-top: 5px;
+}
+.warehouse-info-custom-grid .wh-type-group .checkbox-group label {
+    font-weight: normal; color: #333; display: flex; align-items: center; cursor: pointer; margin-bottom: 0;
+}
+.warehouse-info-custom-grid .wh-type-group .checkbox-group input[type="checkbox"] {
+    margin-right: 6px; width: auto;
+}
+.warehouse-info-custom-grid .use-flag-group {
+    display: flex; align-items: center; gap: 10px; padding-top: 5px;
+}
+.warehouse-info-custom-grid .use-flag-group label { margin-bottom: 0; }
+.warehouse-info-custom-grid .use-flag-group input[type="checkbox"] { width: auto; }
+
+.address-input-wrapper { position: relative; display: flex; }
+.address-input-wrapper input[type="text"] { padding-right: 115px !important; } /* outbound.css input 스타일 우선 적용 후 패딩 추가 */
+.btn-address-search {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    width: 105px; background-color: #6c757d; color: white;
+    border: none; border-top-right-radius: 5px; border-bottom-right-radius: 5px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 5px; font-size: 14px; transition: background-color 0.2s ease;
+}
+.btn-address-search:hover { background-color: #5a6268; }
+.btn-address-search .material-symbols-outlined { font-size: 18px; }
+
+textarea#modalRemarkInput { min-height: 60px; resize: vertical; }
+
+form.transfer-form-custom {
+    width: 100%; display: flex; flex-direction: column; gap: 20px;
+}
+.transfer-info-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 15px 25px; margin-bottom: 10px;
+}
+.transfer-info-grid input[readonly] {
+    background-color: #e9ecef; cursor: not-allowed; /* outbound.css input[readonly] 스타일 참고 */
 }
 
-/* 모달 폼 입력 라벨 */
-.warehouse-info-grid .input-group span {
-    min-width: 90px;
-    text-align: right;
-    font-weight: bold;
-    color: #555;
-    flex-shrink: 0;
+.transfer-items-section { margin-top: 10px; }
+
+.transfer-items-table input[type="number"].transfer-qty-input {
+    width: 80px; padding: 6px 8px; text-align: right;
+    border: 1px solid #ccc; border-radius: 3px; font-size: 13px;
 }
-
-/* 모달 폼 입력 필드 */
-.warehouse-info-grid .input-group input[type="text"],
-.warehouse-info-grid .input-group select {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-/* 모달 폼 체크박스 그룹 */
-.warehouse-info-grid .checkbox-group {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    grid-column: span 2;
-    justify-content: flex-start;
-}
-
-/* 모달 폼 체크박스 라벨 */
-.warehouse-info-grid .checkbox-group label {
-    display: flex;
-    align-items: center;
-    color: #555;
-    white-space: nowrap;
-    margin-right: 0;
-}
-
-/* 첫 번째 체크박스 라벨의 왼쪽 마진 */
-.warehouse-info-grid .checkbox-group label:first-of-type {
-    margin-left: 90px;
-}
-
-/* 모달 폼 체크박스 입력 필드 */
-.warehouse-info-grid input[type="checkbox"] {
-    margin-right: 5px;
-}
-
-/* 모달 하단 버튼 영역 */
-.modal-content .modal-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    width: 100%;
-}
-
-/* 모달 버튼 공통 스타일 */
-.modal-content .modal-buttons button {
-    width: auto;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-    flex-grow: 0;
-}
-
-/* 모달 저장/수정 버튼 */
-.modal-buttons button[name="save"],
-.modal-buttons button[name="edit"] {
-    background-color: #4CAF50;
-    color: white;
-}
-
-/* 모달 저장/수정 버튼 호버 시 */
-.modal-buttons button[name="save"]:hover,
-.modal-buttons button[name="edit"]:hover {
-    background-color: #45a049;
-}
-
-/* 모달 취소 버튼 */
-.modal-buttons button[onclick="closeModal()"] {
-    background-color: #777; 
-    color: white;
-}
-
-/* Material Symbols Outlined 아이콘 크기 */
-.material-symbols-outlined {
-    font-size: 1.2rem;
-}
-
-/* 창고 이동 버튼 */
-.modal-buttons .green-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-}
-
-/* 창고 이동 버튼 호버 시 */
-.modal-buttons .green-button:hover {
-    filter: brightness(0.9);
-}
-
-/* 삭제 버튼 */
-.modal-buttons .red-button {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 10px 15px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-}
-
-/* 삭제 버튼 호버 시 */
-.modal-buttons .red-button:hover {
-    filter: brightness(0.9);
-}
-
-/* 엑셀 인쇄 버튼 스타일 */
-.print-wrap {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0 20px;
-    display: flex;
-    gap: 10px;
-    width: 200px;
-}
-
-.print-wrap > button {
-    width: 100%;
-    background: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    padding: 5px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    justify-content: center;
-}
-
-/* ============================================================ */
-/* 창고 이동 모달 스타일 */
-/* ============================================================ */
-
-/* 창고 이동 폼 */
-.transfer-form {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* 창고 이동 정보 입력 영역 */
-.transfer-info {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.transfer-info .input-group {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.transfer-info .input-group span {
-    min-width: 100px;
-    font-weight: bold;
-    color: #555;
-    text-align: right;
-}
-
-.transfer-info .input-group input,
-.transfer-info .input-group select {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.transfer-info .input-group input[readonly] {
-    background-color: #f5f5f5;
-    color: #666;
-}
-
-/* 이동할 재고 목록 테이블 */
-.transfer-items {
-    margin-top: 20px;
-}
-
-.transfer-items .grid-table {
-    grid-template-columns: 2fr 1.5fr 1.5fr 1fr 1fr 0.8fr;
-    font-size: 14px;
-}
-
-.transfer-items .grid-table th,
-.transfer-items .grid-table td {
-    padding: 8px;
-    text-align: center;
-}
-
-.transfer-items .grid-table input[type="number"] {
-    width: 80px;
-    padding: 5px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
-    text-align: center;
-}
-
-/* 이동 수량 입력 필드 에러 스타일 */
-.transfer-items .grid-table input[type="number"]:invalid {
-    border-color: #dc3545;
-    background-color: #ffe6e6;
-}
-
-.transfer-items .grid-table input[type="number"]:focus {
+.transfer-items-table input[type="number"].transfer-qty-input:focus {
+    border-color: #46a6ff;
+    box-shadow: 0 0 0 2px rgba(70, 166, 255, 0.15);
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
+.transfer-items-table input[type="number"].transfer-qty-input:invalid {
+    border-color: #dc3545 !important;
+    background-color: #fbe9e7;
+}
+
+#transferModal .modal-buttons { margin-top: 25px; }
+
+.required-asterisk { color: red; margin-left: 2px; font-weight: bold; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }

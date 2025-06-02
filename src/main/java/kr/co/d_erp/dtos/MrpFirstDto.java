@@ -26,6 +26,7 @@ public class MrpFirstDto {
     private String productUnitNm;       // 기존 unitNm (완제품 단위)
     private BigDecimal orderQty;          // 완제품 총 생산/주문 수량 (기존 orderQty)
 
+    private String prodCd;
     private LocalDate orderDeliveryDate; // 기존 deliveryDate
     private String orderStatusOverall;  // 한글 주문 상태 (기존 orderStatus에서 변경)
 

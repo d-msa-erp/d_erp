@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 import kr.co.d_erp.domain.ItemInventoryView;
+import kr.co.d_erp.dtos.ItemInventorySummaryDto;
 import kr.co.d_erp.repository.oracle.ItemInventoryViewRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -24,5 +25,14 @@ public class ItemInventoryService {
         return all.stream()
                   .filter(i -> i.getStockQty() < i.getOptimalInv())
                   .toList();
+    }
+    
+    public List<ItemInventorySummaryDto> getShortageRawMaterials() {
+        return itemInventoryViewRepository.findItemsBelowOptimalInventory();
+    }
+    
+    public Long getTotalStockQty(Long itemIdx) {
+        Long total = itemInventoryViewRepository.getTotalStockQtyByItemIdx(itemIdx);
+        return total != null ? total : 0L;
     }
 }

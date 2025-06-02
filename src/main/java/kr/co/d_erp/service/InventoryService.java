@@ -42,13 +42,9 @@ public class InventoryService {
         if (existingInventoryOpt.isPresent()) {
             // 품목이 이미 창고에 존재하면, 수량을 업데이트합니다.
             Inventory inventory = existingInventoryOpt.get();
-            // 엔티티의 stockQty가 BigDecimal이라고 가정
             inventory.setStockQty(inventory.getStockQty().add(quantityToAdd));
             inventory.setUpdatedDate(now); // 엔티티 필드명이 updatedDate라고 가정
-            // 만약 TB_INVENTORY에 MOD_USER_IDX 컬럼이 있다면 아래 주석 해제
-            // inventory.setModUserIdx(currentUserId); 
             inventoryRepository.save(inventory);
-            System.out.println("기존 재고 업데이트: 창고ID=" + whIdx + ", 품목ID=" + itemIdx + ", 추가수량=" + quantityToAdd + ", 현재고=" + inventory.getStockQty());
         } else {
             // 품목이 창고에 없으면, 새로운 재고 레코드를 생성합니다.
             Inventory newInventory = Inventory.builder()
@@ -57,12 +53,8 @@ public class InventoryService {
                     .stockQty(quantityToAdd) // 엔티티의 stockQty가 BigDecimal이라고 가정
                     .createdDate(now)     // 엔티티 필드명이 createdDate라고 가정
                     .updatedDate(now)     // 신규 생성 시 updatedDate도 현재 시간으로 설정
-                    // 만약 TB_INVENTORY에 REG_USER_IDX, MOD_USER_IDX 컬럼이 있다면 아래 주석 해제
-                    // .regUserIdx(currentUserId)
-                    // .modUserIdx(currentUserId)
                     .build();
             inventoryRepository.save(newInventory);
-            System.out.println("신규 재고 생성: 창고ID=" + whIdx + ", 품목ID=" + itemIdx + ", 수량=" + quantityToAdd);
         }
     }
 
@@ -97,10 +89,7 @@ public class InventoryService {
             );
         }
         inventory.setStockQty(newStockQty);
-        inventory.setUpdatedDate(LocalDateTime.now()); // 엔티티 필드명이 updatedDate라고 가정
-        // 만약 TB_INVENTORY에 MOD_USER_IDX 컬럼이 있다면 아래 주석 해제
-        // inventory.setModUserIdx(currentUserId);
+        inventory.setUpdatedDate(LocalDateTime.now()); 
         inventoryRepository.save(inventory);
-        System.out.println("재고 감소: 창고ID=" + whIdx + ", 품목ID=" + itemIdx + ", 감소수량=" + quantityToDecrease + ", 현재고=" + newStockQty);
     }
 }

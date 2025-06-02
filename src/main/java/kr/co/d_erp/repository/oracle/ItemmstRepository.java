@@ -112,7 +112,7 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
     boolean existsByItemCd(String itemCd);
     
     // ITEM_CATX1, ITEM_CATX2 등은 실제 엔티티의 연관 필드명(예: catDto1.catNm)으로 변경 필요
-    @Query("SELECT i "
+    @Query("SELECT DISTINCT  i "
     		+ "FROM Itemmst i "
     		+ "LEFT JOIN "
     		+ "FETCH i.CustomerForItemDto c "
@@ -160,28 +160,31 @@ public interface ItemmstRepository extends JpaRepository<Itemmst, Long> {
 
 
     // 페이징 목록 (모든 아이템, 연관관계 Fetch Join 포함)
-    @Query("SELECT DISTINCT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+
+    @Query("SELECT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+    //@Query("SELECT DISTINCT i FROM Itemmst i LEFT JOIN FETCH i.CustomerForItemDto LEFT JOIN FETCH i.CatDto1 LEFT JOIN FETCH i.CatDto2 LEFT JOIN FETCH i.UnitForItemDto LEFT JOIN FETCH i.InvenDto")
+
     Page<Itemmst> findAllWithJoins(Pageable pageable);
-
-
-
     
-     // TB_CUSTMST에서 모든 거래처 조회 (MyBatis의 selectALLCust)
-     // CustomerRepository가 따로 있다면 거기서 처리하는 것이 더 적절합니다.
-     @Query("SELECT c FROM CustomerForItemDto c ORDER BY c.custNm")
-     List<CustomerForItemDto> findAllCustomers();
+    // TB_CUSTMST에서 모든 거래처 조회 (MyBatis의 selectALLCust)
+    // CustomerRepository가 따로 있다면 거기서 처리하는 것이 더 적절합니다.
+    @Query("SELECT c FROM CustomerForItemDto c ORDER BY c.custNm")
+    List<CustomerForItemDto> findAllCustomers();
 
-     // TB_ITEM_CAT에서 대분류 조회 (MyBatis의 selectALLcat1)
-     @Query("SELECT ic FROM CatDto ic WHERE ic.parentIdx IS NULL OR ic.parentIdx = 0 ORDER BY ic.catIdx")
-     List<CatDto> findAllParentCategories();
+    // TB_ITEM_CAT에서 대분류 조회 (MyBatis의 selectALLcat1)
+    @Query("SELECT ic FROM CatDto ic WHERE ic.parentIdx IS NULL OR ic.parentIdx = 0 ORDER BY ic.catIdx")
+    List<CatDto> findAllParentCategories();
 
 
-     // TB_UNIT_MST에서 모든 단위 조회 (MyBatis의 selectUnits)
-     @Query("SELECT u FROM UnitForItemDto u ORDER BY u.unitIdx")
-     List<UnitForItemDto> findAllUnits();
-     
-     Optional<Itemmst> findByItemCd(String itemCd);
-     
+    // TB_UNIT_MST에서 모든 단위 조회 (MyBatis의 selectUnits)
+    @Query("SELECT u FROM UnitForItemDto u ORDER BY u.unitIdx")
+    List<UnitForItemDto> findAllUnits();
+    
+    Optional<Itemmst> findByItemCd(String itemCd);
+    
+
+
+
     
     // 희원 여기까지 --------------------------
      

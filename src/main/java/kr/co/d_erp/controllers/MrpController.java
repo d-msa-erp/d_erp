@@ -1,15 +1,21 @@
 package kr.co.d_erp.controllers;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriUtils;
 
 import kr.co.d_erp.dtos.BomItemDetailDto;
 import kr.co.d_erp.dtos.MrpFirstDto;
@@ -36,7 +42,7 @@ public class MrpController {
 
     @GetMapping("/results")
     public ResponseEntity<Page<MrpSecondDto>> getMrpResults(
-            @RequestParam Long orderIdx,
+            @RequestParam("orderIdx") Long orderIdx,
             @PageableDefault(sort = "mrpIdx", direction = Sort.Direction.ASC, size = 10) Pageable pageable) {
         Page<MrpSecondDto> mrpResults = mrpService.findMrpResults(orderIdx, pageable);
         return ResponseEntity.ok(mrpResults);
@@ -50,4 +56,5 @@ public class MrpController {
         }
         return ResponseEntity.ok(bomDetails);
     }
+    
 }

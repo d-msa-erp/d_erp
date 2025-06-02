@@ -1,8 +1,6 @@
 package kr.co.d_erp.controllers;
 
 import java.io.IOException;
-
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -10,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -33,8 +30,6 @@ import kr.co.d_erp.dtos.CatDto;
 import kr.co.d_erp.dtos.CustomerForItemDto;
 import kr.co.d_erp.dtos.InvenDto;
 import kr.co.d_erp.dtos.Item;
-import kr.co.d_erp.dtos.ItemDto;
-import kr.co.d_erp.dtos.ItemForSelectionDto;
 import kr.co.d_erp.dtos.Itemmst;
 import kr.co.d_erp.dtos.UnitForItemDto;
 import kr.co.d_erp.service.ItemService;
@@ -45,74 +40,9 @@ public class ItemApiController {
 
 	private final ItemService itemService;
 
-	@Autowired
 	public ItemApiController(ItemService itemService) {
 		this.itemService = itemService;
 	}
-
-	private Itemmst mapToItemEntityForCreate(Item.CreateRequest dto) {
-        // ItemDto가 실제 JPA 엔티티 클래스라고 가정합니다.
-        // 만약 Item.java 자체가 JPA 엔티티라면, Item 객체를 생성해야 합니다.
-		Itemmst entity = new Itemmst();
-        entity.setItemCd(dto.getItemCd());
-        entity.setItemNm(dto.getItemNm());
-        entity.setItemSpec(dto.getItemSpec());
-        entity.setRemark(dto.getRemark());
-        entity.setItemFlag(dto.getItemFlag());
-        entity.setOptimalInv(dto.getOptimalInv());
-        entity.setItemCost(dto.getItemCost());
-
-        if (dto.getCustIdx() != null) {
-            CustomerForItemDto customer = new CustomerForItemDto();
-            customer.setCustIdx(dto.getCustIdx());
-            entity.setCustomerForItemDto(customer); // 서비스에서 실제 엔티티 조회 후 연결
-        }
-        if (dto.getItemCat1Id() != null) {
-            CatDto cat1 = new CatDto();
-            cat1.setCatIdx(dto.getItemCat1Id());
-            entity.setCatDto1(cat1); // 서비스에서 실제 엔티티 조회 후 연결
-        }
-        if (dto.getItemCat2Id() != null) {
-            CatDto cat2 = new CatDto();
-            cat2.setCatIdx(dto.getItemCat2Id());
-            entity.setCatDto2(cat2); // 서비스에서 실제 엔티티 조회 후 연결
-        }
-        if (dto.getItemUnitId() != null) {
-            UnitForItemDto unit = new UnitForItemDto();
-            unit.setUnitIdx(dto.getItemUnitId());
-            entity.setUnitForItemDto(unit); // 서비스에서 실제 엔티티 조회 후 연결
-        }
-        return entity;
-    }
-
-    private Itemmst mapToItemEntityForUpdate(Item.UpdateRequest dto) {
-        // ItemDto가 실제 JPA 엔티티 클래스라고 가정합니다.
-    	Itemmst entityUpdates = new Itemmst();
-        entityUpdates.setItemNm(dto.getItemNm());
-        entityUpdates.setItemSpec(dto.getItemSpec());
-        entityUpdates.setRemark(dto.getRemark());
-        entityUpdates.setItemFlag(dto.getItemFlag());
-        entityUpdates.setOptimalInv(dto.getOptimalInv());
-        entityUpdates.setItemCost(dto.getItemCost());
-
-        if (dto.getCustIdx() != null) {
-            CustomerForItemDto customer = new CustomerForItemDto(); customer.setCustIdx(dto.getCustIdx());
-            entityUpdates.setCustomerForItemDto(customer);
-        }
-        if (dto.getItemCat1Id() != null) {
-            CatDto cat1 = new CatDto(); cat1.setCatIdx(dto.getItemCat1Id());
-            entityUpdates.setCatDto1(cat1);
-        }
-        if (dto.getItemCat2Id() != null) {
-            CatDto cat2 = new CatDto(); cat2.setCatIdx(dto.getItemCat2Id());
-            entityUpdates.setCatDto2(cat2);
-        }
-        if (dto.getItemUnitId() != null) {
-            UnitForItemDto unit = new UnitForItemDto(); unit.setUnitIdx(dto.getItemUnitId());
-            entityUpdates.setUnitForItemDto(unit);
-        }
-        return entityUpdates;
-    }
 
     private Item.Response mapToItemResponseDto(Itemmst entity) {
         if (entity == null) return null;
@@ -124,12 +54,17 @@ public class ItemApiController {
         dto.setItemSpec(entity.getItemSpec());
         dto.setRemark(entity.getRemark());
         dto.setOptimalInv(entity.getOptimalInv());
-        dto.setItemCost(entity.getItemCost()); // ItemDto 엔티티의 itemCost 사용
-        /*
-        dto.setQty(entity.getInvenDto() != null ? entity.getInvenDto().getStockQty() : null);
-        */
-        List<InvenDto> invenList = entity.getInvenDto(); 
-        dto.setQty((invenList != null && !invenList.isEmpty()) ? invenList.get(0).getStockQty() : null); // 오류나면 위에 주석 코드로 되돌리시면 됩니다. -민섭-
+        dto.setItemCost(entity.getItemCost());
+
+        Long totalStockQty = 0L;
+        if (entity.getInvenDto() != null) {
+            for (InvenDto invenDto : entity.getInvenDto()) {
+                if (invenDto.getStockQty() != null) {
+                    totalStockQty += invenDto.getStockQty();
+                }
+            }
+        }
+        dto.setQty(totalStockQty);
 
         if (entity.getCustomerForItemDto() != null) {
             dto.setCustIdx(entity.getCustomerForItemDto().getCustIdx());
@@ -147,12 +82,10 @@ public class ItemApiController {
             dto.setItemUnitId(entity.getUnitForItemDto().getUnitIdx());
             dto.setUnitNm(entity.getUnitForItemDto().getUnitNm());
         }
-        // Item.Response DTO에 CYCLE_TIME이 필요하다면 ItemDto 엔티티에서 가져와 설정
-        // 예: dto.setCycleTime(entity.getCycleTime()); (ItemDto에 getCycleTime()이 있다고 가정)
+        dto.setCycleTime(entity.getCycleTime()); // cycleTime 필드 추가
+
         return dto;
     }
-
-    // --- API Endpoints ---
 
     @GetMapping("/excel")
     public ResponseEntity<byte[]> downloadExcel(
@@ -170,14 +103,14 @@ public class ItemApiController {
 
             return new ResponseEntity<>(excelContent, headers, HttpStatus.OK);
         } catch (IOException e) {
-            e.printStackTrace(); // 로깅 필요
+            e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/check")
     public ResponseEntity<Map<String, Boolean>> checkItemCodeUnique(@RequestParam("itemCd") String itemCd) {
-        boolean isUnique = itemService.itemCdUnique(itemCd);
+        boolean isUnique = itemService.isItemCdUnique(itemCd);
         Map<String, Boolean> response = new HashMap<>();
         response.put("isUni", isUnique);
         return ResponseEntity.ok(response);
@@ -185,35 +118,32 @@ public class ItemApiController {
 
     @GetMapping("/custs")
     public ResponseEntity<List<CustomerForItemDto>> getAllCustomers() {
-        List<CustomerForItemDto> customers = itemService.selectALLCust();
+        List<CustomerForItemDto> customers = itemService.selectAllCustomers();
         return ResponseEntity.ok(customers);
     }
 
     @GetMapping("/cats")
     public ResponseEntity<List<CatDto>> getAllMainCategories() {
-        List<CatDto> categories = itemService.selectALLcat1();
+        List<CatDto> categories = itemService.selectAllMainCategories();
         return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/sub/{PARENT_IDX}")
     public ResponseEntity<List<CatDto>> getSubCategoriesByParentId(@PathVariable("PARENT_IDX") Long parentIdx) {
-        List<CatDto> categories = itemService.findALLcat2(parentIdx);
+        List<CatDto> categories = itemService.findSubCategoriesByParentId(parentIdx);
         return ResponseEntity.ok(categories);
     }
 
     @GetMapping("/units")
     public ResponseEntity<List<UnitForItemDto>> getAllUnits() {
-        List<UnitForItemDto> units = itemService.selectUnits();
+        List<UnitForItemDto> units = itemService.selectAllUnits();
         return ResponseEntity.ok(units);
     }
 
     @PostMapping
     public ResponseEntity<?> createItem(@RequestBody Item.CreateRequest createRequestDto) {
         try {
-            // ItemDto는 JPA 엔티티 클래스 이름으로 가정합니다.
-            // 만약 Item.java 자체가 엔티티라면 new Item()으로 변경해야 합니다.
-        	Itemmst itemToSave = mapToItemEntityForCreate(createRequestDto);
-        	Itemmst savedItem = itemService.insertItem(itemToSave);
+            Itemmst savedItem = itemService.insertItem(createRequestDto);
             Item.Response responseDto = mapToItemResponseDto(savedItem);
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
@@ -221,7 +151,7 @@ public class ItemApiController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace(); // 로깅 필요
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("품목 등록 중 서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -234,7 +164,7 @@ public class ItemApiController {
             @RequestParam(value = "CsearchItem", required = false) String CsearchItem) {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(Sort.Direction.DESC, "itemIdx"));
-        Page<Itemmst> itemEntityPage; // ItemDto는 JPA 엔티티로 가정
+        Page<Itemmst> itemEntityPage;
 
         if (CsearchItem != null && !CsearchItem.trim().isEmpty()) {
             itemEntityPage = itemService.getSearchItem(pageable, CsearchCat, CsearchItem);
@@ -253,7 +183,7 @@ public class ItemApiController {
     @GetMapping("/{item_IDX}")
     public ResponseEntity<Item.Response> getItemById(@PathVariable("item_IDX") Long itemIdx) {
         try {
-        	Itemmst itemEntity = itemService.getItemById(itemIdx); // ItemDto는 JPA 엔티티로 가정
+            Itemmst itemEntity = itemService.getItemById(itemIdx);
             Item.Response responseDto = mapToItemResponseDto(itemEntity);
             return ResponseEntity.ok(responseDto);
         } catch (EntityNotFoundException e) {
@@ -263,11 +193,9 @@ public class ItemApiController {
 
     @PutMapping("/{item_IDX}")
     public ResponseEntity<?> updateItem(@PathVariable("item_IDX") Long itemIdx,
-                                          @RequestBody Item.UpdateRequest updateRequestDto) {
+                                            @RequestBody Item.UpdateRequest updateRequestDto) {
         try {
-            // ItemDto는 JPA 엔티티 클래스 이름으로 가정합니다.
-        	Itemmst itemUpdates = mapToItemEntityForUpdate(updateRequestDto);
-        	Itemmst updatedItem = itemService.updateItem(itemIdx, itemUpdates);
+            Itemmst updatedItem = itemService.updateItem(itemIdx, updateRequestDto);
             Item.Response responseDto = mapToItemResponseDto(updatedItem);
             return ResponseEntity.ok(responseDto);
         } catch (IllegalArgumentException e) {
@@ -275,7 +203,7 @@ public class ItemApiController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {
-            e.printStackTrace(); // 로깅 필요
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("품목 수정 중 서버 오류가 발생했습니다: " + e.getMessage());
         }
     }
@@ -289,7 +217,7 @@ public class ItemApiController {
             itemService.deleteItems(itemIdxs);
             return ResponseEntity.ok("선택된 품목이 성공적으로 삭제되었습니다.");
         } catch (Exception e) {
-            e.printStackTrace(); // 로깅 필요
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("품목 삭제 중 오류가 발생했습니다: " + e.getMessage());
         }

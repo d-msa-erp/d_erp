@@ -5,6 +5,7 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<title>MRP 관리</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 	<style th:replace="~{/top.html :: topstyle}"></style>
 	<style>
@@ -468,8 +469,8 @@
 		    background-color: lightskyblue !important; /* 하늘색 배경, 다른 스타일에 덮어쓰이지 않도록 !important 사용 (테스트 후 제거 시도) */
 		}
 		.deficit-warning {
-		    color: red;
-		    font-weight: bold;
+		    color: red !important;
+		    font-weight: bold !important;
 		}
 	</style>
 
@@ -506,10 +507,10 @@
 							<button type="button" id="calculateMrpBtn">
 								<span class="material-symbols-outlined">calculate</span> 계산
 							</button>
-							<button type="button">
+							<button type="button" onclick="mrpexceldownload()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
-							<button type="button">
+							<button type="button" onclick="printMrpData()">
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
@@ -578,32 +579,32 @@
 
 					<div class="bomTab3">
 						<div class="flex-row">
-							<div><span>주문번호</span><input type="text" id="modalOrderCode" /></div>
-					        <div><span>필요생산수량</span><input type="text" id="modalProductProductionQty" /></div>
+							<div><span>주문번호</span><input type="text" id="modalOrderCode" readonly/></div>
+					        <div><span>필요생산수량</span><input type="text" id="modalProductProductionQty" readonly/></div>
 					    </div>
-					    	<div><span>품목코드</span><input type="text" id="modalProductItemCd" /></div>
+					    	<div><span>품목코드</span><input type="text" id="modalProductItemCd" readonly/></div>
 					    	<div><span>품목명</span><input type="text" id="modalProductItemNm" /></div>
 					   	<div class="flex-row">
-					        <div><span>고객사</span><input type="text" id="modalCustomerNm" /></div>
-					        <div><span>주문일자</span><input type="date" id="modalOrderDate" /></div>
+					        <div><span>고객사</span><input type="text" id="modalCustomerNm" readonly/></div>
+					        <div><span>주문일자</span><input type="date" id="modalOrderDate" readonly/></div>
 					    </div>
 					    <div class="flex-row">
-							<div><span>MRP 상태</span><input type="text" id="modalMrpStatus" /></div> 
-					        <div><span>납기일자</span><input type="date" id="modalOrderDeliveryDate" /></div> 
+							<div><span>MRP 상태</span><input type="text" id="modalMrpStatus" readonly/></div> 
+					        <div><span>납기일자</span><input type="date" id="modalOrderDeliveryDate" readonly/></div> 
 
 					    </div>
 					    <div class="flex-row">
-					        <div><span>원자재코드</span><input type="text" id="modalSelectedMaterialCode" /></div>
-					        <div><span>원자재명</span><input type="text" id="modalSelectedMaterialName" /></div>
+					        <div><span>원자재코드</span><input type="text" id="modalSelectedMaterialCode" readonly/></div>
+					        <div><span>원자재명</span><input type="text" id="modalSelectedMaterialName" readonly/></div>
 					    </div>
 					    <div class="flex-row">
-					        <div><span>(자재)소요량</span><input type="text" id="modalCalculatedMaterialQty" /></div>
-					        <div><span>(자재)단위</span><input type="text" id="modalSelectedMaterialUnit" /></div> </div>
+					        <div><span>(자재)소요량</span><input type="text" id="modalCalculatedMaterialQty" readonly/></div>
+					        <div><span>(자재)단위</span><input type="text" id="modalSelectedMaterialUnit" readonly/></div> </div>
 					     <div class="flex-row">
-					        <div><span>생산성</span><input type="text" id="modalProductivity" /></div>
-					        <div><span>계산된원가</span><input type="text" id="modalCalculatedMaterialCost" /></div>
+					        <div><span>생산성</span><input type="text" id="modalProductivity" readonly/></div>
+					        <div><span>계산된원가</span><input type="text" id="modalCalculatedMaterialCost" readonly/></div>
 					     </div>
-					    <div><span>비고</span><input type="text" id="modalRemark"/></div>
+					    <div><span>비고</span><input type="text" id="modalRemark" readonly/></div>
 					</div>
 
 				</div>
@@ -636,8 +637,8 @@
 	</div>
 
 	<script src="/js/top.js"></script>
-	<script src="/js/mrp.js">
-	</script>
+	<script src="/js/mrp.js"></script>
+	<script src="/js/mrpprint.js"></script>
 
 </body>
 

@@ -1,263 +1,312 @@
-	// --- 전역 변수 ---
-	const pageSize = 10;
-	let currentPage = 1;
-	let totalPages = 1;
-	let currentSortTh = null;
-	let currentSortOrder = 'desc';
-	let allItemBasicInfos = []; 
-	
-	// --- DOM 요소 참조 변수 ---
-	let itemTableBody, noDataRow,
-	    prevPageButton, nextPageButton, currentPageInput,
-	    totalCountSpan, currentPageSpan,
-	    itemFlagSelect, searchItemText, searchButton,
-	    deleteBtn, checkallItemCheckbox;
-	    // excelDownBtn; // 엑셀 버튼은 현재 코드에서 제외
-	
-	// --- Helper Functions ---
-	function setInputValue(form, name, value) {
-	    const element = form.querySelector(`[name="${name}"]`);
-	    if (element) {
-	        if (element.type === 'date' && value) {
-	            try {
-	                let dateStr = value.toString();
-	                if (dateStr.includes('T')) dateStr = dateStr.substring(0, 10);
-	                else if (dateStr.length > 10 && /^\d{4}-\d{2}-\d{2}/.test(dateStr.substring(0,10))) dateStr = dateStr.substring(0, 10);
-	                if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) element.value = dateStr;
-	                else {
-	                   const d = new Date(value);
-	                   element.value = `${d.getFullYear()}-${('0' + (d.getMonth() + 1)).slice(-2)}-${('0' + d.getDate()).slice(-2)}`;
-	                }
-	            } catch (e) { element.value = ''; console.error("Error formatting date for name " + name + ":", value, e); }
-	        } else {
-	            element.value = (value === null || value === undefined) ? '' : value;
-	        }
-	    }
-	}
-	
-	function formatCurrencyKR(value) {
-	    if (value === null || value === undefined || isNaN(parseFloat(value))) return "";
-	    return parseFloat(value).toLocaleString('ko-KR') + "원";
-	}
-	
-	function unformatCurrencyKR(formattedValue) {
-	    if (typeof formattedValue !== 'string') {
-	        const num = parseFloat(formattedValue);
-	        return isNaN(num) ? null : num;
-	    }
-	    const numericString = formattedValue.replace(/[원,]/g, "");
-	    const numValue = parseFloat(numericString);
-	    return isNaN(numValue) ? null : numValue;
-	}
-	
-	// --- 데이터 로딩 및 테이블 렌더링 ---
-	async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = null, sortDirection = null) {
-	    currentPage = page;
-	    const currentItemFlag = itemFlagSelect ? itemFlagSelect.value : ""; // HTML의 itemFlagSelect 사용
-	    const currentKeyword = searchItemText ? searchItemText.value.trim() : "";
-	
-	    // URL 생성 시, searchKeyword는 함수 파라미터 keyword를 사용합니다.
-	    let url = `/api/stocks?page=${page - 1}&size=${pageSize}`; // API 경로 확인!
-	
-	    if (itemFlag) { // itemFlagSelect에서 직접 받은 값 사용
-	        url += `&itemFlagFilter=${encodeURIComponent(itemFlag)}`;
-	    }
-	    if (keyword && keyword.trim() !== "") { // 함수 파라미터 keyword 사용
-	        url += `&searchKeyword=${encodeURIComponent(keyword.trim())}`;
-	    }
-	
-	    if (sortProperty && sortDirection) {
-	        url += `&sort=${encodeURIComponent(sortProperty)},${encodeURIComponent(sortDirection)}`;
-	    } else if (currentSortTh && currentSortTh.dataset.sortProperty && currentSortOrder) {
-	         url += `&sort=${encodeURIComponent(currentSortTh.dataset.sortProperty)},${encodeURIComponent(currentSortOrder)}`;
-	    }
-	
-	    try {
-	        const response = await fetch(url);
-	        if (!response.ok) { // API 호출 자체가 실패한 경우 (404, 500 등)
-	            // JAVASCRIPT 수정: 구체적인 오류 메시지 표시
-	            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}. URL: ${url}`);
-	        }
-	        const pageData = await response.json();
-	
-	        if (!itemTableBody) return;
-	        itemTableBody.innerHTML = '';
-	
-	        const items = pageData.content || [];
-	        const totalElements = pageData.totalElements || 0;
-	        totalPages = pageData.totalPages || Math.ceil(totalElements / pageSize) || 1;
-	        currentPage = pageData.number !== undefined ? pageData.number + 1 : page;
-	
-	        if (totalCountSpan) totalCountSpan.textContent = `총 ${totalElements}건`;
-	        if (currentPageSpan) currentPageSpan.textContent = `${currentPage}/${totalPages}페이지`;
-	        if (prevPageButton) prevPageButton.disabled = currentPage === 1;
-	        if (nextPageButton) nextPageButton.disabled = currentPage === totalPages || totalPages === 0;
-	        if (currentPageInput) currentPageInput.value = currentPage;
-	
-	        if (items.length > 0) {
-	            if (noDataRow) noDataRow.style.display = 'none';
-	            items.forEach(item => {
-	                const row = itemTableBody.insertRow();
-	                row.style.cursor = 'pointer';
-	                row.dataset.item = JSON.stringify(item);
-	                row.addEventListener('click', (event) => {
-	                    if (event.target.type !== 'checkbox' && event.target.closest('td') !== row.cells[0]) {
-	                        openModal(item);
-	                    }
-	                });
-	                const checkboxCell = row.insertCell();
-	                const checkbox = document.createElement('input');
-	                checkbox.type = 'checkbox';
-	                checkbox.classList.add('item-checkbox');
-	                checkbox.dataset.invIdx = item.invIdx;
-					
-					checkbox.addEventListener('click', (e) => {
-					    e.stopPropagation();
-					    updateCheckAllItemState(); // 개별 체크박스 클릭 시 전체 체크박스 상태 업데이트
-					});
-	                checkboxCell.appendChild(checkbox);
-					
-	                row.insertCell().textContent = item.itemCd || "";
-	                row.insertCell().textContent = item.itemNm || "";
-	                row.insertCell().textContent = item.qty === null || item.qty === undefined ? "0" : item.qty;
-	                row.insertCell().textContent = item.inv === null || item.inv === undefined ? "" : item.inv;
-	                row.insertCell().textContent = item.whNm || "";
-	                row.insertCell().textContent = item.unitNm || "";
-	            });
-	            if (checkallItemCheckbox) updateCheckAllItemState();
-	        } else { // items.length === 0
-	            if (noDataRow) noDataRow.style.display = 'none'; // 기존 noDataRow는 숨김
-	            let message = "조회된 데이터가 없습니다.";
-	            // JAVASCRIPT 수정: 검색어가 있었는데 결과가 없으면 다른 메시지
-	            if (currentKeyword.trim() !== "") { // 함수 호출 시 전달된 keyword 사용
-	                message = `"${currentKeyword}"에 해당하는 자재/품목명이 존재하지 않습니다.`;
-	            }
-	            // JAVASCRIPT 수정: colspan 대신 grid-column 스타일 사용 및 메시지 적용
-	            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">${message}</td></tr>`;
-	            totalPages = 1;
-	            if (currentPageSpan) currentPageSpan.textContent = `1/1페이지`;
-	            if (currentPageInput) currentPageInput.value = 1;
-	            if (prevPageButton) prevPageButton.disabled = true;
-	            if (nextPageButton) nextPageButton.disabled = true;
-	        }
-	    } catch (error) {
-	        console.error("데이터 조회 중 오류:", error);
-	        if (itemTableBody) {
-	            // JAVASCRIPT 수정: colspan 대신 grid-column 스타일 사용
-	            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
-	        }
-	        if (totalCountSpan) totalCountSpan.textContent = '총 0건';
-	        if (currentPageSpan) currentPageSpan.textContent = '1/1페이지';
-	        if (prevPageButton) prevPageButton.disabled = true;
-	        if (nextPageButton) nextPageButton.disabled = true;
-	        if (currentPageInput) currentPageInput.value = 1;
-	    }
-	}
-	
-	// --- 페이지 로드 시 실행 ---
-	document.addEventListener('DOMContentLoaded', () => {
-	    itemTableBody = document.getElementById('itembody');
-	    noDataRow = document.getElementById('Noitem');
-	
-	    prevPageButton = document.getElementById('btn-prev-page');
-	    nextPageButton = document.getElementById('btn-next-page');
-		currentPageInput = document.getElementById('currentPageInput'); // HTML ID 확인
-	   totalCountSpan = document.getElementById('totalCountSpan');     // HTML ID 확인
-	   currentPageSpan = document.getElementById('currentPageSpan');   // HTML ID 확인
-	    
-	    itemFlagSelect = document.getElementById('itemFlagSelect');
-	    searchItemText = document.getElementById('searchItemText');
-	    searchButton = document.getElementById('searchButton');
-	    deleteBtn = document.getElementById('deleteBtn');
-	    checkallItemCheckbox = document.getElementById('checkallItem');
-	    // excelDownBtn = document.getElementById('excelBtn'); // 필요시 ID 할당
-	
-		if (checkallItemCheckbox) {
-		        checkallItemCheckbox.addEventListener('change', function() {
-		            const itemCheckboxes = itemTableBody.querySelectorAll('input.item-checkbox');
-		            itemCheckboxes.forEach(checkbox => {
-		                checkbox.checked = this.checked;
-		            });
-		        });
-		    }
-			
-	    fetchItems(1);
-		
-		const itemNmSelectInput = document.getElementById('item_NM_select');
-		if (itemNmSelectInput) {
-		    itemNmSelectInput.addEventListener('input', function(event) {
-		        const selectedValueFromInput = event.target.value; // 사용자가 입력/선택한 "품목명 (품목코드)"
-		        const form = document.getElementById('modalForm');
-				const selectedItemIdxHiddenInput = form.querySelector('input[name="selected_item_idx"]');
-				const itemCdDisplayInput = form.querySelector('input[name="item_CD_display"]'); // 품목코드 표시용 input
-				const itemFlagModalSelect = form.querySelector('select[name="item_FLAG"]');     // 모달 내 품목/자재 구분 select
+// --- 전역 변수 ---
+const pageSize = 10;
+let currentPage = 1;
+let totalPages = 1;
+let currentSortTh = null;
+let currentSortOrder = 'desc';
+let allItemBasicInfos = [];
+let previouslyReceivedItems = [];
 
-		        // Datalist의 <option>의 value와 직접 비교
-		        const matchedOption = Array.from(document.getElementById('itemListDatalist').options).find(
-		            opt => opt.value === selectedValueFromInput // "품목명 (품목코드)" 형식과 비교
-		        );
+// --- DOM 요소 참조 변수 ---
+let itemTableBody, noDataRow,
+    prevPageButton, nextPageButton, currentPageInput,
+    totalCountSpan, currentPageSpan,
+    itemFlagSelect, searchItemText, searchButton,
+    deleteBtn, checkallItemCheckbox;
 
-				if (matchedOption && matchedOption.dataset.itemIdx) { // 데이터리스트에서 정확히 선택한 경우
-	                const selectedItemIdx = parseInt(matchedOption.dataset.itemIdx);
-	                if (selectedItemIdxHiddenInput) selectedItemIdxHiddenInput.value = selectedItemIdx;
+// --- Helper Functions ---
+function setInputValue(form, name, value) {
+    const element = form.querySelector(`[name="${name}"]`);
+    if (element) {
+        if (element.type === 'date' && value) {
+            try {
+                let dateStr = value.toString();
+                if (dateStr.includes('T')) dateStr = dateStr.substring(0, 10);
+                else if (dateStr.length > 10 && /^\d{4}-\d{2}-\d{2}/.test(dateStr.substring(0,10))) dateStr = dateStr.substring(0, 10);
+                
+                if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                     element.value = dateStr;
+                } else {
+                   const d = new Date(value);
+                   if (!isNaN(d.getTime())) {
+                        element.value = `${d.getFullYear()}-${('0' + (d.getMonth() + 1)).slice(-2)}-${('0' + d.getDate()).slice(-2)}`;
+                   } else {
+                        element.value = '';
+                   }
+                }
+            } catch (e) { element.value = ''; console.error("Error formatting date for name " + name + ":", value, e); }
+        } else {
+            element.value = (value === null || value === undefined) ? '' : value;
+        }
+    }
+}
 
-	                // allItemBasicInfos 배열에서 해당 itemIdx의 전체 정보 찾기
-	                const selectedItemInfo = allItemBasicInfos.find(info => info.itemIdx === selectedItemIdx);
+function formatCurrencyKR(value) {
+    if (value === null || value === undefined || isNaN(parseFloat(value))) return "";
+    return parseFloat(value).toLocaleString('ko-KR') + "원";
+}
 
-	                if (selectedItemInfo) {
-	                    console.log("Datalist에서 선택된 품목 정보:", selectedItemInfo);
-	                    if (itemCdDisplayInput) itemCdDisplayInput.value = selectedItemInfo.itemCd || ''; // 품목코드 자동 표시
-						//if (itemCdHiddenInput) itemCdHiddenInput.value = selectedItemInfo.itemCd || ''; // hidden item_CD 에도 설정
-		                //if (itemNmHiddenInput) itemNmHiddenInput.value = selectedItemInfo.itemNm || '';
+function unformatCurrencyKR(formattedValue) {
+    if (typeof formattedValue !== 'string') {
+        const num = parseFloat(formattedValue);
+        return isNaN(num) ? null : num;
+    }
+    const numericString = formattedValue.replace(/[원,]/g, "");
+    const numValue = parseFloat(numericString);
+    return isNaN(numValue) ? null : numValue;
+}
+	
+// --- 데이터 로딩 및 테이블 렌더링 ---
+async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = null, sortDirection = null) {
+    currentPage = page;
+    // const currentItemFlag = itemFlagSelect ? itemFlagSelect.value : ""; // itemFlagSelect는 메인 화면에 없음
+    const currentKeyword = searchItemText ? searchItemText.value.trim() : "";
 
-	                    // JAVASCRIPT 수정: 선택된 품목 정보로 모달의 다른 필드 자동 채우기
-	                    setInputValue(form, 'item_COST', formatCurrencyKR(selectedItemInfo.itemCost));
-	                    setInputValue(form, 'optimal_INV', selectedItemInfo.optimalInv);
-	                    setInputValue(form, 'item_SPEC', selectedItemInfo.itemSpec); // HTML에 name="item_SPEC" 필요
-	                    
-	                    // 단위 <select> 자동 선택 (selectedItemInfo.unitIdx 사용)
-	                    const unitSelect = form.querySelector('select[name="item_UNIT"]');
-	                    if (unitSelect && selectedItemInfo.unitIdx !== undefined) {
-	                        unitSelect.value = selectedItemInfo.unitIdx;
-	                    } else if (unitSelect) {
-	                        unitSelect.value = ""; // 해당하는 단위 정보가 없으면 초기화
-	                    }
+    let url = `/api/stocks?page=${page - 1}&size=${pageSize}`;
 
-	                    // 매입처 <select> 자동 선택 (selectedItemInfo.custIdx 사용)
-	                    const custSelect = form.querySelector('select[name="cust_NM"]');
-	                    if (custSelect && selectedItemInfo.custIdx !== undefined) {
-	                        custSelect.value = selectedItemInfo.custIdx;
-	                    } else if (custSelect) {
-	                        custSelect.value = ""; // 해당하는 매입처 정보가 없으면 초기화
-	                    }
-	                    
-	                    // 품목/자재 구분 <select> 자동 선택 (selectedItemInfo.itemFlag 사용)
-	                    if (itemFlagModalSelect && selectedItemInfo.itemFlag) {
-	                        itemFlagModalSelect.value = selectedItemInfo.itemFlag;
-	                        // itemFlagModalSelect.disabled = true; // 선택된 품목에 귀속된 정보이므로 수정 불가 처리 가능
-	                    }
-	                    // 수량(qty) 필드는 사용자가 직접 입력해야 하므로 여기서는 비워두거나 기본값(예: 0) 설정
-	                    // setInputValue(form, 'qty', '0'); 
-	                    // 창고(wh_idx) 필드도 사용자가 선택하도록 둡니다.
-	                }
-				} else { // Datalist에 없는 값을 사용자가 직접 입력한 경우 (완전히 새로운 품목으로 간주할지 여부 결정)
-					if (selectedItemIdxHiddenInput) selectedItemIdxHiddenInput.value = ''; // 선택된 품목 ID 없음
-	                if (itemCdDisplayInput) itemCdDisplayInput.value = ''; // 품목코드 표시칸 비움 (또는 자동생성 로직 연동)
-					if (itemNmHiddenInput) itemNmHiddenInput.value = '';
-	                // 다른 필드들(단가, 적정재고 등)도 사용자가 직접 입력하도록 비워두거나 기본값으로 설정
-	                setInputValue(form, 'item_COST', formatCurrencyKR(''));
-	                setInputValue(form, 'optimal_INV', '');
-	                setInputValue(form, 'item_SPEC', '');
-	                if (itemFlagModalSelect) itemFlagModalSelect.value = ''; // 분류도 초기화 또는 기본값
-	                // 단위, 매입처 등도 초기화
-	                const unitSelect = form.querySelector('select[name="item_UNIT"]');
-	                if (unitSelect) unitSelect.value = '';
-	                const custSelect = form.querySelector('select[name="cust_NM"]');
-	                if (custSelect) custSelect.value = '';
-		        }
-		    });
+	const currentItemFlagFromSelect = itemFlagSelect ? itemFlagSelect.value : "";
+	    const flagToUse = itemFlag !== null ? itemFlag : currentItemFlagFromSelect;
+
+		console.log(flagToUse);
+		if (flagToUse && flagToUse !== "") {
+		    // 👇 파라미터 이름을 'itemFlagFilter'으로 변경
+		    url += `&itemFlagFilter=${encodeURIComponent(flagToUse)}`;
 		}
+		
+		const keywordToUse = keyword !== null ? keyword.trim() : currentKeyword;
+		if (keywordToUse && keywordToUse !== "") {
+		    url += `&searchKeyword=${encodeURIComponent(keywordToUse)}`;
+		}
+
+    if (sortProperty && sortDirection) {
+        url += `&sort=${encodeURIComponent(sortProperty)},${encodeURIComponent(sortDirection)}`;
+    } else if (currentSortTh && currentSortTh.dataset.sortProperty && currentSortOrder) {
+         url += `&sort=${encodeURIComponent(currentSortTh.dataset.sortProperty)},${encodeURIComponent(currentSortOrder)}`;
+    }
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}. URL: ${url}`);
+        }
+        const pageData = await response.json();
+
+        if (!itemTableBody) return;
+        itemTableBody.innerHTML = '';
+
+        const items = pageData.content || [];
+        const totalElements = pageData.totalElements || 0;
+        totalPages = pageData.totalPages || Math.ceil(totalElements / pageSize) || 1;
+        currentPage = pageData.number !== undefined ? pageData.number + 1 : page;
+
+        if (totalCountSpan) totalCountSpan.textContent = `총 ${totalElements}건`;
+        if (currentPageSpan) currentPageSpan.textContent = `${currentPage}/${totalPages}페이지`;
+        if (prevPageButton) prevPageButton.disabled = currentPage === 1;
+        if (nextPageButton) nextPageButton.disabled = currentPage === totalPages || totalPages === 0;
+        if (currentPageInput) currentPageInput.value = currentPage;
+
+        if (items.length > 0) {
+            if (noDataRow) noDataRow.style.display = 'none';
+            items.forEach(item => { // item은 StockDto (재고 현황 DTO)
+                const row = itemTableBody.insertRow();
+                row.style.cursor = 'pointer';
+                row.dataset.item = JSON.stringify(item);
+                row.addEventListener('click', (event) => {
+                    if (event.target.type !== 'checkbox' && event.target.closest('td') !== row.cells[0]) {
+                        openModal(item); // 재고 항목 수정 시 StockDto 전달
+                    }
+                });
+                const checkboxCell = row.insertCell();
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.classList.add('item-checkbox');
+                checkbox.dataset.invIdx = item.invIdx; // TB_INVENTORY의 PK 또는 재고 식별 ID
+
+                checkbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    updateCheckAllItemState();
+                });
+                checkboxCell.appendChild(checkbox);
+
+                row.insertCell().textContent = item.itemCd || "";
+                row.insertCell().textContent = item.itemNm || "";
+                row.insertCell().textContent = item.qty === null || item.qty === undefined ? "0" : item.qty;
+                row.insertCell().textContent = item.inv === null || item.inv === undefined ? "" : item.inv; // 품목 마스터의 적정재고
+                row.insertCell().textContent = item.whNm || "";
+                row.insertCell().textContent = item.unitNm || "";
+            });
+            if (checkallItemCheckbox) updateCheckAllItemState();
+        } else {
+            if (noDataRow) noDataRow.style.display = 'none';
+            let message = "조회된 데이터가 없습니다.";
+            if (currentKeyword.trim() !== "") {
+                message = `"${currentKeyword}"에 해당하는 검색 결과가 없습니다.`;
+            }
+            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">${message}</td></tr>`;
+            totalPages = 1;
+            if (currentPageSpan) currentPageSpan.textContent = `1/1페이지`;
+            if (currentPageInput) currentPageInput.value = 1;
+            if (prevPageButton) prevPageButton.disabled = true;
+            if (nextPageButton) nextPageButton.disabled = true;
+        }
+    } catch (error) {
+        console.error("데이터 조회 중 오류:", error);
+        if (itemTableBody) {
+            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+        }
+        // ... (오류 시 UI 초기화)
+    }
 	
+
+}
+	
+async function loadAllItemMasterData() {
+    if (allItemBasicInfos.length > 0 && allItemBasicInfos[0].itemIdx) return;
+
+    try {
+        const response = await fetch('/api/stocks/item-basics');
+        if (!response.ok) throw new Error('품목 마스터 정보 로드 실패: ' + response.statusText);
+        allItemBasicInfos = await response.json();
+        console.log("품목 마스터 정보 로드 완료:", allItemBasicInfos);
+        if (allItemBasicInfos.length === 0) {
+            console.warn("로드된 품목 마스터 정보가 없습니다.");
+        } else if (!allItemBasicInfos[0].itemIdx) {
+             console.warn("품목 마스터 정보에 itemIdx 필드가 없거나 유효하지 않습니다.", allItemBasicInfos[0]);
+        }
+    } catch (error) {
+        console.error("품목 마스터 정보 로드 중 오류:", error);
+        allItemBasicInfos = [];
+    }
+}
+	
+async function loadPreviouslyReceivedItemsForDatalist() {
+    const datalistElement = document.getElementById('itemListDatalist');
+    const itemNmSelectElement = document.getElementById('item_NM_select');
+    if (!datalistElement || !itemNmSelectElement) return;
+
+    datalistElement.innerHTML = '';
+    itemNmSelectElement.placeholder = "품목 정보 로딩 중...";
+
+    try {
+        const response = await fetch('/api/inv-transactions?transType=R&size=500&sort=transDate,desc');
+        if (!response.ok) throw new Error('과거 입고 거래 정보 로드 실패: ' + response.statusText);
+        const pageData = await response.json();
+        const transactions = pageData.content || [];
+
+        const uniqueItemsMap = new Map();
+        transactions.forEach(trx => {
+            if (trx.itemIdx && trx.itemNm && trx.itemCd) {
+                if (!uniqueItemsMap.has(trx.itemIdx)) {
+                    uniqueItemsMap.set(trx.itemIdx, {
+                        itemIdx: trx.itemIdx,
+                        itemNm: trx.itemNm,
+                        itemCd: trx.itemCd,
+						transQty: trx.transQty 
+                    });
+                }
+            }
+        });
+        previouslyReceivedItems = Array.from(uniqueItemsMap.values());
+
+        if (previouslyReceivedItems.length > 0) {
+            previouslyReceivedItems.forEach(item => {
+                const option = document.createElement('option');
+                option.value = `${item.itemNm} (${item.itemCd})`;
+                option.dataset.itemIdx = item.itemIdx;
+				if (item.transQty !== null && item.transQty !== undefined) {
+                    option.dataset.transQty = item.transQty; 
+                }
+                datalistElement.appendChild(option);
+            });
+            itemNmSelectElement.placeholder = "품목명을 입력하거나 선택하세요";
+        } else {
+            itemNmSelectElement.placeholder = "참조할 입고 품목이 없습니다.";
+        }
+    } catch (error) {
+        console.error("과거 입고 품목 정보 로드 중 오류:", error);
+        itemNmSelectElement.placeholder = "품목 정보 로드 실패";
+        previouslyReceivedItems = [];
+    }
+}
+	
+// --- 페이지 로드 시 실행 ---
+document.addEventListener('DOMContentLoaded', () => {
+    itemTableBody = document.getElementById('itembody');
+    noDataRow = document.getElementById('Noitem');
+	const excelDownBtn = document.getElementById('excelBtn');
+    prevPageButton = document.getElementById('btn-prev-page');
+    nextPageButton = document.getElementById('btn-next-page');
+    currentPageInput = document.getElementById('currentPageInput');
+    totalCountSpan = document.getElementById('totalCountSpan');
+    currentPageSpan = document.getElementById('currentPageSpan');
+
+    // itemFlagSelect는 메인 검색 영역에 현재 없으므로 null 체크 후 사용 또는 제거
+    itemFlagSelect = document.getElementById('itemFlagSelect');
+    searchItemText = document.getElementById('searchItemText');
+    searchButton = document.getElementById('searchButton');
+    deleteBtn = document.getElementById('deleteBtn');
+    checkallItemCheckbox = document.getElementById('checkallItem');
+	
+	if (checkallItemCheckbox) {
+	    checkallItemCheckbox.addEventListener('change', function() {
+	        console.log('전체 선택 체크박스 변경됨. 새 상태:', this.checked); // 전체 선택 체크박스 변경 로깅
+	        const itemCheckboxes = itemTableBody.querySelectorAll('input.item-checkbox');
+	        console.log(`개별 체크박스 ${itemCheckboxes.length}개 상태 변경 시도`);
+	        itemCheckboxes.forEach(checkbox => {
+	            checkbox.checked = this.checked;
+	        });
+	    });
+	} else {
+	    console.warn("ID가 'checkallItem'인 요소를 찾을 수 없습니다.");
+	}
+
+    fetchItems(1);
+    loadAllItemMasterData();
+
+    const itemNmSelectInput = document.getElementById('item_NM_select');
+    const modalForm = document.getElementById('modalForm');
+
+    if (itemNmSelectInput && modalForm) {
+        itemNmSelectInput.addEventListener('input', function(event) {
+            const selectedValueFromDatalist = event.target.value;
+            const matchedOption = Array.from(document.getElementById('itemListDatalist').options).find(
+                opt => opt.value === selectedValueFromDatalist
+            );
+
+            if (matchedOption && matchedOption.dataset.itemIdx) {
+                const selectedItemIdx = parseInt(matchedOption.dataset.itemIdx);
+                const itemMasterInfo = allItemBasicInfos.find(info => info.itemIdx === selectedItemIdx);
+
+                if (itemMasterInfo) {
+                    setInputValue(modalForm, 'selected_item_idx', itemMasterInfo.itemIdx);
+                    setInputValue(modalForm, 'item_NM', itemMasterInfo.itemNm);
+                    const itemCdDisplayInput = modalForm.querySelector('input[name="item_CD_display"]');
+                    if (itemCdDisplayInput) itemCdDisplayInput.value = itemMasterInfo.itemCd || '';
+                    setInputValue(modalForm, 'item_COST', formatCurrencyKR(itemMasterInfo.itemCost));
+                    setInputValue(modalForm, 'optimal_INV', itemMasterInfo.optimalInv);
+                    const unitSelect = modalForm.querySelector('select[name="item_UNIT"]');
+                    if (unitSelect && itemMasterInfo.unitIdx !== undefined) unitSelect.value = itemMasterInfo.unitIdx;
+                    else if (unitSelect) unitSelect.value = "";
+                    const custSelect = modalForm.querySelector('select[name="cust_NM"]');
+                    const defaultCustId = itemMasterInfo.custIdx; // 품목마스터의 custIdx가 기본 매입처로 가정
+                    if (custSelect && defaultCustId !== undefined) custSelect.value = defaultCustId;
+                    else if (custSelect) custSelect.value = "";
+					const originalTransQty = matchedOption.dataset.transQty;
+                    if (originalTransQty !== undefined) {
+                        console.log(`>>> 선택된 과거 입고 거래의 수량(transQty): ${originalTransQty}를 모달 '수량' 필드에 설정합니다.`);
+                        setInputValue(modalForm, 'qty', originalTransQty);
+                    } else {
+                        setInputValue(modalForm, 'qty', ''); // 과거 거래 수량 정보 없으면 빈 값
+                    }
+                } else {
+                    resetItemSpecificFields(modalForm);
+                }
+            } else {
+                setInputValue(modalForm, 'selected_item_idx', ''); // 일치 항목 없으면 선택된 품목 ID 없음
+            }
+        });
+    }
+			
 		if (prevPageButton) {
 		        prevPageButton.addEventListener('click', () => {
 		            if (currentPage > 1) {
@@ -294,7 +343,7 @@
 		    }
 	    
 		if (searchButton) {
-		        searchButton.addEventListener('click', function() {
+		        searchButton.addEventListener('click', function(event) {
 					event.preventDefault();
 		            // JAVASCRIPT 수정: 검색 버튼 클릭 시 itemFlagSelect와 searchItemText의 현재 값을 사용
 		            const flagFilter = itemFlagSelect ? itemFlagSelect.value : "";
@@ -361,10 +410,57 @@
 	            }
 	        });
 	    }
+		
+		if (excelDownBtn) { // excelDownBtn 요소가 존재하는지 확인
+		        excelDownBtn.addEventListener('click', function() {
+		            // 전역 또는 DOMContentLoaded 스코프에서 올바르게 할당된 변수 사용
+		            const exCsearchCat = itemFlagSelect ? itemFlagSelect.value : ""; // itemFlagSelect 사용 (존재 여부 확인)
+		            const exCsearchItem = searchItemText ? searchItemText.value.trim() : ""; // searchItemText 사용 (존재 여부 확인)
+
+		            console.log("Excel 다운로드 요청:", { exCsearchCat, exCsearchItem }); // 파라미터 값 로깅
+
+		            let downUrl = `/api/stocks/excel`;
+		            const params = new URLSearchParams();
+
+		            if (exCsearchCat && exCsearchCat.trim() !== '') {
+		                params.append('CsearchCat', exCsearchCat);
+		            }
+		            if (exCsearchItem && exCsearchItem.trim() !== '') {
+		                params.append('CsearchItem', exCsearchItem);
+		            }
+
+		            if (params.toString()) {
+		                downUrl += '?' + params.toString();
+		            }
+
+		            console.log("Excel 다운로드 URL:", downUrl);
+		            window.open(downUrl, '_blank'); // 새 창 또는 탭에서 다운로드 시도
+		        });
+		    } else {
+		        console.warn("ID가 'excelBtn'인 요소를 찾을 수 없습니다.");
+		    }
 	    
-	    if (itemTableBody) { /* ... (이전과 동일) ... */ }
+		if (itemTableBody) {
+	        // JAVASCRIPT 수정: colspan 대신 grid-column 스타일 사용
+	        itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+	    }
 	    // 엑셀 버튼 리스너 (필요시 구현)
 	});
+	
+	function resetItemSpecificFields(form) {
+	    if (!form) return;
+	    setInputValue(form, 'selected_item_idx', '');
+	    setInputValue(form, 'item_NM', '');
+	    const itemCdDisplayInput = form.querySelector('input[name="item_CD_display"]');
+	    if (itemCdDisplayInput) itemCdDisplayInput.value = '';
+	    setInputValue(form, 'item_COST', formatCurrencyKR(''));
+	    setInputValue(form, 'optimal_INV', '');
+	    const unitSelect = form.querySelector('select[name="item_UNIT"]');
+	    if (unitSelect) unitSelect.value = '';
+	    const custSelect = form.querySelector('select[name="cust_NM"]');
+	    if (custSelect) custSelect.value = '';
+	    setInputValue(form, 'qty', '');
+	}
 	
 	function updateCheckAllItemState() {
 	    if (!itemTableBody || !checkallItemCheckbox) return; // 요소 없으면 실행 중단
@@ -390,262 +486,376 @@
 	}
 	
 	// --- 모달 관련 함수들 ---
-	async function openModal(item = null) { // item은 StockDto
+	async function openModal(item = null) {
 	    const modal = document.getElementById('modal');
 	    const title = document.getElementById('modalTitle');
 	    const form = document.getElementById('modalForm');
 	    if (!modal || !title || !form) return;
 	    form.reset();
-		
-		
-		const itemCdDisplayInput = form.querySelector('input[name="item_CD_display"]');
-		const itemCdHiddenInput = form.querySelector('input[name="item_CD"]'); // << 이 선언이 중요!
-		const itemNmSelectInput = form.querySelector('input[name="item_NM_select"]');
-		const selectedItemIdxHiddenInput = form.querySelector('input[name="selected_item_idx"]');
-		const itemNmHiddenInput = form.querySelector('input[name="item_NM"]'); // 순수 품목명 hidden input
-		const itemFlagModalSelect = form.querySelector('select[name="item_FLAG"]'); // 품목 분류 select
-		
-		const saveButton = form.querySelector('button[name="save"]');
-		const editButton = form.querySelector('button[name="edit"]');
-		console.log("모달 오픈 시 전달된 item 객체:", JSON.stringify(item, null, 2)); // item 전체 내용 확인
-		if (item) { // 이 if 블록은 itemCdHiddenInput 선언과 무관해야 합니다.
-		    console.log("전달된 품목 ID (item.itemIdx):", item.itemIdx);
-		    console.log("전달된 창고 ID (item.whIdx):", item.whIdx);
-		    console.log("전달된 단위 ID (item.unitIdx):", item.unitIdx);
-		    console.log("전달된 매입처 ID (item.custIdxForItem):", item.custIdxForItem);
-		}
-		
-		try {
-		    const unitIdToLoad = item ? item.unitIdx : null;
-		    const custIdToLoad = item ? item.custIdxForItem : null; // 또는 item.custIdx
-		    const whIdToLoad = item ? item.whIdx : null;
 
-		    await Promise.all([
-		        loadAndSetUnits(unitIdToLoad),
-		        loadAndSetCustomers(custIdToLoad),
-		        loadAndSetWarehouses(whIdToLoad)
-		    ]);
-		} catch (e) {
-		    console.error("모달 내 드롭다운 로딩 중 오류:", e);
-		    // 여기서 오류 발생 시 이후 로직이 영향을 받을 수 있으므로, 사용자에게 알림 필요
-		}
-	    if (item) { // 수정 모드
-			title.textContent = '재고 정보 수정'; // 화면명에 맞게 수정
+	    const saveButton = form.querySelector('button[name="save"]');
+	    const editButton = form.querySelector('button[name="edit"]');
+	    const transTypeSelect = form.querySelector('select[name="transType"]');
+	    const itemNmSelectInput = form.querySelector('input[name="item_NM_select"]');
+	    const itemCdDisplayInput = form.querySelector('input[name="item_CD_display"]');
+		const qtyInput = form.querySelector('input[name="qty"]');
+	    const itemCostInput = form.querySelector('input[name="item_COST"]');
+	    const optimalInvInput = form.querySelector('input[name="optimal_INV"]');
+	    const whSelect = form.querySelector('select[name="wh_idx"]');
+	    const unitSelect = form.querySelector('select[name="item_UNIT"]');
+	    const custSelect = form.querySelector('select[name="cust_NM"]');
+	    const userIdxSelect = form.querySelector('select[name="user_idx"]'); // HTML에 <select name="user_idx"> 필요
+	    const userNmInput = form.querySelector('input[name="user_NM"]');
+	    const userTelInput = form.querySelector('input[name="user_TEL"]');
+	    const userMailInput = form.querySelector('input[name="user_MAIL"]');
+	    const remarkInput = form.querySelector('input[name="remark"]');
+	    const currentStockInfoSpan = document.getElementById('currentStockInfo'); 
+
+	    if (item && item.invIdx !== undefined) { // 수정 모드 (메인 테이블 재고 항목 클릭 시, invIdx로 식별)
+	        title.textContent = '재고 정보 수정';
 	        if (saveButton) saveButton.style.display = 'none';
 	        if (editButton) editButton.style.display = 'block';
-
-			if (itemCdHiddenInput) itemCdHiddenInput.value = item.itemCd || "";
-	        // item 객체는 StockDto의 필드를 가지고 있어야 함
-	        if (itemCdDisplayInput) {
-	            itemCdDisplayInput.value = item.itemCd || "";
-	            itemCdDisplayInput.readOnly = true;
+	        if (transTypeSelect) {
+	              transTypeSelect.value = item.transType === 'R' ? '01' : (item.transType === 'S' ? '02' : ''); // StockDto에 transType이 있다면
+	             transTypeSelect.disabled = true; // 재고 수정 시 입출고 유형 변경은 보통 불가
 	        }
-	        if (itemNmSelectInput) { // 수정 시에는 품목명 직접 수정이 아니라, 선택된 품목의 정보를 보여줌
-	            itemNmSelectInput.value = `${item.itemNm || ''} (${item.itemCd || ''})`;
-	            itemNmSelectInput.readOnly = true; // 수정 모드에서는 품목명(선택)을 바꾸지 못하게 할 수 있음
-	        }
-	        if (selectedItemIdxHiddenInput) selectedItemIdxHiddenInput.value = item.itemIdx || '';
-	        
-			setInputValue(form, 'item_NM', item.itemNm);
-			setInputValue(form, 'item_FLAG', item.itemFlag);
-			setInputValue(form, 'item_IDX', item.itemIdx);
-			// setInputValue(form, 'item_CD_display', item.itemCd); // 위에서 직접 처리
-			setInputValue(form, 'inv_IDX', item.invIdx);
-			// setInputValue(form, 'item_NM', item.itemNm); // item_NM_select 또는 item_NM_display 사용
-			setInputValue(form, 'item_COST', formatCurrencyKR(item.itemCost));
-			setInputValue(form, 'optimal_INV', item.inv);
-			setInputValue(form, 'item_SPEC', item.itemSpec);
-			setInputValue(form, 'remark', item.reMark || item.remark);
-			setInputValue(form, 'qty', item.qty);
-			setInputValue(form, 'user_NM', item.userNm);
-			setInputValue(form, 'user_TEL', item.userTel);
-			setInputValue(form, 'user_MAIL', item.userMail);
+	        if (itemNmSelectInput) itemNmSelectInput.readOnly = true;
+	        if (itemCdDisplayInput) itemCdDisplayInput.readOnly = true;
+			if (transTypeSelect) transTypeSelect.disabled = true; // 입출고 구분은 수정 불가
+	        if (itemNmSelectInput) itemNmSelectInput.readOnly = true;
+	        if (itemCdDisplayInput) itemCdDisplayInput.readOnly = true;
+	        if (qtyInput) qtyInput.readOnly = true; // 수량 수정 불가 (요청사항)
+	        if (itemCostInput) itemCostInput.readOnly = true; // 단가 수정 불가 (요청사항)
+	        if (optimalInvInput) optimalInvInput.readOnly = true; // 적정재고 수정 불가 (요청사항)
 
-			if (editButton) {
-			    const newEditButton = editButton.cloneNode(true);
-			    editButton.parentNode.replaceChild(newEditButton, editButton);
-			    newEditButton.addEventListener('click', (e) => {
-			        e.preventDefault();
-			        console.log("수정 버튼 클릭 시 전달되는 item.itemIdx:", item.itemIdx);
-			        if (item.itemIdx === null || item.itemIdx === undefined) {
-			            alert("오류: 수정할 품목의 ID가 없습니다. (item.itemIdx is null or undefined)");
-			            return;
-			        }
-			        updateItem(item.itemIdx); // 또는 item.invIdx 등 실제 수정 대상의 ID
-			    });
-			}
+	        console.log("재고 수정 모드, 전달된 item (StockDto):", item);
+	        setInputValue(form, 'selected_item_idx', item.itemIdx);
+	        setInputValue(form, 'item_NM', item.itemNm);
+	        if (itemCdDisplayInput) itemCdDisplayInput.value = item.itemCd || '';
+	        if (itemNmSelectInput) itemNmSelectInput.value = item.itemNm ? `${item.itemNm} (${item.itemCd || ''})` : '';
+
+	        const masterInfo = allItemBasicInfos.find(m => m.itemIdx === item.itemIdx);
+	        setInputValue(form, 'item_COST', formatCurrencyKR(masterInfo ? masterInfo.itemCost : (item.unitPrice || ''))); // StockDto에 unitPrice가 있을 수 있음
+	        setInputValue(form, 'qty', item.qty);
+	        setInputValue(form, 'optimal_INV', masterInfo ? masterInfo.optimalInv : (item.inv || ''));
+	        setInputValue(form, 'remark', item.remark || '');
+			setInputValue(form, 'user_NM', item.userNm || '');       // 담당자 이름 (StockDto의 userNm)
+	        setInputValue(form, 'user_TEL', item.userTel || '');     // 담당자 전화번호 (StockDto의 userTel)
+	        setInputValue(form, 'user_MAIL', item.userMail || '');   // 담당자 이메일 (StockDto의 userMail)
+	        await Promise.all([
+	            loadAndSetUnits(item.unitIdx || (masterInfo ? masterInfo.unitIdx : null)),
+	            loadAndSetCustomers(item.custIdx || (masterInfo ? masterInfo.custIdx : null), transTypeSelect ? transTypeSelect.value : '01'),
+	            loadAndSetWarehouses(item.whIdx)
+	        ]);
+
+	        if (editButton) {
+	            const newEditButton = editButton.cloneNode(true);
+	            editButton.parentNode.replaceChild(newEditButton, editButton);
+	            newEditButton.addEventListener('click', (e) => {
+	                e.preventDefault();
+	                updateItem(item.invIdx); // invIdx를 사용하여 재고 수정
+	            });
+	        }
 	    } else { // 신규 등록 모드
 	        title.textContent = '신규 재고 등록';
 	        if (saveButton) saveButton.style.display = 'block';
 	        if (editButton) editButton.style.display = 'none';
-			
-			if (itemNmSelectInput) itemNmSelectInput.readOnly = false;
-			    if (selectedItemIdxHiddenInput) selectedItemIdxHiddenInput.value = '';
-			    if (itemCdDisplayInput) {
-			        itemCdDisplayInput.value = '';
-			        itemCdDisplayInput.readOnly = true;
-			    }
-				
-			if (itemCdHiddenInput) { // null 체크 후 접근
-			    itemCdHiddenInput.value = ''; // 신규 등록 시 hidden 품목코드도 초기화
-			} else {
-			    console.warn("Hidden input 'item_CD'를 찾을 수 없습니다.");
-			}
-			setInputValue(form, 'item_COST', formatCurrencyKR('')); // 빈 값 또는 0원
-			setInputValue(form, 'optimal_INV', '');
-			setInputValue(form, 'item_SPEC', '');
-			setInputValue(form, 'remark', '');
-			
-			
-		    if (itemFlagModalSelect) itemFlagModalSelect.value = '';
-			
-			try {
-			        await loadAndSetItemDatalist();
-			    } catch (e) {
-			        console.error("신규 등록 모드 - 드롭다운/데이터리스트 로드 중 오류(openModal 내부):", e);
-			    }
+
+	        if (transTypeSelect) {
+	            transTypeSelect.value = '01';
+	            transTypeSelect.disabled = true;
+	        }
+	        if (itemNmSelectInput) {
+	            itemNmSelectInput.readOnly = false;
+	            itemNmSelectInput.value = '';
+	        }
+	        if (itemCdDisplayInput) {
+	            itemCdDisplayInput.value = '';
+	            itemCdDisplayInput.readOnly = true;
+	        }
+	        resetItemSpecificFields(form);
+
+	        await loadAllItemMasterData(); // Ensure master data is ready
+	        await loadPreviouslyReceivedItemsForDatalist(); // Populate datalist
+
+	        await Promise.all([
+	            loadAndSetUnits(),
+	            loadAndSetCustomers(null, '01'),
+	            loadAndSetWarehouses()
+	        ]);
+
 	        if (saveButton) {
 	            const newSaveButton = saveButton.cloneNode(true);
 	            saveButton.parentNode.replaceChild(newSaveButton, saveButton);
+	            // 오류 수정: submitNewStockInventory -> submitModal
 	            newSaveButton.addEventListener('click', submitModal);
 	        }
+	        if (itemNmSelectInput) setTimeout(() => itemNmSelectInput.focus(), 0);
 	    }
 	    modal.style.display = 'flex';
 	}
-	
-	function closeModal() { 
-	    const modal = document.getElementById('modal'); 
-	    if (modal) modal.style.display = 'none';
-	}
+	window.openModal = openModal;
+
+	function closeModal() { modal.style.display = 'none'; }
 	function outsideClick(e) { if (e.target.id === 'modal') closeModal(); }
-	
-	async function submitModal(event) { // 신규 등록
+
+	async function submitModal(event) { // 신규 재고를 TB_INVENTORY에 등록
 	    event.preventDefault();
 	    const form = document.getElementById('modalForm');
 	    const formData = new FormData(form);
 	    const formProps = Object.fromEntries(formData.entries());
-	
+
 	    const payload = {
-			itemIdxToRegi: formProps.selected_item_idx ? parseInt(formProps.selected_item_idx) : null,
-		    whIdx: formProps.wh_idx ? parseInt(formProps.wh_idx) : null,
-		    qty: formProps.qty ? parseFloat(formProps.qty) : 0, // 수량은 parseFloat 권장
-			
-/*	        itemCd: formProps.item_CD,
-	        itemNm: formProps.item_NM,
-	        itemSpec: formProps.item_SPEC,
+	        itemIdx: formProps.selected_item_idx ? parseInt(formProps.selected_item_idx) : null,
+	        whIdx: formProps.wh_idx ? parseInt(formProps.wh_idx) : null,
+	        qty: formProps.qty ? parseFloat(formProps.qty) : 0,
+	        unitPrice: unformatCurrencyKR(formProps.item_COST),
 	        remark: formProps.remark,
-	        custIdx: formProps.cust_NM ? parseInt(formProps.cust_NM) : null,
-	        unitIdx: formProps.item_UNIT ? parseInt(formProps.item_UNIT) : null, // DTO에 itemUnitId가 있다면
-	        optimalInv: formProps.optimal_INV ? parseInt(formProps.optimal_INV) : null,
-	        itemCost: rawItemCost,
-	        itemFlag: currentItemFlagValue, // 선택된 itemFlag 값 사용
-*/
-	        
 	    };
-	    console.log("신규 재고 데이터:", payload);
-	
-		if (payload.itemIdxToRegi === null) { alert("품목을 선택해주세요."); return; }
-		if (payload.whIdx === null) { alert("창고를 선택해주세요."); return; }
-		if (payload.qty <= 0) { alert("수량은 0보다 커야 합니다."); return; }
-	    // ... 추가 유효성 검사 ...
-	
+	    console.log("신규 재고 등록 요청 (TB_INVENTORY):", payload);
+
+	    if (payload.itemIdx === null) { alert("품목을 선택해주세요."); return; }
+	    if (payload.whIdx === null) { alert("창고를 선택해주세요."); return; }
+	    if (payload.qty <= 0) { alert("입고 수량은 0보다 커야 합니다."); return; }
+
 	    try {
-	        const response = await fetch(`/api/stocks`, { // JAVASCRIPT 수정: API 경로를 /api/stock/items 등으로 변경 필요
+	        // API 경로 수정: TB_INVENTORY 직접 등록용 API (예: /api/stocks/inventory)
+	        const response = await fetch(`/api/stocks`, {
 	            method: 'POST',
 	            headers: { 'Content-Type': 'application/json' },
 	            body: JSON.stringify(payload)
 	        });
 	        if (response.ok) {
-	            alert('새 품목이 등록되었습니다.');
+	            const resultText = await response.text();
+	            try {
+	                 const resultJson = JSON.parse(resultText);
+	                 alert(resultJson.message || '재고가 성공적으로 등록되었습니다.');
+	            } catch (e) {
+	                 alert(resultText || '재고가 성공적으로 등록되었습니다.');
+	            }
 	            closeModal();
-	            fetchItems(1); 
+	            fetchItems(1);
 	        } else {
-	            const errorData = await response.json().catch(() => ({ message: '등록 중 오류 발생' }));
-	            alert(`품목 등록 실패: ${errorData.message || response.statusText}`);
+	            const errorData = await response.json().catch(() => ({ message: '등록 중 알 수 없는 오류 발생' }));
+	            alert(`재고 등록 실패: ${errorData.message || response.statusText}`);
 	        }
 	    } catch (error) {
-	        console.error('품목 등록 API 호출 오류:', error);
-	        alert('품목 등록 중 오류가 발생했습니다.');
+	        console.error('재고 등록 API 호출 오류:', error);
+	        alert('재고 등록 처리 중 오류가 발생했습니다.');
 	    }
 	}
-	
-	async function updateItem(itemIdx) { // 수정
+
+	async function updateItem(invIdx) { // 기존 재고 정보(TB_INVENTORY) 수정
+	    if (invIdx === null || invIdx === undefined) {
+	        alert("수정할 재고 ID가 없습니다.");
+	        return;
+	    }
 	    const form = document.getElementById('modalForm');
 	    const formData = new FormData(form);
 	    const formProps = Object.fromEntries(formData.entries());
-	    const rawItemCost = unformatCurrencyKR(formProps.item_COST);
-	
+
 	    const payload = {
-	        itemNm: formProps.item_NM,
-	        itemSpec: formProps.item_SPEC,
+	        whIdx: formProps.wh_idx ? parseInt(formProps.wh_idx) : null,
+	        qty: formProps.qty ? parseFloat(formProps.qty) : undefined,
+	        unitPrice: unformatCurrencyKR(formProps.item_COST), // 수정 시 단가 변경 허용 여부 정책에 따라
 	        remark: formProps.remark,
-	        custIdx: formProps.cust_NM ? parseInt(formProps.cust_NM) : null,
-	        unitIdx: formProps.item_UNIT ? parseInt(formProps.item_UNIT) : null,
-	        optimalInv: formProps.optimal_INV ? parseInt(formProps.optimal_INV) : null,
-	        itemCost: rawItemCost,
-	        itemFlag: formProps.item_FLAG, // 모달 폼에 name="item_FLAG" (hidden 또는 select) 필요
-	        qty: formProps.qty ? parseInt(formProps.qty) : undefined,
-	        whIdx: formProps.wh_idx ? parseInt(formProps.wh_idx) : null
+	        // itemIdx는 보통 수정하지 않음. PK이므로.
+			itemIdx: formProps.selected_item_idx ? parseInt(formProps.selected_item_idx) : null, // 수정 대상 품목 ID (변경 안됨)
+	        unitIdx: formProps.item_UNIT ? parseInt(formProps.item_UNIT) : null,  // 단위
+	        custIdx: formProps.cust_NM ? parseInt(formProps.cust_NM) : null,    // 매입처
+	        userIdx: formProps.user_idx ? parseInt(formProps.user_idx) : null,  // 담당자 ID (TB_INVENTORY에 USER_IDX 컬럼이 있거나, 다른 테이블 업데이트)
 	    };
-	    console.log(`수정 품목 데이터 (ID: ${itemIdx}):`, payload);
-	
+	    console.log(`재고 수정 요청 (invIdx: ${invIdx}):`, payload);
+
+	    if (payload.qty !== undefined && payload.qty < 0) { // qty가 undefined가 아닐 때만 검사
+	        alert("수량은 음수가 될 수 없습니다."); return;
+	    }
+
 	    try {
-	        const response = await fetch(`/api/stocks/${itemIdx}`, { // JAVASCRIPT 수정: API 경로를 /api/stock/items/{itemIdx} 등으로 변경 필요
+	        // API 경로 수정: TB_INVENTORY 직접 수정용 API (예: /api/stocks/inventory/{invIdx})
+	        const response = await fetch(`/api/stocks/${invIdx}`, {
 	            method: 'PUT',
 	            headers: { 'Content-Type': 'application/json' },
 	            body: JSON.stringify(payload)
 	        });
 	        if (response.ok) {
-	            alert('품목 정보가 수정되었습니다.');
+	            const resultText = await response.text();
+	             try {
+	                 const resultJson = JSON.parse(resultText);
+	                 alert(resultJson.message || '재고 정보가 수정되었습니다.');
+	            } catch (e) {
+	                 alert(resultText || '재고 정보가 수정되었습니다.');
+	            }
 	            closeModal();
 	            fetchItems(currentPage);
 	        } else {
-	            const errorData = await response.json().catch(() => ({ message: '수정 중 오류 발생' }));
-	            alert(`품목 수정 실패: ${errorData.message || response.statusText}`);
+	            const errorData = await response.json().catch(() => ({ message: '수정 중 알 수 없는 오류 발생' }));
+	            alert(`재고 수정 실패: ${errorData.message || response.statusText}`);
 	        }
 	    } catch (error) {
-	        console.error('품목 수정 API 호출 오류:', error);
-	        alert('품목 수정 중 오류가 발생했습니다.');
+	        console.error('재고 수정 API 호출 오류:', error);
+	        alert('재고 수정 처리 중 오류가 발생했습니다.');
 	    }
 	}
-	
-	// --- 드롭다운 로드 함수들 (실제 API 호출 로직으로 채워야 함) ---
-	async function createItemCD(itemCodeInputElement) {
-	    if (!itemCodeInputElement) return;
-	    // 예시: const response = await fetch(`/api/items/generate-item-cd`); const data = await response.text();
-	    const tempCd = "ITEM" + Math.floor(Math.random() * 9000 + 1000); 
-	    itemCodeInputElement.value = tempCd;
-	    itemCodeInputElement.readOnly = true; // 자동 생성 후 수정 불가 처리
-	    console.log(`임시 품목 코드 생성: ${tempCd}. 실제 API 연동 필요.`);
-	}
-	async function loadAndSetItemDatalist() {
+	/*
+	async function loadAndSetTransactionDatalist() {
 	    const datalistElement = document.getElementById('itemListDatalist');
-	    const itemNmSelectElement = document.getElementById('item_NM_select'); // 품목명 입력/선택 필드
-		if (!datalistElement || !itemNmSelectElement) {
-		       console.error("Datalist 또는 품목명 선택 input 요소를 찾을 수 없습니다.");
-		       return;
-		   }
-	    datalistElement.innerHTML = ''; // 초기화
-	    itemNmSelectElement.value = ''; // 입력 필드 초기화
-	
+	    const itemNmSelectElement = document.getElementById('item_NM_select'); // 사용자가 텍스트 입력 및 선택하는 input
+	    if (!datalistElement || !itemNmSelectElement) {
+	        console.error("Datalist 또는 품목명 선택 input 요소를 찾을 수 없습니다.");
+	        return;
+	    }
+	    datalistElement.innerHTML = ''; // 기존 옵션 초기화
+
 	    try {
-	        const response = await fetch('/api/stocks/item-basics'); // 백엔드 API 호출
-	        if (!response.ok) throw new Error('품목 기본 정보 로드 실패');
-	        allItemBasicInfos = await response.json(); // [{itemIdx, itemCd, itemNm, itemCost, ...}, ...]
-	
-	        allItemBasicInfos.forEach(item => {
-				const option = document.createElement('option');
-                option.value = `${item.itemNm} (${item.itemCd})`; // Datalist에 표시될 값 (예: "토마토 스파게티 (P001)")
-                option.dataset.itemIdx = item.itemIdx; // 실제 선택 시 사용할 품목 ID를 dataset에 저장
-                datalistElement.appendChild(option);
+	        // '입고(R)' 거래 목록을 가져오는 API (페이징이나 검색 조건은 필요에 따라 추가)
+	        const response = await fetch('/api/inv-transactions?transType=R&sort=invTransIdx,desc'); // 최신 입고 순으로
+	        if (!response.ok) {
+	            const errorText = await response.text();
+	            throw new Error(`입고 거래 정보 로드 실패: ${response.status} - ${errorText}`);
+	        }
+	        const transactionPage = await response.json();
+	        loadedTransactions = transactionPage.content || [];
+
+	        if (loadedTransactions.length === 0) {
+	            itemNmSelectElement.placeholder = "표시할 입고 거래가 없습니다.";
+	        } else {
+	            itemNmSelectElement.placeholder = "품목명을 입력하거나 선택하세요";
+	        }
+
+	        loadedTransactions.forEach(transaction => {
+	            if (transaction.itemNm && transaction.itemCd && transaction.invTransIdx) { // 필수 정보 확인
+	                const option = document.createElement('option');
+	                option.value = `${transaction.itemNm} (${transaction.itemCd})`;
+	                option.dataset.invTransIdx = transaction.invTransIdx;
+	                datalistElement.appendChild(option);
+	            }
 	        });
 	    } catch (error) {
-	        console.error("품목 기본 정보 로드 중 오류:", error);
+	        console.error("입고 거래 데이터리스트 로드 중 오류:", error);
+	        loadedTransactions = [];
+	        itemNmSelectElement.placeholder = "거래 정보 로드 실패";
+	    }
+	}*/
+	
+	async function openModalWithTransactionDetails(invTransIdx) {
+	    const modal = document.getElementById('modal');
+	    const title = document.getElementById('modalTitle');
+	    const form = document.getElementById('modalForm');
+	    if (!modal || !title || !form) return;
+	    form.reset(); // 폼 초기화
+
+	    const saveButton = form.querySelector('button[name="save"]');
+	    const editButton = form.querySelector('button[name="edit"]');
+
+	    try {
+	        // 1. invTransIdx로 거래 상세 정보 조회 (VInvTransactionDetailsDto 예상)
+	        const response = await fetch(`/api/inv-transactions/${invTransIdx}`);
+	        if (!response.ok) {
+	            const errorData = await response.json().catch(() => ({ message: `거래 정보를 불러오는데 실패했습니다. (ID: ${invTransIdx}, 상태: ${response.status})` }));
+	            alert(errorData.message);
+	            return;
+	        }
+	        const trxDetails = await response.json(); // VInvTransactionDetailsDto
+
+	        // 2. 모달 제목 및 버튼 상태 설정 (수정 모드)
+	        title.textContent = '입/출고 거래 정보 수정';
+	        if (saveButton) saveButton.style.display = 'none';
+	        if (editButton) editButton.style.display = 'block';
+
+	        // 3. 드롭다운 데이터 로드 및 해당 거래 값으로 선택
+	        //    VInvTransactionDetailsDto 필드를 사용하여 각 드롭다운의 초기 선택값 설정
+	        await Promise.all([
+	            loadAndSetUnits(null, trxDetails.itemUnitNm), // 단위 (이름으로 선택 시도) 또는 trxDetails.unitIdx 등 DTO 필드 활용
+	            loadAndSetCustomers(trxDetails.custIdx, trxDetails.transType === 'R' ? '01' : '02'), // 거래처
+	            loadAndSetWarehouses(trxDetails.whIdx), // 창고
+	            loadAndSetUsers(trxDetails.userIdx) // 담당자 (모달에 user_idx select 필요)
+	        ]);
+	         // 거래일자 필드 설정 (모달에 <input type="date" name="transDate"> 필요)
+	        const transDateInput = form.querySelector('input[name="transDate"]');
+	        if (transDateInput && trxDetails.transDate) {
+	             setInputValue(form, 'transDate', trxDetails.transDate); // YYYY-MM-DD 형식으로 변환 필요시 수행
+	        }
+
+
+	        // 4. 나머지 폼 필드 채우기 (VInvTransactionDetailsDto 기반)
+	        const transTypeSelect = form.querySelector('select[name="transType"]');
+	        if (transTypeSelect) {
+	            transTypeSelect.value = trxDetails.transType === 'R' ? '01' : (trxDetails.transType === 'S' ? '02' : '');
+	            // transTypeSelect.disabled = true; // 필요시 거래 유형 수정 불가
+	        }
+
+	        setInputValue(form, 'item_CD_display', trxDetails.itemCd);
+	        form.querySelector('input[name="item_CD_display"]').readOnly = true;
+	        const itemNmSelectInput = form.querySelector('input[name="item_NM_select"]');
+	        if (itemNmSelectInput) {
+	            itemNmSelectInput.value = `${trxDetails.itemNm} (${trxDetails.itemCd})`;
+	            itemNmSelectInput.readOnly = true; // 수정 시 품목 자체 변경 불가
+	        }
+	        setInputValue(form, 'selected_item_idx', trxDetails.itemIdx); // hidden
+	        setInputValue(form, 'item_NM', trxDetails.itemNm); // hidden
+
+	        setInputValue(form, 'item_COST', formatCurrencyKR(trxDetails.unitPrice));
+	        setInputValue(form, 'qty', trxDetails.transQty);
+	        setInputValue(form, 'remark', trxDetails.invTransRemark);
+	        // HTML 모달에 name="transStatus" 필드가 있다면 해당 값 설정
+	        // setInputValue(form, 'transStatus', trxDetails.transStatus);
+
+	        // 담당자 이름은 userIdx로 select가 채워지면 자동으로 표시되거나, 별도 필드라면 직접 설정
+	        setInputValue(form, 'user_NM', trxDetails.userNm); // (만약 user_idx select와 별개로 표시한다면)
+
+	        // 수정 버튼에 이벤트 리스너 연결 (중복 방지)
+	        if (editButton) {
+	            const newEditButton = editButton.cloneNode(true);
+	            editButton.parentNode.replaceChild(newEditButton, editButton);
+	            newEditButton.addEventListener('click', async (e) => {
+	                e.preventDefault();
+	                await executeUpdateTransaction(trxDetails.invTransIdx); // 수정 API 호출
+	            });
+	        }
+	        modal.style.display = 'flex';
+	    } catch (error) {
+	        console.error(`거래 정보(ID: ${invTransIdx})로 모달 채우기 중 오류:`, error);
+	        alert("거래 정보를 불러오는 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+	        closeModal();
 	    }
 	}
+
+	async function handleOpenModalForExistingTransactionSelection() {
+	    const modal = document.getElementById('modal');
+	    const title = document.getElementById('modalTitle');
+	    const form = document.getElementById('modalForm');
+	    if (!modal || !title || !form) return;
+	    form.reset(); // 모든 필드 초기화
+
+	    title.textContent = '기존 입고 거래 선택'; // 모달 제목 변경
+
+	    // 등록/수정 버튼 일단 숨김
+	    const saveButton = form.querySelector('button[name="save"]');
+	    const editButton = form.querySelector('button[name="edit"]');
+	    if (saveButton) saveButton.style.display = 'none';
+	    if (editButton) editButton.style.display = 'none';
+
+	    // 다른 입력 필드 비활성화 또는 숨김 처리 (선택적)
+	    // 예: form.querySelector('input[name="qty"]').readOnly = true;
+
+	    // 입고 거래 데이터리스트 로드
+	    await loadAndSetTransactionDatalist();
+
+	    const itemNmSelectInput = form.querySelector('input[name="item_NM_select"]');
+	    if (itemNmSelectInput) {
+	        itemNmSelectInput.readOnly = false; // 입력 가능하게
+	        itemNmSelectInput.value = ''; // 이전 선택값 제거
+	        itemNmSelectInput.placeholder = "입고된 품목명을 입력/선택하세요";
+	        setTimeout(() => itemNmSelectInput.focus(), 0); // 자동 포커스
+	    }
+	    modal.style.display = 'flex';
+	}
+
+
 	
-	
-	
+	// --- 드롭다운 로드 함수들 (실제 API 호출 로직으로 채워야 함) ---
+
 	
 	async function loadAndSetUnits(selectedUnitId = null) {
 	    const unitSelectElement = document.querySelector('#modalForm select[name="item_UNIT"]');
@@ -781,3 +991,4 @@
 	    
 	    fetchItems(1, itemFlagSelect?.value, searchItemText?.value.trim(), sortProperty, currentSortOrder);
 	}
+
