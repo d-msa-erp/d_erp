@@ -110,7 +110,7 @@ async function loadPurchases(sortBy, sortDirection) {
 		if (paginationInfo) {
 			paginationInfo.textContent = `총 ${purchases.totalElements}건 ${purchases.number + 1}/${purchases.totalPages}페이지`;
 		}
-		console.log("총 페이지 수:", purchases.totalPages);
+
 		// 현재 페이지 표시
 		const currentPageInput = document.getElementById("currentPageInput");
 		if (currentPageInput) {
@@ -259,6 +259,11 @@ function renderErrorMessage(message) {
 function searchItems() {
 	const searchQuery = document.getElementById('searchInput')?.value?.trim() || '';
 	const transStatus = document.getElementById('searchTransStatus').value;
+	
+	if(searchQuery == ""){
+		loadPurchases('deliveryDate', 'asc');
+		return;
+	}
 
 	const queryParams = new URLSearchParams({
 		searchTerm: searchQuery,
@@ -799,4 +804,40 @@ function formatDate(dateStr) {
 	const month = String(date.getMonth() + 1).padStart(2, '0');
 	const day = String(date.getDate()).padStart(2, '0');
 	return `${year}-${month}-${day}`;
+}
+
+// 삭제
+async function deleteOrder() {
+	const checked = document.querySelectorAll('#purchasesTableBody input.purchase-checkbox:checked');
+	const ids = Array.from(checked).map(cb =>
+		cb.closest('tr').querySelector('input[type="hidden"]').value
+	);
+
+	if (ids.length === 0) {
+		alert("삭제할 항목을 선택해주세요.");
+		return;
+	}
+
+	const confirmed = confirm("선택한 주문을 삭제하시겠습니까?");
+	if (!confirmed) return;
+
+	try {
+		const response = await fetch('/api/orders/delete', {
+			method: 'DELETE',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(ids)
+		});
+
+		if (response.ok) {
+			alert("삭제가 완료되었습니다.");
+		} else {
+			alert("삭제 실패");
+		}
+		loadPurchases('deliveryDate', 'asc');
+	} catch (error) {
+		console.error("삭제 오류:", error);
+		alert("삭제 중 오류 발생");
+	}
 }
