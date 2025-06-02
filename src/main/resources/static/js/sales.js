@@ -652,7 +652,7 @@ document.querySelector('button[name="save"]').addEventListener('click', async ()
 		alert(message); // 최종 메시지 출력
 
 		closeModal();
-		loadSales('deliveryDate', 'asc');
+		loadSales('orderIdx', 'desc', isDueDate);
 	} catch (err) {
 		alert('저장 중 오류가 발생했습니다.');
 		console.error(err);
