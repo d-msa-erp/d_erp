@@ -1,1 +1,198 @@
-@charset "UTF-8";
+.section-title .material-symbols-outlined {
+	font-size: 22px;
+	color: #46a6ff;
+}
+
+/* 검색 인풋 */
+.shipping-info-form {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+	margin-bottom: 16px;
+}
+
+.shipping-info-form .form-group {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 200px;
+}
+
+.shipping-info-form input[type="text"] {
+	padding: 10px;
+	border: 1px solid #ccc;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+/* 검색 버튼 */
+.search-action-buttons button {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background-color: #46a6ff;
+	color: white;
+	padding: 10px 18px;
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+#searchButton {
+	background: #007bff;
+}
+
+#searchButton:hover {
+	background: #0056b3;
+}
+
+/* 테이블 */
+.grid-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+
+.grid-table th, .grid-table td {
+	padding: 12px 10px;
+	border: 1px solid #ddd;
+	text-align: center;
+	font-size: 14px;
+}
+
+.grid-table thead th {
+	background-color: #f0f8ff;
+	font-weight: bold;
+}
+
+/* 테이블 없을 때 메시지 */
+.grid-table .nodata {
+	text-align: center;
+	padding: 20px;
+	font-size: 15px;
+	color: #888;
+}
+
+/* 인쇄/엑셀 버튼 */
+.print-wrap {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-bottom: 10px;
+}
+
+.print-wrap button {
+	background-color: #6c757d;
+	color: white;
+	padding: 8px 14px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+}
+
+.print-wrap button:hover {
+	background-color: #5a6268;
+}
+
+/* 모달 입력 폼 */
+.modalForm {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	padding: 10px 0;
+}
+
+.modalForm>div {
+	display: flex;
+	flex-direction: column;
+}
+
+.modalForm input[type="text"], .modalForm select {
+	padding: 10px;
+	border-radius: 6px;
+	border: 1px solid #ccc;
+	font-size: 14px;
+}
+
+.modalForm .flex-row {
+	display: flex;
+	gap: 10px;
+}
+
+.modalForm .flex-row>* {
+	flex: 1;
+}
+
+/* 모달 하단 버튼 */
+.modal-buttons {
+    grid-column: span 3;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.modal-buttons button {
+	background-color: #f44336;
+	color: white;
+	padding: 10px 20px;
+	border: none;
+	border-radius: 6px;
+	font-size: 14px;
+	cursor: pointer;
+}
+
+.modal-buttons button:hover {
+	background-color: #d32f2f;
+}
+
+/* 페이지네이션 */
+.pagination-wrap {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 20px;
+    gap: 15px;
+    font-size: 15px;
+    color: #555;
+}
+
+.pagination {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.pagination-wrap input[type="text"] {
+    width: 50px;
+    text-align: center;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 15px;
+}
+
+.pagination-wrap button {
+    width: 32px;
+    height: 32px;
+    background: #e0e0e0;
+    color: #555;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.2s ease;
+}
+
+/* 체크박스 정렬 */
+.grid-table input[type="checkbox"] {
+	transform: scale(1.2);
+}

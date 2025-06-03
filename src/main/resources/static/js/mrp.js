@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedMrpOrderDataForCalc = null;
             fetchMrpTargetOrders(searchTerm);
 			if (materialbody) { // materialbody 요소가 실제로 존재하는지 확인 후
-				materialbody.innerHTML ='<tr><td class="nodata" style="grid-column: span 7;justify-content: center;">선택한 주문번호의 자재 데이터가 없습니다.</td></tr>';  
+				materialbody.innerHTML ='<tr><td class="nodata" colspan="8">선택한 주문번호의 자재 데이터가 없습니다.</td></tr>';  
 			}
         });
     }
@@ -253,7 +253,7 @@ async function fetchMrpTargetOrders(searchKeyword) {
                 });
             });
         } else {
-         itembody.innerHTML = `<tr><td class="nodata" style="grid-column: span 10; text-align: center; justify-content: center;">조회된 데이터가 없습니다.</td></tr>`;
+         itembody.innerHTML = `<tr><td class="nodata" colspan="10">조회된 데이터가 없습니다.</td></tr>`;
         }
     } catch (error) {
         console.error("MRP 대상 주문 목록 조회 중 오류:", error);
