@@ -24,6 +24,7 @@ import kr.co.d_erp.domain.TbInvTrans;
 import kr.co.d_erp.domain.Usermst;
 import kr.co.d_erp.domain.VInvTransactionDetails;
 import kr.co.d_erp.domain.Whmst;
+import kr.co.d_erp.domain.Mrp; // Mrp 엔티티 import 추가
 import kr.co.d_erp.dtos.InvTransactionRequestDto;
 import kr.co.d_erp.dtos.InvTransactionResponseDto;
 import kr.co.d_erp.dtos.InvTransactionSearchCriteria;
@@ -34,6 +35,7 @@ import kr.co.d_erp.repository.oracle.TbInvTransRepository;
 import kr.co.d_erp.repository.oracle.UsermstRepository;
 import kr.co.d_erp.repository.oracle.VInvTransactionDetailsRepository;
 import kr.co.d_erp.repository.oracle.WhmstRepository;
+import kr.co.d_erp.repository.oracle.MrpRepository; // MrpRepository import 추가
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -51,6 +53,7 @@ public class InvTransactionService {
 	private final WhmstRepository whmstRepository;
 	private final UsermstRepository usermstRepository;
 	private final InventoryService inventoryService;
+	private final MrpRepository mrpRepository; // MRP Repository 추가
 
 	/**
 	 * 입출고 상태 변경에 따른 주문/발주 상태를 업데이트합니다.
@@ -107,7 +110,7 @@ public class InvTransactionService {
 	
 	/**
 	 * 재고 거래(입고/출고)를 등록합니다.
-	 * * @param requestDto 재고 거래 등록 요청 DTO
+	 * @param requestDto 재고 거래 등록 요청 DTO
 	 * @return 등록 결과 DTO
 	 */
 	@Transactional
@@ -146,7 +149,7 @@ public class InvTransactionService {
 
 	/**
 	 * 내부 주문을 생성합니다 (창고 이동 등을 위한 임시 주문).
-	 * * @param requestDto 재고 거래 요청 DTO
+	 * @param requestDto 재고 거래 요청 DTO
 	 * @return 생성된 주문 엔티티
 	 */
 	private Order createInternalOrder(InvTransactionRequestDto requestDto) {
@@ -184,12 +187,13 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 엔티티를 생성합니다.
-	 * * @param requestDto 재고 거래 요청 DTO
+	 * @param requestDto 재고 거래 요청 DTO
 	 * @param orderToLink 연결할 주문 엔티티
 	 * @return 생성된 재고 거래 엔티티
 	 */
 	private TbInvTrans createInvTransaction(InvTransactionRequestDto requestDto, Order orderToLink) {
 		TbInvTrans invTransaction = new TbInvTrans();
+		
 		invTransaction.setTransType(requestDto.getTransType());
 		invTransaction.setTbOrder(orderToLink);
 
@@ -218,7 +222,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 처리를 수행합니다 (입고완료/출고완료 상태인 경우).
-	 * * @param invTransaction 재고 거래 엔티티
+	 * @param invTransaction 재고 거래 엔티티
 	 * @param orderToLink 연결된 주문 엔티티
 	 * @param requestDto 요청 DTO
 	 */
@@ -247,7 +251,7 @@ public class InvTransactionService {
 
 	/**
 	 * 주문 코드를 생성합니다.
-	 * * @param transType 거래 유형 (R: 입고, S: 출고)
+	 * @param transType 거래 유형 (R: 입고, S: 출고)
 	 * @return 생성된 주문 코드
 	 */
 	private String generateOrderCode(String transType) {
@@ -255,9 +259,11 @@ public class InvTransactionService {
 		return prefix + (int) (Math.random() * 1000000);
 	}
 
+
+
 	/**
 	 * 재고 거래 정보를 수정합니다.
-	 * * @param invTransIdx 수정할 재고 거래 ID
+	 * @param invTransIdx 수정할 재고 거래 ID
 	 * @param requestDto 수정 요청 DTO
 	 * @return 수정 결과 DTO
 	 */
@@ -306,7 +312,7 @@ public class InvTransactionService {
 
 	/**
 	 * 거래 정보 필드를 업데이트합니다.
-	 * * @param existingInvTransaction 기존 거래 엔티티
+	 * @param existingInvTransaction 기존 거래 엔티티
 	 * @param requestDto 수정 요청 DTO
 	 */
 	private void updateTransactionFields(TbInvTrans existingInvTransaction, InvTransactionRequestDto requestDto) {
@@ -343,7 +349,7 @@ public class InvTransactionService {
 
 	/**
 	 * 수정 시 재고 조정을 처리합니다.
-	 * * @param updatedInvTransaction 수정된 거래 엔티티
+	 * @param updatedInvTransaction 수정된 거래 엔티티
 	 * @param oldStatus 기존 상태
 	 * @param oldQuantity 기존 수량
 	 * @param oldWhIdx 기존 창고 ID
@@ -390,7 +396,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래를 삭제합니다.
-	 * * @param invTransIdx 삭제할 재고 거래 ID
+	 * @param invTransIdx 삭제할 재고 거래 ID
 	 */
 	@Transactional
 	public void deleteTransactionById(Long invTransIdx) {
@@ -422,10 +428,19 @@ public class InvTransactionService {
 	        }
 	    }
 
-	    // 연결된 내부 주문 삭제
+	    // 연결된 모든 주문 삭제 (조건 제거)
 	    Order linkedOrder = transaction.getTbOrder();
-	    if (linkedOrder != null ) {
+	    if (linkedOrder != null) {
+	        // MRP 데이터도 함께 삭제 (OrderService에서 하던 작업)
+	        List<Mrp> mrps = mrpRepository.findByOrderIdx(linkedOrder.getOrderIdx());
+	        if (!mrps.isEmpty()) {
+	            mrpRepository.deleteAll(mrps);
+	            System.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
+	        }
+	        
 	        orderRepository.delete(linkedOrder);
+	        System.out.println(String.format("연결된 주문/발주 삭제됨: 주문ID[%d], 주문타입[%s]", 
+	            linkedOrder.getOrderIdx(), linkedOrder.getOrderType()));
 	    }
 
 	    tbInvTransRepository.deleteById(invTransIdx);
@@ -433,7 +448,7 @@ public class InvTransactionService {
 
 	/**
 	 * 삭제 시 재고 조정을 처리합니다.
-	 * * @param transaction 삭제할 거래 엔티티
+	 * @param transaction 삭제할 거래 엔티티
 	 */
 	private void adjustInventoryOnDelete(TbInvTrans transaction) {
 		String transStatus = transaction.getTransStatus();
@@ -456,7 +471,7 @@ public class InvTransactionService {
 
 	/**
 	 * 여러 재고 거래를 일괄 삭제합니다.
-	 * * @param invTransIdxes 삭제할 재고 거래 ID 목록
+	 * @param invTransIdxes 삭제할 재고 거래 ID 목록
 	 */
 	@Transactional
 	public void deleteTransactions(List<Long> invTransIdxes) {
@@ -470,10 +485,19 @@ public class InvTransactionService {
 			// 완료 상태인 경우 재고 조정
 			adjustInventoryOnDelete(transaction);
 
-			// 연결된 내부 주문 삭제
+			// 연결된 모든 주문과 MRP 삭제 (조건 제거)
 			Order linkedOrder = transaction.getTbOrder();
-			if (linkedOrder != null && ("I".equals(linkedOrder.getOrderType()) || "O".equals(linkedOrder.getOrderType()))) {
+			if (linkedOrder != null) {
+				// MRP 데이터도 함께 삭제
+				List<Mrp> mrps = mrpRepository.findByOrderIdx(linkedOrder.getOrderIdx());
+				if (!mrps.isEmpty()) {
+					mrpRepository.deleteAll(mrps);
+					System.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
+				}
+				
 				orderRepository.delete(linkedOrder);
+				System.out.println(String.format("연결된 주문/발주 삭제됨: 주문ID[%d], 주문타입[%s]", 
+					linkedOrder.getOrderIdx(), linkedOrder.getOrderType()));
 			}
 		}
 		
@@ -482,7 +506,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 목록을 조건에 따라 조회합니다.
-	 * * @param criteria 검색 조건
+	 * @param criteria 검색 조건
 	 * @param pageable 페이징 정보
 	 * @return 페이징된 재고 거래 목록
 	 */
@@ -528,7 +552,7 @@ public class InvTransactionService {
 
 	/**
 	 * 재고 거래 상세 정보를 조회합니다.
-	 * * @param invTransIdx 재고 거래 ID
+	 * @param invTransIdx 재고 거래 ID
 	 * @return 재고 거래 상세 DTO
 	 */
 	public VInvTransactionDetailsDto findTransactionById(Long invTransIdx) {
@@ -539,7 +563,7 @@ public class InvTransactionService {
 
 	/**
 	 * VInvTransactionDetails 엔티티를 DTO로 변환합니다.
-	 * * @param entity VInvTransactionDetails 엔티티
+	 * @param entity VInvTransactionDetails 엔티티
 	 * @return 변환된 DTO
 	 */
 	private VInvTransactionDetailsDto convertToDto(VInvTransactionDetails entity) {
@@ -572,7 +596,7 @@ public class InvTransactionService {
 
 	/**
 	 * 선택된 재고 거래(입고/출고)의 상세 정보를 엑셀 파일로 생성합니다.
-	 * * @param invTransIds 엑셀로 내보낼 재고 거래 ID 목록
+	 * @param invTransIds 엑셀로 내보낼 재고 거래 ID 목록
 	 * @param transType 거래 유형 ('R' 또는 'S')
 	 * @return 생성된 엑셀 파일의 ByteArrayOutputStream
 	 * @throws IOException 엑셀 생성 중 오류 발생 시
@@ -694,7 +718,6 @@ public class InvTransactionService {
             }
         }
 
-
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		workbook.write(bos);
 		workbook.close();
@@ -728,5 +751,59 @@ public class InvTransactionService {
 			}
 		}
 		return statusCode; // 알 수 없는 타입의 경우 원본 코드 반환
+	}
+	
+	/**
+	 * 주문 삭제 시 호출되는 입출고 삭제 메서드 (연결된 주문은 삭제하지 않음)
+	 * @param invTransIdx 삭제할 재고 거래 ID
+	 */
+	@Transactional
+	public void deleteTransactionWithoutOrder(Long invTransIdx) {
+	    TbInvTrans transaction = tbInvTransRepository.findById(invTransIdx)
+	            .orElseThrow(() -> new EntityNotFoundException("삭제할 거래 정보를 찾을 수 없습니다. ID: " + invTransIdx));
+
+	    String oldStatus = transaction.getTransStatus();
+	    
+	    // 완료 상태인 경우 재고 조정만 수행
+	    adjustInventoryOnDelete(transaction);
+
+	    // 주문/발주 상태 되돌리기 (삭제하기 전에 처리)
+	    if ("S2".equals(oldStatus) || "R3".equals(oldStatus)) {
+	        Order linkedOrder = transaction.getTbOrder();
+	        if (linkedOrder != null) {
+	            String revertStatus = null;
+	            if ("S2".equals(oldStatus) && "S3".equals(linkedOrder.getOrderStatus())) {
+	                revertStatus = "S1"; // 출고완료 -> 주문 진행중으로 되돌림
+	            } else if ("R3".equals(oldStatus) && "P3".equals(linkedOrder.getOrderStatus())) {
+	                revertStatus = "P1"; // 입고완료 -> 발주 진행중으로 되돌림
+	            }
+	            
+	            if (revertStatus != null) {
+	                linkedOrder.setOrderStatus(revertStatus);
+	                orderRepository.save(linkedOrder);
+	                System.out.println(String.format("주문/발주 상태 되돌림 (삭제): 주문ID[%d] -> %s", 
+	                    linkedOrder.getOrderIdx(), revertStatus));
+	            }
+	        }
+	    }
+
+	    // 입출고 거래만 삭제 (연결된 주문은 삭제하지 않음)
+	    tbInvTransRepository.deleteById(invTransIdx);
+	    System.out.println(String.format("입출고 거래 삭제됨: ID[%d]", invTransIdx));
+	}
+
+	/**
+	 * 여러 입출고 거래를 주문 삭제 시 일괄 삭제 (연결된 주문은 삭제하지 않음)
+	 * @param invTransIdxes 삭제할 재고 거래 ID 목록
+	 */
+	@Transactional
+	public void deleteTransactionsWithoutOrder(List<Long> invTransIdxes) {
+	    if (invTransIdxes == null || invTransIdxes.isEmpty()) {
+	        return;
+	    }
+	    
+	    for (Long invTransIdx : invTransIdxes) {
+	        deleteTransactionWithoutOrder(invTransIdx);
+	    }
 	}
 }
