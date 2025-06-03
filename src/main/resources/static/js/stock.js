@@ -223,43 +223,58 @@ function downloadStockAsExcel() {
 	
 // --- 데이터 로딩 및 테이블 렌더링 ---
 async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = null, sortDirection = null) {
+    console.log(`[fetchItems] 시작 - 페이지: ${page}, 필터: ${itemFlag}, 키워드: ${keyword}, 정렬: ${sortProperty} ${sortDirection}`); // 함수 호출 및 파라미터 로깅
+
     currentPage = page;
-    // const currentItemFlag = itemFlagSelect ? itemFlagSelect.value : ""; // itemFlagSelect는 메인 화면에 없음
     const currentKeyword = searchItemText ? searchItemText.value.trim() : "";
 
     let url = `/api/stocks?page=${page - 1}&size=${pageSize}`;
 
-	const currentItemFlagFromSelect = itemFlagSelect ? itemFlagSelect.value : "";
-	    const flagToUse = itemFlag !== null ? itemFlag : currentItemFlagFromSelect;
+    const currentItemFlagFromSelect = itemFlagSelect ? itemFlagSelect.value : "";
+    const flagToUse = itemFlag !== null ? itemFlag : currentItemFlagFromSelect;
 
-		console.log(flagToUse);
-		if (flagToUse && flagToUse !== "") {
-		    // 👇 파라미터 이름을 'itemFlagFilter'으로 변경
-		    url += `&itemFlagFilter=${encodeURIComponent(flagToUse)}`;
-		}
-		
-		const keywordToUse = keyword !== null ? keyword.trim() : currentKeyword;
-		if (keywordToUse && keywordToUse !== "") {
-		    url += `&searchKeyword=${encodeURIComponent(keywordToUse)}`;
-		}
+    console.log(`[fetchItems] 사용할 필터: ${flagToUse}`);
+    if (flagToUse && flagToUse !== "") {
+        url += `&itemFlagFilter=${encodeURIComponent(flagToUse)}`;
+    }
+
+    const keywordToUse = keyword !== null ? keyword.trim() : currentKeyword;
+    if (keywordToUse && keywordToUse !== "") {
+        url += `&searchKeyword=${encodeURIComponent(keywordToUse)}`;
+    }
 
     if (sortProperty && sortDirection) {
         url += `&sort=${encodeURIComponent(sortProperty)},${encodeURIComponent(sortDirection)}`;
     } else if (currentSortTh && currentSortTh.dataset.sortProperty && currentSortOrder) {
-         url += `&sort=${encodeURIComponent(currentSortTh.dataset.sortProperty)},${encodeURIComponent(currentSortOrder)}`;
+        url += `&sort=${encodeURIComponent(currentSortTh.dataset.sortProperty)},${encodeURIComponent(currentSortOrder)}`;
     }
+    console.log('[fetchItems] 요청 URL:', url); // 최종 요청 URL 로깅
 
     try {
         const response = await fetch(url);
+        console.log('[fetchItems] 응답 상태:', response.status, response.statusText); // 응답 상태 로깅
+
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}. URL: ${url}`);
+            let errorText = '';
+            try {
+                errorText = await response.text(); // 오류 응답 본문 확인 시도
+            } catch (e) {
+                // 본문 읽기 실패 시 무시
+            }
+            throw new Error(`HTTP 오류! 상태: ${response.status} - ${response.statusText}. URL: ${url}. 응답 본문: ${errorText}`);
         }
         const pageData = await response.json();
+        console.log('[fetchItems] 수신된 pageData:', JSON.stringify(pageData, null, 2)); // 수신된 데이터 전체 로깅 (주의: 데이터가 많으면 콘솔이 느려질 수 있음)
 
-        if (!itemTableBody) return;
-        itemTableBody.innerHTML = '';
+        if (!itemTableBody) {
+            console.error('[fetchItems] itemTableBody 요소를 찾을 수 없습니다!');
+            return;
+        }
+        itemTableBody.innerHTML = ''; // 테이블 내용 초기화
 
         const items = pageData.content || [];
+        console.log(`[fetchItems] 렌더링할 아이템 개수: ${items.length}`, items); // 실제 아이템 배열 및 개수 로깅
+
         const totalElements = pageData.totalElements || 0;
         totalPages = pageData.totalPages || Math.ceil(totalElements / pageSize) || 1;
         currentPage = pageData.number !== undefined ? pageData.number + 1 : page;
@@ -271,8 +286,9 @@ async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = 
         if (currentPageInput) currentPageInput.value = currentPage;
 
         if (items.length > 0) {
-            if (noDataRow) noDataRow.style.display = 'none';
+            if (noDataRow) noDataRow.style.display = 'none'; // 초기 "데이터 없음" 행 숨기기
             items.forEach(item => { // item은 StockDto (재고 현황 DTO)
+                // console.log('[fetchItems] 현재 아이템 렌더링 중:', item); // 개별 아이템 로깅 (필요시 주석 해제)
                 const row = itemTableBody.insertRow();
                 row.style.cursor = 'pointer';
                 row.dataset.item = JSON.stringify(item);
@@ -302,11 +318,12 @@ async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = 
             });
             if (checkallItemCheckbox) updateCheckAllItemState();
         } else {
-            if (noDataRow) noDataRow.style.display = 'none';
+            if (noDataRow) noDataRow.style.display = 'none'; // 이 경우에도 초기 행은 숨기는 것이 일관성 있을 수 있음
             let message = "조회된 데이터가 없습니다.";
             if (currentKeyword.trim() !== "") {
                 message = `"${currentKeyword}"에 해당하는 검색 결과가 없습니다.`;
             }
+            // 데이터 없을 때 메시지 표시 부분 복원
             itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">${message}</td></tr>`;
             totalPages = 1;
             if (currentPageSpan) currentPageSpan.textContent = `1/1페이지`;
@@ -315,14 +332,18 @@ async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = 
             if (nextPageButton) nextPageButton.disabled = true;
         }
     } catch (error) {
-        console.error("데이터 조회 중 오류:", error);
+        console.error("[fetchItems] 데이터 조회 중 오류 발생:", error); // 오류 상세 로깅
         if (itemTableBody) {
-            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+            // 오류 발생 시 메시지 표시 부분 복원
+            itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">데이터를 불러오는 중 오류가 발생했습니다. 확인 후 다시 시도해주세요. (오류: ${error.message})</td></tr>`;
         }
-        // ... (오류 시 UI 초기화)
+        // 오류 발생 시 페이지네이션 UI도 초기화 또는 오류 상태로 표시
+        if (totalCountSpan) totalCountSpan.textContent = `총 0건`;
+        if (currentPageSpan) currentPageSpan.textContent = `오류`;
+        if (currentPageInput) currentPageInput.value = 1;
+        if (prevPageButton) prevPageButton.disabled = true;
+        if (nextPageButton) nextPageButton.disabled = true;
     }
-	
-
 }
 	
 async function loadAllItemMasterData() {

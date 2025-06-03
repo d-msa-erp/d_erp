@@ -76,8 +76,7 @@ public class MrpServiceImpl implements MrpService {
                 .orderQty(projection.getOrderQty()) // 완제품 총 생산 수량
                 .productUnitNm(projection.getProductUnitNm())
                 .productCurrentStock(projection.getProductCurrentStock())
-                .productionCode(projection.getProductionCode()) // 뷰에서 NULL이면 null
-                .productivity(projection.getProductivity())     // 뷰에서 NULL이면 null
+                .productivity(projection.getProductivity()) 
                 .remark(projection.getRemark())
                 .orderStatusOverall(projection.getOrderStatusOverall())
                 .build();

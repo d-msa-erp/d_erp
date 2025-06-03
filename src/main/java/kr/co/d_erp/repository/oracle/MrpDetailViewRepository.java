@@ -42,6 +42,7 @@ public interface MrpDetailViewRepository  extends JpaRepository<MrpDetailView, L
             SELECT DISTINCT
                 ord.ORDER_IDX AS orderIdx,
                 ord.ORDER_CODE AS orderCode,
+                prd.PROD_CODE AS prodCd,
                 ord.ORDER_TYPE AS orderType,
                 ord.ORDER_DATE AS orderDate,
                 ord.DELIVERY_DATE AS orderDeliveryDate,
@@ -53,8 +54,7 @@ public interface MrpDetailViewRepository  extends JpaRepository<MrpDetailView, L
                 ord.ORDER_QTY AS orderQty,
                 main_prod_unit.UNIT_NM AS productUnitNm,
                 inv.STOCK_QTY AS productCurrentStock, 
-                NULL AS productionCode,
-                NULL AS productivity,
+                main_product.CYCLE_TIME AS productivity,
                 ord.REMARK AS remark,
                 CASE ord.ORDER_STATUS
                     WHEN 'S1' THEN '출고대기'
@@ -71,7 +71,9 @@ public interface MrpDetailViewRepository  extends JpaRepository<MrpDetailView, L
             LEFT JOIN
                 TB_UNIT_MST main_prod_unit ON main_product.ITEM_UNIT = main_prod_unit.UNIT_IDX 
             LEFT JOIN
-                TB_INVENTORY inv ON main_product.ITEM_IDX = inv.ITEM_IDX   
+                TB_INVENTORY inv ON main_product.ITEM_IDX = inv.ITEM_IDX  
+            LEFT JOIN
+    		 	TB_PRODUCTION prd ON prd.ITEM_IDX = ord.ITEM_IDX
             WHERE
             	ord.ORDER_TYPE = 'S' AND
                 (:orderTypeFilter IS NULL OR ord.ORDER_TYPE = :orderTypeFilter) AND

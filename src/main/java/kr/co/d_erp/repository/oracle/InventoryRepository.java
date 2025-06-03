@@ -46,7 +46,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             + "LEFT JOIN TB_UNIT_MST unit ON item.ITEM_UNIT = unit.UNIT_IDX "
             + "LEFT JOIN TB_CUSTMST cust ON item.CUST_IDX = cust.CUST_IDX "
             + "LEFT JOIN TB_USERMST userMST ON wh.WH_USER_IDX = userMST.USER_IDX " // 실제 USER PK 확인
-            + "INNER JOIN TB_INV_TRANS inv ON inv.INV_TRANS_IDX = inven.INV_IDX "
+            + "LEFT JOIN TB_INV_TRANS inv ON inv.INV_TRANS_IDX = inven.INV_IDX "
             + "WHERE "
             + "(:itemFlagFilter IS NULL OR inv.TRANS_TYPE = :itemFlagFilter) AND "
             + "(:searchKeyword IS NULL OR :searchKeyword = '' OR LOWER(item.ITEM_NM) LIKE ('%' || LOWER(:searchKeyword) || '%'))", // 검색어가 있으면 ITEM_NM만 검색

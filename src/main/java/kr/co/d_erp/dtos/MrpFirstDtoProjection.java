@@ -17,7 +17,6 @@ public interface MrpFirstDtoProjection {
 	    BigDecimal getOrderQty();
 	    String getProductUnitNm();
 	    BigDecimal getProductCurrentStock();
-	    String getProductionCode();
 	    BigDecimal getProductivity();
 	    String getRemark();
 	    String getOrderStatusOverall();
