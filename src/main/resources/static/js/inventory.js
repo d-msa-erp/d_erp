@@ -717,5 +717,3 @@ function loadModalUnits() {
             console.error('단위 옵션 로드 실패:', error);
         });
 }
-
-console.log('inventory.js 로드 완료');
