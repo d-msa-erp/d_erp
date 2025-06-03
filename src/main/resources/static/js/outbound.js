@@ -375,11 +375,6 @@ async function openModal(mode, invTransIdx = null) {
                 
                 // 수정 버튼 숨기기
                 editButton.style.display = 'none';
-                
-                // 모달 타이틀 변경
-                modalTitle.textContent = '출고 상세 정보 (수정 불가)';
-                
-                console.log(`수정 모드에서 orderCode(${orderCode})의 첫 글자가 S 또는 P이므로 수정 불가 모드로 설정됨`);
             }
 
 		} catch (error) {

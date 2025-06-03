@@ -54,7 +54,24 @@ document.addEventListener('DOMContentLoaded', function() {
 		});
 
 	}
-});
+	
+	// 사업장명 동적 삽입 (BIZ_FLAG = '03')
+	  fetch('/api/site/details?bizFlag=03')
+	    .then(res => {
+	      if (!res.ok) throw new Error('사업장명 조회 실패');
+	      return res.json();
+	    })
+	    .then(data => {
+	      if (data && data.length > 0) {
+	        const siteNm = data[0].siteNm || '스마트 제조 시스템';
+	        const titleEl = document.getElementById('site-title');
+	        if (titleEl) titleEl.textContent = siteNm;
+	      }
+	    })
+	    .catch(err => {
+	      console.warn('사업장명 설정 오류:', err);
+	    });
+	});
 window.addEventListener('resize', function () {
 	const nav = document.getElementById('main-nav');
 	const hamburger = document.getElementById('hamburger-btn');
