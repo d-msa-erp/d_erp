@@ -883,46 +883,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	        alert('재고 수정 처리 중 오류가 발생했습니다.');
 	    }
 	}
-	/*
-	async function loadAndSetTransactionDatalist() {
-	    const datalistElement = document.getElementById('itemListDatalist');
-	    const itemNmSelectElement = document.getElementById('item_NM_select'); // 사용자가 텍스트 입력 및 선택하는 input
-	    if (!datalistElement || !itemNmSelectElement) {
-	        console.error("Datalist 또는 품목명 선택 input 요소를 찾을 수 없습니다.");
-	        return;
-	    }
-	    datalistElement.innerHTML = ''; // 기존 옵션 초기화
-
-	    try {
-	        // '입고(R)' 거래 목록을 가져오는 API (페이징이나 검색 조건은 필요에 따라 추가)
-	        const response = await fetch('/api/inv-transactions?transType=R&sort=invTransIdx,desc'); // 최신 입고 순으로
-	        if (!response.ok) {
-	            const errorText = await response.text();
-	            throw new Error(`입고 거래 정보 로드 실패: ${response.status} - ${errorText}`);
-	        }
-	        const transactionPage = await response.json();
-	        loadedTransactions = transactionPage.content || [];
-
-	        if (loadedTransactions.length === 0) {
-	            itemNmSelectElement.placeholder = "표시할 입고 거래가 없습니다.";
-	        } else {
-	            itemNmSelectElement.placeholder = "품목명을 입력하거나 선택하세요";
-	        }
-
-	        loadedTransactions.forEach(transaction => {
-	            if (transaction.itemNm && transaction.itemCd && transaction.invTransIdx) { // 필수 정보 확인
-	                const option = document.createElement('option');
-	                option.value = `${transaction.itemNm} (${transaction.itemCd})`;
-	                option.dataset.invTransIdx = transaction.invTransIdx;
-	                datalistElement.appendChild(option);
-	            }
-	        });
-	    } catch (error) {
-	        console.error("입고 거래 데이터리스트 로드 중 오류:", error);
-	        loadedTransactions = [];
-	        itemNmSelectElement.placeholder = "거래 정보 로드 실패";
-	    }
-	}*/
 	
 	async function openModalWithTransactionDetails(invTransIdx) {
 	    const modal = document.getElementById('modal');
