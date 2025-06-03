@@ -251,8 +251,8 @@ public class InvTransactionService {
 	 * @return 생성된 주문 코드
 	 */
 	private String generateOrderCode(String transType) {
-		String prefix = "R".equals(transType) ? "I-" : "O-";
-		return prefix + System.currentTimeMillis() + "-" + (int) (Math.random() * 1000);
+		String prefix = "R".equals(transType) ? "I" : "O";
+		return prefix + (int) (Math.random() * 1000000);
 	}
 
 	/**

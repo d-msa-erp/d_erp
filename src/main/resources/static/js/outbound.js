@@ -312,6 +312,19 @@ async function openModal(mode, invTransIdx = null) {
 		modalInvTransIdx.value = ''; // ID 필드 초기화
         modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
         modalTransStatusSelect.value = 'S1'; // 상태 기본값 'S1' (출고전) 설정 [수정됨]
+
+        // 신규 등록 모드에서는 모든 필드가 입력 가능하도록 설정 (거래 코드 제외)
+        const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+        allInputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                input.disabled = false;
+            } else {
+                input.readOnly = false;
+            }
+        });
+        
+        // 거래 코드만 읽기 전용으로 설정
+        modalTransCode.readOnly = true;
 	} else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
 		modalTitle.textContent = '출고 상세 정보'; // 타이틀 변경
 		editButton.style.display = 'block'; // 수정 버튼 표시
@@ -346,6 +359,28 @@ async function openModal(mode, invTransIdx = null) {
 			setModalDatalistValue('modalItemNm', 'modalHiddenItemIdx', modalItemsData, transaction.itemIdx);
 			setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
 			setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
+
+			// 수정 모드에서만 orderCode의 첫 글자가 'S' 또는 'P'인 경우 모든 입력 필드를 readonly로 설정하고 수정 버튼 숨기기
+            const orderCode = transaction.orderCode;
+            if (orderCode && (orderCode.charAt(0) === 'S' || orderCode.charAt(0) === 'P')) {
+                // 모든 input 요소를 readonly로 설정
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                allInputs.forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.disabled = true;
+                    } else {
+                        input.readOnly = true;
+                    }
+                });
+                
+                // 수정 버튼 숨기기
+                editButton.style.display = 'none';
+                
+                // 모달 타이틀 변경
+                modalTitle.textContent = '출고 상세 정보 (수정 불가)';
+                
+                console.log(`수정 모드에서 orderCode(${orderCode})의 첫 글자가 S 또는 P이므로 수정 불가 모드로 설정됨`);
+            }
 
 		} catch (error) {
 			console.error('출고 상세 정보 로드 오류:', error); // 메시지 변경

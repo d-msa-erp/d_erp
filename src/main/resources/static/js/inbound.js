@@ -312,6 +312,19 @@ async function openModal(mode, invTransIdx = null) {
         modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
         modalTransStatusSelect.value = 'R1'; // 상태 기본값 'R1' (입고전) 설정 [수정됨]
 
+        // 신규 등록 모드에서는 모든 필드가 입력 가능하도록 설정 (거래 코드 제외)
+        const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+        allInputs.forEach(input => {
+            if (input.tagName === 'SELECT') {
+                input.disabled = false;
+            } else {
+                input.readOnly = false;
+            }
+        });
+        
+        // 거래 코드만 읽기 전용으로 설정
+        modalTransCode.readOnly = true;
+
         // `loadModalDatalistData`에서 모든 품목을 초기에 로드함.
         // `modalCustNmInput`의 change 이벤트 리스너가 거래처 선택 시 품목 필터링을 처리함.
     } else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
@@ -349,6 +362,28 @@ async function openModal(mode, invTransIdx = null) {
             setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
             setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
 
+            // 수정 모드에서만 orderCode의 첫 글자가 'S' 또는 'P'인 경우 모든 입력 필드를 readonly로 설정하고 수정 버튼 숨기기
+            const orderCode = transaction.orderCode;
+            if (orderCode && (orderCode.charAt(0) === 'S' || orderCode.charAt(0) === 'P')) {
+                // 모든 input 요소를 readonly로 설정
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                allInputs.forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.disabled = true;
+                    } else {
+                        input.readOnly = true;
+                    }
+                });
+                
+                // 수정 버튼 숨기기
+                editButton.style.display = 'none';
+                
+                // 모달 타이틀 변경
+                modalTitle.textContent = '입고 상세 정보 (수정 불가)';
+                
+                console.log(`수정 모드에서 orderCode(${orderCode})의 첫 글자가 S 또는 P이므로 수정 불가 모드로 설정됨`);
+            }
+
         } catch (error) {
             console.error('입고 상세 정보 로드 오류:', error);
             alert('입고 정보를 불러오는데 실패했습니다: ' + error.message);
@@ -367,11 +402,25 @@ function closeModal() {
     modal.style.display = 'none'; // 모달 숨김
     modalForm.reset(); // 폼 초기화
     currentInvTransIdxForModal = null; // 현재 모달 ID 초기화
+    
     // 유효성 메시지 초기화
     [modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput, modalTransStatusSelect].forEach(input => {
         input.setCustomValidity('');
         if (input.tagName === 'SELECT') input.selectedIndex = 0; // Selectbox는 첫번째 옵션으로 (예: "상태를 선택해주세요")
     });
+
+    // readonly/disabled 상태 초기화 (다음 모달 열기를 위해)
+    const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+    allInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.disabled = false;
+        } else {
+            input.readOnly = false;
+        }
+    });
+    
+    // 입고 코드 필드는 항상 readonly로 유지
+    modalTransCode.readOnly = true;
 
     // 모달이 닫힐 때, 다음 사용을 위해 모달 품목 리스트를 전체 품목으로 리셋 (선택 사항)
     loadModalItemsDatalist().catch(err => console.error("모달 닫을 때 품목 리스트 리셋 오류:", err));
