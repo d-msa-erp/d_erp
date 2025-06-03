@@ -606,7 +606,7 @@ function fetchOrderNo() {
 	fetch('/api/orders/getno')
 		.then(response => response.json())
 		.then(data => {
-			document.getElementById("orderNo").value = data.orderNo;
+			document.getElementById("orderNo").value = "P" + data.orderNo;
 		})
 		.catch(error => {
 			console.error('주문번호 요청 실패:', error);
