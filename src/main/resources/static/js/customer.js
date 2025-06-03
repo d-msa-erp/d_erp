@@ -280,7 +280,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const detailPhoneInput = document.getElementById('detailBizTel');
     const detailBizNoInput = document.getElementById('detailBizNo');
     const detailCompNoInput = document.getElementById('detailCompNo');
+	const newBizFax = document.getElementById('newBizFax');
+	if (newBizFax) {
+	    newBizFax.addEventListener('input', () => {
+	        newBizFax.value = formatPhoneNumber(newBizFax.value);
+	    });
+	}
 
+	const detailBizFax = document.getElementById('detailBizFax');
+	if (detailBizFax) {
+	    detailBizFax.addEventListener('input', () => {
+	        detailBizFax.value = formatPhoneNumber(detailBizFax.value);
+	    });
+	}
+	
     if (detailEmailInput) detailEmailInput.addEventListener('blur', () => validateInput(detailEmailInput, /^[^\s@]+@[^\s@]+\.[^\s@]+$/, '유효한 이메일을 입력해주세요.'));
     if (detailPhoneInput) {
         detailPhoneInput.addEventListener('input', () => detailPhoneInput.value = formatPhoneNumber(detailPhoneInput.value));
