@@ -367,7 +367,7 @@ th, td {
 	<header th:fragment="top">
 		<div class="top-Wrapper">
 			<div class="top-bar">
-				<div class="title" onclick="location.href='/'">스마트 제조 시스템</div>
+				<div class="title" onclick="location.href='/'" id="site-title">스마트 제조 시스템</div>
 				<div class="text-sm"> <th:block th:if="${session.loggedInUser != null}">
 						<span class="material-symbols-outlined" style="vertical-align: middle;">person</span>
 						<span onclick="location.href='/mypage'" class="userName"
