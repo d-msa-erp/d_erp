@@ -698,9 +698,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	    const currentStockInfoSpan = document.getElementById('currentStockInfo'); 
 
 	    if (item && item.invIdx !== undefined) { // 수정 모드 (메인 테이블 재고 항목 클릭 시, invIdx로 식별)
-	        title.textContent = '재고 정보 수정';
-	        if (saveButton) saveButton.style.display = 'none';
-	        if (editButton) editButton.style.display = 'block';
+	        title.textContent = '재고 정보';
+	        //if (saveButton) saveButton.style.display = 'none';
+	        //if (editButton) editButton.style.display = 'block';
 	        if (transTypeSelect) {
 	              transTypeSelect.value = item.transType === 'R' ? '01' : (item.transType === 'S' ? '02' : ''); // StockDto에 transType이 있다면
 	             transTypeSelect.disabled = true; // 재고 수정 시 입출고 유형 변경은 보통 불가
@@ -713,6 +713,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	        if (qtyInput) qtyInput.readOnly = true; // 수량 수정 불가 (요청사항)
 	        if (itemCostInput) itemCostInput.readOnly = true; // 단가 수정 불가 (요청사항)
 	        if (optimalInvInput) optimalInvInput.readOnly = true; // 적정재고 수정 불가 (요청사항)
+				
+			if (whSelect) whSelect.disabled = true;         
+	      	if (unitSelect) unitSelect.disabled = true;   
+	      	if (custSelect) custSelect.disabled = true;    
+	      	if (userNmInput) userNmInput.readOnly = true;    
+	      	if (remarkInput) remarkInput.readOnly = true;      
 
 	        console.log("재고 수정 모드, 전달된 item (StockDto):", item);
 	        setInputValue(form, 'selected_item_idx', item.itemIdx);
@@ -831,7 +837,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	    }
 	}
 
-	async function updateItem(invIdx) { // 기존 재고 정보(TB_INVENTORY) 수정
+/*	async function updateItem(invIdx) { // 기존 재고 정보(TB_INVENTORY) 수정
 	    if (invIdx === null || invIdx === undefined) {
 	        alert("수정할 재고 ID가 없습니다.");
 	        return;
@@ -882,7 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	        console.error('재고 수정 API 호출 오류:', error);
 	        alert('재고 수정 처리 중 오류가 발생했습니다.');
 	    }
-	}
+	}*/
 	
 	async function openModalWithTransactionDetails(invTransIdx) {
 	    const modal = document.getElementById('modal');
