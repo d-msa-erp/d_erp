@@ -108,7 +108,6 @@ public class LoginChkInterceptor implements HandlerInterceptor {
                requestPath.startsWith("/images/") ||
                requestPath.startsWith("/webjars/") ||
                requestPath.equals("/error") ||
-               requestPath.equals("/favicon.ico") ||
                requestPath.startsWith("/api/");
     }
 
