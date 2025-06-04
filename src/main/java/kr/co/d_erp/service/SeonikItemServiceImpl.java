@@ -6,12 +6,26 @@ import kr.co.d_erp.repository.oracle.*; // 모든 관련 Repository import
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 // import java.util.Date; // Inventory 엔티티에서 @PrePersist 등으로 처리 시 직접 사용 안 함
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -157,4 +171,93 @@ public class SeonikItemServiceImpl implements SeonikItemService {
                 .map(unit -> new UnitDto(unit.getUnitIdx(), unit.getUnitNm())) // Unit 엔티티의 getter 가정
                 .collect(Collectors.toList());
     }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<SeonikItemDto> getItemsByIdxs(List<Long> itemIdxs) {
+        if (itemIdxs == null || itemIdxs.isEmpty()) {
+            return List.of(); // 빈 리스트 반환
+        }
+        // SeonikItemRepository에 itemIdx 목록으로 조회하는 JPQL 메소드 필요
+        // 예: @Query("SELECT new ... FROM SeonikItem i JOIN ... WHERE i.itemIdx IN :itemIdxs")
+        // return seonikItemRepository.findItemsWithJoinsByIdxs(itemIdxs);
+        // 위 메소드가 없다면, 각 ID에 대해 findById를 호출하거나 (N+1 문제),
+        // 또는 모든 데이터를 가져와 필터링 (비효율적). JPQL IN 절 사용이 가장 좋음.
+        // 여기서는 JPQL IN 절을 사용하는 메소드가 SeonikItemRepository에 추가되었다고 가정합니다.
+        // 또는, 아래와 같이 getAllItems() 후 필터링 (데이터 양이 적을 때만 고려)
+        List<SeonikItemDto> allItems = seonikItemRepository.findAllItemsWithJoins();
+        return allItems.stream()
+                .filter(item -> itemIdxs.contains(item.getItemIdx()))
+                .collect(Collectors.toList());
+        // ✳️ 더 나은 방법: SeonikItemRepository에 List<Long> itemIdxs를 받아 조회하는 메소드 추가
+        // 예: List<SeonikItemDto> findDtosByIdxIn(List<Long> itemIdxs);
+    }
+
+
+    @Override
+    public byte[] createItemsExcelFile(List<SeonikItemDto> items) throws IOException {
+        Workbook workbook = new XSSFWorkbook(); // .xlsx 확장자용
+        Sheet sheet = workbook.createSheet("품목 정보");
+
+        // 헤더 스타일
+        CellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        Font headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerStyle.setFont(headerFont);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // 헤더 행 생성
+        String[] headers = {"품목코드", "품목명", "자재/품목", "대분류", "소분류", "거래처", "단위", "현재고량", "단가", "규격", "적정재고", "CycleTime", "비고"};
+        Row headerRow = sheet.createRow(0);
+        for (int i = 0; i < headers.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 데이터 행 생성
+        int rowNum = 1;
+        Map<String, String> flagMap = Map.of("01", "자재", "02", "품목");
+
+        for (SeonikItemDto item : items) {
+            Row row = sheet.createRow(rowNum++);
+            row.createCell(0).setCellValue(item.getItemCd());
+            row.createCell(1).setCellValue(item.getItemNm());
+            row.createCell(2).setCellValue(flagMap.getOrDefault(item.getItemFlag(), item.getItemFlag()));
+            row.createCell(3).setCellValue(item.getItemCat1Nm());
+            row.createCell(4).setCellValue(item.getItemCat2Nm());
+            row.createCell(5).setCellValue(item.getCustNm());
+            row.createCell(6).setCellValue(item.getUnitNm());
+            // 숫자 타입은 Double로 변환하여 셀에 설정 (Apache POI는 숫자 타입 셀을 선호)
+            Cell stockCell = row.createCell(7);
+            if (item.getCurrentStockQty() != null) stockCell.setCellValue(item.getCurrentStockQty().doubleValue()); else stockCell.setCellValue("");
+            
+            Cell costCell = row.createCell(8);
+            if (item.getItemCost() != null) costCell.setCellValue(item.getItemCost().doubleValue()); else costCell.setCellValue("");
+            
+            row.createCell(9).setCellValue(item.getItemSpec());
+
+            Cell optimalInvCell = row.createCell(10);
+            if (item.getOptimalInv() != null) optimalInvCell.setCellValue(item.getOptimalInv().doubleValue()); else optimalInvCell.setCellValue("");
+
+            Cell cycleTimeCell = row.createCell(11);
+            if (item.getCycleTime() != null) cycleTimeCell.setCellValue(item.getCycleTime().doubleValue()); else cycleTimeCell.setCellValue("");
+            
+            row.createCell(12).setCellValue(item.getRemark());
+        }
+
+        // 컬럼 너비 자동 조정
+        for (int i = 0; i < headers.length; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+        return outputStream.toByteArray();
+    }
+    
+    
 }

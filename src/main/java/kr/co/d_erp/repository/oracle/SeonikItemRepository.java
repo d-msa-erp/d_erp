@@ -70,4 +70,24 @@ public interface SeonikItemRepository extends Repository<SeonikItem, Long> {
         ORDER BY i.itemIdx DESC
         """)
     List<SeonikItemDto> findItemsWithJoinsByFlag(@Param("itemFlag") String itemFlag);
+    
+    @Query("""
+    	    SELECT new kr.co.d_erp.dtos.SeonikItemDto(
+    	        i.itemIdx, i.itemCd, i.itemNm, i.itemFlag,
+    	        cat1.catIdx, cat1.catNm, cat2.catIdx, cat2.catNm,
+    	        cust.custIdx, cust.custNm, i.itemSpec,
+    	        unit.unitIdx, unit.unitNm,
+    	        i.itemCost, i.optimalInv, i.cycleTime, i.remark,
+    	        COALESCE((SELECT SUM(inv.stockQty) FROM Inventory inv WHERE inv.itemIdx = i.itemIdx), 0)
+    	    )
+    	    FROM SeonikItem i
+    	    JOIN i.itemCat1 cat1
+    	    JOIN i.itemCat2 cat2
+    	    JOIN i.customer cust
+    	    JOIN i.itemUnit unit
+    	    WHERE i.itemIdx IN :itemIdxs 
+    	    ORDER BY i.itemIdx DESC
+    	    """)
+    	List<SeonikItemDto> findItemsWithJoinsByIdxs(@Param("itemIdxs") List<Long> itemIdxs);
+    
 }

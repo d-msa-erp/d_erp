@@ -6,6 +6,11 @@ import lombok.RequiredArgsConstructor; // 생성자 주입용
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;  
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -65,4 +70,38 @@ public class SeonikItemController {
     public List<UnitDto> getUnitOptions() { // UnitDto 반환
         return seonikItemService.getAllUnitOptions();
     }
+    
+    @PostMapping("/api/items2/excel-download") // JavaScript에서 호출하는 경로와 일치
+    public ResponseEntity<byte[]> downloadItemsAsExcel(@RequestBody List<Long> itemIdxs, HttpServletResponse response) {
+        // ✳️ 주의: itemIdxs가 비어있거나 너무 많을 경우에 대한 처리 필요
+
+        // 1. itemIdxs를 사용하여 SeonikItemDto 목록 조회 (서비스 메소드 호출)
+        //    (이때, SeonikItemRepository에 List<Long> itemIdxs를 받아 List<SeonikItemDto>를 반환하는 메소드 추가 필요)
+        //    또는 서비스에서 각 ID에 대해 조회하거나, 현재는 JPQL에 IN절을 사용하는 것이 좋음.
+        //    여기서는 SeonikItemService에 새로운 메소드를 추가한다고 가정합니다.
+        List<SeonikItemDto> itemsToExport = seonikItemService.getItemsByIdxs(itemIdxs); // ✳️ 이 메소드를 서비스에 추가해야 함
+
+        // 2. 조회된 DTO 목록을 사용하여 Excel 파일 생성 (Apache POI 등 라이브러리 사용)
+        //    이 부분은 별도의 Excel 생성 유틸리티 클래스나 서비스로 분리하는 것이 좋음
+        try {
+            byte[] excelBytes = seonikItemService.createItemsExcelFile(itemsToExport); // ✳️ 이 메소드를 서비스에 추가해야 함
+
+            String filename = "품목_상세정보_" + java.time.LocalDate.now().toString() + ".xlsx";
+            String encodedFilename = java.net.URLEncoder.encode(filename, "UTF-8").replaceAll("\\+", "%20");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", encodedFilename); // 파일명 UTF-8 인코딩
+
+            return ResponseEntity.ok()
+                    .headers(headers)
+                    .body(excelBytes);
+
+        } catch (IOException e) {
+            // 로깅 및 오류 처리
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(null); // 또는 적절한 오류 응답
+        }
+    }
+    
 }

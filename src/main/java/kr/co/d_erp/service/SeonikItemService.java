@@ -5,6 +5,7 @@ import kr.co.d_erp.dtos.CustomerDTO;    // 제공된 DTO 사용
 import kr.co.d_erp.dtos.CategoryDto;   // 제공된 DTO 사용
 import kr.co.d_erp.dtos.UnitDto;       // 제공된 DTO 사용
 
+import java.io.IOException;
 import java.util.List;
 
 public interface SeonikItemService {
@@ -21,4 +22,10 @@ public interface SeonikItemService {
     List<CategoryDto> getParentItemCategoryOptions();
     List<CategoryDto> getChildItemCategoryOptions(Long parentCategoryIdx);
     List<UnitDto> getAllUnitOptions();
+    
+    List<SeonikItemDto> getItemsByIdxs(List<Long> itemIdxs); // 엑셀/인쇄용 상세 조회
+    byte[] createItemsExcelFile(List<SeonikItemDto> items) throws IOException; // Excel 생성
+    
+    
+    
 }

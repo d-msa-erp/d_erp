@@ -7,6 +7,177 @@ let itemsPerPage = 10; // 한 페이지에 표시할 항목 수
 let currentSortColumn = 'itemNm';
 let currentSortDirection = 'asc';
 
+
+
+
+
+
+
+
+
+//===================엑셀과 프린트 ==================================
+// ✳️ --- 엑셀 다운로드 관련 함수 ---
+async function handleExcelDownload() {
+    console.log("[Excel] handleExcelDownload() 호출됨 - 품목 정보 엑셀 다운로드 시도.");
+    const selectedIds = getSelectedItemIds(); // 기존에 있던 선택된 ID 가져오는 함수
+
+    if (selectedIds.length === 0) {
+        alert("엑셀로 다운로드할 품목을 먼저 선택해주세요.");
+        return;
+    }
+    console.log("[Excel] 선택된 품목 ID:", selectedIds);
+
+    try {
+        // ✳️ 서버에 엑셀 다운로드 요청 API (새로 만들어야 함)
+        // 이 API는 List<Long> itemIdxs를 받아서 해당 품목 정보를 Excel 파일로 반환해야 합니다.
+        const response = await fetch('/api/items2/excel-download', { // ✳️ API 경로 예시
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(selectedIds.map(id => parseInt(id))), // ID를 Long 타입으로 변환 (서버 DTO 타입에 맞게)
+        });
+
+        if (!response.ok) {
+            let errorData = { message: `엑셀 파일 생성에 실패했습니다. 상태: ${response.status}` };
+            try {
+                const errorResponse = await response.text();
+                try { errorData = JSON.parse(errorResponse); } catch (e) { errorData.message = errorResponse; }
+            } catch (e) { /* 응답 본문 처리 중 오류 무시 */ }
+            throw new Error(errorData.message || `서버 오류: ${response.status}`);
+        }
+
+        const disposition = response.headers.get('Content-Disposition');
+        let filename = 'inventory_items.xlsx'; // 기본 파일명
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) {
+                filename = decodeURIComponent(matches[1].replace(/['"]/g, '').replace(/UTF-8''/i, ''));
+            }
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+
+        console.log("[Excel] 파일 다운로드 시작:", filename);
+        // alert('엑셀 파일 다운로드가 시작됩니다.'); // 사용자 알림
+
+    } catch (error) {
+        console.error("[Excel] 엑셀 다운로드 중 오류 발생:", error);
+        alert(`엑셀 다운로드 오류: ${error.message}`);
+    }
+}
+
+// ✳️ --- 인쇄 관련 함수 ---
+async function handlePrint() {
+    console.log("[Print] handlePrint() 호출됨 - 품목 정보 인쇄 시도.");
+    const selectedIds = getSelectedItemIds();
+
+    if (selectedIds.length === 0) {
+        alert("인쇄할 품목을 먼저 선택해주세요.");
+        return;
+    }
+    console.log("[Print] 선택된 품목 ID:", selectedIds);
+
+    // 선택된 ID를 숫자로 변환 (allItemsCache의 itemIdx와 비교하기 위함)
+    const selectedNumericIds = selectedIds.map(id => parseInt(id, 10));
+
+    // allItemsCache에서 선택된 품목 정보 필터링
+    const itemsToPrint = allItemsCache.filter(item => selectedNumericIds.includes(item.itemIdx));
+
+    if (itemsToPrint.length === 0) {
+        alert('선택된 품목 정보를 찾을 수 없습니다. 목록을 새로고침 해주세요.');
+        return;
+    }
+
+    let printContents = `
+        <html>
+        <head>
+            <title>품목 정보 인쇄</title>
+            <style>
+                body { font-family: '맑은 고딕', Malgun Gothic, Dotum, sans-serif; margin: 20px; font-size: 10pt; color: #333; }
+                .item-print-container { page-break-inside: avoid; border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 4px; }
+                .item-print-container h2 { font-size: 14pt; margin-top: 0; margin-bottom: 10px; color: #333; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+                .item-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 5px 15px; }
+                .item-info-grid p { margin: 4px 0; font-size: 9.5pt; }
+                .item-info-grid strong { display: inline-block; width: 80px; color: #555; font-weight: bold; }
+                @media print {
+                    body { margin: 0.5cm; } /* 인쇄 여백 조정 */
+                    .item-print-container { border: none; box-shadow: none; margin-bottom: 10mm; }
+                    h1.print-main-title { display: block !important; font-size: 18pt; text-align: center; margin-bottom: 15mm; }
+                }
+                h1.print-main-title { display: none; } /* 화면에서는 숨김 */
+            </style>
+        </head>
+        <body>
+            <h1 class="print-main-title">선택된 품목 정보</h1>
+    `;
+
+    const flagMap = { "01": "자재", "02": "품목" }; // 품목 플래그 매핑
+
+    itemsToPrint.forEach(item => {
+        // currentStockQty와 optimalInv는 BigDecimal일 수 있으므로 숫자 포맷팅
+        const stockQtyDisplay = (item.currentStockQty !== null && item.currentStockQty !== undefined) ? Number(item.currentStockQty).toLocaleString() : '-';
+        const optimalInvDisplay = (item.optimalInv !== null && item.optimalInv !== undefined) ? Number(item.optimalInv).toLocaleString() : '-';
+        const itemCostDisplay = (item.itemCost !== null && item.itemCost !== undefined) ? item.itemCost.toLocaleString() : '-';
+        const cycleTimeDisplay = (item.cycleTime !== null && item.cycleTime !== undefined) ? Number(item.cycleTime).toLocaleString() : '-';
+
+
+        printContents += `
+            <div class="item-print-container">
+                <h2>${item.itemNm || 'N/A'} (코드: ${item.itemCd || 'N/A'})</h2>
+                <div class="item-info-grid">
+                    <p><strong>분류:</strong> ${flagMap[item.itemFlag] || item.itemFlag || 'N/A'}</p>
+                    <p><strong>대분류:</strong> ${item.itemCat1Nm || 'N/A'}</p>
+                    <p><strong>소분류:</strong> ${item.itemCat2Nm || 'N/A'}</p>
+                    <p><strong>거래처:</strong> ${item.custNm || 'N/A'}</p>
+                    <p><strong>규격:</strong> ${item.itemSpec || 'N/A'}</p>
+                    <p><strong>단위:</strong> ${item.unitNm || 'N/A'}</p>
+                    <p><strong>단가:</strong> ${itemCostDisplay} 원</p>
+                    <p><strong>현재고량:</strong> ${stockQtyDisplay}</p>
+                    <p><strong>적정재고:</strong> ${optimalInvDisplay}</p>
+                    <p><strong>Cycle Time:</strong> ${cycleTimeDisplay}</p>
+                </div>
+                ${item.remark ? `<p style="margin-top:10px;"><strong>비고:</strong> ${item.remark}</p>` : ''}
+            </div>
+        `;
+    });
+
+    printContents += `</body></html>`;
+
+    const printWindow = window.open('', '_blank', 'height=700,width=900,scrollbars=yes,menubar=yes,toolbar=yes');
+    if (printWindow) {
+        printWindow.document.write(printContents);
+        printWindow.document.close(); // 중요: Firefox에서 이미지 로드 등을 위해 필요
+        printWindow.focus(); // 인쇄 창 활성화
+        // 인쇄 미리보기 로드를 위해 약간의 지연 후 print() 호출
+        setTimeout(() => {
+            try {
+                printWindow.print();
+            } catch (e) {
+                console.error("[Print] 인쇄 다이얼로그 호출 중 오류:", e);
+                // 일부 브라우저에서는 사용자가 직접 인쇄를 시작해야 할 수 있음
+                printWindow.alert("인쇄 중 오류가 발생했습니다. 브라우저의 인쇄 기능을 사용해주세요. (Ctrl+P 또는 Cmd+P)");
+            }
+            // 자동으로 닫을 필요가 없다면 아래 라인 주석 처리 또는 제거
+            // setTimeout(() => { printWindow.close(); }, 1000); // 인쇄 후 잠시 뒤 창 닫기 (선택 사항)
+        }, 700); // 700ms 정도면 대부분의 경우 충분
+    } else {
+        alert("팝업 차단 기능이 활성화되어 있으면 인쇄 창을 열 수 없습니다. 브라우저의 팝업 차단 설정을 확인해주세요.");
+    }
+}
+
+
+//===================엑셀과 프린트 ==================================
 // DOM 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     console.log('품목 관리 JavaScript 로드됨 (모달 옵션 API 연동 시도)');
@@ -287,34 +458,7 @@ async function handleDeleteSelected() {
     alert(alertMessage.trim() || "삭제 처리 중 오류 발생.");
     if (successCount > 0) loadAndDisplayInitialData();
 }
-function handleExcelDownload() { alert("엑셀 다운로드 기능은 서버측 구현이 필요합니다."); }
-function handlePrint() {
-    const selectedIds = getSelectedItemIds();
-    const itemsToPrint = selectedIds.length > 0 ? allItemsCache.filter(item => selectedIds.includes(item.itemIdx.toString())) : allItemsCache;
-    if (itemsToPrint.length === 0) { alert('인쇄할 품목이 없습니다.'); return; }
-    let printContents = `<html><head><title>품목 정보 인쇄</title><style>
-        body{font-family:Arial,sans-serif;margin:20px;font-size:10pt}table{width:100%;border-collapse:collapse;margin-bottom:20px}
-        th,td{border:1px solid #ddd;padding:6px;text-align:left}th{background-color:#f2f2f2}
-        h1{font-size:16pt;text-align:center;margin-bottom:20px}
-        @media print{body{margin:1cm}h1{font-size:14pt}th,td{padding:4px}}</style></head><body><h1>품목 목록</h1>
-        <table><thead><tr><th>품목명</th><th>품목코드</th><th>대분류</th><th>소분류</th><th>거래처</th><th>단위</th><th>현재고</th><th>단가</th></tr></thead><tbody>`;
-    itemsToPrint.forEach(item => {
-        // currentStockQty 포맷팅 추가
-        let currentStockQtyDisplay = '-';
-        if (item.currentStockQty !== null && item.currentStockQty !== undefined) {
-             currentStockQtyDisplay = Number(item.currentStockQty).toLocaleString();
-        }
-        printContents += `<tr><td>${item.itemNm||''}</td><td>${item.itemCd||''}</td><td>${item.itemCat1Nm||''}</td><td>${item.itemCat2Nm||''}</td><td>${item.custNm||''}</td><td>${item.unitNm||''}</td>
-        <td style="text-align:right;">${currentStockQtyDisplay}</td>
-        <td style="text-align:right;">${item.itemCost !== null && item.itemCost !== undefined ? item.itemCost.toLocaleString() : '0'}</td></tr>`;
-    });
-    printContents += `</tbody></table></body></html>`;
-    const printWindow = window.open('', '_blank', 'width=1000,height=700,scrollbars=yes');
-    if (printWindow) {
-        printWindow.document.write(printContents); printWindow.document.close(); printWindow.focus();
-        setTimeout(() => { printWindow.print(); }, 500);
-    } else { alert("팝업이 차단되어 인쇄 창을 열 수 없습니다."); }
-}
+
 
 // --- 모달 관련 함수 ---
 // (HTML에서 onclick="openModal()"로 호출되므로 전역에 있어야 함)
