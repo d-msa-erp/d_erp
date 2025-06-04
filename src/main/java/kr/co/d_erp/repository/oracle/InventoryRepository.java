@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -63,6 +64,22 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                                                @Param("searchKeyword") String searchKeyword,
                                                Pageable pageable);
 	void deleteByInvIdxIn(List<Long> invIdxs);
+	
+	
+	
+	
+	//선익
+	   // 특정 itemIdx에 해당하는 모든 재고 레코드 삭제
+    // @Modifying 어노테이션은 데이터 변경(삭제) 작업에 필요합니다.
+    @Modifying
+    Long deleteByItemIdx(Long itemIdx); // 반환 타입은 삭제된 레코드 수(Long) 또는 void 가능
+
+    // (참고) 여러 품목의 재고를 한번에 삭제해야 할 경우를 위해 남겨둡니다.
+    @Modifying
+    @Query("DELETE FROM Inventory inv WHERE inv.itemIdx IN :itemIdxs")
+    void deleteAllByItemIdxIn(@Param("itemIdxs") List<Long> itemIdxs);
+
+
 
 	
 	
