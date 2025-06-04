@@ -307,7 +307,9 @@ async function fetchItems(page, itemFlag = null, keyword = null, sortProperty = 
             if (currentKeyword.trim() !== "") {
                 message = `"${currentKeyword}"에 해당하는 검색 결과가 없습니다.`;
             }
+
             itemTableBody.innerHTML = `<tr><td class="nodata" style="grid-column: span 7; text-align: center; justify-content: center;">${message}</td></tr>`;
+
             totalPages = 1;
             if (currentPageSpan) currentPageSpan.textContent = `1/1페이지`;
             if (currentPageInput) currentPageInput.value = 1;
