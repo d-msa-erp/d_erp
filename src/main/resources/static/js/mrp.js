@@ -24,7 +24,7 @@ function setInputValueById(elementId, value) {
                    element.value = `${d.getFullYear()}-${('0' + (d.getMonth() + 1)).slice(-2)}-${('0' + d.getDate()).slice(-2)}`;
                 }
             } catch (e) {
-                console.error("Error formatting date for ID " + elementId + ":", value, e);
+                
                 element.value = '';
             }
         } else {
@@ -80,7 +80,7 @@ async function displayMaterialDetailsInForm(materialData, productProductionQty) 
 async function fetchAndDisplayBomForModal(parentProductItemId, productProductionQty) {
     const bomListBody = document.getElementById('bomMaterialListBody');
     if (!bomListBody) {
-        console.error("bomMaterialListBody (모달 내 BOM 목록) 요소를 찾을 수 없습니다.");
+        
         clearMaterialDetailFields();
         return;
     }
@@ -122,9 +122,104 @@ async function fetchAndDisplayBomForModal(parentProductItemId, productProduction
             bomListBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">해당 제품의 BOM 구성 자재가 없습니다.</td></tr>`;
         }
     } catch (error) {
-        console.error(`제품 ID [${parentProductItemId}]에 대한 BOM 정보 조회 중 오류:`, error);
+        
         bomListBody.innerHTML = `<tr><td colspan="8" style="text-align:center;">BOM 정보 로드 실패: ${error.message}</td></tr>`;
     }
+}
+
+function mrpexceldownload() {
+	   if (!selectedMrpOrderDataForCalc) {
+	       alert("먼저 첫 번째 테이블에서 MRP 대상 품목(주문)을 선택해주세요.");
+	       return;
+	   }
+
+	   if (!materialbody || materialbody.rows.length === 0 ||
+	       (materialbody.rows.length === 1 && materialbody.rows[0].cells.length > 0 && materialbody.rows[0].cells[0].classList.contains('nodata'))) {
+	       alert("선택된 품목의 자재 목록이 하단 두 번째 테이블에 표시되어야 합니다.\n자재 목록이 없으면 엑셀로 내보낼 수 없습니다.");
+	       return;
+	   }
+
+	   try {
+	       // --- 1. 첫 번째 테이블 (주문 정보) 데이터 준비 ---
+	       const orderInfo = selectedMrpOrderDataForCalc;
+	       const orderDataForExcel = [
+	           ["■ 주문 정보"], // 섹션 제목 행
+	           // 헤더: MrpSecondDto 또는 화면 표시 기준
+	           ["주문번호", "고객사", "주문일자", "납기일자", "주문상태", "완제품코드", "완제품명", "완제품단위", "주문수량(생산예정)", "완제품현재고", "생산코드(주문연결)"],
+	           // 데이터: selectedMrpOrderDataForCalc 객체에서 가져오기
+	           [
+	               orderInfo.orderCode || '',
+	               orderInfo.customerNm || '',
+	               orderInfo.orderDate ? new Date(orderInfo.orderDate).toLocaleDateString() : '', // 날짜 형식 변환
+	               orderInfo.orderDeliveryDate ? new Date(orderInfo.orderDeliveryDate).toLocaleDateString() : '', // 날짜 형식 변환
+	               orderInfo.orderStatusOverall || '',
+	               orderInfo.productItemCd || '',
+	               orderInfo.productItemNm || '',
+	               orderInfo.productUnitNm || '',
+	               orderInfo.orderQty ?? '', // MrpSecondDto의 orderQty (완제품 생산 예정 수량)
+	               orderInfo.productCurrentStock !== undefined ? orderInfo.productCurrentStock : '',
+	               orderInfo.prodCd || ''
+	           ]
+	       ];
+
+	       // --- 2. 두 번째 테이블 (자재 목록) 데이터 준비 ---
+	       const materialDataForExcel = [];
+	       materialDataForExcel.push([""]); // 주문 정보와 자재 목록 사이에 빈 행 추가
+	       materialDataForExcel.push(["■ 자재 소요 목록"]); // 섹션 제목 행
+
+	       const materialTableHeaders = [];
+	       const headerCells = materialbody.previousElementSibling.rows[0].cells; // thead의 첫 번째 행에서 헤더 가져오기
+	       for (let i = 0; i < headerCells.length; i++) {
+	           materialTableHeaders.push(headerCells[i].textContent);
+	       }
+	       materialDataForExcel.push(materialTableHeaders);
+
+	       const materialRows = materialbody.querySelectorAll('tr');
+	       materialRows.forEach(row => {
+	           if (row.querySelector('.nodata')) return; // '데이터 없음' 행 건너뛰기
+
+	           const rowData = [];
+	           const cells = row.cells;
+	           for (let i = 0; i < cells.length; i++) {
+	               rowData.push(cells[i].textContent);
+	           }
+	           materialDataForExcel.push(rowData);
+	       });
+
+	       // --- 3. 워크시트 생성 (SheetJS 라이브러리 사용) ---
+	       // 주문 정보와 자재 목록 데이터를 하나의 시트에 함께 넣기
+	       const combinedData = [...orderDataForExcel, ...materialDataForExcel];
+	       const ws = XLSX.utils.aoa_to_sheet(combinedData);
+
+	       // (선택적) 컬럼 너비 자동 조절 시도 (완벽하지 않을 수 있음)
+	       const colsWidth = [];
+	       combinedData.forEach(row => {
+	           row.forEach((cell, colIndex) => {
+	               const cellLength = cell ? String(cell).length + 2 : 10; // 글자 수 기반 너비 (약간의 여유 추가)
+	               if (!colsWidth[colIndex] || colsWidth[colIndex].wch < cellLength) {
+	                   colsWidth[colIndex] = { wch: cellLength };
+	               }
+	           });
+	       });
+	       // 주문 정보 섹션의 타이틀 셀 병합 처리 (예시)
+	       if (ws['A1']) { // "■ 주문 정보" 셀
+	       }
+	       ws['!cols'] = colsWidth;
+
+
+	       // --- 4. 워크북 생성 및 다운로드 ---
+	       const wb = XLSX.utils.book_new();
+	       XLSX.utils.book_append_sheet(wb, ws, "MRP 데이터"); // 시트 이름 설정
+
+	       const fileName = `MRP_DATA_${orderInfo.orderCode || '데이터'}.xlsx`;
+	       XLSX.writeFile(wb, fileName);
+
+	       
+
+	   } catch (error) {
+	       
+	       alert("엑셀 파일을 생성하는 중 오류가 발생했습니다. 콘솔을 확인해주세요.");
+	   }
 }
 
 // --- 페이지 로드 시 실행되는 메인 로직 및 이벤트 핸들러 ---
@@ -134,8 +229,17 @@ document.addEventListener('DOMContentLoaded', () => {
     itembody = document.getElementById('itembody');
     materialbody = document.getElementById('materialbody');
 
-    fetchMrpTargetOrders('');
 
+
+    if (itembody) {
+            itembody.innerHTML = `<tr><td class="nodata initial-loading" style="text-align: center; justify-content: center; padding:10px;" colspan="10"> 로딩중...</td></tr>`;
+        }
+        
+    if (materialbody) { // materialbody 요소가 실제로 존재하는지 확인 후
+        materialbody.innerHTML ='<tr><td class="nodata" colspan="8">대상 품목을 선택해 주세요.</td></tr>';  
+    }
+        fetchMrpTargetOrders('');
+    
     if (mrpSearchBtn) {
         mrpSearchBtn.addEventListener('click', (event) => {
             event.preventDefault();
@@ -150,9 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             selectedMrpOrderDataForCalc = null;
             fetchMrpTargetOrders(searchTerm);
-			if (materialbody) { // materialbody 요소가 실제로 존재하는지 확인 후
-				materialbody.innerHTML ='<tr><td class="nodata" colspan="8">선택한 주문번호의 자재 데이터가 없습니다.</td></tr>';  
-			}
+
         });
     }
     if (mrpSearchText) {
@@ -196,7 +298,7 @@ async function fetchMrpTargetOrders(searchKeyword) {
                 radio.addEventListener('change', async function() { // async 추가
                     if (this.checked) {
                         selectedMrpOrderDataForCalc = order; // 선택된 데이터 업데이트
-                        console.log("Radio selected for order:", order);
+                        
 
                         // 선택된 행 스타일 업데이트
                         if (itembody) {
@@ -219,11 +321,12 @@ async function fetchMrpTargetOrders(searchKeyword) {
                 // 데이터 셀 생성
                 const dataCells = [
                     order.orderCode || '',
-                    order.prodCd || '',
+					order.prodCd || '생산 전',
+
                     order.productItemCd || '',
                     order.productItemNm || '',
                     order.customerNm || '',
-                    (order.productCurrentStock !== undefined ? order.productCurrentStock : 'N/A(재고없음)'),
+                    (order.productCurrentStock ?? '0'),
                     order.productUnitNm || '',
                     order.orderQty ?? '',
                     order.productivity || ''
@@ -256,7 +359,7 @@ async function fetchMrpTargetOrders(searchKeyword) {
          itembody.innerHTML = `<tr><td class="nodata" colspan="10">조회된 데이터가 없습니다.</td></tr>`;
         }
     } catch (error) {
-        console.error("MRP 대상 주문 목록 조회 중 오류:", error);
+        
         if (itembody) itembody.innerHTML = `<tr><td class="nodata" colspan="10" style="text-align: center;">데이터를 불러오는 중 오류가 발생했습니다. (API: ${url.split('?')[0]})</td></tr>`;
     }
 }
@@ -268,7 +371,7 @@ async function fetchMrpTargetOrders(searchKeyword) {
 // 라디오 change 이벤트에서는 스타일링과 하단 테이블 로드만 수행.
 async function handleOrderRowClick(orderData, clickedRow) {
     selectedMrpOrderDataForCalc = orderData;
-    console.log("Order row selected (handleOrderRowClick for styling/bottom table):", orderData);
+    
 
     // JAVASCRIPT 수정: 선택된 행 스타일링 (selected-row 클래스)
 	if (itembody) {
@@ -296,7 +399,7 @@ async function handleOrderRowClick(orderData, clickedRow) {
 
 async function populateMaterialTable(parentProductItemId, productProductionQty) {
     // ... (이전과 동일) ...
-    if (!materialbody) { console.error("materialbody 요소를 찾을 수 없습니다."); return; }
+    if (!materialbody) { return; }
     materialbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">자재 정보 로딩 중...</td></tr>`;
     try {
         const response = await fetch(`/api/bom/${parentProductItemId}`);
@@ -312,26 +415,52 @@ async function populateMaterialTable(parentProductItemId, productProductionQty) 
                 row.insertCell().textContent = index + 1;
                 row.insertCell().textContent = component.subItemCd || '';
                 row.insertCell().textContent = component.subItemNm || '';
-				row.insertCell().textContent = component.subQty ?? 0;
+				
+				// 개선된 재고량 처리
+				const stockCell = row.insertCell();
+				let stockValue;
+				let stockDisplayText;
+
+				if (component.subQty === undefined || component.subQty === null) {
+				    // API에서 재고량 정보를 제공하지 않는 경우
+				    stockDisplayText = '0';
+				    stockValue = 0;
+				} else if (component.subQty === 0) {
+				    // 재고량이 0인 경우
+				    stockDisplayText = '0';
+				    stockValue = 0;
+				} else if (typeof component.subQty === 'number' && !isNaN(component.subQty)) {
+				    // 정상적인 숫자 재고량
+				    stockDisplayText = component.subQty.toString();
+				    stockValue = component.subQty;
+				} else {
+				    // 기타 오류 상황 (문자열이지만 숫자가 아닌 경우 등)
+				    stockDisplayText = '0';
+				    stockValue = null;
+				}
+
+				stockCell.textContent = stockDisplayText;
+				row.dataset.stockvalue = stockValue;
 				const useQtyCell = row.insertCell();
               	useQtyCell.textContent = component.useQty || 0;                   // 소요량 (단위 소요량)
                 row.dataset.useqty = component.useQty || 0;
                 row.insertCell().textContent = component.unitNm || '';
                 row.insertCell().textContent = '';
-				const statusCell = row.insertCell();            
-               statusCell.classList.add('status-display-cell'); 
-               statusCell.innerHTML = ''; // 초기에는 비워둠
+                
+                const actionCell = row.insertCell();                          // 구매요청
+                actionCell.classList.add('purchase-action-cell'); // 식별 및 스타일링을 위한 클래스
+                actionCell.innerHTML = ''; // 초기에는 비워둠
             });
         } else {
             clearMaterialTable("해당 제품의 BOM 구성 자재가 없습니다.", materialbody, 7);
         }
     } catch (error) {
-        console.error(`ID [${parentProductItemId}] BOM 조회 오류(populateMaterialTable):`, error);
+        
         clearMaterialTable(`BOM 정보 로드 실패: ${error.message}`, materialbody, 7);
     }
 }
 async function handleCalculateButtonClick() {
-    console.log("계산 버튼 클릭됨");
+    
 
     // --- 상단 유효성 검사 로직 (이전과 동일) ---
     if (!selectedMrpOrderDataForCalc) {
@@ -345,23 +474,23 @@ async function handleCalculateButtonClick() {
     }
 
     const parentOrderQty = parseFloat(selectedMrpOrderDataForCalc.orderQty || 0);
-    const parentStockRaw = selectedMrpOrderDataForCalc.productCurrentStock;
+    const parentStockRaw = selectedMrpOrderDataForCalc.productCurrentStock || 0;
 
     if (parentStockRaw === undefined || isNaN(parseFloat(parentStockRaw)) ||
         selectedMrpOrderDataForCalc.orderQty === undefined || isNaN(parentOrderQty) ) {
          alert("선택된 완제품의 생산수량 또는 현재고 정보가 유효하지 않거나 숫자 형식이 아닙니다.\n백엔드 DTO를 확인해주세요.");
-         console.error("계산에 필요한 완제품 정보 오류:", selectedMrpOrderDataForCalc);
+         
          return;
     }
     const parentStock = parseFloat(parentStockRaw);
     // --- 여기까지 유효성 검사 로직 ---
 
     const materialRows = materialbody.querySelectorAll('tr');
-    console.log(`처리할 자재 행 개수: ${materialRows.length}`);
+    
 
     materialRows.forEach((row, index) => {
         if ((row.cells.length > 0 && row.cells[0].classList.contains('nodata')) || row.cells.length < 8) {
-            console.log(`행 ${index} 스킵: 데이터 없음 또는 셀 부족 (8개 필요)`);
+            
             return;
         }
 
@@ -385,23 +514,23 @@ async function handleCalculateButtonClick() {
         const stockValue = row.dataset.stockvalue;
         const materialCurrentStock = stockValue !== null ? parseFloat(stockValue) : null;
 
-        console.log(`처리 중인 자재: ${materialName}`);
+        
 
         if (!isNaN(materialUnitUseQty)) { // 단위 소요량이 유효한 숫자인 경우
             const calculatedInputQty = parentOrderQty * materialUnitUseQty;
             expectedInputQtyCell.textContent = calculatedInputQty.toFixed(3); // 7번째 셀에 투입예상량 표시
-            console.log(`${materialName}: 재고=${materialCurrentStock}, 투입예상=${calculatedInputQty.toFixed(3)}`);
+            
 
             let applyWarning = false; // 경고 적용 여부 플래그
 
             // 재고 부족 조건 검사
             if (isNaN(materialCurrentStock) || materialCurrentStock === null) { // 재고 정보가 없거나 NaN인 경우
                 applyWarning = true;
-                console.log(`${materialName}: 재고 정보 불명확`);
+                
                  // 이 경우 7번째 셀의 텍스트를 "재고확인필요" 등으로 변경할 수도 있습니다.
             } else if (isNaN(calculatedInputQty)) { // 계산된 투입량이 NaN인 경우 (이 경우는 거의 없어야 함)
                 expectedInputQtyCell.textContent = "계산오류";
-                console.log(`${materialName}: 투입 예상량 계산 오류`);
+                
                 // 이 경우에도 8번째 셀에 상태를 표시할 수 있습니다.
             } else if (calculatedInputQty > materialCurrentStock) { // 실제 재고 부족
                 applyWarning = true;
@@ -413,7 +542,7 @@ async function handleCalculateButtonClick() {
                 expectedInputQtyCell.classList.add('deficit-warning');
                 expectedInputQtyCell.style.color = 'red';
                 expectedInputQtyCell.style.fontWeight = 'bold';
-                console.log(`${materialName}: 'deficit-warning' 적용됨. 재고:${materialCurrentStock === null ? 'N/A' : materialCurrentStock}, 투입:${calculatedInputQty.toFixed(3)}`);
+                
 
                 // 8번째 셀에 "재고 부족" 텍스트 표시
                 if (statusDisplayCell) {
@@ -422,14 +551,14 @@ async function handleCalculateButtonClick() {
                     statusDisplayCell.style.fontWeight = 'bold'; // 강조 효과 (선택 사항)
                 }
             } else if (!isNaN(calculatedInputQty)) { // 부족하지 않고, 투입예상량 계산이 정상인 경우
-                console.log(`${materialName}: 정상 (경고 없음)`);
-                // 8번째 셀은 이미 위에서 내용 및 스타일이 초기화된 상태로 유지 (비어있음)
+                statusDisplayCell.textContent = '가능';
+                statusDisplayCell.style.fontWeight = 'bold'; 
             }
             // calculatedInputQty가 NaN인 경우는 이미 위에서 처리됨
 
         } else { // 단위 소요량(useqty) 자체가 유효한 숫자가 아닌 경우
             expectedInputQtyCell.textContent = "단위소요량오류";
-            console.log(`${materialName}: 단위 소요량(useqty) 데이터 오류`);
+            
             // 이 경우에도 8번째 셀에 "BOM 확인" 등의 메시지를 표시할 수 있습니다.
             if (statusDisplayCell) {
                 statusDisplayCell.textContent = 'BOM 확인';
@@ -438,7 +567,7 @@ async function handleCalculateButtonClick() {
         }
     });
 
-    console.log("계산 완료");
+    
 }
 async function opendetail(data) {
     // ... (이전과 동일, 모달 채우는 로직) ...
@@ -450,10 +579,10 @@ async function opendetail(data) {
         modalForm.querySelector('button[name="save"]').style.display = 'none';
         modalForm.querySelector('button[name="edit"]').style.display = 'none';
     }
-    console.log("opendetail called with data:", data);
+    
 
     if (!data || data.productPrimaryItemIdx === undefined || data.orderQty === undefined) {
-        console.error("MRP 주문 데이터에 productPrimaryItemIdx 또는 orderQty(생산수량)가 없습니다.", data);
+        
         setInputValueById('modalProductItemNm', "필수 주문 정보가 부족합니다.");
         clearMaterialDetailFields();
         const bomListBody = document.getElementById('bomMaterialListBody');
@@ -497,7 +626,7 @@ async function opendetail(data) {
 // --- 나머지 Modal, Order 함수들 ---
 let currentTh = null;
 let currentOrder = 'desc';
-function order(thValue) { console.log("정렬 기능 호출됨"); }
+function order(thValue) {  }
 function openModal() {
     const modal = document.getElementById('modal');
     const title = document.getElementById('modalTitle');
@@ -512,4 +641,4 @@ function openModal() {
 }
 function closeModal() { const modal = document.getElementById('modal'); if (modal) modal.style.display = 'none';}
 function outsideClick(e) { if (e.target.id === 'modal') closeModal();}
-function submitModal(event) { event.preventDefault(); console.log('모달 제출 로직 필요'); closeModal(); }
+function submitModal(event) { event.preventDefault();  closeModal(); }
