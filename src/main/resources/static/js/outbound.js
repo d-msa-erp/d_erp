@@ -310,8 +310,8 @@ async function openModal(mode, invTransIdx = null) {
 		modalTransCode.value = '자동 생성'; // 출고 코드 기본값
 		modalTransDate.value = new Date().toISOString().substring(0, 10); // 출고일 기본값 (오늘)
 		modalInvTransIdx.value = ''; // ID 필드 초기화
-        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
-        modalTransStatusSelect.value = 'S1'; // 상태 기본값 'S1' (출고전) 설정 [수정됨]
+        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시
+        modalTransStatusSelect.value = 'S1'; // 상태 기본값 'S1' (출고전) 설정
 
         // 신규 등록 모드에서는 모든 필드가 입력 가능하도록 설정 (거래 코드 제외)
         const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
@@ -326,7 +326,6 @@ async function openModal(mode, invTransIdx = null) {
         // 거래 코드만 읽기 전용으로 설정
         modalTransCode.readOnly = true;
 	} else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
-		modalTitle.textContent = '출고 상세 정보'; // 타이틀 변경
 		editButton.style.display = 'block'; // 수정 버튼 표시
 		modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시
 
@@ -360,21 +359,40 @@ async function openModal(mode, invTransIdx = null) {
 			setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
 			setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
 
-			// 수정 모드에서만 orderCode의 첫 글자가 'S' 또는 'P'인 경우 모든 입력 필드를 readonly로 설정하고 수정 버튼 숨기기
-            const orderCode = transaction.orderCode;
+			// 주문과 연결되어 있는지 확인하여 모달 제목 및 필드 제어
+			const orderCode = transaction.orderCode;
             if (orderCode && (orderCode.charAt(0) === 'S' || orderCode.charAt(0) === 'P')) {
-                // 모든 input 요소를 readonly로 설정
-                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                // 주문과 연결된 경우: 제목을 주문 코드로 변경
+                modalTitle.textContent = `주문코드 - ${orderCode}`;
+                
+                // 상태를 제외한 모든 입력 필드를 readonly로 설정
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea');
                 allInputs.forEach(input => {
-                    if (input.tagName === 'SELECT') {
-                        input.disabled = true;
-                    } else {
+                    if (input !== modalTransStatusSelect) {
                         input.readOnly = true;
                     }
                 });
                 
-                // 수정 버튼 숨기기
-                editButton.style.display = 'none';
+                // 상태 선택은 활성화 상태로 유지
+                modalTransStatusSelect.disabled = false;
+                
+                console.log(`주문 코드(${orderCode})와 연결된 출고 - 상태만 변경 가능`);
+            } else {
+                // 주문과 연결되지 않은 경우: 기존 제목 유지
+                modalTitle.textContent = '출고 상세 정보';
+                
+                // 모든 필드 수정 가능 (거래 코드 제외)
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                allInputs.forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.disabled = false;
+                    } else {
+                        input.readOnly = false;
+                    }
+                });
+                
+                // 거래 코드만 읽기 전용으로 유지
+                modalTransCode.readOnly = true;
             }
 
 		} catch (error) {
@@ -396,13 +414,27 @@ function closeModal() {
 	modalForm.reset(); // 폼 초기화 (select 포함)
 	currentInvTransIdxForModal = null; // 현재 모달 ID 초기화
 	// 유효성 메시지 초기화
-	[modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput, modalTransStatusSelect] // modalTransStatusSelect 추가 [수정됨]
+	[modalCustNmInput, modalItemNmInput, modalWhNmInput, modalUserNmInput, modalTransStatusSelect] // modalTransStatusSelect 추가
 		.forEach(input => {
 			input.setCustomValidity('');
             if (input.tagName === 'SELECT') { // Selectbox는 첫번째 옵션("상태를 선택해주세요")으로 초기화
                 input.selectedIndex = 0;
             }
 		});
+
+    // readonly/disabled 상태 초기화 (다음 모달 열기를 위해)
+    const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+    allInputs.forEach(input => {
+        if (input.tagName === 'SELECT') {
+            input.disabled = false;
+        } else {
+            input.readOnly = false;
+        }
+    });
+    
+    // 출고 코드 필드는 항상 readonly로 유지
+    modalTransCode.readOnly = true;
+
 	// 모달 닫을 때 품목 리스트 전체로 리셋
 	loadModalItemsDatalist().catch(err => console.error("모달 닫을 때 품목 리스트 리셋 오류:", err));
 }

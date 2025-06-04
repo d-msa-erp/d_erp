@@ -309,8 +309,8 @@ async function openModal(mode, invTransIdx = null) {
         modalTransCode.value = '자동 생성'; // 입고 코드 기본값
         modalTransDate.value = new Date().toISOString().substring(0, 10); // 입고일 기본값 (오늘)
         modalInvTransIdx.value = ''; // ID 필드 초기화
-        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시 [수정됨]
-        modalTransStatusSelect.value = 'R1'; // 상태 기본값 'R1' (입고전) 설정 [수정됨]
+        modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시
+        modalTransStatusSelect.value = 'R1'; // 상태 기본값 'R1' (입고전) 설정
 
         // 신규 등록 모드에서는 모든 필드가 입력 가능하도록 설정 (거래 코드 제외)
         const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
@@ -328,7 +328,6 @@ async function openModal(mode, invTransIdx = null) {
         // `loadModalDatalistData`에서 모든 품목을 초기에 로드함.
         // `modalCustNmInput`의 change 이벤트 리스너가 거래처 선택 시 품목 필터링을 처리함.
     } else if (mode === 'view' && invTransIdx !== null) { // 상세 보기 (수정) 모드
-        modalTitle.textContent = '입고 상세 정보';
         editButton.style.display = 'block'; // 수정 버튼 표시
         modalTransStatusGroup.style.display = 'flex'; // 상태 선택 그룹 표시
 
@@ -362,27 +361,50 @@ async function openModal(mode, invTransIdx = null) {
             setModalDatalistValue('modalWhNm', 'modalHiddenWhIdx', modalWarehousesData, transaction.whIdx);
             setModalDatalistValue('modalUserNm', 'modalHiddenUserIdx', modalManagersData, transaction.userIdx);
 
-            // 수정 모드에서만 orderCode의 첫 글자가 'S' 또는 'P'인 경우 모든 입력 필드를 readonly로 설정하고 수정 버튼 숨기기
+            // 주문과 연결되어 있는지 확인하여 모달 제목 및 필드 제어
             const orderCode = transaction.orderCode;
             if (orderCode && (orderCode.charAt(0) === 'S' || orderCode.charAt(0) === 'P')) {
-                // 모든 input 요소를 readonly로 설정
-                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                // 주문과 연결된 경우: 제목을 "주문번호 : 주문번호" 형식으로 변경
+                modalTitle.textContent = `주문번호 : ${orderCode}`;
+                
+                // 상태를 제외한 모든 입력 필드를 readonly로 설정
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea');
                 allInputs.forEach(input => {
-                    if (input.tagName === 'SELECT') {
-                        input.disabled = true;
-                    } else {
-                        input.readOnly = true;
+                    input.readOnly = true;
+                });
+                
+                // 모든 select 요소를 찾아서 상태 select를 제외하고 disabled 설정
+                const allSelects = modalForm.querySelectorAll('select');
+                allSelects.forEach(select => {
+                    if (select !== modalTransStatusSelect) {
+                        select.disabled = true;
                     }
                 });
                 
-                // 수정 버튼 숨기기
-                editButton.style.display = 'none';
+                // 상태 선택은 활성화 상태로 유지
+                modalTransStatusSelect.disabled = false;
                 
-                // 모달 타이틀 변경
-                modalTitle.textContent = '입고 상세 정보 (수정 불가)';
+                console.log(`주문 코드(${orderCode})와 연결된 입고 - 상태만 변경 가능`);
+            } else {
+                // 주문과 연결되지 않은 경우: 기존 제목 유지
+                modalTitle.textContent = '입고 상세 정보';
                 
-                console.log(`수정 모드에서 orderCode(${orderCode})의 첫 글자가 S 또는 P이므로 수정 불가 모드로 설정됨`);
+                // 모든 필드 수정 가능 (거래 코드 제외)
+                const allInputs = modalForm.querySelectorAll('input:not([type="hidden"]), textarea, select');
+                allInputs.forEach(input => {
+                    if (input.tagName === 'SELECT') {
+                        input.disabled = false;
+                    } else {
+                        input.readOnly = false;
+                    }
+                });
+                
+                // 거래 코드만 읽기 전용으로 유지
+                modalTransCode.readOnly = true;
             }
+
+            // 모든 경우에서 상태 선택은 항상 수정 가능하도록 보장
+            modalTransStatusSelect.disabled = false;
 
         } catch (error) {
             console.error('입고 상세 정보 로드 오류:', error);
@@ -502,7 +524,7 @@ async function loadSearchDatalistData() {
             })()
         ]);
     } catch (error) {
-        console.error("검색용 데이터리스트 초기 로드 중 전체 오류:", error);
+        console.error("검색용 데이터리스트 로드 실패:", error);
     }
 }
 
@@ -876,7 +898,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data.transStatus) {
             data.transStatus = 'R1';
         }
-
 
         const url = isEditMode ? `/api/inv-transactions/${data.invTransIdx}` : '/api/inv-transactions';
         const method = isEditMode ? 'PUT' : 'POST';
