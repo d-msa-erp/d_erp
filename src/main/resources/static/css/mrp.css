@@ -1,0 +1,238 @@
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.site-Wrapper {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  align-self: center;
+}
+
+.site-Dataset {
+  width: 100%;
+  border: 1px solid #777;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.site-Dataset .header {
+  background-color: #46a6ff;
+  color: white;
+  padding: 10px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.data-Row {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 20px;
+  gap: 20px;
+}
+
+.form-item {
+  width: calc(33.333% - 14px);
+  display: flex;
+  flex-direction: column;
+}
+
+.form-item span {
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.form-item input[type="text"],
+.form-item input[type="email"],
+.form-item input[type="tel"],
+.form-item input[type="number"],
+.form-item select {
+  padding: 10px 12px;
+  font-size: 14px;
+  height: 42px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: border-color 0.2s;
+}
+
+.form-item input:focus,
+.form-item select:focus {
+  border-color: #46a6ff;
+  outline: none;
+}
+
+.form-footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 20px 20px 0;
+  gap: 10px;
+}
+
+.save-btn,
+.close-btn,
+.update-btn,
+.change-pw-btn,
+.export-btn {
+  height: 42px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s;
+}
+
+#mrpSearchBtn{background: #007bff; color: white;}
+#mrpSearchBtn:hover{background: #0056b3;}
+#calculateMrpBtn {background: #28a745; color: #fff;}
+#calculateMrpBtn:hover {background: #218838;}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+table.grid-table2 {
+	    margin-top: 15px; 
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+
+table.grid-table2 thead th, table.grid-table2 tbody td {
+    padding: 12px 10px;
+    border: 1px solid #e0e0e0;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.grid-table th:first-child, table.grid-table td:first-child {
+    width: 49px;
+    min-width: 40px;
+    max-width: 40px;
+    flex-shrink: 0;
+}
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.modal-form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.modal-form-grid .flex-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.modal-form-grid .flex-row > div,
+.modal-form-grid > div:not(.flex-row):not(.bomTab5):not(.modal-buttons) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-form-grid span {
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.modal-form-grid input[type="text"],
+.modal-form-grid input[type="date"] {
+  height: 42px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+.modal-form-grid input:focus {
+  border-color: #46a6ff;
+  outline: none;
+}
+
+.bomTab5 {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.bomTab5 .grid-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.bomTab5 .grid-table thead {
+  background-color: #46a6ff;
+  color: white;
+}
+
+.bomTab5 .grid-table th,
+.bomTab5 .grid-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.bomTab5 .grid-table tr:hover {
+  background-color: #f0f8ff;
+}
+.modal-buttons button .material-symbols-outlined {
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 0;
+}
+.modal-content {max-width: 1000px;}
+@media screen and (max-width: 768px) {
+  .data-Row,
+  .form-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .form-item {
+    width: 100%;
+  }
+
+  .form-footer {
+    padding: 10px;
+  }
+}

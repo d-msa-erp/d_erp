@@ -8,471 +8,8 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 	<th:block th:replace="~{/icon.html :: iconInclude}"></th:block>
 	<style th:replace="~{/top.html :: topstyle}"></style>
-	<style>
-		* {
-			margin: 0;
-			padding: 0;
-			box-sizing: border-box;
-		}
-
-		body {
-			font-family: sans-serif;
-			display: flex;
-			flex-direction: column;
-			justify-content: center;
-		}
-
-		.site-Wrapper {
-			width: 100%;
-			max-width: 1200px;
-			align-self: center;
-			padding: 20px;
-		}
-
-		.site-Dataset {
-			width: 100%;
-			border: 1px solid #777;
-			border-radius: 10px;
-			overflow: hidden;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.site-Dataset .header {
-			background: #46a6ff;
-			color: white;
-			padding: 10px 20px;
-			font-size: 20px;
-		}
-
-		.site-Dataset .form-content {
-			display: flex;
-			flex-wrap: wrap;
-			padding: 20px;
-			gap: 20px;
-		}
-
-		.form-item {
-			display: flex;
-			align-items: center;
-			width: calc(33.333% - 13.33px);
-		}
-
-		.form-item.addr {
-			width: calc(66.666% - 10px);
-		}
-
-		.form-item span {
-			padding-right: 10px;
-			white-space: nowrap;
-		}
-
-		.form-item input {
-			width: 100%;
-			height: 100%;
-			border-radius: 3px;
-			padding: 5px;
-			font-size: 14px;
-			border: 1px solid #ccc;
-		}
-
-		.form-item input:focus {
-			border: 1px solid #46a6ff;
-			outline: none;
-		}
-
-		.table-wrapper {
-			width: 100%;
-			max-width: 1200px;
-		}
-
-		.table-wrapper>div:nth-child(1) {
-			padding: 20px 20px 0 20px;
-			display: flex;
-			justify-content: flex-end;
-			gap: 20px;
-			position: relative;
-		}
-
-		.table-wrapper>div:nth-child(1)>input[type="text"] {
-			width: 30%;
-			padding: 5px;
-		}
-
-		.table-wrapper>div:nth-child(1)>div {
-			width: 30%;
-			display: flex;
-			justify-content: space-between;
-		}
-
-		.table-wrapper>div:nth-child(1)>.btn-wrap1 {
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			position: absolute;
-			left: 20px;
-			display: flex;
-			justify-content: flex-start;
-			gap: 10px;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button {
-			width: 30%;
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			white-space: nowrap;
-		}
-
-		.table-wrapper>div:nth-child(1)>.btn-wrap1 button {
-			padding: 5px;
-			gap: 10px;
-			background: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			white-space: nowrap;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(1) {
-			background: #007bff;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(2) {
-/* 			background: #28a745; */
-			background: #dc3545;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(1)>div button:nth-child(3) {
-			background: #dc3545;
-			color: white;
-		}
-
-		.table-wrapper>div:nth-child(2) {
-			padding: 20px 20px 0 20px;
-			display: flex;
-			flex-direction: column;
-		}
-
-		.table-wrapper>div:nth-child(2)>span {
-			width: 30%;
-			padding-right: 10px;
-			text-align: center;
-			cursor: pointer;
-		}
-
-		.table-wrapper>div:nth-child(2)>span.active {
-			font-weight: bold;
-			text-decoration: underline;
-		}
-
-		.table-wrapper>div:nth-child(3) {
-			position: relative;
-		}
-
-		.nodata {
-			text-align: center;
-		}
-
-		.print-wrap {
-			position: absolute;
-			top: 0;
-			right: 0;
-			padding: 0 20px;
-			display: flex;
-			gap: 10px;
-			width: 300px;
-		}
-
-		.print-wrap>button {
-			width: 100%;
-			background: #007bff;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			padding: 5px;
-		}
-
-		.grid-table {
-			width: 100%;
-			border-collapse: collapse;
-			display: grid;
-			grid-template-columns: 1fr 1.5fr 1.5fr 1.5fr 2.5fr 2fr 1fr 1fr 1fr 1.3fr;
-		}
-        .grid-table2{
-            width: 100%;
-			border-collapse: collapse;
-			display: grid;
-			grid-template-columns: 1fr 1.5fr 4fr 1.3fr 1fr 1fr 2fr 1fr;
-        }
-		thead,
-		tbody,
-		tr {
-			display: contents;
-		}
-
-		tbody>tr:nth-child(even) td {
-			background: #f9f9f9;
-		}
-
-		tbody>tr:hover td {
-			background: #46a6ff;
-			cursor: pointer;
-		}
-
-		tr th:nth-child(1),
-		tr td:nth-child(1),
-		tr th:nth-last-child(1) {
-			justify-content: center;
-		}
-
-		tr td:nth-last-child(1) {
-			justify-content: right;
-		}
-
-		th,
-		td {
-			padding: 10px;
-			border: 1px solid #ccc;
-			display: flex;
-			align-items: center;
-		}
-
-		thead th {
-			background: #f0f0f0;
-			font-weight: bold;
-			cursor: pointer;
-			position: -webkit-sticky;
-		    position: sticky;
-		    top: 0; 
-		}
-
-		table input[type="text"] {
-			width: 100%;
-			padding: 5px;
-		}
-
-		.pagination-wrap {
-			display: flex;
-			flex-direction: column;
-			align-items: flex-end;
-			padding-top: 20px;
-		}
-
-		.pagination-wrap>div {
-			display: flex;
-			align-items: center;
-			gap: 10px;
-		}
-
-		.pagination-wrap>div input[type="text"] {
-			width: 50px;
-			text-align: center;
-		}
-
-		.pagination-wrap>div button {
-			width: 20px;
-			background: #007bff;
-			color: white;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-		}
-
-		.table-wrapper button:hover {
-			filter: brightness(0.9);
-		}
-		.modal {
-			display: none;
-			position: fixed;
-			top: 0;
-			left: 0;
-			width: 100vw;
-			height: 100vh;
-			background: rgba(0, 0, 0, 0.4);
-			justify-content: center;
-			align-items: center;
-			backdrop-filter: blur(4px);
-			-webkit-backdrop-filter: blur(4px);
-		}
-
-		.modal-content {
-			background: white;
-			padding: 20px;
-			border-radius: 10px;
-			width: 80%;
-			position: relative;
-		}
-
-		.modal-content .modalForm {
-			margin-top: 20px;
-			display: flex;
-			flex-direction: column;
-			gap: 20px;
-			justify-items: center;
-			align-items: center;
-		}
-
-		.modal-content .modalForm>div,
-		.modal-content .modalForm>label {
-			width: 100%;
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-		}
-
-		.modal-content .modalForm>div>span,
-		.modal-content .modalForm>label>span {
-			white-space: nowrap;
-			padding-right: 10px;
-		}
-
-		.modal-content input[type="text"] {
-			width: 100%;
-			padding: 10px;
-			border: 1px solid #ccc;
-		}
-
-		.modal-content input[type="color"] {
-			width: 100%;
-			height: 40px;
-			border: none;
-			margin-top: 10px;
-		}
-
-		.modal-content .modal-buttons {
-			margin-top: 15px;
-			display: flex;
-			justify-content: flex-end;
-			gap: 10px;
-			width: 100%;
-			grid-column-start: 3;
-		}
-
-		.modal-content .modal-buttons>button:hover {
-			filter: brightness(0.9);
-		}
-
-		.modal-content .modal-buttons>button {
-			width: 100%;
-			background: #007bff;
-			color: #fff;
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-			padding: 5px;
-		}
-
-		.modal-buttons button:nth-of-type(3) {
-			background: #777 !important;
-		}
-
-		.modal-content .modalForm th,
-		.modal-content .modalForm td {
-			margin: 0 !important;
-			padding: 0 !important;
-			width: 100% !important;
-			height: 100% !important;
-		}
-
-		.modal-content .bomTab1 select {
-			height: 100%;
-			width: 100%;
-		}
-
-		.modal-content .grid-table {
-			width: 100%;
-			height: 100%;
-			border-collapse: collapse;
-			display: grid;
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr;
-			padding: 0;
-		}
-
-		.bomTab1 {
-			gap: 10px;
-		}
-		.bomTab1 input{height: 100%; width: 100%; padding: 5px;}
-		.bomTab1 > div {
-			height: 100%;
-			align-self: stretch;
-		}
-		.bomTab2 {
-			display: grid;
-			grid-template-columns: 7fr 1fr;
-			gap: 10px;
-		}
-
-		.bomTab2>div {
-			display: flex;
-			flex-direction: column;
-			gap: 10px !important;
-			justify-content: space-between;
-			overflow-y: auto;
-		}
-		.bomTab2>div>div {height: 100%;}
-
-		.bomTab2>div>ul {
-			display: flex;
-			flex-direction: column;
-			height: 100%;
-		}
-
-		.bomTab2>div>ul>li {
-			padding-left: 10px;
-		}
-		.bomTab3{
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
-			width: 100%;
-		}
-		.bomTab3>div {
-			display: flex;
-			white-space: nowrap;
-			gap: 10px;
-			align-items: center;
-		}
-
-		.bomTab3 .flex-row {
-			display: flex;
-			gap: 10px;
-			width: 100%;
-		}
-
-		.bomTab3 .flex-row>div {
-			flex: 1;
-			display: flex;
-			align-items: center;
-		}
-
-		.bomTab3 .flex-row>div span {
-			white-space: nowrap;
-			padding-right: 10px;
-		}
-
-		.bomTab3 .flex-row>div input {
-			width: 100%;
-		}
-		.bomTab5 {max-height: 300px; overflow-y: auto;}
-		.bomTab5 .grid-table{
-			grid-template-columns: 1fr 2fr 2fr 1fr 1fr 1fr 1fr 1fr;
-		}
-		.selected-row {
-	    	background-color: lightskyblue; /* 또는 #e6f7ff 등 */
-		}
-		tbody > tr.selected-row td {
-		    background-color: lightskyblue !important; /* 하늘색 배경, 다른 스타일에 덮어쓰이지 않도록 !important 사용 (테스트 후 제거 시도) */
-		}
-		.deficit-warning {
-		    color: red !important;
-		    font-weight: bold !important;
-		}
-	</style>
+	<link rel="stylesheet" href="/css/outbound.css">
+	<link rel="stylesheet" href="/css/mrp.css">
 
 </head>
 
@@ -483,30 +20,40 @@
 		<form id="frm" method="get" action="#">
 			<div class="site-Dataset">
 				<div class="header">
-					<h4 style="margin: 0;">MRP 관리</h4>
+<span class="material-symbols-outlined">assignment</span>
+					<h4 style="margin: 0;">MRP 목록 조회</h4>
 				</div>
 				<div class="table-wrapper">
-					<div>
-						
-						<input type="text" id="mrpSearchText" placeholder="품목명을 입력하세요" />
-						<div>
-							<button type="submit" id="mrpSearchBtn">
-								<span class="material-symbols-outlined">search</span> 검색
-							</button>
-<!-- 							<button type="button" onclick="openModal()"> -->
-<!-- 								<span class="material-symbols-outlined">add</span> 1 -->
-<!-- 							</button> -->
-<!-- 							<button type="button">
-								<span class="material-symbols-outlined">delete</span> 삭제
-							</button> -->
+					
+					<div class="shipping-info-section">
+						<h4 class="section-title">
+							<span class="material-symbols-outlined">filter_alt</span> MRP 정보
+							검색
+						</h4>
+						<div class="shipping-info-form">
+							<div class="form-group">
+								<label for="mrpSearchText">통합 검색</label> <input type="text" id="mrpSearchText" placeholder="품목명을 입력하세요" />
+							</div>
 						</div>
 					</div>
-					<div></div>
-					<div id="table-customer" style="padding: 20px;position: relative;display: flex;flex-direction: column;gap: 20px;">
-						<div class="print-wrap">
+					
+					<div id="table-customer" style="padding: 20px;position: relative;display: flex;flex-direction: column;">
+						<div class="search-action-buttons">
+						<button type="submit" id="mrpSearchBtn">
+								<span class="material-symbols-outlined">search</span> 검색
+							</button>
+							
 							<button type="button" id="calculateMrpBtn">
 								<span class="material-symbols-outlined">calculate</span> 계산
 							</button>
+					
+						</div>
+						<!--데이터 없을 땐 이렇게 표기-->
+						<h4 class="section-title">
+							<span class="material-symbols-outlined">list_alt</span> MRP 목록
+						</h4>
+
+						<div class="table-actions">
 							<button type="button" onclick="mrpexceldownload()">
 								<span class="material-symbols-outlined">table_view</span> 엑셀
 							</button>
@@ -514,7 +61,6 @@
 								<span class="material-symbols-outlined">print</span> 인쇄
 							</button>
 						</div>
-						<!--데이터 없을 땐 이렇게 표기-->
 						<table class="grid-table">
 
 							<thead>
@@ -556,7 +102,7 @@
 							</thead>
 							<tbody id="materialbody">
 									<tr>
-									<td class="nodata" style="grid-column: span 7;justify-content: center;">선택한 주문번호의 자재 데이터가 없습니다.</td>
+									<td class="nodata" colspan="8 ">선택한 주문번호의 자재 데이터가 없습니다.</td>
 								</tr>
 							</tbody>
 						</table>
@@ -574,11 +120,9 @@
 	<div class="modal" id="modal" onclick="outsideClick(event)">
 		<div class="modal-content" onclick="event.stopPropagation()">
 			<h3 id="modalTitle">신규 MRP 등록</h3>
-			<form id="modalForm" class="modalForm">
-				<div class="bomTab1">
+			<form id="modalForm" class="modal-form-grid">
 					
 
-					<div class="bomTab3">
 						<div class="flex-row">
 							<div><span>주문번호</span><input type="text" id="modalOrderCode" readonly/></div>
 					        <div><span>필요생산수량</span><input type="text" id="modalProductProductionQty" readonly/></div>
@@ -606,9 +150,7 @@
 					        <div><span>계산된원가</span><input type="text" id="modalCalculatedMaterialCost" readonly/></div>
 					     </div>
 					    <div><span>비고</span><input type="text" id="modalRemark" readonly/></div>
-					</div>
 
-				</div>
 				<div class="bomTab5"> 
 					<table class="grid-table">
 						<thead>
@@ -630,12 +172,13 @@
 				<div class="modal-buttons">
 					<button type="button" name="save">등록</button>
 					<button type="button" name="edit">수정</button>
-					<button type="button" onclick="closeModal()">취소</button>
+					<button type="button" onclick="closeModal('modal')" class="btn-cancel">
+                        <span class="material-symbols-outlined">close</span> 취소
+                    </button>
 				</div>
 			</form>
 		</div>
 
-	</div>
 
 	<script src="/js/top.js"></script>
 	<script src="/js/mrp.js"></script>
