@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import kr.co.d_erp.domain.ItemInventoryView;
 import kr.co.d_erp.dtos.ItemInventorySummaryDto;
+import kr.co.d_erp.dtos.LowInventoryDto;
 import kr.co.d_erp.repository.oracle.ItemInventoryViewRepository;
 import kr.co.d_erp.service.ItemInventoryService;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +29,8 @@ public class ItemInventoryViewController {
     }
 	
 	@GetMapping("/qty-low")
-	public List<ItemInventorySummaryDto> getQtyLowItems() {
-	    return service.getShortageRawMaterials();
+	public List<LowInventoryDto> getQtyLowItems() {
+	    return service.getIntegratedLowInventoryItems();
 	}
 	
 	@GetMapping("/total-stock")
