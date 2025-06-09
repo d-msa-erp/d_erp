@@ -110,4 +110,12 @@ public interface MrpDetailViewRepository  extends JpaRepository<MrpDetailView, L
     Page<MrpFirstDtoProjection> findUniqueMrpTargetOrders(@Param("orderTypeFilter") String orderTypeFilter,
                                                        @Param("searchKeyword") String searchKeyword,
                                                        Pageable pageable);
+    
+    // 민섭 추가
+    @Query("""
+    	    SELECT m FROM MrpDetailView m
+    	    WHERE m.requiredQty > m.productCurrentStock
+    	    AND m.orderType = 'S'
+    	""")
+    	List<MrpDetailView> findLackMaterials();
 }

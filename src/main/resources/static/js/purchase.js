@@ -682,7 +682,7 @@ async function loadLowInventoryItems() {
 			item.origin = 'lowInventory'; // 추가
 			return `
 		        <div class="low-item" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
-		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.totalStockQty}, 적정: ${item.optimalInv}
+		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.totalStockQty}, 적정: ${item.requiredQty}
 		        </div>
 		    `;
 		}).join('');

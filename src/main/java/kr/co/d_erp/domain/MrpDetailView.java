@@ -58,9 +58,11 @@ public class MrpDetailView { // 클래스명은 자유롭게 (예: MrpResultView
 
     @Column(name = "PRODUCT_CURRENT_STOCK")
     private BigDecimal productCurrentStock; // 완제품 현재고
-
+    
+    /* MRP_VIEW_DETAILS에 없어서 지웠습니다. -민섭-
     @Column(name = "LOSSRT") // 뷰의 별칭 'lossRt'에 맞춰 소문자로 (또는 DB 별칭을 LOSS_RT로)
     private BigDecimal lossRt; // BOM 로스율 (뷰의 조인 조건에 따른 의미)
+    */
     
     @Column(name = "PRODUCT_ITEM_NM")
     private String productItemNm;
