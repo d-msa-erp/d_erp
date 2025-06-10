@@ -497,7 +497,7 @@ async function showItemDetailModal(itemIdx) {
     document.querySelector('#itemModal .btn-save').style.display = 'none';
     document.querySelector('#itemModal .btn-edit').style.display = 'inline-flex';
     document.getElementById('modalItemCd').readOnly = false;
-    document.getElementById('itemModal').style.display = 'block';
+    document.getElementById('itemModal').style.display = 'flex';
 }
 
 function populateModalWithDataFields(item) { // Select 제외한 기본 필드 채우기
