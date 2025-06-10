@@ -85,7 +85,7 @@ const modalHiddenUserIdxInput = document.getElementById('modalHiddenUserIdx');
 // === 날짜 범위 검증 함수 ===
 function setupDateRangeValidation() {
     if (!searchTransDateFromInput || !searchTransDateToInput) {
-        console.warn('날짜 입력 필드를 찾을 수 없습니다.');
+        //console.warn('날짜 입력 필드를 찾을 수 없습니다.');
         return;
     }
 
@@ -376,7 +376,7 @@ async function openModal(mode, invTransIdx = null) {
                 // 상태 선택은 활성화 상태로 유지
                 modalTransStatusSelect.disabled = false;
                 
-                console.log(`주문 코드(${orderCode})와 연결된 출고 - 상태만 변경 가능`);
+                //console.log(`주문 코드(${orderCode})와 연결된 출고 - 상태만 변경 가능`);
             } else {
                 // 주문과 연결되지 않은 경우: 기존 제목 유지
                 modalTitle.textContent = '출고 상세 정보';
@@ -557,12 +557,12 @@ async function loadModalDatalistData() {
 function populateDatalist(datalistId, dataArray, displayField, codeField, idxField) {
 	const datalist = document.getElementById(datalistId);
 	if (!datalist) {
-		console.warn(`Datalist ID '${datalistId}'를 찾을 수 없습니다.`);
+		//console.warn(`Datalist ID '${datalistId}'를 찾을 수 없습니다.`);
 		return;
 	}
 	datalist.innerHTML = ''; // 기존 옵션 초기화
 	if (!Array.isArray(dataArray)) {
-		console.warn(`'${datalistId}'에 대한 데이터가 배열이 아닙니다.`);
+		//console.warn(`'${datalistId}'에 대한 데이터가 배열이 아닙니다.`);
 		return;
 	}
 	dataArray.forEach(item => {
@@ -581,7 +581,7 @@ function setupDatalistInputListener(inputId, hiddenInputId, displayField, codeFi
 	const hiddenInputElement = document.getElementById(hiddenInputId);
 
 	if (!inputElement || !hiddenInputElement) {
-		console.warn(`데이터리스트 설정 오류: ${inputId} 또는 ${hiddenInputId} 요소를 찾을 수 없습니다.`);
+		//console.warn(`데이터리스트 설정 오류: ${inputId} 또는 ${hiddenInputId} 요소를 찾을 수 없습니다.`);
 		return;
 	}
 	if (required) inputElement.required = true;
@@ -645,7 +645,7 @@ function setModalDatalistValue(inputElementId, hiddenInputId, datalistData, sele
 	}
 
 	if (!Array.isArray(datalistData) || datalistData.length === 0) {
-		console.warn(`${inputElementId}에 대한 데이터리스트가 비어있습니다. ID ${selectedIdx}를 설정할 수 없습니다.`);
+		//console.warn(`${inputElementId}에 대한 데이터리스트가 비어있습니다. ID ${selectedIdx}를 설정할 수 없습니다.`);
 		input.value = '';
 		hiddenInput.value = '';
 		if (input.required) input.setCustomValidity('선택할 목록이 없습니다. 데이터 로딩을 확인하세요.');
@@ -679,7 +679,7 @@ function setModalDatalistValue(inputElementId, hiddenInputId, datalistData, sele
 	} else {
 		input.value = '';
 		hiddenInput.value = '';
-		console.warn(`${inputElementId}에서 ID ${selectedIdx}에 해당하는 항목을 찾지 못했습니다. 목록이 필터링되었거나 항목이 비활성화되었을 수 있습니다.`);
+		//console.warn(`${inputElementId}에서 ID ${selectedIdx}에 해당하는 항목을 찾지 못했습니다. 목록이 필터링되었거나 항목이 비활성화되었을 수 있습니다.`);
 		if (input.required) input.setCustomValidity('선택된 값이 현재 목록에 없습니다. 필터 조건을 확인하세요.');
 	}
 }

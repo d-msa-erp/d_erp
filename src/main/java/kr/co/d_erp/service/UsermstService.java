@@ -152,7 +152,7 @@ public class UsermstService {
         // 1. 재직상태가 '02'(퇴사)로 변경되었을 때 퇴사일이 없으면 오늘 날짜로 설정
         if ("02".equals(user.getUserStatus()) && user.getRetireDt() == null) {
             user.setRetireDt(today);
-            System.out.println("퇴사 상태 설정 - 퇴사일을 오늘 날짜로 자동 설정: " + user.getRetireDt());
+            //system.out.println("퇴사 상태 설정 - 퇴사일을 오늘 날짜로 자동 설정: " + user.getRetireDt());
         }
         
         // 2. 퇴사일이 입력되었을 때 오늘이거나 과거일인 경우에만 퇴사로 변경
@@ -161,18 +161,18 @@ public class UsermstService {
                 // 퇴사일이 오늘이거나 과거일 때만 퇴사 상태로 변경
                 if (!"02".equals(user.getUserStatus())) {
                     user.setUserStatus("02");
-                    System.out.println("퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경");
+                    //system.out.println("퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경");
                 }
             } else {
                 // 퇴사일이 미래일 때는 상태를 변경하지 않음 (퇴사 예정 상태)
-                System.out.println("퇴사일이 미래 날짜입니다 (" + user.getRetireDt() + "). 퇴사일이 되면 자동으로 퇴사 처리됩니다.");
+                //system.out.println("퇴사일이 미래 날짜입니다 (" + user.getRetireDt() + "). 퇴사일이 되면 자동으로 퇴사 처리됩니다.");
             }
         }
         
         // 3. 퇴사일이 삭제되었을 때 재직상태가 퇴사라면 재직중으로 변경
         if (user.getRetireDt() == null && "02".equals(user.getUserStatus())) {
             user.setUserStatus("01");
-            System.out.println("퇴사일 삭제 - 재직상태를 재직중으로 자동 변경");
+            //system.out.println("퇴사일 삭제 - 재직상태를 재직중으로 자동 변경");
         }
     }
 

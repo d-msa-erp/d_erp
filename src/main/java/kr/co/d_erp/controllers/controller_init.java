@@ -32,18 +32,18 @@ public class controller_init {
 		Login loggedInUser = (Login) session.getAttribute("loggedInUser");
 
 		if (loggedInUser == null) {
-            System.out.println("===== 세션 정보 확인 (controller_init / 접근 시) =====");
-            System.out.println("세션에 loggedInUser 없음. 로그인 페이지로 리다이렉트합니다.");
-            System.out.println("=======================================");
+            //system.out.println("===== 세션 정보 확인 (controller_init / 접근 시) =====");
+            //system.out.println("세션에 loggedInUser 없음. 로그인 페이지로 리다이렉트합니다.");
+            //system.out.println("=======================================");
 			return "redirect:/login"; // 로그인 정보가 없으면 로그인 페이지로 리다이렉트
 		}
 
 		// 로그인 정보가 있으면 Model에 사용자 정보를 추가하여 템플릿으로 전달
 		model.addAttribute("userNm", loggedInUser); // <<<--- 이 줄이 반드시 추가되어야 합니다!
-        System.out.println("===== 세션 정보 확인 (controller_init / 접근 시) =====");
-        System.out.println("세션 ID: " + session.getId());
-        System.out.println("세션에 loggedInUser 존재: " + loggedInUser.getUserId() + ", " + loggedInUser.getUserNm());
-        System.out.println("=======================================");
+        //system.out.println("===== 세션 정보 확인 (controller_init / 접근 시) =====");
+        //system.out.println("세션 ID: " + session.getId());
+        //system.out.println("세션에 loggedInUser 존재: " + loggedInUser.getUserId() + ", " + loggedInUser.getUserNm());
+        //system.out.println("=======================================");
 
 		return "/main.html"; // .html 확장자도 추가
 	}

@@ -32,7 +32,7 @@ function getSelectedSubItemIds() {
 // 초기화 및 메인 이벤트 리스너
 // =====================================================================================
 document.addEventListener('DOMContentLoaded', function () {
-    console.log("DOM 로드 완료, 초기 데이터 로딩 시작");
+    //console.log("DOM 로드 완료, 초기 데이터 로딩 시작");
     loadAllItemsForSelection(); // 품목/원자재 선택 목록 미리 로드
     loadMainBomSummaryList();   // 메인 BOM 목록 로드
 
@@ -345,7 +345,7 @@ function loadMainBomSummaryList() {
 }
 
 async function loadAllItemsForSelection() {
-    console.log("loadAllItemsForSelection 시작");
+    //console.log("loadAllItemsForSelection 시작");
     try {
         // flag 02: 완제품/반제품 (BOM의 상위 품목이 될 수 있는 것들)
         const productsResponse = await fetch('/api/bom/flag/02'); 
@@ -365,7 +365,7 @@ async function loadAllItemsForSelection() {
             allRawMaterialsForSelection = []; 
         }
         
-        console.log("선택용 데이터 로딩 완료: 품목(상위)", allProductsForSelection.length, "개, 원자재(하위)", allRawMaterialsForSelection.length, "개");
+        //console.log("선택용 데이터 로딩 완료: 품목(상위)", allProductsForSelection.length, "개, 원자재(하위)", allRawMaterialsForSelection.length, "개");
     } catch (error) {
         console.error("선택용 품목/원자재 로딩 중 전체 오류:", error);
         allProductsForSelection = [];
@@ -404,7 +404,7 @@ function updateTargetBom5RowField(subItemIdx, fieldName, value) {
         case 'lossrt': inputSelector = '.bom5-loss-rt'; break;
         case 'remark': inputSelector = '.bom5-remark'; break;
         case 'itemprice': inputSelector = '.bom5-item-price'; break; // 단가 필드
-        default: console.warn("알 수 없는 필드명:", fieldName); return;
+        default: //console.warn("알 수 없는 필드명:", fieldName); return;
     }
     const inputField = targetRow.querySelector(inputSelector);
     if (inputField) inputField.value = value;
@@ -441,7 +441,7 @@ function handleComponentEditInputChange(event) {
 }
 
 async function openModal() { // 신규 등록용 모달 열기
-    console.log("openModal (신규) 호출됨");
+    //console.log("openModal (신규) 호출됨");
     originalParentItemIdForUpdate = null; // 신규 등록이므로 수정 대상 ID 없음
     
     const modalForm = document.getElementById('modalForm');
@@ -541,10 +541,10 @@ function outsideClick(e, modalId = 'modal') { // 모달 바깥 클릭 시 닫기
 }
 
 async function fetchBomDetails(parentItemId) { // 파라미터는 상위 품목의 itemIdx
-    console.log("fetchBomDetails 시작, 상위 품목 ID (itemIdx):", parentItemId);
+    //console.log("fetchBomDetails 시작, 상위 품목 ID (itemIdx):", parentItemId);
     originalParentItemIdForUpdate = parentItemId; // 수정 시 이 ID를 사용
     if (!parentItemId) {
-        console.warn("fetchBomDetails: parentItemId가 제공되지 않았습니다.");
+        //console.warn("fetchBomDetails: parentItemId가 제공되지 않았습니다.");
         return;
     }
 
@@ -556,7 +556,7 @@ async function fetchBomDetails(parentItemId) { // 파라미터는 상위 품목�
 
     // 품목/원자재 선택 목록 데이터가 없으면 로드 (보통은 이미 로드되어 있음)
     if (allProductsForSelection.length === 0 || allRawMaterialsForSelection.length === 0) {
-        console.log("선택용 품목/원자재 목록이 비어있어 다시 로드합니다.");
+        //console.log("선택용 품목/원자재 목록이 비어있어 다시 로드합니다.");
         await loadAllItemsForSelection();
     }
 
@@ -565,7 +565,7 @@ async function fetchBomDetails(parentItemId) { // 파라미터는 상위 품목�
         .then(response => {
             if (response.ok) return response.json();
             if (response.status === 404) { 
-                console.warn(`BOM 상세 정보 없음 (404), 상위품목 ID: ${parentItemId}. 신규 등록처럼 처리 시도.`);
+                //console.warn(`BOM 상세 정보 없음 (404), 상위품목 ID: ${parentItemId}. 신규 등록처럼 처리 시도.`);
                 // 해당 parentItemId로 상위 품목 정보만 찾아 기본값으로 채움
                 const parentProductInfo = allProductsForSelection.find(p => p.itemIdx == parentItemId);
                 if (parentProductInfo) {
@@ -598,7 +598,7 @@ async function fetchBomDetails(parentItemId) { // 파라미터는 상위 품목�
                 openDetailModal(); // 상세/수정 모드로 모달 열기
             } else if (response && response.status !== 404) { 
                 // 404가 아닌데 data가 null인 경우는 위에서 처리되었거나, 예외적인 상황
-                console.log("BOM 상세 정보: 데이터가 null이지만 404는 아님. (이미 처리됨)");
+                //console.log("BOM 상세 정보: 데이터가 null이지만 404는 아님. (이미 처리됨)");
             }
         })
         .catch(error => {
@@ -1155,7 +1155,7 @@ async function handleBomSave() { // 신규 BOM 저장
         return;
     }
 
-    console.log("BOM 저장 요청 데이터:", JSON.stringify(bomSaveRequest, null, 2));
+    //console.log("BOM 저장 요청 데이터:", JSON.stringify(bomSaveRequest, null, 2));
 
     try {
         const response = await fetch(`/api/bom/save`, { // API 엔드포인트 확인 필요
@@ -1253,7 +1253,7 @@ async function handleBomUpdate() { // BOM 수정
         return;
     }
     
-    console.log("BOM 수정 요청 데이터:", JSON.stringify(bomUpdateRequest, null, 2));
+    //console.log("BOM 수정 요청 데이터:", JSON.stringify(bomUpdateRequest, null, 2));
 
     try {
         const response = await fetch(`/api/bom/${originalParentItemIdForUpdate}`, { // URL에 상위 품목 ID 포함
@@ -1369,7 +1369,7 @@ function openCategoryModal() {
     if (typeof loadCategories === "function") { 
         loadCategories(); 
     } else {
-        console.warn("loadCategories 함수를 찾을 수 없습니다. bomCategory.js 파일 및 함수 정의를 확인해주세요.");
+        //console.warn("loadCategories 함수를 찾을 수 없습니다. bomCategory.js 파일 및 함수 정의를 확인해주세요.");
     }
 }
 function openSpecModal() { // 단위 관리 모달 (이전엔 Spec으로 되어 있었음)
@@ -1379,7 +1379,7 @@ function openSpecModal() { // 단위 관리 모달 (이전엔 Spec으로 되어 
      if (typeof loadUnits === "function") { 
         loadUnits(); 
     } else {
-        console.warn("loadUnits 함수를 찾을 수 없습니다. bomUnit.js 파일 및 함수 정의를 확인해주세요.");
+        //console.warn("loadUnits 함수를 찾을 수 없습니다. bomUnit.js 파일 및 함수 정의를 확인해주세요.");
     }
 }
 

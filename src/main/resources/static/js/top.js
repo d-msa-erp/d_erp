@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	      }
 	    })
 	    .catch(err => {
-	      console.warn('사업장명 설정 오류:', err);
+	      //console.warn('사업장명 설정 오류:', err);
 	    });
 	});
 window.addEventListener('resize', function () {

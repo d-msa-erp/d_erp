@@ -289,7 +289,7 @@ async function loadDefaultCustomer() {
 		}
 		
 		const site = siteData[0]; // 첫 번째 사업장 사용
-		console.log('사업장 정보:', site);
+		//console.log('사업장 정보:', site);
 		
 		// 2. 사업장 코드로 거래처 ID 조회 (API가 있다면)
 		try {
@@ -298,12 +298,12 @@ async function loadDefaultCustomer() {
 				const customerData = await customerResponse.json();
 				if (customerData && customerData.length > 0) {
 					defaultCustomerId = customerData[0].custIdx;
-					console.log('거래처 ID 조회 성공:', defaultCustomerId);
+					//console.log('거래처 ID 조회 성공:', defaultCustomerId);
 					return defaultCustomerId;
 				}
 			}
 		} catch (error) {
-			console.log('거래처 ID 조회 API 없음, 기본값 사용');
+			//console.log('거래처 ID 조회 API 없음, 기본값 사용');
 		}
 		
 		// 3. 거래처 조회 실패 시 기본값 사용
@@ -491,7 +491,7 @@ async function executeStockTransfer(event) {
 	};
 	
 	// 디버깅을 위한 로그 출력
-	console.log('Transfer Request Data:', transferRequest);
+	//console.log('Transfer Request Data:', transferRequest);
 	
 	try {
 		const response = await fetch(`/api/warehouses/${currentWhIdxForModal}/transfer-stock`, {
@@ -504,8 +504,8 @@ async function executeStockTransfer(event) {
 		
 		// 응답 내용을 자세히 확인
 		const responseText = await response.text();
-		console.log('Response status:', response.status);
-		console.log('Response text:', responseText);
+		//console.log('Response status:', response.status);
+		//console.log('Response text:', responseText);
 		
 		if (!response.ok) {
 			let errorData;
@@ -1046,8 +1046,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	        });
 	        
 	        const responseText = await response.text();
-	        console.log('Delete response status:', response.status);
-	        console.log('Delete response text:', responseText);
+	        //console.log('Delete response status:', response.status);
+	        //console.log('Delete response text:', responseText);
 	        
 	        if (!response.ok) {
 	            let errorData;

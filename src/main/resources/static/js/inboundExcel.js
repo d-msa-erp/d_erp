@@ -1,11 +1,11 @@
 // /js/inboundExcel.js
-console.log("[Excel] inboundExcel.js 로드 확인");
+//console.log("[Excel] inboundExcel.js 로드 확인");
 
 /**
  * 선택된 입고 항목들의 상세 정보를 서버로부터 받아 엑셀 파일로 다운로드합니다.
  */
 async function downloadSelectedInboundDetailsAsExcel() {
-    console.log("[Excel] downloadSelectedInboundDetailsAsExcel() 호출됨 - 선택된 입고 상세 정보 엑셀 다운로드 시도.");
+    //console.log("[Excel] downloadSelectedInboundDetailsAsExcel() 호출됨 - 선택된 입고 상세 정보 엑셀 다운로드 시도.");
 
     const checkedCheckboxes = document.querySelectorAll('#receivingTable tbody input.trans-checkbox:checked');
     if (checkedCheckboxes.length === 0) {
@@ -15,7 +15,7 @@ async function downloadSelectedInboundDetailsAsExcel() {
 
     // 각 체크박스의 data-inv-trans-idx 속성에서 입고 거래 ID를 추출
     const selectedInvTransIds = Array.from(checkedCheckboxes).map(cb => cb.dataset.invTransIdx);
-    console.log("[Excel] 선택된 입고 거래 ID:", selectedInvTransIds);
+    //console.log("[Excel] 선택된 입고 거래 ID:", selectedInvTransIds);
 
     try {
         const response = await fetch('/api/inv-transactions/download-excel-details', { // 입고/출고 공용 API 엔드포인트 사용 가능성
@@ -62,7 +62,7 @@ async function downloadSelectedInboundDetailsAsExcel() {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
 
-        console.log("[Excel] 파일 다운로드 시작:", filename);
+        //console.log("[Excel] 파일 다운로드 시작:", filename);
 
     } catch (error) {
         console.error("[Excel] 엑셀 다운로드 중 오류 발생:", error);

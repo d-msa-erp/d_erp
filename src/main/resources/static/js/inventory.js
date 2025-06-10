@@ -18,14 +18,14 @@ let currentSortDirection = 'asc';
 //===================엑셀과 프린트 ==================================
 // ✳️ --- 엑셀 다운로드 관련 함수 ---
 async function handleExcelDownload() {
-    console.log("[Excel] handleExcelDownload() 호출됨 - 품목 정보 엑셀 다운로드 시도.");
+    //console.log("[Excel] handleExcelDownload() 호출됨 - 품목 정보 엑셀 다운로드 시도.");
     const selectedIds = getSelectedItemIds(); // 기존에 있던 선택된 ID 가져오는 함수
 
     if (selectedIds.length === 0) {
         alert("엑셀로 다운로드할 품목을 먼저 선택해주세요.");
         return;
     }
-    console.log("[Excel] 선택된 품목 ID:", selectedIds);
+    //console.log("[Excel] 선택된 품목 ID:", selectedIds);
 
     try {
         // ✳️ 서버에 엑셀 다운로드 요청 API (새로 만들어야 함)
@@ -68,7 +68,7 @@ async function handleExcelDownload() {
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
 
-        console.log("[Excel] 파일 다운로드 시작:", filename);
+        //console.log("[Excel] 파일 다운로드 시작:", filename);
         // alert('엑셀 파일 다운로드가 시작됩니다.'); // 사용자 알림
 
     } catch (error) {
@@ -79,14 +79,14 @@ async function handleExcelDownload() {
 
 // ✳️ --- 인쇄 관련 함수 ---
 async function handlePrint() {
-    console.log("[Print] handlePrint() 호출됨 - 품목 정보 인쇄 시도.");
+    //console.log("[Print] handlePrint() 호출됨 - 품목 정보 인쇄 시도.");
     const selectedIds = getSelectedItemIds();
 
     if (selectedIds.length === 0) {
         alert("인쇄할 품목을 먼저 선택해주세요.");
         return;
     }
-    console.log("[Print] 선택된 품목 ID:", selectedIds);
+    //console.log("[Print] 선택된 품목 ID:", selectedIds);
 
     // 선택된 ID를 숫자로 변환 (allItemsCache의 itemIdx와 비교하기 위함)
     const selectedNumericIds = selectedIds.map(id => parseInt(id, 10));
@@ -180,7 +180,7 @@ async function handlePrint() {
 //===================엑셀과 프린트 ==================================
 // DOM 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('품목 관리 JavaScript 로드됨 (모달 옵션 API 연동 시도)');
+    //console.log('품목 관리 JavaScript 로드됨 (모달 옵션 API 연동 시도)');
     initializeEventListeners();
     loadAndDisplayInitialData();
 });
@@ -259,7 +259,7 @@ function loadAndDisplayInitialData() {
                  // DTO에 currentStockQty 필드가 있고, Repository에서 채워준다고 가정
                 if (item.currentStockQty === undefined) item.currentStockQty = null;
             });
-            console.log('전체 데이터 로드 완료:', allItemsCache.length + '개');
+            //console.log('전체 데이터 로드 완료:', allItemsCache.length + '개');
             currentPage = 1;
             applyClientSideFiltersAndPagination();
         })
@@ -497,7 +497,7 @@ async function showItemDetailModal(itemIdx) {
     document.querySelector('#itemModal .btn-save').style.display = 'none';
     document.querySelector('#itemModal .btn-edit').style.display = 'inline-flex';
     document.getElementById('modalItemCd').readOnly = false;
-    document.getElementById('itemModal').style.display = 'block';
+    document.getElementById('itemModal').style.display = 'flex';
 }
 
 function populateModalWithDataFields(item) { // Select 제외한 기본 필드 채우기
@@ -565,7 +565,7 @@ async function loadModalCustomersWithOptions(bizFlag, selectedCustIdx) {
         // 따라서, bizFlag가 없으면 선택지를 비우거나 "분류를 먼저 선택하세요" 등으로 안내.
         // 여기서는 일단 모든 고객사를 가져오는 것으로 가정하나, 실제 API 동작에 맞춰야 함.
         // 만약 모든 고객사를 가져오는 API가 없다면, 아래 fetch 전에 itemFlag 선택을 유도해야함.
-        console.warn("loadModalCustomersWithOptions: bizFlag가 제공되지 않았습니다. 모든 거래처를 로드 시도합니다.");
+        //console.warn("loadModalCustomersWithOptions: bizFlag가 제공되지 않았습니다. 모든 거래처를 로드 시도합니다.");
          // 또는 custSelect.innerHTML = '<option value="">품목분류를 먼저 선택하세요</option>'; return;
     }
 
@@ -668,7 +668,7 @@ function handleSaveItem() {
     // 현재 SeonikItemDto는 하나이고, JPA 조회용 생성자에 currentStockQty가 있으므로,
     // 저장/수정 요청 시 이 필드를 보내더라도 서비스 로직(createItem, updateItem)에서 사용하지 않으면 됨.
 
-    console.log('신규 등록:', itemData);
+    //console.log('신규 등록:', itemData);
     fetch('/api/items2', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemData)}) //
         .then(async res => { const txt = await res.text(); if (!res.ok) throw new Error(txt || res.statusText); return txt; })
         .then(msg => { alert(msg || "등록 완료"); closeModal('itemModal'); loadAndDisplayInitialData(); })
@@ -697,7 +697,7 @@ function handleUpdateItem() {
         remark: document.getElementById('modalRemark').value
         // currentStockQty는 보내지 않음
     };
-    console.log('수정:', itemData);
+    //console.log('수정:', itemData);
     fetch(`/api/items2/${itemIdx}`, { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(itemData)}) //
         .then(async res => { const txt = await res.text(); if (!res.ok) throw new Error(txt || res.statusText); return txt; })
         .then(msg => { alert(msg || "수정 완료"); closeModal('itemModal'); loadAndDisplayInitialData(); })

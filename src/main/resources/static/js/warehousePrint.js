@@ -1,11 +1,11 @@
 // /js/warehousePrint.js
-console.log("[Print] warehousePrint.js 로드 확인");
+//console.log("[Print] warehousePrint.js 로드 확인");
 
 /**
  * 선택된 창고 항목들의 상세 정보를 가져와 새 창에서 인쇄합니다.
  */
 async function printSelectedWarehouseDetails() {
-    console.log("[Print] printSelectedWarehouseDetails() 호출됨 - 선택된 창고 상세 정보 인쇄 시도.");
+    //console.log("[Print] printSelectedWarehouseDetails() 호출됨 - 선택된 창고 상세 정보 인쇄 시도.");
 
     // #warehouseTableBody 내의 체크된 개별 창고 체크박스 선택
     const checkedCheckboxes = document.querySelectorAll('#warehouseTableBody input.warehouse-checkbox:checked');
@@ -16,7 +16,7 @@ async function printSelectedWarehouseDetails() {
 
     // 각 체크박스의 data-wh-idx 속성에서 창고 ID를 추출
     const selectedWarehouseIds = Array.from(checkedCheckboxes).map(cb => cb.dataset.whIdx);
-    console.log("[Print] 선택된 창고 ID:", selectedWarehouseIds);
+    //console.log("[Print] 선택된 창고 ID:", selectedWarehouseIds);
 
     let printContents = `
         <html>
@@ -84,7 +84,7 @@ async function printSelectedWarehouseDetails() {
         });
 
         const results = await Promise.all(warehouseDetailsPromises);
-        console.log("[Print] 모든 창고 상세 정보 fetch 결과:", results);
+        //console.log("[Print] 모든 창고 상세 정보 fetch 결과:", results);
 
         results.forEach(warehouseData => {
             if (!warehouseData || warehouseData.error) {

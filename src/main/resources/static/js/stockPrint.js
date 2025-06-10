@@ -1,7 +1,7 @@
 // stockprint.js
 
 async function printStockData() {
-    console.log("재고 현황 (선택 항목 상세) 인쇄 버튼 클릭됨 (stockprint.js)");
+    //console.log("재고 현황 (선택 항목 상세) 인쇄 버튼 클릭됨 (stockprint.js)");
 
     const stockTableBodyElement = document.getElementById('itembody'); // 재고 목록 테이블의 tbody ID
     if (!stockTableBodyElement) {
@@ -30,7 +30,7 @@ async function printStockData() {
         // 직접 API를 호출하여 품목 마스터 정보를 가져옵니다.
         // 여기서는 메인 스크립트의 함수를 호출한다고 가정합니다. (호출 가능해야 함)
         if (typeof loadAllItemMasterData === 'function') {
-            console.log("품목 마스터 정보 로드 시도...");
+            //console.log("품목 마스터 정보 로드 시도...");
             await loadAllItemMasterData();
         }
         if (typeof allItemBasicInfos === 'undefined' || allItemBasicInfos.length === 0) {
@@ -122,7 +122,7 @@ async function printStockData() {
     selectedRows.forEach((row, index) => {
         const itemDataString = row.dataset.item;
         if (!itemDataString) {
-            console.warn("선택된 행에 'data-item' 속성이 없거나 비어있습니다.", row);
+            //console.warn("선택된 행에 'data-item' 속성이 없거나 비어있습니다.", row);
             return; // 이 행 건너뛰기
         }
         try {

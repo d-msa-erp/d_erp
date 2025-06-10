@@ -136,18 +136,18 @@ public class OrderService {
 
 		try {
 			invTransactionService.insertTransaction(invd);
-			System.out.println("저장 완료");
+			//system.out.println("저장 완료");
 		} catch (Exception e) {
-			System.out.println("저장 실패: " + e.getMessage());
+			//system.out.println("저장 실패: " + e.getMessage());
 			e.printStackTrace();
 		}
 
 		if (!warnings.isEmpty()) {
-			System.out.println("===== 자재 부족 경고 =====");
+			//system.out.println("===== 자재 부족 경고 =====");
 			warnings.forEach(System.out::println);
-			System.out.println("=========================");
+			//system.out.println("=========================");
 		} else {
-			System.out.println("✅ 모든 자재 충분");
+			//system.out.println("✅ 모든 자재 충분");
 		}
 
 		return new OrderResponseDto(savedOrder.getOrderIdx(), savedOrder.getOrderCode(), hasProductShortage,

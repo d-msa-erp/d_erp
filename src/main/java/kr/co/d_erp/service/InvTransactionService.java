@@ -103,8 +103,7 @@ public class InvTransactionService {
 	        linkedOrder.setOrderStatus(newOrderStatus);
 	        orderRepository.save(linkedOrder);
 	        
-	        System.out.println(String.format("주문/발주 상태 업데이트: 주문ID[%d] %s -> %s", 
-	            linkedOrder.getOrderIdx(), currentOrderStatus, newOrderStatus));
+	        
 	    }
 	}
 	
@@ -422,8 +421,7 @@ public class InvTransactionService {
 	            if (revertStatus != null) {
 	                linkedOrder.setOrderStatus(revertStatus);
 	                orderRepository.save(linkedOrder);
-	                System.out.println(String.format("주문/발주 상태 되돌림 (삭제): 주문ID[%d] -> %s", 
-	                    linkedOrder.getOrderIdx(), revertStatus));
+	                
 	            }
 	        }
 	    }
@@ -435,12 +433,11 @@ public class InvTransactionService {
 	        List<Mrp> mrps = mrpRepository.findByOrderIdx(linkedOrder.getOrderIdx());
 	        if (!mrps.isEmpty()) {
 	            mrpRepository.deleteAll(mrps);
-	            System.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
+	            //system.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
 	        }
 	        
 	        orderRepository.delete(linkedOrder);
-	        System.out.println(String.format("연결된 주문/발주 삭제됨: 주문ID[%d], 주문타입[%s]", 
-	            linkedOrder.getOrderIdx(), linkedOrder.getOrderType()));
+	        
 	    }
 
 	    tbInvTransRepository.deleteById(invTransIdx);
@@ -492,12 +489,11 @@ public class InvTransactionService {
 				List<Mrp> mrps = mrpRepository.findByOrderIdx(linkedOrder.getOrderIdx());
 				if (!mrps.isEmpty()) {
 					mrpRepository.deleteAll(mrps);
-					System.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
+					//system.out.println(String.format("연결된 MRP %d건 삭제됨", mrps.size()));
 				}
 				
 				orderRepository.delete(linkedOrder);
-				System.out.println(String.format("연결된 주문/발주 삭제됨: 주문ID[%d], 주문타입[%s]", 
-					linkedOrder.getOrderIdx(), linkedOrder.getOrderType()));
+				
 			}
 		}
 		
@@ -781,15 +777,14 @@ public class InvTransactionService {
 	            if (revertStatus != null) {
 	                linkedOrder.setOrderStatus(revertStatus);
 	                orderRepository.save(linkedOrder);
-	                System.out.println(String.format("주문/발주 상태 되돌림 (삭제): 주문ID[%d] -> %s", 
-	                    linkedOrder.getOrderIdx(), revertStatus));
+	                
 	            }
 	        }
 	    }
 
 	    // 입출고 거래만 삭제 (연결된 주문은 삭제하지 않음)
 	    tbInvTransRepository.deleteById(invTransIdx);
-	    System.out.println(String.format("입출고 거래 삭제됨: ID[%d]", invTransIdx));
+	    //system.out.println(String.format("입출고 거래 삭제됨: ID[%d]", invTransIdx));
 	}
 
 	/**

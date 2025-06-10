@@ -54,7 +54,7 @@ public class CustomerController {
 			Custmst savedCustomer = custmstService.saveCustomer(customer);
 			return ResponseEntity.ok(savedCustomer);
 		} catch (Exception e) {
-			System.out.println(e);
+			//system.out.println(e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("등록 중 오류가 발생했습니다.");
 		}
 	}

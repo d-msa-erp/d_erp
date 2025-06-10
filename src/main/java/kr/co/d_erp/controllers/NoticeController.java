@@ -45,12 +45,12 @@ public class NoticeController {
     public ResponseEntity<Notice> getNoticeById(@PathVariable("nidx") Long nidx) {
         Notice notice = noticeService.getNoticeById(nidx);
         
-        // System.out.println() 을 사용하여 콘솔에 출력
-        System.out.println(">>> getNoticeById 메소드 호출. 요청된 nidx: " + nidx);
+        // //system.out.println() 을 사용하여 콘솔에 출력
+        //system.out.println(">>> getNoticeById 메소드 호출. 요청된 nidx: " + nidx);
         
         if (notice != null) {
-        	System.out.println("<<< nidx " + nidx + " 에 해당하는 공지사항 발견.");
-            System.out.println("    조회된 Notice 객체: " + notice); // Notice 클래스의 toString() 결과가 출력됩니다.
+        	//system.out.println("<<< nidx " + nidx + " 에 해당하는 공지사항 발견.");
+            //system.out.println("    조회된 Notice 객체: " + notice); // Notice 클래스의 toString() 결과가 출력됩니다.
         	
         	
             // 공지사항을 찾았으면 200 OK와 함께 반환
