@@ -10,4 +10,6 @@ public class LowInventoryDto {
     private String itemCd;
     private Long totalStockQty;
     private Long requiredQty;
+    private String requiredLabel;
+    private Long itemCost;
 }

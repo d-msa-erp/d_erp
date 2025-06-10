@@ -2,6 +2,7 @@ package kr.co.d_erp.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -55,14 +56,29 @@ public class ItemInventoryService {
             .collect(Collectors.toSet());
 
         // MRP → DTO 변환
-        List<LowInventoryDto> mrpDtos = lowMrp.stream()
-            .map(m -> new LowInventoryDto(
-                "[MRP] " + m.getMaterialItemNm(),
-                m.getMaterialItemCd(),
-                m.getMaterialStockQty() != null ? m.getMaterialStockQty() : 0L,
-                m.getRequiredQty() + (m.getMaterialOptimalInv() != null ? m.getMaterialOptimalInv() : 0L)
-            ))
-            .collect(Collectors.toList());
+        Map<String, List<MrpLackView>> mrpGrouped = lowMrp.stream()
+        	    .collect(Collectors.groupingBy(MrpLackView::getMaterialItemCd));
+
+        	List<LowInventoryDto> mrpDtos = mrpGrouped.entrySet().stream()
+        	    .map(entry -> {
+        	        String itemCd = entry.getKey();
+        	        List<MrpLackView> group = entry.getValue();
+        	        MrpLackView first = group.get(0); // 이름, 재고는 대표값 기준
+
+        	        long totalRequiredQty = group.stream()
+        	            .mapToLong(m -> m.getRequiredQty() + (m.getMaterialOptimalInv() != null ? m.getMaterialOptimalInv() : 0L))
+        	            .sum();
+
+        	        return new LowInventoryDto(
+        	            "[MRP] " + first.getMaterialItemNm(),
+        	            itemCd,
+        	            first.getMaterialStockQty() != null ? first.getMaterialStockQty() : 0L,
+        	            totalRequiredQty,
+        	            "필요",
+        	            first.getItemCost() != null ? first.getItemCost() : 0L
+        	        );
+        	    })
+        	    .toList();
 
         // 정기 항목 중, MRP에 포함되지 않은 것만
         List<LowInventoryDto> baseDtos = lowBasic.stream()
@@ -71,7 +87,9 @@ public class ItemInventoryService {
                 "[정기] " + i.getItemNm(),
                 i.getItemCd(),
                 i.getTotalStockQty(),
-                i.getOptimalInv()
+                i.getOptimalInv(),
+                "적정",
+                i.getItemCost() != null ? i.getItemCost().longValue() : 0L
             ))
             .collect(Collectors.toList());
 

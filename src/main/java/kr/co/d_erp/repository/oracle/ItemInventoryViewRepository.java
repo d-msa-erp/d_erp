@@ -23,7 +23,8 @@ public interface ItemInventoryViewRepository extends JpaRepository<ItemInventory
     	        MAX(v.itemCd),
     	        MAX(v.itemNm),
     	        SUM(v.stockQty),
-    	        MAX(v.optimalInv)
+    	        MAX(v.optimalInv),
+    	        MAX(v.itemCost)
     	    )
     	    FROM ItemInventoryView v
     	    WHERE v.itemFlag = '01'
