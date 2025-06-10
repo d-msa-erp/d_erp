@@ -30,4 +30,7 @@ public class MrpLackView {
 
     @Column(name = "MATERIAL_OPTIMAL_INV")
     private Long materialOptimalInv;
+    
+    @Column(name = "ITEM_COST")
+    private Long itemCost;
 }

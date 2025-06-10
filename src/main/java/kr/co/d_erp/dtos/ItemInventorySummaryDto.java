@@ -13,6 +13,7 @@ public class ItemInventorySummaryDto {
     private String itemNm;
     private Long totalStockQty;
     private Long optimalInv;
+    private Long itemCost;
 
     public boolean isBelowOptimal() {
         return totalStockQty != null && optimalInv != null && totalStockQty < optimalInv;

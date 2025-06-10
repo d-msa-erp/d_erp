@@ -745,54 +745,41 @@ function order(thElement) {
 
 // 엑셀 다운로드 함수
 function downloadExcel() {
-    // 현재 활성화된 탭(bizFlag), 검색어, 정렬 기준을 모두 포함하여 요청
-    const keyword = document.getElementById('searchInput').value.trim();
-    const apiUrl = `/api/customer/excel/${window.currentBizFlag}?sortBy=${currentTh}&sortDirection=${currentOrder}&keyword=${encodeURIComponent(keyword)}`;
+	const url = `/api/customers/excel`;
 
-    fetch(apiUrl)
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {throw new Error(text || "엑셀 다운로드에 실패했습니다.")});
-            }
-            // 파일 이름 추출 시도 (Content-Disposition 헤더 확인)
-            const disposition = response.headers.get('Content-Disposition');
-            let filename = `customers-${window.currentBizFlag}-data.xlsx`; // 기본 파일명
-            if (disposition && disposition.indexOf('attachment') !== -1) {
-                const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                const matches = filenameRegex.exec(disposition);
-                if (matches != null && matches[1]) {
-                    filename = matches[1].replace(/['"]/g, '');
-                }
-            }
-            return response.blob().then(blob => ({ blob, filename }));
-        })
-        .then(({ blob, filename }) => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = filename; // 추출했거나 기본 설정된 파일명
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            a.remove();
-        })
-        .catch(err => {
-            alert("엑셀 다운로드 중 오류가 발생했습니다: " + err.message);
-            console.error("엑셀 다운로드 오류 상세:", err);
-        });
+	fetch(url)
+		.then(response => {
+			if (!response.ok) {
+				throw new Error("엑셀 다운로드 실패");
+			}
+			return response.blob();
+		})
+		.then(blob => {
+			const a = document.createElement('a');
+			const url = window.URL.createObjectURL(blob);
+			a.href = url;
+			a.download = 'customers-data.xlsx'; // 저장될 파일명
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+		})
+		.catch(err => {
+			alert("엑셀 다운로드 중 오류 발생");
+			console.error(err);
+		});
 }
 
 // 선택된 거래처 상세 정보 인쇄 함수
 async function printSelectedCustomerDetails() {
-    const checkedCheckboxes = document.querySelectorAll('#customerTableBody input.customer-checkbox:checked');
-    if (checkedCheckboxes.length === 0) {
-        alert("인쇄할 거래처를 선택해주세요.");
-        return;
-    }
+	const checked = document.querySelectorAll('#customerTableBody input.customer-checkbox:checked');
+	if (checked.length === 0) {
+		alert("인쇄할 거래처를 선택해주세요.");
+		return;
+	}
 
-    const selectedCustomerIds = Array.from(checkedCheckboxes).map(cb => cb.dataset.custId);
-    const fetchUrl = `/api/customer/print?${selectedCustomerIds.map(id => `ids=${id}`).join('&')}`;
+	const selectedCustomerIds = Array.from(checked).map(cb => cb.dataset.custId);
+	const fetchUrl = `/api/customers/print?${selectedCustomerIds.map(id => `ids=${id}`).join('&')}`;
 
     let printContents = `
         <html>

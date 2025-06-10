@@ -378,12 +378,13 @@ async function openModal(data = null) {
 	if (data) {
 		if (data.origin === 'lowInventory') {
 			// 재고 부족 박스에서 온 경우
+			const pureName = data.itemNm.replace(/^\[.*?\]\s*/, '');
 			await loadItems();
 			loadWarehouse();
 			setdate();
 			fetchOrderNo();
 			document.getElementById('itemCode').value = data.itemCd || '';
-			document.getElementById('itemName').value = data.itemNm || '';
+			document.getElementById('itemName').value = pureName || '';
 			document.getElementById('unitPrice').value = data.itemCost || '';
 			document.getElementById('quantity').value = '';
 			document.getElementById('optimalInventory').textContent = data.optimalInv ?? '';
@@ -681,13 +682,14 @@ async function loadLowInventoryItems() {
 		const list = items.map(item => {
 			item.origin = 'lowInventory'; // 추가
 			return `
-		        <div class="low-item" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
-		            <strong>${item.itemNm}</strong> (${item.itemCd}) <br> 재고: ${item.totalStockQty}, 적정: ${item.requiredQty}
-		        </div>
+			<div class="low-item" data-item='${JSON.stringify(item).replace(/'/g, "&apos;")}'>
+			  <strong>${item.itemNm}</strong> (${item.itemCd}) <br>
+			  재고: ${item.totalStockQty}, ${item.requiredLabel}: ${item.requiredQty}
+			</div>
 		    `;
 		}).join('');
 
-		container.innerHTML = `<p>적정 재고 미달 품목:</p>${list}`;
+		container.innerHTML = `${list}`;
 	} catch (error) {
 		console.error('재고 데이터를 불러오는 데 실패했습니다.', error);
 	}
