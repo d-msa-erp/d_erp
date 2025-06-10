@@ -11,7 +11,7 @@ let currentTotalPages = 1; // 전체 페이지 수
 async function loadCustomers(bizFlag, sortBy = currentTh, sortDirection = currentOrder, keyword = '') {
     const customerTableBody = document.getElementById('customerTableBody');
     if (!customerTableBody) {
-        console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
+        //console.warn("ID가 'customerTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
     currentTh = sortBy; // 현재 정렬 기준 업데이트
@@ -162,7 +162,7 @@ function switchTab(tabElement, bizFlag) {
 async function loadItemsForExtraTab(custIdx) {
     const itemTableBody = document.getElementById('itemTableBody');
     if (!itemTableBody) {
-        console.warn("ID가 'itemTableBody'인 요소를 찾을 수 없습니다.");
+        //console.warn("ID가 'itemTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
     itemTableBody.innerHTML = `<tr><td colspan="2" class="nodata">품목 정보 로딩 중...</td></tr>`; // 로딩 메시지
@@ -432,7 +432,7 @@ function validateInput(inputElement, regex, errorMessage, isRequired = false) {
         // errorMsgElement.style.color = 'red';
         // errorMsgElement.style.fontSize = '12px';
         // inputElement.parentNode.insertBefore(errorMsgElement, inputElement.nextSibling);
-        console.warn("Validation Error for:", inputElement.name, "-", errorMessage);
+        //console.warn("Validation Error for:", inputElement.name, "-", errorMessage);
     } else {
         clearInputError(inputElement);
     }
@@ -585,7 +585,7 @@ async function editCustomer() {
             updatedCustomer[key] = value.trim();
         }
     }
-    console.log("수정 데이터:", updatedCustomer);
+    //console.log("수정 데이터:", updatedCustomer);
 
     try {
         const response = await fetch(`/api/customer/update/${window.currentCustIdx}`, { // 경로에 custIdx 포함
@@ -647,7 +647,7 @@ async function saveCustomer() {
             newCustomer[key] = value.trim();
         }
     }
-    console.log("신규 등록 데이터:", newCustomer);
+    //console.log("신규 등록 데이터:", newCustomer);
 
     try {
         const response = await fetch('/api/customer/save', { // 신규 등록 API 엔드포인트

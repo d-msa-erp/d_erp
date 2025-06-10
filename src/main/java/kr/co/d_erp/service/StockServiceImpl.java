@@ -230,7 +230,7 @@ public class StockServiceImpl implements StockService{
 	}
     
 	public StockDto updateStockItem(Long invIdx, StockRequestDto requestDto) {
-        System.out.println("StockServiceImpl - updateStockItem 호출됨. invIdx: " + invIdx + ", DTO: " + requestDto);
+        //system.out.println("StockServiceImpl - updateStockItem 호출됨. invIdx: " + invIdx + ", DTO: " + requestDto);
 
         // 1. invIdx로 TB_INVENTORY 레코드 조회
         Inventory inventoryToUpdate = invenRepository.findById(invIdx)
@@ -246,7 +246,7 @@ public class StockServiceImpl implements StockService{
             // inventoryToUpdate.setWhmst(newWhmst); 
             inventoryToUpdate.setWhIdx(requestDto.getWhIdx()); // Inventory 엔티티가 whIdx를 Long으로 직접 가지는 경우
             inventoryChanged = true;
-            System.out.println("재고의 보관 창고 변경: " + requestDto.getWhIdx());
+            //system.out.println("재고의 보관 창고 변경: " + requestDto.getWhIdx());
         }
 
 
@@ -256,7 +256,7 @@ public class StockServiceImpl implements StockService{
         } else {
             updatedInventory = inventoryToUpdate; // 변경 없으면 기존 객체 사용
         }
-        System.out.println("TB_INVENTORY 업데이트 확인: " + updatedInventory.getInvIdx());
+        //system.out.println("TB_INVENTORY 업데이트 확인: " + updatedInventory.getInvIdx());
 
 
         // 3. 관련된 TB_ITEMMST의 "단위", "매입처" 업데이트
@@ -273,7 +273,7 @@ public class StockServiceImpl implements StockService{
                     .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 단위 ID 입니다: " + requestDto.getUnitIdx()));
             itemMstToUpdate.setUnitForItemDto(unitMst);
             itemMstChanged = true;
-            System.out.println("품목 단위 변경: " + unitMst.getUnitIdx());
+            //system.out.println("품목 단위 변경: " + unitMst.getUnitIdx());
         }
 
         // 3.2. 매입처 (custIdx) 업데이트
@@ -283,7 +283,7 @@ public class StockServiceImpl implements StockService{
                     .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 거래처 ID 입니다: " + requestDto.getCustIdx()));
             itemMstToUpdate.setCustomerForItemDto(custMst);
             itemMstChanged = true;
-            System.out.println("품목 주거래처 변경: " + custMst.getCustIdx());
+            //system.out.println("품목 주거래처 변경: " + custMst.getCustIdx());
         }
         
         // 품목 마스터의 비고는 이 메소드에서 수정하지 않음 (재고 비고만 처리)
@@ -293,7 +293,7 @@ public class StockServiceImpl implements StockService{
             // Itemmst 엔티티에 updatedDate 필드가 있다면 여기서 설정
             // itemMstToUpdate.setUpdatedDate(LocalDateTime.now()); 
             updatedItemMst = itemMstRepository.save(itemMstToUpdate);
-            System.out.println("TB_ITEMMST 업데이트 완료: " + updatedItemMst.getItemIdx());
+            //system.out.println("TB_ITEMMST 업데이트 완료: " + updatedItemMst.getItemIdx());
         }
 
         // 4. 반환할 StockDto 생성

@@ -86,10 +86,10 @@ function updateRetireDateMin() {
         // 현재 퇴사일이 입사일보다 이전이면 초기화
         if (retireDtInput.value && retireDtInput.value <= hireDtInput.value) {
             retireDtInput.value = '';
-            console.log('퇴사일이 입사일보다 이전이므로 초기화되었습니다.');
+            //console.log('퇴사일이 입사일보다 이전이므로 초기화되었습니다.');
         }
         
-        console.log('퇴사일 최소값 설정:', minRetireDate);
+        //console.log('퇴사일 최소값 설정:', minRetireDate);
     }
 }
 
@@ -275,7 +275,7 @@ function initStaticPaginationEvents() {
 async function loadUsersTableWithPaging(sortBy, sortDirection, keyword = '') {
     const tableBody = document.getElementById('userTableBody');
     if (!tableBody) {
-        console.warn("ID가 'userTableBody'인 요소를 찾을 수 없습니다.");
+        //console.warn("ID가 'userTableBody'인 요소를 찾을 수 없습니다.");
         return;
     }
     tableBody.innerHTML = '<tr><td colspan="8">데이터 로딩 중...</td></tr>';
@@ -436,7 +436,7 @@ function handleStatusChange(statusSelect) {
     if (statusSelect.value === '02') { // 퇴사 선택 시
         if (!retireDtInput.value) { // 퇴사일이 비어있을 때만 자동 설정
             retireDtInput.value = getCurrentDate();
-            console.log('퇴사 상태 선택 - 오늘 날짜로 퇴사일 자동 설정:', retireDtInput.value);
+            //console.log('퇴사 상태 선택 - 오늘 날짜로 퇴사일 자동 설정:', retireDtInput.value);
         }
     }
 }
@@ -460,18 +460,18 @@ function handleRetireDateChange(retireDtInput) {
         if (retireDate <= today) { // 퇴사일이 오늘이거나 과거일 때
             if (userStatusSelect.value !== '02') { // 현재 상태가 퇴사가 아니라면
                 userStatusSelect.value = '02'; // 퇴사로 변경
-                console.log('퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경');
+                //console.log('퇴사일 입력 (오늘/과거) - 재직상태를 퇴사로 자동 변경');
             }
         } else if (retireDate >= tomorrow) { // 퇴사일이 내일 이후일 때
             if (userStatusSelect.value === '02') { // 현재 상태가 퇴사라면
                 userStatusSelect.value = '01'; // 재직중으로 변경
-                console.log('퇴사일이 내일 이후 - 재직상태를 재직중으로 자동 변경');
+                //console.log('퇴사일이 내일 이후 - 재직상태를 재직중으로 자동 변경');
             }
         }
     } else { // 퇴사일이 삭제되었을 때
         if (userStatusSelect.value === '02') { // 현재 상태가 퇴사라면
             userStatusSelect.value = '01'; // 재직중으로 변경
-            console.log('퇴사일 삭제 - 재직상태를 재직중으로 자동 변경');
+            //console.log('퇴사일 삭제 - 재직상태를 재직중으로 자동 변경');
         }
     }
 }
@@ -625,11 +625,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 delete userData.userIdx; // 신규 등록 시 userIdx는 서버에서 생성
                 
                 //에러확인용 로그 				
-                console.log("신규 등록 시 서버로 전송 직전 userData:", JSON.stringify(userData, null, 2));
+                //console.log("신규 등록 시 서버로 전송 직전 userData:", JSON.stringify(userData, null, 2));
             }
 
-            console.log(`${errorMessagePrefix} 데이터:`, userData);
-            console.log(`API 호출: ${method} ${submitApiUrl}`);
+            //console.log(`${errorMessagePrefix} 데이터:`, userData);
+            //console.log(`API 호출: ${method} ${submitApiUrl}`);
 
             try {
                 const response = await fetch(submitApiUrl, {
@@ -645,7 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(`HTTP error! status: ${response.status}, ${errorText}`);
                 }
 
-                console.log(`${errorMessagePrefix} 성공`);
+                //console.log(`${errorMessagePrefix} 성공`);
                 alert(successMessage);
 
                 closeModal();
@@ -657,7 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     } else {
-        console.warn("모달 폼 요소(modalForm)를 찾을 수 없습니다. 폼 제출 기능이 작동하지 않습니다.");
+        //console.warn("모달 폼 요소(modalForm)를 찾을 수 없습니다. 폼 제출 기능이 작동하지 않습니다.");
     }
 
     // --- 삭제 버튼 클릭 이벤트 리스너 ---

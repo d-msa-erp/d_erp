@@ -1,4 +1,4 @@
-console.log('bomUnit.js로드 확인');
+//console.log('bomUnit.js로드 확인');
 //UNIT(단위 모달용)
 document.addEventListener('DOMContentLoaded', () => {
 	const modal = document.getElementById('modal-spec');
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// 5) 신규 단위 등록 폼 처리
 	const form = modal.querySelector('form');
 	form.addEventListener('submit', e => {
-		console.log('test');
+		//console.log('test');
 		e.preventDefault();
 		const input = document.getElementById('new-spec-unit');
 		const nm = input.value.trim();

@@ -98,7 +98,7 @@ async function loadSales(sortBy, sortDirection, isDueDate) {
 	const salesTableBody = document.getElementById('salesTableBody');;
 
 	if (!salesTableBody) {
-		console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
+		//console.warn("ID가 'salesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
 	}
 
@@ -281,7 +281,7 @@ function searchItems() {
 	});
 
 	const apiUrl = `/api/orders/search?${queryParams.toString()}`;
-	console.log(apiUrl);
+	//console.log(apiUrl);
 	fetch(apiUrl)
 		.then(response => response.json())
 		.then(data => {
@@ -511,7 +511,7 @@ document.getElementById('selectedCustIdx').addEventListener('input', async funct
 		const response = await fetch(`/api/items/active-for-selection?custIdx=${custIdx}`);
 		if (!response.ok) {
 			if (response.status === 204) {
-				console.log('해당 거래처의 품목이 없습니다.');
+				//console.log('해당 거래처의 품목이 없습니다.');
 				return;
 			}
 			throw new Error('품목 요청 실패');

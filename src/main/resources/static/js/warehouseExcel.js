@@ -1,11 +1,11 @@
 // /js/warehouseExcel.js
-console.log("[Excel] warehouseExcel.js 로드 확인");
+//console.log("[Excel] warehouseExcel.js 로드 확인");
 
 /**
  * 선택된 창고 항목들의 상세 정보를 서버로부터 받아 엑셀 파일로 다운로드합니다.
  */
 async function downloadSelectedWarehouseDetailsAsExcel() {
-    console.log("[Excel] downloadSelectedWarehouseDetailsAsExcel() 호출됨 - 선택된 창고 상세 정보 엑셀 다운로드 시도.");
+    //console.log("[Excel] downloadSelectedWarehouseDetailsAsExcel() 호출됨 - 선택된 창고 상세 정보 엑셀 다운로드 시도.");
 
     // #warehouseTableBody 내의 체크된 개별 창고 체크박스 선택
     const checkedCheckboxes = document.querySelectorAll('#warehouseTableBody input.warehouse-checkbox:checked');
@@ -16,7 +16,7 @@ async function downloadSelectedWarehouseDetailsAsExcel() {
 
     // 각 체크박스의 data-wh-idx 속성에서 창고 ID를 추출
     const selectedWarehouseIds = Array.from(checkedCheckboxes).map(cb => cb.dataset.whIdx);
-    console.log("[Excel] 선택된 창고 ID:", selectedWarehouseIds);
+    //console.log("[Excel] 선택된 창고 ID:", selectedWarehouseIds);
 
     try {
         const response = await fetch('/api/warehouses/download-excel-details', { // 창고 전용 API 엔드포인트
@@ -64,7 +64,7 @@ async function downloadSelectedWarehouseDetailsAsExcel() {
         document.body.removeChild(a); // 요소 제거
         window.URL.revokeObjectURL(downloadUrl);
 
-        console.log("[Excel] 파일 다운로드 시작:", filename);
+        //console.log("[Excel] 파일 다운로드 시작:", filename);
 
     } catch (error) {
         console.error("[Excel] 엑셀 다운로드 중 오류 발생:", error);

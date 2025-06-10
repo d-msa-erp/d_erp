@@ -389,7 +389,7 @@ public class WhmstService {
 	    // 모든 창고에 재고가 없으면 삭제 진행
 	    try {
 	        whmstRepository.updateUseFlagToN(whIdxes);
-	        System.out.println("창고 삭제 완료: " + whIdxes);
+	        //system.out.println("창고 삭제 완료: " + whIdxes);
 	    } catch (Exception e) {
 	        System.err.println("창고 삭제 처리 중 오류 발생: " + e.getMessage());
 	        throw new RuntimeException("창고 삭제 처리 중 오류가 발생했습니다: " + e.getMessage());

@@ -101,10 +101,10 @@ public class UsermstController {
 	 */
 	@PostMapping
 	public ResponseEntity<?> createUser(@RequestBody Usermst usermst) {
-		System.out.println("--- Controller: createUser ---");
-		System.out.println("Received userId: " + usermst.getUserId());
-		System.out.println("Received userPswd from JSON: " + usermst.getUserPswd());
-		System.out.println("Received userNm: " + usermst.getUserNm());
+		//system.out.println("--- Controller: createUser ---");
+		//system.out.println("Received userId: " + usermst.getUserId());
+		//system.out.println("Received userPswd from JSON: " + usermst.getUserPswd());
+		//system.out.println("Received userNm: " + usermst.getUserNm());
 		
 		try {
 			Usermst newUser = UsermstService.addUser(usermst);

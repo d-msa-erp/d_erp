@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     })
     .catch(err => {
-      console.warn('상단 타이틀 사업장명 설정 오류:', err);
+      //console.warn('상단 타이틀 사업장명 설정 오류:', err);
     });
 
   // 사업장 정보 로드
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else {
         isUpdate = false;
         currentCustCd = null;
-        console.log("신규 등록 모드");
+        //console.log("신규 등록 모드");
       }
     })
     .catch(error => {
@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(result => {
           alert(isUpdate ? '수정 완료' : '등록 완료');
-          console.log(result);
+          //console.log(result);
 
           if (!isUpdate && result) {
             try {
@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 isUpdate = true;
               }
             } catch (e) {
-              console.warn('신규 등록 응답 파싱 실패', e);
+              //console.warn('신규 등록 응답 파싱 실패', e);
             }
           }
 		  location.reload();

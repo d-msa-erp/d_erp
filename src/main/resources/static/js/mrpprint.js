@@ -1,5 +1,5 @@
 function printMrpData() {
-    console.log("MRP 데이터 인쇄 버튼 클릭됨 (투입 예상량 계산 포함)");
+    //console.log("MRP 데이터 인쇄 버튼 클릭됨 (투입 예상량 계산 포함)");
 
     if (!selectedMrpOrderDataForCalc) {
         alert("인쇄할 MRP 대상 품목(주문)을 첫 번째 테이블에서 선택해주세요.");
@@ -38,7 +38,7 @@ function printMrpData() {
     if (!isNaN(parentOrderQty) && !isNaN(parentStock)) {
         deficitQty = parentOrderQty - parentStock;
     } else {
-        console.warn("완제품 주문수량 또는 현재고가 유효한 숫자가 아닙니다. 투입예상량 계산에 영향을 줄 수 있습니다.");
+        //console.warn("완제품 주문수량 또는 현재고가 유효한 숫자가 아닙니다. 투입예상량 계산에 영향을 줄 수 있습니다.");
     }
 
     // --- 자재 목록 헤더 정보 가져오기 ---

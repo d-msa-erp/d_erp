@@ -1,8 +1,8 @@
 // /js/bomExcel.js
-console.log("[Excel] bomExcel.js 로드 확인");
+//console.log("[Excel] bomExcel.js 로드 확인");
 
 async function downloadSelectedBOMDetailsAsExcel() {
-    console.log("[Excel] downloadSelectedBOMDetailsAsExcel() 호출됨 - 선택된 BOM 상세 정보 엑셀 다운로드 시도.");
+    //console.log("[Excel] downloadSelectedBOMDetailsAsExcel() 호출됨 - 선택된 BOM 상세 정보 엑셀 다운로드 시도.");
 
     const checkedCheckboxes = document.querySelectorAll('#bomTbody input[type="checkbox"]:checked');
     if (checkedCheckboxes.length === 0) {
@@ -11,7 +11,7 @@ async function downloadSelectedBOMDetailsAsExcel() {
     }
 
     const selectedItemIds = Array.from(checkedCheckboxes).map(cb => cb.closest('tr').dataset.id);
-    console.log("[Excel] 선택된 BOM ID:", selectedItemIds);
+    //console.log("[Excel] 선택된 BOM ID:", selectedItemIds);
 
     try {
         const response = await fetch('/api/bom/download-excel-details', {
@@ -61,7 +61,7 @@ async function downloadSelectedBOMDetailsAsExcel() {
         document.body.removeChild(a); // 요소 제거
         window.URL.revokeObjectURL(downloadUrl);
 
-        console.log("[Excel] 파일 다운로드 시작:", filename);
+        //console.log("[Excel] 파일 다운로드 시작:", filename);
 
     } catch (error) {
         console.error("[Excel] 엑셀 다운로드 중 오류 발생:", error);

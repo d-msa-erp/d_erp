@@ -1,11 +1,11 @@
 // /js/inboundPrint.js
-console.log("[Print] inboundPrint.js 로드 확인");
+//console.log("[Print] inboundPrint.js 로드 확인");
 
 /**
  * 선택된 입고 항목들의 상세 정보를 가져와 새 창에서 인쇄합니다.
  */
 async function printSelectedInboundDetails() {
-    console.log("[Print] printSelectedInboundDetails() 호출됨 - 선택된 입고 상세 정보 인쇄 시도.");
+    //console.log("[Print] printSelectedInboundDetails() 호출됨 - 선택된 입고 상세 정보 인쇄 시도.");
 
     const checkedCheckboxes = document.querySelectorAll('#receivingTable tbody input.trans-checkbox:checked');
     if (checkedCheckboxes.length === 0) {
@@ -14,7 +14,7 @@ async function printSelectedInboundDetails() {
     }
 
     const selectedInvTransIds = Array.from(checkedCheckboxes).map(cb => cb.dataset.invTransIdx);
-    console.log("[Print] 선택된 입고 거래 ID:", selectedInvTransIds);
+    //console.log("[Print] 선택된 입고 거래 ID:", selectedInvTransIds);
 
     let printContents = `
         <html>
@@ -57,7 +57,7 @@ async function printSelectedInboundDetails() {
         );
 
         const results = await Promise.all(transactionDetailsPromises);
-        console.log("[Print] 모든 입고 상세 정보 fetch 결과:", results);
+        //console.log("[Print] 모든 입고 상세 정보 fetch 결과:", results);
 
         results.forEach(transactionData => {
             if (!transactionData || transactionData.error) {

@@ -93,7 +93,7 @@ function setdate() {
 async function loadPurchases(sortBy, sortDirection) {
 	const purchasesTableBody = document.getElementById('purchasesTableBody');
 	if (!purchasesTableBody) {
-		console.warn("ID가 'purchasesTableBody'인 요소를 찾을 수 없습니다.");
+		//console.warn("ID가 'purchasesTableBody'인 요소를 찾을 수 없습니다.");
 		return;
 	}
 
@@ -391,7 +391,7 @@ async function openModal(data = null) {
 			document.getElementById('itemIdx').value = data.itemIdx;
 			document.getElementById('itemName').dispatchEvent(new Event('change')); // 거래처 목록을 받아오기 위한 강제 이벤트 발생
 		} else {
-			console.log("🔍 모달 데이터 구조 확인:", data);
+			//console.log("🔍 모달 데이터 구조 확인:", data);
 			title.textContent = '발주 정보';
 			saveBtn.style.display = 'none';
 			editBtn.style.display = 'block';
@@ -547,7 +547,7 @@ document.getElementById("saveBtn").addEventListener('click', async () => {
 		orderStatus: 'P1'
 	};
 
-	console.log(orderData);
+	//console.log(orderData);
 	try {
 		const response = await fetch('/api/orders/save', {
 			method: 'POST',
@@ -634,7 +634,7 @@ async function loadWarehouse() {
 			warehouseOptions.push(whOption);
 		})
 	} catch (err) {
-		console.log("창고 로드 오류 : ", err);
+		//console.log("창고 로드 오류 : ", err);
 	}
 }
 

@@ -1,4 +1,4 @@
-console.log('bomCategory.js 로드 확인');
+//console.log('bomCategory.js 로드 확인');
 
 /**
  * 카테고리 관리 모달을 엽니다.
@@ -12,14 +12,14 @@ function openCategoryModal() {
  * 카테고리 목록을 서버에서 불러와 테이블에 표시합니다.
  */
 async function loadCategories() {
-    console.log("[Category] loadCategories 함수 시작."); // 로그 추가
+    //console.log("[Category] loadCategories 함수 시작."); // 로그 추가
     const categoryTbody = document.getElementById('MainCatBody');
     categoryTbody.innerHTML = '<tr><td colspan="6" class="no-data">카테고리 정보를 불러오는 중...</td></tr>'; // 로딩 메시지
 
     try {
-        console.log("[Category] /api/category/details fetch 시작..."); // 로그 추가
+        //console.log("[Category] /api/category/details fetch 시작..."); // 로그 추가
         const response = await fetch('/api/category/details');
-        console.log("[Category] /api/category/details fetch 완료. 응답 상태:", response.status); // 로그 추가
+        //console.log("[Category] /api/category/details fetch 완료. 응답 상태:", response.status); // 로그 추가
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -27,9 +27,9 @@ async function loadCategories() {
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
-        console.log("[Category] response.json() 호출 시작..."); // 로그 추가
+        //console.log("[Category] response.json() 호출 시작..."); // 로그 추가
         const categories = await response.json();
-        console.log("[Category] JSON 파싱 완료. 데이터:", categories); // 로그 추가
+        //console.log("[Category] JSON 파싱 완료. 데이터:", categories); // 로그 추가
 
         categoryTbody.innerHTML = ''; // 기존 내용 지우기
 
@@ -52,7 +52,7 @@ async function loadCategories() {
 
         // 대분류 먼저 추가
         const mainCategories = Array.from(categoryMap.values()).filter(cat => cat.parentIdx === null);
-        console.log("[Category] 대분류 렌더링 시작. 개수:", mainCategories.length); // 로그 추가
+        //console.log("[Category] 대분류 렌더링 시작. 개수:", mainCategories.length); // 로그 추가
 
         mainCategories.forEach(mainCat => {
             const mainRow = document.createElement('tr');
@@ -96,7 +96,7 @@ async function loadCategories() {
                 subcategoryTbody.appendChild(subRow);
             });
         });
-        console.log("[Category] 렌더링 완료."); // 로그 추가
+        //console.log("[Category] 렌더링 완료."); // 로그 추가
 
     } catch (error) {
         console.error('[Category] 카테고리 정보를 가져오는 중 오류 발생:', error);

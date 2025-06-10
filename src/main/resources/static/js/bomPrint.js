@@ -1,11 +1,11 @@
 // /js/bomPrint.js
-console.log("[Print] bomPrint.js 로드 확인");
+//console.log("[Print] bomPrint.js 로드 확인");
 
 /**
  * 선택된 BOM 항목들의 상세 정보를 가져와 새 창에서 인쇄합니다.
  */
 async function printSelectedBOMDetails() {
-    console.log("[Print] printSelectedBOMDetails() 호출됨 - 선택된 BOM 상세 정보 인쇄 시도.");
+    //console.log("[Print] printSelectedBOMDetails() 호출됨 - 선택된 BOM 상세 정보 인쇄 시도.");
 
     const checkedCheckboxes = document.querySelectorAll('#bomTbody input[type="checkbox"]:checked');
     if (checkedCheckboxes.length === 0) {
@@ -14,7 +14,7 @@ async function printSelectedBOMDetails() {
     }
 
     const selectedItemIds = Array.from(checkedCheckboxes).map(cb => cb.closest('tr').dataset.id);
-    console.log("[Print] 선택된 BOM ID:", selectedItemIds);
+    //console.log("[Print] 선택된 BOM ID:", selectedItemIds);
 
     let printContents = `
         <html>
@@ -69,7 +69,7 @@ async function printSelectedBOMDetails() {
         );
 
         const results = await Promise.all(bomDetailsPromises);
-        console.log("[Print] 모든 BOM 상세 정보 fetch 결과:", results);
+        //console.log("[Print] 모든 BOM 상세 정보 fetch 결과:", results);
 
         results.forEach(bomData => {
             if (!bomData || bomData.error) {
@@ -95,7 +95,7 @@ async function printSelectedBOMDetails() {
                 printContents += `<thead><tr><th>No</th><th>품목명 (자재코드)</th><th>소요량</th><th>단위</th><th>로스율(%)</th><th>단가(원)</th><th>비고</th></tr></thead>`;
                 printContents += `<tbody>`;
                 bomData.components.forEach((component, index) => {
-                    console.log(`[Print] Processing component (ID: ${bomData.itemCd}, SubItem: ${component.subItemNm}):`, component);
+                    //console.log(`[Print] Processing component (ID: ${bomData.itemCd}, SubItem: ${component.subItemNm}):`, component);
                     printContents += `
                         <tr>
                             <td>${index + 1}</td>

@@ -53,15 +53,15 @@ public class LoginChkInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession(false);
 
-        System.out.println("Interceptor: 요청 경로 = " + requestPath);
+        //system.out.println("Interceptor: 요청 경로 = " + requestPath);
 
         if (isWhiteListed(requestPath)) {
-            System.out.println("Interceptor 제외: " + requestPath);
+            //system.out.println("Interceptor 제외: " + requestPath);
             return true;
         }
 
         if (session == null || session.getAttribute("loggedInUser") == null) {
-            System.out.println("미인증 사용자 접근 시도: " + requestPath);
+            //system.out.println("미인증 사용자 접근 시도: " + requestPath);
             // ★★ 미인증 시에는 로그인 페이지로 리디렉션 ★★
             response.sendRedirect(contextPath + "/login?error=unauthorized");
             return false;
@@ -71,25 +71,25 @@ public class LoginChkInterceptor implements HandlerInterceptor {
         String userStatus = user.getUserStatus();
         String userRole = user.getUserRole();
 
-        System.out.println("Interceptor: Role=" + userRole + ", Status=" + userStatus);
+        //system.out.println("Interceptor: Role=" + userRole + ", Status=" + userStatus);
 
         if (!"01".equals(userStatus)) {
-            System.out.println("Interceptor: 비활성 사용자(" + userStatus + ") 접근 시도. 접근 거부.");
+            //system.out.println("Interceptor: 비활성 사용자(" + userStatus + ") 접근 시도. 접근 거부.");
             // ★★ 상태 비활성 시에는 경고창 후 로그인 페이지로 (또는 다른 처리) ★★
             sendAlertAndRedirect(response, "계정이 활성 상태가 아닙니다. 관리자에게 문의하세요.", contextPath + "/login?error=status");
             return false;
         }
 
         if (requestPath.equals("/") || requestPath.startsWith("/main") || requestPath.startsWith("/mypage")) {
-             System.out.println("Interceptor: 메인/마이페이지 접근 허용.");
+             //system.out.println("Interceptor: 메인/마이페이지 접근 허용.");
              return true;
         }
 
         if (checkPermission(userRole, requestPath)) {
-            System.out.println("Interceptor: 권한 확인됨. 접근 허용.");
+            //system.out.println("Interceptor: 권한 확인됨. 접근 허용.");
             return true;
         } else {
-            System.out.println("Interceptor: 권한 없음 (" + userRole + "). 접근 거부.");
+            //system.out.println("Interceptor: 권한 없음 (" + userRole + "). 접근 거부.");
             // ★★ 권한 없을 시 경고창 + 이전 페이지로 이동 ★★
             sendAlertAndBack(response, "권한이 없습니다. 인사관리에 문의하세요.");
             return false; // 요청 중단
@@ -128,7 +128,7 @@ public class LoginChkInterceptor implements HandlerInterceptor {
                 return allowedRoles.contains(userRole);
             }
         }
-        System.out.println("Interceptor: URI '" + requestPath + "'에 대한 권한 설정이 없습니다. 접근 거부.");
+        //system.out.println("Interceptor: URI '" + requestPath + "'에 대한 권한 설정이 없습니다. 접근 거부.");
         return false;
     }
 
