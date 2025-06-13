@@ -10,216 +10,231 @@
 /* 페이지 제목 h1 - outbound.css에 기본 h1 스타일이 없다면 HTML 인라인 유지 또는 여기에 정의 */
 /* .site-Wrapper > h1 { font-size: 24px; margin-bottom: 16px; } */
 
-
 /* BOM 페이지의 추가 관리 버튼 ("분류관리", "단위관리") */
 /* outbound.css의 .btn-reset 또는 .table-actions button 과 유사한 스타일 적용 */
 .search-action-buttons button.btn-admin.btn-gray { /* 클래스명 명확히 */
-    background-color: #6c757d; /* .btn-reset과 동일한 색상 */
-    color: white;
+	background-color: #6c757d; /* .btn-reset과 동일한 색상 */
+	color: white;
 }
+
 .search-action-buttons button.btn-admin.btn-gray:hover {
-    background-color: #5a6268; /* .btn-reset:hover와 동일한 색상 */
+	background-color: #5a6268; /* .btn-reset:hover와 동일한 색상 */
 }
+
 .required-asterisk { /* 필수 입력 항목 별표 */
-    color: red;
-    margin-left: 2px;
-    font-weight: bold;
+	color: red;
+	margin-left: 2px;
+	font-weight: bold;
 }
 
 /* --- BOM 메인 모달 고유 레이아웃 스타일 --- */
 /* 메인 BOM 모달(#modal)의 너비는 기존 값 유지 또는 필요시 조정 */
 #modal .modal-content { /* BOM 메인 모달 */
-    max-width: 1000px;
+	max-width: 1000px;
 }
 
-
 .bom-modal-form-custom {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    flex-grow: 1;
-    min-height: 0;
-    /* overflow: hidden; /* Tab 내부에서 스크롤 관리 */
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	flex-grow: 1;
+	min-height: 0;
+	/* overflow: hidden; /* Tab 내부에서 스크롤 관리 */
 }
 
 .bomTab1 { /* 상위/하위 품목 선택 영역과 상세 편집 영역을 가로로 나눔 */
-    display: grid;
-    grid-template-columns: minmax(400px, 1.2fr) 1fr; /* 왼쪽(테이블)에 조금 더 비중 */
-    gap: 20px;
-    flex-grow: 1;
-    overflow: hidden;
-    min-height: 0;
-    /* max-height: calc(85vh - 200px); /* 대략적인 최대 높이, 헤더/푸터 제외 */
+	display: grid;
+	grid-template-columns: minmax(400px, 1.2fr) 1fr; /* 왼쪽(테이블)에 조금 더 비중 */
+	gap: 20px;
+	flex-grow: 1;
+	overflow: hidden;
+	min-height: 0;
+	/* max-height: calc(85vh - 200px); /* 대략적인 최대 높이, 헤더/푸터 제외 */
 }
 
 .bomTab2 { /* 품목(상위), 원자재(하위) 테이블 선택 영역 */
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    overflow: hidden;
-    min-height: 0;
-    flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	overflow: hidden;
+	min-height: 0;
+	flex-grow: 1;
 }
-.bomTab2 > .modal-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex-grow: 1;
-    min-height: 0;
+
+.bomTab2>.modal-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex-grow: 1;
+	min-height: 0;
 }
 /* .bomTab2 > .modal-form-group > label 은 outbound.css의 .modal-form-group label 스타일 사용 */
 /* .bomTab2 > .modal-form-group > input[type="text"] 는 outbound.css의 .modal-form-group input 스타일 사용 */
-
-
 .modal-table-wrapper { /* 모달 내 테이블 스크롤 (품목/원자재 선택용) */
-    flex-grow: 1;
-    min-height: 150px;
-    /* max-height: 250px; /* 부모 높이에 따라 유동적으로 */
-    /* .table-scroll-wrapper의 스타일을 상속받음 (max-height, overflow-y, border 등) */
+	flex-grow: 1;
+	min-height: 150px;
+	/* max-height: 250px; /* 부모 높이에 따라 유동적으로 */
+	/* .table-scroll-wrapper의 스타일을 상속받음 (max-height, overflow-y, border 등) */
 }
 /* 모달 내 테이블 셀 스타일은 outbound.css의 .grid-table 스타일을 따르되, 폰트/패딩 조정 */
-.modal-table-wrapper .grid-table th,
-.modal-table-wrapper .grid-table td {
-    padding: 8px 10px;
-    font-size: 13px;
+.modal-table-wrapper .grid-table th, .modal-table-wrapper .grid-table td
+	{
+	padding: 8px 10px;
+	font-size: 13px;
 }
-
 
 .bomTab3 { /* 상위 품목 정보, 하위 품목 상세/편집 영역 */
-    display: flex;
-    flex-direction: column;
-    gap: 0; /* .modal-form-group이 하단 여백 가짐 */
-    overflow-y: auto;
-    padding: 5px 10px 5px 15px;
-    border-left: 1px solid #eee; /* 구분선 */
-    min-height: 0;
-    flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 0; /* .modal-form-group이 하단 여백 가짐 */
+	overflow-y: auto;
+	padding: 5px 10px 5px 15px;
+	border-left: 1px solid #eee; /* 구분선 */
+	min-height: 0;
+	flex-grow: 1;
 }
+
 .bomTab3 h4 {
-    font-size: 16px;
-    color: #333;
-    margin-top: 10px;
-    margin-bottom: 10px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #f0f0f0;
+	font-size: 16px;
+	color: #333;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid #f0f0f0;
 }
-.bomTab3 h4:first-of-type { margin-top: 0; }
+
+.bomTab3 h4:first-of-type {
+	margin-top: 0;
+}
 
 /* 인라인 폼 그룹 (예: 소요량/단위, 단가/로스율) */
 .form-group-inline {
-    display: flex;
-    gap: 15px;
-    align-items: flex-start;
-}
-.form-group-inline > .modal-form-group {
-    flex: 1;
-    margin-bottom: 15px; /* 하단 여백은 각 form-group 표준 따름 */
+	display: flex;
+	gap: 15px;
+	align-items: flex-start;
 }
 
+.form-group-inline>.modal-form-group {
+	flex: 1;
+	margin-bottom: 15px; /* 하단 여백은 각 form-group 표준 따름 */
+}
 
 .bomTab5 { /* 하위 품목 구성 테이블 영역 */
-    margin-top: 10px; /* 위 요소(h4)와의 간격 */
-    min-height: 150px;
-    max-height: 280px; /* 최대 높이를 주어 너무 길어지지 않게 */
-    display: flex;
-    flex-direction: column;
+	margin-top: 10px; /* 위 요소(h4)와의 간격 */
+	min-height: 150px;
+	max-height: 280px; /* 최대 높이를 주어 너무 길어지지 않게 */
+	display: flex;
+	flex-direction: column;
 }
-.bomTab5 > .table-scroll-wrapper {
-     flex-grow: 1;
-     /* table-scroll-wrapper의 표준 스타일 (border, overflow 등) 적용 */
+
+.bomTab5>.table-scroll-wrapper {
+	flex-grow: 1;
+	/* table-scroll-wrapper의 표준 스타일 (border, overflow 등) 적용 */
 }
+
 .bomTab5 .grid-table .drag-handle {
-    cursor: move;
-    text-align: center;
-    vertical-align: middle;
-    user-select: none;
+	cursor: move;
+	text-align: center;
+	vertical-align: middle;
+	user-select: none;
 }
+
 .bomTab5 .grid-table .drag-handle .material-symbols-outlined {
-    font-size: 20px;
-    vertical-align: text-bottom; /* 아이콘 정렬 미세 조정 */
-    color: #777;
+	font-size: 20px;
+	vertical-align: text-bottom; /* 아이콘 정렬 미세 조정 */
+	color: #777;
 }
-.bomTab5 .grid-table tbody tr.dragging { opacity: 0.5; background: #e6f7ff; }
-.bomTab5 .grid-table tbody tr.over { border-top: 2px solid #007bff; }
+
+.bomTab5 .grid-table tbody tr.dragging {
+	opacity: 0.5;
+	background: #e6f7ff;
+}
+
+.bomTab5 .grid-table tbody tr.over {
+	border-top: 2px solid #007bff;
+}
 
 .bomTab5 input.bom5-input { /* 하위 품목 구성 테이블 내 input */
-    width: 100%;
-    padding: 6px 8px;
-    font-size: 13px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-.bomTab5 input.bom5-input:focus {
-    border-color: #46a6ff;
-    box-shadow: 0 0 0 2px rgba(70, 166, 255, 0.15);
-    outline: none;
+	width: 100%;
+	padding: 6px 8px;
+	font-size: 13px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
 }
 
+.bomTab5 input.bom5-input:focus {
+	border-color: #46a6ff;
+	box-shadow: 0 0 0 2px rgba(70, 166, 255, 0.15);
+	outline: none;
+}
 
 /* --- 분류 관리 모달(#modal-category) 크기 조정 --- */
 #modal-category .modal-content {
-    max-width: 1200px; /* 기존 600px에서 더 넓게 조정 (내용에 맞춰 조절) */
-    /* 필요하다면 min-width도 설정 가능 */
-    /* min-width: 700px; */
+	max-width: 1200px; /* 기존 600px에서 더 넓게 조정 (내용에 맞춰 조절) */
+	/* 필요하다면 min-width도 설정 가능 */
+	/* min-width: 700px; */
 }
 
-
-
 .modal-table-wrapper-fixed { /* 분류/단위 관리 모달 내 테이블 (고정 높이) */
-    height: 300px; /* 고정 높이 */
-    /* .table-scroll-wrapper의 표준 스타일 (border, overflow 등) 적용 */
+	height: 300px; /* 고정 높이 */
+	/* .table-scroll-wrapper의 표준 스타일 (border, overflow 등) 적용 */
 }
 /* --- 단위 관리 모달(#modal-spec) 크기 조정 --- */
 #modal-spec .modal-content {
-    max-width: 500px; /* 기존 600px에서, 내용이 적으므로 약간 줄이거나 유지 (내용에 맞춰 조절) */
-    /* 단위 관리 모달은 내용이 적을 수 있으므로, 너무 넓지 않게 조정 */
+	max-width: 500px; /* 기존 600px에서, 내용이 적으므로 약간 줄이거나 유지 (내용에 맞춰 조절) */
+	/* 단위 관리 모달은 내용이 적을 수 있으므로, 너무 넓지 않게 조정 */
 }
+
 .category-add-row, .unit-add-row {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-    /* 각 행은 .modal-form-group으로 감싸져 있으므로, 하단 여백은 .modal-form-group 따름 */
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	/* 각 행은 .modal-form-group으로 감싸져 있으므로, 하단 여백은 .modal-form-group 따름 */
 }
-.category-add-row input[type="text"],
-.unit-add-row input[type="text"] {
-    flex-grow: 1;
-    /* 기본 스타일은 .modal-form-group input 따름 */
+
+.category-add-row input[type="text"], .unit-add-row input[type="text"] {
+	flex-grow: 1;
+	/* 기본 스타일은 .modal-form-group input 따름 */
 }
 
 .btn-add-inline { /* input 옆에 붙는 '추가' 버튼 */
-    padding: 10px 15px; /* .modal-form-group input 높이와 유사하게 */
-    background-color: #5cb85c; /* 녹색 계열 */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-    font-weight: 500;
-    white-space: nowrap;
-    transition: background-color 0.2s ease;
+	padding: 10px 15px; /* .modal-form-group input 높이와 유사하게 */
+	background-color: #5cb85c; /* 녹색 계열 */
+	color: white;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 14px;
+	font-weight: 500;
+	white-space: nowrap;
+	transition: background-color 0.2s ease;
 }
+
 .btn-add-inline:hover {
-    background-color: #4cae4c;
+	background-color: #4cae4c;
 }
 
 /* 분류 관리 모달 내 중첩된 소분류 테이블 스타일 (필요한 경우) */
 #category-table table.grid-table {
-    margin-top: 5px;
-    border: 1px dashed #e0e0e0; /* 주 테이블과 구분 */
-    font-size: 0.9em; /* 내부 테이블 폰트 약간 작게 */
+	margin-top: 5px;
+	border: 1px dashed #e0e0e0; /* 주 테이블과 구분 */
+	font-size: 0.9em; /* 내부 테이블 폰트 약간 작게 */
 }
-#category-table table.grid-table th,
-#category-table table.grid-table td {
-    padding: 6px 8px; /* 내부 테이블 패딩 축소 */
-    background-color: #fdfdfd; /* 약간 다른 배경색으로 구분 */
+
+#category-table table.grid-table th, #category-table table.grid-table td
+	{
+	padding: 6px 8px; /* 내부 테이블 패딩 축소 */
+	background-color: #fdfdfd; /* 약간 다른 배경색으로 구분 */
 }
+
 #category-table table.grid-table thead th {
-    background-color: #f7f9fa;
+	background-color: #f7f9fa;
 }
-.delete-unit-btn, .delete-btn-in-table{
+
+.delete-unit-btn, .delete-btn-in-table {
 	width: 100%;
 	height: 100%;
 	background: #dc3545;
@@ -228,6 +243,7 @@
 	border: 0;
 	border-radius: 5px;
 }
+
 .delete-unit-btn:hover, delete-btn-in-table:hover {
 	background: #c82333;
 }
@@ -259,9 +275,33 @@
 #category-table tr th:nth-child(5) {
 	width: 200px;
 }
-.subcategory-column * {font-size: 0.6rem !important; }
-.subcategory-column {overflow-x:auto !important;}
+
+.subcategory-column * {
+	font-size: 0.6rem !important;
+}
+
+.subcategory-column {
+	overflow-x: auto !important;
+}
 
 .subcategory-column tr th:last-child {
 	width: 55px !important;
+}
+
+@media ( max-width : 768px) {
+	.inventory-search-form {
+		grid-template-columns: 1fr; /* 모바일에서는 검색 필터 세로로 */
+	}
+	.site-Wrapper {
+		display: block; /* 모바일에서는 블록 레이아웃으로 변경 */
+	}
+	.search-action-buttons {flex-direction: column;}
+	#bomTable thead th, #bomTable tbody td {
+		display: none;
+	}
+	#bomTable thead th:nth-child(1),#bomTable thead th:nth-child(2), #bomTable thead th:nth-child(3),
+		#bomTable tbody td:nth-child(1),#bomTable tbody td:nth-child(2), #bomTable tbody td:nth-child(3) {
+		display: table-cell;
+	}
+
 }

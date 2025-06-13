@@ -609,3 +609,12 @@ th a.active {
 input[list] {
 	background-color: #fbfbfb;
 }
+@media (max-width: 768px) {
+    .site-Wrapper {
+        display: block; /* 모바일에서는 블록 레이아웃으로 변경 */
+    }
+.search-action-buttons {
+    flex-direction: column;
+}
+    
+}

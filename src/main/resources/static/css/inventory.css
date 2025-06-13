@@ -90,6 +90,18 @@
     .inventory-search-form {
         grid-template-columns: 1fr; /* 모바일에서는 검색 필터 세로로 */
     }
-    /* 테이블은 가로 스크롤이 기본이므로, 모바일에서 특별한 레이아웃 변경은 필요 없을 수 있음 */
-    /* 모달은 너비 90%로 이미 반응형 처리되어 있음 */
+    .site-Wrapper {
+        display: block; /* 모바일에서는 블록 레이아웃으로 변경 */
+    }
+#itemTable thead th,
+#itemTable tbody td {
+    display: none;
+}
+#itemTable thead th:nth-child(2),
+#itemTable thead th:nth-child(3),
+#itemTable tbody td:nth-child(2),
+#itemTable tbody td:nth-child(3) {
+    display: table-cell;
+}
+    
 }

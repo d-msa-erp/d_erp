@@ -209,3 +209,11 @@
     white-space: nowrap;
     border-width: 0;
 }
+@media (max-width: 768px) {
+    .site-Wrapper {
+        display: block; /* 모바일에서는 블록 레이아웃으로 변경 */
+    }
+    .customer-actions-tabs-wrapper{
+    flex-direction: column;
+    }
+}
